@@ -57,7 +57,7 @@ public class SXUtil {
 				sxr.setVarde(defaultVarde);
 				em.persist(sxr);
 			} catch (Exception e) {
-				Logger.getLogger("sx").info("Kunde inte spara SXReg ID: " + id + " Undantag: " + e.toString());
+				log("Kunde inte spara SXReg ID: " + id + " Undantag: " + e.toString());
 			}
 		} else { ret = sxr.getVarde(); }
 		
