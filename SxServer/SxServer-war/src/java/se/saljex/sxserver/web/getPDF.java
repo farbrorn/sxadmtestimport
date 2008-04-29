@@ -32,7 +32,7 @@ public class getPDF extends HttpServlet {
     */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-       // PrintWriter out = response.getWriter();
+  /*     // PrintWriter out = response.getWriter();
 		File file = new File("C:\\dum\\test.pdf"); 
 		int bytes= (int)file.length(); 
 
@@ -49,7 +49,7 @@ public class getPDF extends HttpServlet {
 //		response.flushBuffer();
 		fis.close();
 		
-/*		
+*/	
         OutputStream out = response.getOutputStream();
         
         try {
@@ -67,7 +67,7 @@ public class getPDF extends HttpServlet {
 		catch (SQLException es) {
 			throw new ServletException("Exception from PDF: SQLException: " + es.toString());
 		}
- */
+ 
     } 
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
