@@ -23,15 +23,6 @@ public class OrderHandler {
 	private TableKund kun;
 	private TableArtikel art;
 	
-	class RabKod {
-		public String rabkod;
-		public String kod1;
-		public RabKod(String r, String k) {
-			rabkod = r;
-			kod1 = k;
-		}
-			
-	}
 	
 	public OrderHandler(EntityManager e) {
 			em = e;
@@ -42,10 +33,9 @@ public class OrderHandler {
 		this(e);
 		setKund(kundNr);
 	}
-	public void setKund(String kundnr) {}
 
 	public void addRow(String artnr, Double antal) {
-		/*
+		
 		or2 = new TableOrder2();
 		art = em.find(TableArtikel.class, artnr);
 		if (art == null) { throw new EntityNotFoundException("Kan inte hitta artikel " + artnr + " för order."); }
@@ -94,12 +84,7 @@ public class OrderHandler {
 		final short		KAMPBITGROSSIST		= 16;
 		
 		//Skapa ett datum i SQL.Date format
-		Calendar idag = Calendar.getInstance();
-		idag.setTime(new Date());
-		idag.set( idag.HOUR_OF_DAY, 0 );
-		idag.set( idag.MINUTE, 0 );
-		idag.set( idag.SECOND, 0 );
-		idag.set( idag.MILLISECOND, 0 );
+		Calendar idag = SXUtil.getTodayDate();  // Returns a calendar with time set  to 0
 		// Skapa calendarobjekt med kampanjperioden
 		Calendar kampfrdat = Calendar.getInstance();
 		kampfrdat.setTime(art.getKampfrdat());
@@ -125,18 +110,20 @@ public class OrderHandler {
 		
 		// Dax att ta fram bästa bruttopris och nettopris med avseende på antal
 		bastaBruttoPris = art.getUtpris();
+		bastaNettoPris  = bastaBruttoPris; // Sätter startv'rde för b'sta netto
+		
 		if (kampanj && art.getKamppris() != 0 && art.getKamppris() < bastaNettoPris) { bastaNettoPris = art.getKamppris(); }
 		if (art.getStafAntal1() > 0.0 && antal >= art.getStafAntal1())  {
 		    if (art.getStafPris1() != 0.0) {
 			    if (art.getStafPris1() < bastaBruttoPris ) { bastaBruttoPris = art.getStafPris1(); }
 		    }
-		    if (kampanj && art.getKamppris1() != 0.0 && art.getKamppris1() < bastaNettoPris) { bastaNettoPris = art.getKamppris1(); }
+		    if (kampanj && art.getKampprisstaf1() != 0.0 && art.getKampprisstaf1() < bastaNettoPris) { bastaNettoPris = art.getKampprisstaf1(); }
 		}
 		if (art.getStafAntal2() > 0.0 && antal >= art.getStafAntal2())  {
 		    if (art.getStafPris2() != 0.0) {
 			    if (art.getStafPris2() < bastaBruttoPris ) { bastaBruttoPris = art.getStafPris2(); }
 		    }
-		    if (kampanj && art.getKamppris2() != 0.0 && art.getKamppris2() < bastaNettoPris) { bastaNettoPris = art.getKamppris2(); }
+		    if (kampanj && art.getKampprisstaf2() != 0.0 && art.getKampprisstaf2() < bastaNettoPris) { bastaNettoPris = art.getKampprisstaf2(); }
 		}
 
 		// Kolla om det finns ett nettopris som offert
@@ -149,7 +136,7 @@ public class OrderHandler {
 
 		// Kolla vilket pris som är läögst - brutto-rab eller netto
 		if (bastaNettoPris != 0.0 && bastaNettoPris < bastaBruttoPris * (1-bastaRab/100)) {	//Vi har ett nettopris
-		    or2.setPris(bastaNetotPris);
+		    or2.setPris(bastaNettoPris);
 		    or2.setRab(0.0);
 		} else {	    //Vi har brutto - rabatt
 		    or2.setPris(bastaBruttoPris);
@@ -181,15 +168,8 @@ public class OrderHandler {
 		or1.setLevadr2(kun.getLadr2());
 		or1.setLevadr3(kun.getLadr3());
 
-		//Gör en temp. char array för att lägga till info sist i Säljar-strängen
-		or1.setSaljare(java.lang.String.format( "%-30s%3s", kun.getSaljare(), "/00" ));)
-//		char cc[] = new char[33];     //create a character of given width
-//		for(int i = 0; i < 33; i++) { cc[i] = ' '; }                   //make all the values as spaces
-//		cc[30] = '/';              
-//		cc[31] = '0';              
-//		cc[32] = '0';              
-//		kun.getSaljare().getChars(0,kun.getSaljare().length()- 1, cc, 0);
-//		or1.setSaljare(new String(cc)); 
+		//lägga till info sist i Säljar-strängen
+		or1.setSaljare(java.lang.String.format( "%-30s%3s", kun.getSaljare(), "/00" ));
 		
 		or1.setReferens(kun.getRef());
 		or1.setKtid(kun.getKtid());
@@ -208,7 +188,6 @@ public class OrderHandler {
 		or1.setLinjenr1(kun.getLinjenr1());
 		or1.setLinjenr2(kun.getLinjenr2());
 		or1.setLinjenr3(kun.getLinjenr3());
-		 * */
 	}
 
 	
