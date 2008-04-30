@@ -5,9 +5,8 @@
 
 package se.saljex.sxserver;
 
+import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
 
@@ -17,12 +16,12 @@ import javax.persistence.EntityNotFoundException;
  */
 public class OrderHandler {
 	private EntityManager em;
-	private List<TableOrder2> or2l;
 	private TableOrder1 or1;
 	private TableOrder2 or2;
 	private TableKund kun;
 	private TableArtikel art;
-	
+
+	private ArrayList<TableOrder2> ordreg = new ArrayList<TableOrder2>();  //Holds all rows in the order
 	
 	public OrderHandler(EntityManager e) {
 			em = e;
@@ -146,6 +145,7 @@ public class OrderHandler {
 
 		or2.setSumma(or2.getPris() * antal * (1-or2.getRab()));
 		or2.setNetto((art.getInpris() * (1-art.getRab()/100) * (1+art.getInpFraktproc()/100)) + art.getInpFrakt() + art.getInpMiljo());
+		ordreg.add(or2);
 	}
 	
 	
@@ -164,15 +164,13 @@ public class OrderHandler {
 		or1.setAdr1(kun.getAdr1());
 		or1.setAdr2(kun.getAdr2());
 		or1.setAdr3(kun.getAdr3());
-		or1.setLevadr1(kun.getLnamn());
-		or1.setLevadr2(kun.getLadr2());
-		or1.setLevadr3(kun.getLadr3());
+		setLevAdr(kun.getLnamn(), kun.getLadr2(), kun.getLadr3());
 
 		//lägga till info sist i Säljar-strängen
 		or1.setSaljare(java.lang.String.format( "%-30s%3s", kun.getSaljare(), "/00" ));
 		
 		or1.setReferens(kun.getRef());
-		or1.setKtid(kun.getKtid());
+		setKreditTid(kun.getKtid());
 		or1.setBonus(kun.getBonus());
 		or1.setFaktor(kun.getFaktor());
 		or1.setLevvillkor(kun.getLevvillkor());
@@ -187,16 +185,29 @@ public class OrderHandler {
 		}
 		or1.setLinjenr1(kun.getLinjenr1());
 		or1.setLinjenr2(kun.getLinjenr2());
-		or1.setLinjenr3(kun.getLinjenr3());
+		or1.setLinjenr3(kun.getLinjenr3());		
 	}
 
 	
-	public void setLevAdr() {
+	public void setMarke(String m) {
+		or1.setMarke(m);
+	}
+	
+	public void setLevAdr(String adr1, String adr2, String adr3) {
+		or1.setLevadr1(adr1);
+		or1.setLevadr2(adr2);
+		or1.setLevadr3(adr3);
+	}
+	
+	public void setAnnanLevAdr(String adr1, String adr2, String adr3) {
 		//Sätter levadress, samt flaggan för att levadress har ändrats
+		setLevAdr(adr1, adr2, adr3);
+		or1.setAnnanlevadress((short)1);
 	}
 
-	public void setKreditTid() {
-		// Sätt kredittid
+	
+	public void setKreditTid(short ktid) {
+		or1.setKtid(ktid);
 	}
 	
 	
