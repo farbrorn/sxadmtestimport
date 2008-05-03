@@ -41,22 +41,16 @@ public class TableLager implements Serializable {
 	public TableLager() {
 	}
 
-	public TableLager(TableLagerPK tableLagerPK) {
-		this.tableLagerPK = tableLagerPK;
+	public TableLager(String artNr, short lagerNr) {
+		this.tableLagerPK = new TableLagerPK(artNr, lagerNr);
 	}
-
-	public TableLager(TableLagerPK tableLagerPK, double ilager, double bestpunkt, double maxlager, double best, double iorder) {
-		this.tableLagerPK = tableLagerPK;
-		this.ilager = ilager;
-		this.bestpunkt = bestpunkt;
-		this.maxlager = maxlager;
-		this.best = best;
+	public TableLager(String artNr, short lagerNr, double iorder, double best) {
+		this.tableLagerPK = new TableLagerPK(artNr, lagerNr);
 		this.iorder = iorder;
+		this.best = 0;
 	}
 
-	public TableLager(String artnr, short lagernr) {
-		this.tableLagerPK = new TableLagerPK(artnr, lagernr);
-	}
+
 
 	public TableLagerPK getTableLagerPK() {
 		return tableLagerPK;

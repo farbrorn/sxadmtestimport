@@ -14,6 +14,7 @@ import java.io.*;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.ArrayList;
 import javax.mail.Session;
 import java.util.Collection;
 import java.util.Date;
@@ -272,6 +273,28 @@ z							, SXUtil.getSXReg(con,"SxServMailFakturaBodyPrefix") + SXUtil.getSXReg(c
 			ret = ret + "</table>";
 			
 		} catch (Exception e) { ret = ret + e.toString(); }
+		return ret;
+	}
+
+	public String tester(String testTyp) {
+		String ret = "";
+		
+		if (testTyp.equals("OrderHandler")) {
+			ret = ret + "Skapar OrderHandler instans<br>";
+			OrderHandler oh = new OrderHandler(em,"0555",(short)0,"tes");
+			ret = ret + "Lägger till EA153 1 st<br>";
+			oh.addRow("EA153", 1.0);
+			ret = ret + "Lägger till EA163 2 st<br>";
+			oh.addRow("EA163", 2.0);
+			ret = ret + "hämtar tillbaka rader<br>";
+			ArrayList<OrderHandlerRad> or = oh.getOrdreg();
+			for (OrderHandlerRad ohr : or) { 
+				ret = ret + "Rad " + ohr.pos + " Artikel: " + ohr.artnr + " " + ohr.namn + " Antal: " + ohr.best + " " + ohr.enh + " Pris: " + ohr.pris + " " + ohr.rab + " summa: " + ohr.summa
+					+ " netto: " + ohr.netto + " stjid: " + ohr.stjid + " levdat:" + ohr.levdat + "<br><br> ";
+			}
+
+			
+		} else { ret = "<br>Ogigiltig test: " + testTyp + "<br>"; }
 		return ret;
 	}
 
