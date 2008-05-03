@@ -15,6 +15,14 @@
         <servlet-name>status</servlet-name>
         <servlet-class>se.saljex.sxserver.web.status</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>testorderhandler</servlet-name>
+        <servlet-class>se.saljex.sxserver.web.testorderhandler</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>tester</servlet-name>
+        <servlet-class>se.saljex.sxserver.web.tester</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>getdbtest</servlet-name>
         <url-pattern>/getdbtest</url-pattern>
@@ -26,6 +34,14 @@
     <servlet-mapping>
         <servlet-name>status</servlet-name>
         <url-pattern>/status</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>testorderhandler</servlet-name>
+        <url-pattern>/testorderhandler</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>tester</servlet-name>
+        <url-pattern>/tester</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>
