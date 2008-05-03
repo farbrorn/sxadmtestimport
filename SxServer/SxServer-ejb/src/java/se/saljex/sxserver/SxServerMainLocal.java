@@ -37,5 +37,7 @@ public interface SxServerMainLocal {
 
 	void handleSandBestEpost(TableBest1 be1) throws DocumentException, IOException,  NamingException, MessagingException;
 
+	  String tester(String testTyp);
+
 	
 }

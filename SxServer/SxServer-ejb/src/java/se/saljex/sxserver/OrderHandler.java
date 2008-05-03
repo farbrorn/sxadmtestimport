@@ -20,31 +20,46 @@ public class OrderHandler {
 	private TableOrder2 or2;
 	private TableKund kun;
 	private TableArtikel art;
+	private OrderHandlerRad ord;
+	private TableNettopri net;
 
-	private ArrayList<TableOrder2> ordreg = new ArrayList<TableOrder2>();  //Holds all rows in the order
+	private	boolean orderLaddad = false;			//Sinal om ordern är laddad
+	private ArrayList<OrderHandlerRad> ordreg = new ArrayList<OrderHandlerRad>();  //Holds all rows in the order
+	
+	private String anvandare;
 	
 	public OrderHandler(EntityManager e) {
 			em = e;
 			or1 = new TableOrder1();
 	}
 
-	public OrderHandler(EntityManager e, String kundNr) {
+	public OrderHandler(EntityManager e, String kundNr, short lagerNr, String anvandare) {
 		this(e);
 		setKund(kundNr);
+		setLagerNr(lagerNr);
+		setAnvandare(anvandare);
 	}
-
+	
+	public void setLagerNr(short lagernr) {
+		or1.setLagernr(lagernr);
+	}
+	
+	public void setAnvandare(String anvandare) {
+		this.anvandare = anvandare;
+	}
+	
 	public void addRow(String artnr, Double antal) {
-		
-		or2 = new TableOrder2();
+		ord = new OrderHandlerRad();
 		art = em.find(TableArtikel.class, artnr);
 		if (art == null) { throw new EntityNotFoundException("Kan inte hitta artikel " + artnr + " för order."); }
-		or2.setBest(antal);
-		or2.setLev(antal);
-		or2.setArtnr(art.getNummer());
-		or2.setNamn(art.getNamn());
-		or2.setKonto(art.getKonto());
-		or2.setEnh(art.getEnhet());
-		or2.setLevnr(art.getLev());
+		ord.best = antal;
+		ord.lev = antal;
+		ord.artnr = art.getNummer();
+		ord.namn = art.getNamn();
+		ord.konto = art.getKonto();
+		ord.enh = art.getEnhet();
+		ord.levnr = art.getLev();
+		ord.prisnr = (short)1;
 		
 		// Börja ta fram det bästa priset
 		
@@ -127,29 +142,41 @@ public class OrderHandler {
 
 		// Kolla om det finns ett nettopris som offert
 		if (!kun.getNettolst().isEmpty()) {
-		    net = em.find(TableNettopri.class, artnr, lista);
-		    if (net != null) {
-			if (net.getPris() > 0.0 && net.getPris() < bastaNetto) { bastaNetto = net.getPris(); }
+			net = em.find(TableNettopri.class, new TableNettopriPK(kun.getNettolst(), artnr));
+			if (net != null) {
+				if (net.getPris() > 0.0 && 
+					net.getPris() < bastaNettoPris) { bastaNettoPris = net.getPris(); }				
 		    }
 		}
 
 		// Kolla vilket pris som är läögst - brutto-rab eller netto
 		if (bastaNettoPris != 0.0 && bastaNettoPris < bastaBruttoPris * (1-bastaRab/100)) {	//Vi har ett nettopris
-		    or2.setPris(bastaNettoPris);
-		    or2.setRab(0.0);
+		    ord.pris = bastaNettoPris;
+		    ord.rab = 0.0;
 		} else {	    //Vi har brutto - rabatt
-		    or2.setPris(bastaBruttoPris);
-		    or2.setRab(bastaRab);
+		    ord.pris = bastaBruttoPris;
+		    ord.rab = bastaRab;
 		}
 		// Nu ska bästa priset vara satt
 
-		or2.setSumma(or2.getPris() * antal * (1-or2.getRab()));
-		or2.setNetto((art.getInpris() * (1-art.getRab()/100) * (1+art.getInpFraktproc()/100)) + art.getInpFrakt() + art.getInpMiljo());
-		ordreg.add(or2);
+		ord.summa = ord.pris * antal * (1-ord.rab);
+		ord.netto = (art.getInpris() * (1-art.getRab()/100) * (1+art.getInpFraktproc()/100)) + art.getInpFrakt() + art.getInpMiljo();
+		ordreg.add(ord);
 	}
 	
 	
-	
+	public OrderHandlerRad getRow(int rad) {
+		OrderHandlerRad or;
+		try {
+			or = ordreg.get(rad);
+		} catch (IndexOutOfBoundsException e) { or = null; }
+		return or;
+	}
+
+	public ArrayList getOrdreg() {
+		return ordreg;
+	}
+
 	public void setKund(String kundNr) {
 		// Hämta kund och sätt standardvärden för or1
 		kun = em.find(TableKund.class, kundNr);
@@ -167,7 +194,7 @@ public class OrderHandler {
 		setLevAdr(kun.getLnamn(), kun.getLadr2(), kun.getLadr3());
 
 		//lägga till info sist i Säljar-strängen
-		or1.setSaljare(java.lang.String.format( "%-30s%3s", kun.getSaljare(), "/00" ));
+		or1.setSaljare(java.lang.String.format( "%-30s%3s", kun.getSaljare(), "/" + anvandare ));
 		
 		or1.setReferens(kun.getRef());
 		setKreditTid(kun.getKtid());
@@ -210,6 +237,33 @@ public class OrderHandler {
 		or1.setKtid(ktid);
 	}
 	
+	public void persistOrder() {
+		short scn;
+		TableLager lag;
+		
+		hämta ordernr
+		em.persist(or1); 
+		scn = 0;
+		for (OrderHandlerRad o : ordreg) {
+			scn++;
+			o.ordernr = or1.getOrdernr();
+			o.dellev = or1.getDellev();
+			o.pos = scn;
+			or2 = o.getOrder2();
+			em.persist(or2);
+			
+			// Uppdatera lagersaldo
+			lag = em.find(TableLager.class, new TableLagerPK(o.artnr, or1.getLagernr()));
+			if (lag == null) {
+				lag = new TableLager(o.artnr, or1.getLagernr(),o.best,0);
+			} else {
+				lag.setIorder(lag.getIorder()+o.best);
+			}
+			em.persist(lag);				
+		}
+		TableOrderhand
+
+	}
 	
 	}
 	
