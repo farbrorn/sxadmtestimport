@@ -49,6 +49,9 @@ public class OrderHandler {
 	public void setAnvandare(String anvandare) {
 		this.anvandare = anvandare;
 	}
+	public void setWordernr(int wordernr) {
+		or1.setWordernr(wordernr);
+	}
 	
 	public OrderHandlerRad addRow(String artnr, Double antal) {
 		ord = new OrderHandlerRad();
