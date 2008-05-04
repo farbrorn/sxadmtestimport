@@ -7,8 +7,10 @@ package se.saljex.sxserver;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
+import javax.persistence.PersistenceException;
 
 /**
  *
@@ -48,10 +50,13 @@ public class OrderHandler {
 		this.anvandare = anvandare;
 	}
 	
-	public void addRow(String artnr, Double antal) {
+	public OrderHandlerRad addRow(String artnr, Double antal) {
 		ord = new OrderHandlerRad();
-		art = em.find(TableArtikel.class, artnr);
-		if (art == null) { throw new EntityNotFoundException("Kan inte hitta artikel " + artnr + " för order."); }
+		art = em.find(TableArtikel.class, artnr); 
+		if (art == null) { 
+			SXUtil.log("OrderHandler-addRow-Kan inte hitta artikel " + artnr + " för order."); 
+			return null;
+		}
 		ord.best = antal;
 		ord.lev = antal;
 		ord.artnr = art.getNummer();
@@ -162,6 +167,7 @@ public class OrderHandler {
 		ord.summa = ord.pris * antal * (1-ord.rab);
 		ord.netto = (art.getInpris() * (1-art.getRab()/100) * (1+art.getInpFraktproc()/100)) + art.getInpFrakt() + art.getInpMiljo();
 		ordreg.add(ord);
+		return ord;
 	}
 	
 	
@@ -181,11 +187,7 @@ public class OrderHandler {
 		// Hämta kund och sätt standardvärden för or1
 		kun = em.find(TableKund.class, kundNr);
 		if (kun == null) { throw new EntityNotFoundException("Kan inte hitta kund " + kundNr + " för ny order."); }
-		kun2Or1();
 		
-	}
-	
-	private void kun2Or1() {
 		or1.setKundnr(kun.getNummer());
 		or1.setNamn(kun.getNamn());
 		or1.setAdr1(kun.getAdr1());
@@ -241,7 +243,27 @@ public class OrderHandler {
 		short scn;
 		TableLager lag;
 		
-		hämta ordernr
+		// Hämtaa nytt irdernt och räkna upp
+		TableFdordernr fdo;
+		List fdor;
+		scn = 0;
+		while (true) {
+			scn++;			//Räkna antalet loopar för att avgöra när fel skall skapass
+			fdo = (TableFdordernr)em.createNamedQuery("TableFdordernr.findAll").getResultList().get(0);
+			if (em.createNamedQuery("TableFdordernr.updateOrdernrBy1").setParameter("ordernr", fdo.getOrdernr()).executeUpdate() > 0) {
+				// Uppdatering lyckades, avbryt while/loopen
+				break;
+			} else {						
+				if (scn > 10) {				// Har vi provat så många gånger så att vi får ge upp?
+					throw new PersistenceException("Kunde inte uppdatera fdordernr för order " + or1.getNamn());
+				}
+			}
+		}	
+		// OK Allt klart, vi har fått ett ordernr och kan fortsätta spara
+		
+		or1.setOrdernr(fdo.getOrdernr());
+	
+		or1.setStatus("Sparad");
 		em.persist(or1); 
 		scn = 0;
 		for (OrderHandlerRad o : ordreg) {
@@ -261,7 +283,8 @@ public class OrderHandler {
 			}
 			em.persist(lag);				
 		}
-		TableOrderhand
+		em.persist( new TableOrderhand(or1.getOrdernr(), anvandare, "Skapad"));
+		em.flush();
 
 	}
 	
