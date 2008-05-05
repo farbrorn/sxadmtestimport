@@ -107,6 +107,10 @@ public class SXUtil {
        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
        return simpleDateFormat.format(d);
     }
+    public static String getFormatDate() {
+       SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+       return simpleDateFormat.format(new Date());
+    }
     
     public static String getFormatNumber(double tal, int decimaler) {
         int x;

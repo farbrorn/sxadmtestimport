@@ -64,30 +64,38 @@ public class WebOrderHandler {
 	}
 	
 	public void saveAllaSkickade() throws java.sql.SQLException {
-		OrderHandler ord;
+            // Loopa igenom skickade worder1
+            // Skapa SimpleOrder objekt för varje
+            // Kör SimpleOrder till OrderHandler
+            // Persist
+            // Markera worder som sparad
+		SimpleOrderHandler sord;
 		Statement s2 = con.createStatement();
 		ResultSet r2;
 		Statement s = con.createStatement();
+		Statement s3 = con.createStatement();
 		ResultSet r = s.executeQuery("select wordernr, kundnr, marke, lagernr, antalrader, kreditsparr from weborder1 where status = 'Skickad' order by wordernr");
 		while (r.next()) {
 			try {
-				ord = new OrderHandler(em, r.getString(2), r.getShort(4), anvandare);
+				sord = new SimpleOrderHandler(em, r.getString(2), r.getShort(4), anvandare);
 			} catch (EntityNotFoundException e) { 	// Detta fel ignorerar vi och fortsätter med nästa weborder
 				SXUtil.log("Kund " + r.getString(2) + " hittades inte vid sparning av weborder " + r.getInt(1));
 				continue;
 			}		
 				
-			ord.setWordernr(r.getInt(1));			
-			ord.setMarke(r.getString(3));
+			sord.setWordernr(r.getInt(1));			
+			sord.setMarke(r.getString(3));
 			
 			r2 = s2.executeQuery("select artnr, antal from weborder2 where wordernr = " + this.wordernr);
 			while(r2.next()) {
 				try {
-					ord.addRow(r2.getString(1), r2.getDouble(2));
+					sord.addRow(r2.getString(1), r2.getDouble(2));
 				} catch (EntityNotFoundException e) { SXUtil.log("Artikel " + r2.getString(1) + " hittades inte vid sparning av weborder " + r.getInt(1));}			// Detta fel ignorerar vi och fortsätter utan raden
 			}
-			spara ordern
-				markera om ordern
+			sord.persist();
+			if (s3.executeUpdate("update weborder1 set status = 'Mottagen', kreditsparr = 0, mottagendatum = '" + SXUtil.getFormatDate() + "' where wordernr = " +  sord.getWordernr()) < 1) {
+				SXUtil.log("Kan inte uppdatera weborder1 set status='Mottagen' wordernr=" + sord.getWordernr() );
+			}
 		} 		
 	}
 
