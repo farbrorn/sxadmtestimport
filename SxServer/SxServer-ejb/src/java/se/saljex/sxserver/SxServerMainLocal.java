@@ -11,6 +11,7 @@ import javax.ejb.Timer;
 import javax.servlet.http.*;
 import com.lowagie.text.DocumentException;
 import java.io.*;
+import java.util.ArrayList;
 import javax.mail.MessagingException;
 
 
@@ -38,6 +39,8 @@ public interface SxServerMainLocal {
 	void handleSandBestEpost(TableBest1 be1) throws DocumentException, IOException,  NamingException, MessagingException;
 
 	  String tester(String testTyp);
+
+	  ArrayList<Integer> saveWorder(int worderNr) throws SQLException;
 
 	
 }
