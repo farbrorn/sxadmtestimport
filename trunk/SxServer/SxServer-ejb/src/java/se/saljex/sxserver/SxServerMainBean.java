@@ -1,5 +1,6 @@
 package se.saljex.sxserver;
 
+import java.sql.SQLException;
 import javax.ejb.Stateless;
 import javax.annotation.Resource;
 import javax.annotation.PostConstruct;
@@ -57,6 +58,7 @@ import javax.sql.DataSource;
 
 @Stateless
 public class SxServerMainBean implements SxServerMainLocal {
+	String anvandare = "00";	//Användanamnet för sxserv
 	@Resource(name = "saljexse")
 	private DataSource saljexse;
 	@Resource(name = "sxadm")
@@ -276,6 +278,36 @@ z							, SXUtil.getSXReg(con,"SxServMailFakturaBodyPrefix") + SXUtil.getSXReg(c
 		return ret;
 	}
 
+	private void checkWorder()  {
+		try {
+			WebOrderHandler woh = new WebOrderHandler(em,saljexse.getConnection(),anvandare);
+			ArrayList<Integer> orderList = woh.getSkickadWorderList();
+			for (Integer o : orderList) {
+				try {
+					if (sxServerMainBean.saveWorder(o) == null) {
+						SXUtil.log("Kunde inte spara weborder " + o + " Av okänd anledning.");
+					} else {
+						SXUtil.log("Weborder " + o + " sparad som order!");
+					}
+
+				} catch (SQLException se) {
+					SXUtil.log("Fel vid spara order: " + se.toString());
+				}
+			}
+		} catch (SQLException se1) {
+			SXUtil.log("Fel " + se1.toString()); 
+		}
+	}
+	
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+	public ArrayList<Integer> saveWorder(int worderNr) throws java.sql.SQLException {
+		// Spara angiven weborder i egen transaktion
+		// returnerar array med ordernumren som webordern sparades som
+		WebOrderHandler woh = new WebOrderHandler(em,saljexse.getConnection(),anvandare);
+		return woh.loadWorderAndSaveSkickadAsOrder(worderNr);
+	}
+	
+	
 	public String tester(String testTyp) {
 		String ret = "";
 		
@@ -297,6 +329,7 @@ z							, SXUtil.getSXReg(con,"SxServMailFakturaBodyPrefix") + SXUtil.getSXReg(c
 		} else { ret = "<br>Ogigiltig test: " + testTyp + "<br>"; }
 		return ret;
 	}
+
 
 
 
