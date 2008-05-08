@@ -30,20 +30,42 @@ public class OrderHandler {
 	
 	private String anvandare;
 	
-	public OrderHandler(EntityManager e) {
-			em = e;
-			or1 = new TableOrder1();
-	}
 
 	public OrderHandler(EntityManager e, String kundNr, short lagerNr, String anvandare) {
-		this(e);
+		em = e;
+		or1 = new TableOrder1();
 		setKund(kundNr);
 		setLagerNr(lagerNr);
 		setAnvandare(anvandare);
 	}
 	
 	public void setLagerNr(short lagernr) {
+		// Sätter nytt lager och läser om alla lagersaldon till det nya lagret
+		// Kan även användas med samma lagernummer för att uppdatera lagersaldona
 		or1.setLagernr(lagernr);
+
+		// Läs in nya lagervärden
+		for (OrderHandlerRad o : ordreg) {
+			setLagerToOrderRad(o);
+		}
+	}
+	private void setLagerToOrderRad(OrderHandlerRad o) {
+		// Hämtar lagervärden för aktuellt lager, och lägger in dem i orderhandlerrad
+		TableLager l;
+		l = em.find(TableLager.class, new TableLagerPK(o.artnr, or1.getLagernr()));
+		if (l == null) {
+			ord.artLagerplats = null;
+			ord.artBest = null;
+			ord.artIlager = null;
+			ord.artIorder = null;
+		} else {
+			ord.artLagerplats = l.getLagerplats();
+			ord.artBest = l.getBest();
+			ord.artIorder = l.getIorder();
+			ord.artIlager = l.getIlager();
+			
+		}
+		
 	}
 	
 	public void setAnvandare(String anvandare) {
@@ -60,6 +82,7 @@ public class OrderHandler {
 			SXUtil.log("OrderHandler-addRow-Kan inte hitta artikel " + artnr + " för order."); 
 			return null;
 		}
+		setLagerToOrderRad(ord); // Sätt lagersaldon
 		ord.best = antal;
 		ord.lev = antal;
 		ord.artnr = art.getNummer();
@@ -67,6 +90,8 @@ public class OrderHandler {
 		ord.konto = art.getKonto();
 		ord.enh = art.getEnhet();
 		ord.levnr = art.getLev();
+		ord.artDirektlev = art.getDirektlev();
+		ord.artFraktvillkor = art.getFraktvillkor();
 		ord.prisnr = (short)1;
 		
 		// Börja ta fram det bästa priset
@@ -186,6 +211,11 @@ public class OrderHandler {
 		return ordreg;
 	}
 
+	public TableOrder1 getTableOrder1() {
+		return or1;
+	}
+
+	
 	public void setKund(String kundNr) {
 		// Hämta kund och sätt standardvärden för or1
 		kun = em.find(TableKund.class, kundNr);
@@ -242,13 +272,14 @@ public class OrderHandler {
 		or1.setKtid(ktid);
 	}
 	
-	public void persistOrder() {
+	public Integer persistOrder() {
+		//Sparar som ny order
+		// Returnerar ordernumret
 		short scn;
 		TableLager lag;
 		
 		// Hämtaa nytt irdernt och räkna upp
 		TableFdordernr fdo;
-		List fdor;
 		scn = 0;
 		while (true) {
 			scn++;			//Räkna antalet loopar för att avgöra när fel skall skapass
@@ -288,12 +319,56 @@ public class OrderHandler {
 		}
 		em.persist( new TableOrderhand(or1.getOrdernr(), anvandare, "Skapad"));
 		em.flush();
+		return or1.getOrdernr();
+	}
+	
+	public void sortLevNr() {
+		java.util.Collections.sort(ordreg, new OrderHandlerComparatorLevNr());
+
+	}
+
+	public void sortLagerPlatsArtNr() {
+		java.util.Collections.sort(ordreg, new OrderHandlerComparatorLagerPlatsArtNr());
 
 	}
 	
 	}
 	
-	
+	 class OrderHandlerComparatorLevNr implements java.util.Comparator {
+		public int compare (java.lang.Object o1, java.lang.Object o2) {
+			try {
+				String l1 = ((OrderHandlerRad)o1).levnr;
+				String l2 = ((OrderHandlerRad)o2).levnr;
+				if (l1 == null) {
+					return 0;
+				} else {
+					return l1.compareTo(l2);
+				}
+			} catch (Exception e) { return 0; }
+		}
+	}
+
+
+	 	class OrderHandlerComparatorLagerPlatsArtNr implements java.util.Comparator {
+		public int compare (java.lang.Object o1, java.lang.Object o2) {
+			try {
+				String l1 = ((OrderHandlerRad)o1).artLagerplats;
+				String l2 = ((OrderHandlerRad)o2).artLagerplats;
+				String a1 = ((OrderHandlerRad)o1).artnr;
+				String a2 = ((OrderHandlerRad)o2).artnr;
+				if (l1 == null || a1 == null) {
+					return 0;
+				} else {
+					if (a1.equals(a2)) {
+						return a1.compareTo(a2);
+					}	else {
+						return l1.compareTo(l2);
+					}
+				}
+			} catch (Exception e) { return 0; }
+		}
+	}
+
 
 
 /*

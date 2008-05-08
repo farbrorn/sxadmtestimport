@@ -18,21 +18,24 @@ import javax.persistence.PersistenceException;
  */
 public class SimpleOrderHandler {
 	private EntityManager em;
-	private TableOrder1 or1;
-	private TableOrder2 or2;
+	private TableOrder1 sor1;
+	private TableOrder2 sor2;
 	private TableKund kun;
 	private TableArtikel art;
 	private OrderHandlerRad ord;
 	private TableNettopri net;
 
 	private	boolean orderLaddad = false;			//Sinal om ordern är laddad
+	
+	boolean levAdressAndrad = false;				// Flagga om leveransadressen är ändrad och ska föras över till order1
+
 	private ArrayList<OrderHandlerRad> ordreg = new ArrayList<OrderHandlerRad>();  //Holds all rows in the order
 	
 	private String anvandare;
 	
 	public SimpleOrderHandler(EntityManager e) {
 			em = e;
-			or1 = new TableOrder1();
+			sor1 = new TableOrder1();
 	}
 
 	public SimpleOrderHandler(EntityManager e, String kundNr, short lagerNr, String anvandare, int worderNr, String marke) {
@@ -46,14 +49,14 @@ public class SimpleOrderHandler {
 	}
 	
 	public void setLagerNr(short lagernr) {
-		or1.setLagernr(lagernr);
+		sor1.setLagernr(lagernr);
 	}
 	
 	public void setAnvandare(String anvandare) {
 		this.anvandare = anvandare;
 	}
 	public void setWordernr(int wordernr) {
-		or1.setWordernr(wordernr);
+		sor1.setWordernr(wordernr);
 	}
 	
 	public OrderHandlerRad addRow(String artnr, Double antal) {
@@ -66,11 +69,11 @@ public class SimpleOrderHandler {
 	
 	
 	public OrderHandlerRad getRow(int rad) {
-		OrderHandlerRad or;
+		OrderHandlerRad ord;
 		try {
-			or = ordreg.get(rad);
-		} catch (IndexOutOfBoundsException e) { or = null; }
-		return or;
+			ord = ordreg.get(rad);
+		} catch (IndexOutOfBoundsException e) { ord = null; }
+		return ord;
 	}
 
 	public ArrayList getOrdreg() {
@@ -78,46 +81,134 @@ public class SimpleOrderHandler {
 	}
 
 	public void setKund(String kundNr) {		
-		or1.setKundnr(kundNr);
+		sor1.setKundnr(kundNr);
 	}
 
 	public void setWorderNr(int worderNr) {		
-		or1.setWordernr(worderNr);
+		sor1.setWordernr(worderNr);
 	}
 
 	public int getWorderNr() {		
-		return or1.getWordernr();
+		return sor1.getWordernr();
 	}
 
 	
 	public void setMarke(String m) {
-		or1.setMarke(m);
+		sor1.setMarke(m);
 	}
 	
 	public void setLevAdr(String adr1, String adr2, String adr3) {
-		or1.setLevadr1(adr1);
-		or1.setLevadr2(adr2);
-		or1.setLevadr3(adr3);
+		levAdressAndrad = true;
+		sor1.setLevadr1(adr1);
+		sor1.setLevadr2(adr2);
+		sor1.setLevadr3(adr3);
 	}
 	
 	public void setAnnanLevAdr(String adr1, String adr2, String adr3) {
 		//Sätter levadress, samt flaggan för att levadress har ändrats
 		setLevAdr(adr1, adr2, adr3);
-		or1.setAnnanlevadress((short)1);
+		sor1.setAnnanlevadress((short)1);
 	}
 
 	
 	public void setKreditTid(short ktid) {
-		or1.setKtid(ktid);
+		sor1.setKtid(ktid);
 	}
 	
 	public ArrayList<Integer> saveAsOrder() {
+		ArrayList<Integer> ordList = new ArrayList();
+	
+		// Börja med att sätta upp main-ordern. Från denna hämtar vi sedan alla rader 
+		// Vi behöver inte sätta huvudet (Order1) till denna order, utan nya huvuden skapas löpande för varje delorder
+		OrderHandler mainOrh = new OrderHandler(em, sor1.getKundnr(),  sor1.getLagernr(), anvandare);
+		for (OrderHandlerRad or : ordreg) {
+			mainOrh.addRow(or.artnr, or.best);
+		}
+		//Nu är alla rader från SimpleOrder inlästa i main-ordern med korrekta priser
+		//Nu fortsätter vi med att skanna igenom ordern och delqa den ifall det finns direkleveransartiklar
+		//samt lägger till ev. fraktkostnad på varje delorder.
+		OrderHandler delOrh;
+		while ( (delOrh = getNextSplitOrder(mainOrh)) != null) {
+
+			if (levAdressAndrad) {
+				if (sor1.getAnnanlevadress() > 0) {
+					delOrh.setAnnanLevAdr(sor1.getLevadr1(), sor1.getLevadr2(), sor1.getLevadr3());
+				} else {
+					delOrh.setLevAdr(sor1.getLevadr1(), sor1.getLevadr2(), sor1.getLevadr3());				
+				}
+			}
+
+
+			ordList.add(delOrh.persistOrder());
+		}
+		return ordList;
+	}
+	
+	private OrderHandler getNextSplitOrder(OrderHandler orh) {
+		// Skapar en ny orderhandler med simpleordern splittade för direktleveranser
+		// samt ev. med fraktkostnad tillagd
+		// Returnrear OrderHandler eller null om det inte finns mer
+		OrderHandler delOrh = new OrderHandler(em, sor1.getKundnr(),  sor1.getLagernr(), anvandare);
+		return delOrh;
+	}
+	
+	/*
+	 SORT(OS,ORD:LevNr)
+ LOOP CN = 1 TO RECORDS(OS)      !Nu ska vi se om det finns någon leverantör med direktlevartikel
+    GET(OS,cn)
+    IF OS:DirektLev
+       TempLevNr = OS:LevNr
+       BREAK
+    .
+ .
+
+ LEV:Nummer = TempLevNr          !Skicka med vilken leverantör det rör sig om i denna globala variabel
+
+ cn = 1
+ BestBehov = FALSE
+ LOOP    !Nu loopar vi igenom och filtrerar ifall det fanns leverantören med direktlev, de rader vi hittar raderas
+    GET(OS,cn)
+    IF ErrorCode() THEN BREAK.
+    IF TempLevNr AND OS:LevNr <> TempLevNr
+       cn += 1                   !Vi lämnar kvar denna rad, och fortsätter framåt i kön
+       CYCLE
+    .
+    IF (OS:Fraktvillkor = 1 AND KUN:Distrikt <> 1) OR OS:Fraktvillkor = 2           !(Fritt turbil AND Kunden utanför turbilsdistriktet) OR Fritt lev.lager
+       FraktTillkommer = TRUE
+    .
+    IF NOT TempLevNr AND (LAG:ILager-LAG:IOrder-OS:Antal+LAG:Best < 0) !Vi måste beställa, men meddela bara om det inte är direktleverans
+       BestBehov = TRUE
+    .
+    OS_2_ORD()
+    ADD(Ordreg)
+    DELETE(OS)       !När raden raderas, kommer nästa rad fram vid GET utan att cn behöver ökas
+ .
+ IF BestBehov
+    SendAdmMessage('Vi behöver beställa grejer till Webborder!','Kund: ' & OR1:KundNr & ' Lev ' & ART:Lev)
+ .
+
+
+
+ IF FraktTillkommer
+    CLEAR(ORD:Record)
+    ORD:Nummer = '0000' !Frakt
+    ORD:NAMN = 'FRAKT'
+    ORD:LevNr = ''
+    ORD:ENH = 'ST'
+    ORD:Lagerplats = 'ZZ'
+    ADD(Ordreg)
+ .
+ IF TempLevNr                 !Vi har en direktleverans
+    OR1:Status = 'Direkt'
+ ELSE
+    OR1:Status = 'Sparad'
+ .
+
+ SORT(Ordreg,ORD:Lagerplats,ORD:Nummer)
+*/
 
 	}
-	
-	}
-	
-	
+		
 
 
 /*

@@ -50,6 +50,14 @@ public class TableOrderhand implements Serializable {
 	public TableOrderhand() {
 	}
 
+	public TableOrderhand(int ordernr, String anvandare, String handelse) {
+		Date d = new Date();
+		this.tableOrderhandPK = new TableOrderhandPK(ordernr, d, d);
+		this.anvandare = anvandare;
+		this.handelse = handelse;
+	}
+
+	
 	public TableOrderhand(TableOrderhandPK tableOrderhandPK) {
 		this.tableOrderhandPK = tableOrderhandPK;
 	}

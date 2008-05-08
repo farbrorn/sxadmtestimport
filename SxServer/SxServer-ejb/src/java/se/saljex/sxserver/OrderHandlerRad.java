@@ -32,6 +32,13 @@ public class OrderHandlerRad {
 	public Date utskrivendatum = new Date();
 	public Date utskriventid = new Date();
 	public Integer stjid = 0;
+
+	public Short artDirektlev = null;		// Signalerar om det är direkleverans från leverantör på denna artikel, behöver inte initieras 
+	public Short artFraktvillkor = null;	// Anger fraktvillkoret på artikeln, behöver inte initieras
+	public String artLagerplats = null;
+	public Double artIorder = null;
+	public Double artBest = null;
+	public Double artIlager = null;
 	
 	public void setAll(TableOrder2 o) {
 		ordernr = o.tableOrder2PK.getOrdernr();
