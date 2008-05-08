@@ -304,7 +304,9 @@ z							, SXUtil.getSXReg(con,"SxServMailFakturaBodyPrefix") + SXUtil.getSXReg(c
 		// Spara angiven weborder i egen transaktion
 		// returnerar array med ordernumren som webordern sparades som
 		WebOrderHandler woh = new WebOrderHandler(em,saljexse.getConnection(),anvandare);
-		return woh.loadWorderAndSaveSkickadAsOrder(worderNr);
+		ArrayList<Integer> ret = woh.loadWorderAndSaveSkickadAsOrder(worderNr);
+		if (ret == null) { context.setRollbackOnly(); }
+		return ret;
 	}
 	
 	
@@ -319,15 +321,48 @@ z							, SXUtil.getSXReg(con,"SxServMailFakturaBodyPrefix") + SXUtil.getSXReg(c
 			ret = ret + "Lägger till EA163 2 st<br>";
 			oh.addRow("EA163", 2.0);
 			ret = ret + "hämtar tillbaka rader<br>";
-			ArrayList<OrderHandlerRad> or = oh.getOrdreg();
-			for (OrderHandlerRad ohr : or) { 
-				ret = ret + "Rad " + ohr.pos + " Artikel: " + ohr.artnr + " " + ohr.namn + " Antal: " + ohr.best + " " + ohr.enh + " Pris: " + ohr.pris + " " + ohr.rab + " summa: " + ohr.summa
-					+ " netto: " + ohr.netto + " stjid: " + ohr.stjid + " levdat:" + ohr.levdat + "<br><br> ";
-			}
+			
+			testerPrintOrder(oh,"Originalorder");
+			oh.sortLagerPlatsArtNr();
+			testerPrintOrder(oh,"Efter sortering Lagerplats+artnr");
+			oh.sortLevNr();
+			testerPrintOrder(oh,"Efter sortering Lev");
+			
+			oh.setLagerNr((short)1);
+			testerPrintOrder(oh,"Efter byte till lager 0");
+			
 
 			
 		} else { ret = "<br>Ogigiltig test: " + testTyp + "<br>"; }
 		return ret;
+		
+	}
+
+	private String testerPrintOrder(OrderHandler o, String rubrik) {
+		String ret;
+		ArrayList<OrderHandlerRad> or = o.getOrdreg();
+		TableOrder1 t = o.getTableOrder1();
+		ret = "<br><b>" + rubrik + "</b><br>" + "<table><tr>"
+			+ "<td>Ordernr</td><td>" + t.getOrdernr() + "</td><td>Datum</td><td>" + t.getDatum() + "</td><td>KundNr</td><td>" + t.getKundnr() + "</td></tr>"
+			+ "<td>Adress</td><td>" + t.getAdr1() + "</td><td> </td><td>" + t.getAdr2() + "</td><td> </td><td>" + t.getAdr3() + "</td></tr>"
+			+ "<td>Fraktbolag</td><td>" + t.getFraktbolag() + "</td><td>FraktKundnr</td><td>" + t.getFraktkundnr() + "</td><td>Linjenr</td><td>" + t.getLinjenr1() + "</td></tr>"
+			+ "<td>Levadress</td><td>" + t.getLevadr1() + "</td><td> </td><td>" + t.getLevadr2() + "</td><td> </td><td>" + t.getLevadr3() + "</td></tr>"
+			+ "<td>Märke</td><td colspan)\"5\">" + t.getMarke() +  "</td></tr>"
+			+ "<td>Säljare</td><td>" + t.getSaljare() + "</td><td>Status</td><td>" + t.getStatus() + "</td><td>AnnanLevAdr</td><td>" + t.getAnnanlevadress() + "</td></tr>"
+			+ "<td>Direktlevnr</td><td>" + t.getDirektlevnr() + "</td><td>Moms</td><td>" + t.getMoms() + "</td><td>Webordernr</td><td>" + t.getWordernr() + "</td></tr>"
+			+ "</table>"
+			
+			+ "<table><tr><th>cn</th><th>Rad</th><th>Artikelnr</th><th>Namn</th><th>Best</th><th>Lev</th><th>Enhet</th><th>Pris</th><th>Rab</th><th>Summa</th><th>Netto</th>" + 
+					"<th>Netto</th><th>Stjid</th><th>Levdat</th><th>Levdat</th><th>Lev</th><th>ilager</th><th>iorder</th><th>beställda</th><th>Lagerplats</th></tr>";
+		for (OrderHandlerRad ohr : or) { 
+			ret = ret + "<tr><td>" + ohr.pos + "</td><td>" + ohr.artnr + "</td><td>" + ohr.namn + "</td><td>" + ohr.best + "</td><td> " + ohr.lev + "</td><td>"
+				+ ohr.enh + "</td><td>" + ohr.pris + "</td><td>" + ohr.rab + "</td><td>" + ohr.summa
+				+ "</td><td>" + ohr.netto + "</td><td>" + ohr.stjid + "</td><td>" + ohr.levdat + "</td><td>" + ohr.levnr
+				+ "</td><td>" + ohr.artIlager + "</td><td>" + ohr.artIorder + "</td><td>" + ohr.artBest + "</td><td>" + ohr.artLagerplats + "</td></tr>";
+		}
+		ret = ret + "</table><br>";
+		return ret;
+			
 	}
 
 
