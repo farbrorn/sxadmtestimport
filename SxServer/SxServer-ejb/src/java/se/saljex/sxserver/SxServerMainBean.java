@@ -322,26 +322,44 @@ z							, SXUtil.getSXReg(con,"SxServMailFakturaBodyPrefix") + SXUtil.getSXReg(c
 			oh.addRow("EA163", 2.0);
 			ret = ret + "hämtar tillbaka rader<br>";
 			
-			testerPrintOrder(oh,"Originalorder");
+			ret = ret + testerPrintOrder(oh.getTableOrder1(),oh.getOrdreg(),"Originalorder");
 			oh.sortLagerPlatsArtNr();
-			testerPrintOrder(oh,"Efter sortering Lagerplats+artnr");
+			ret = ret + testerPrintOrder(oh.getTableOrder1(),oh.getOrdreg(),"Efter sortering Lagerplats+artnr");
 			oh.sortLevNr();
-			testerPrintOrder(oh,"Efter sortering Lev");
+			ret = ret + testerPrintOrder(oh.getTableOrder1(),oh.getOrdreg(),"Efter sortering Lev");
 			
 			oh.setLagerNr((short)1);
-			testerPrintOrder(oh,"Efter byte till lager 0");
+			ret = ret + testerPrintOrder(oh.getTableOrder1(),oh.getOrdreg(),"Efter byte till lager 0");
 			
 
+		} else if (testTyp.equals("SimpleOrderHandler"))	 {
+			ret = ret + "Skapar SimpleOrderHandler instans<br>";
+			SimpleOrderHandler soh = new SimpleOrderHandler(em,"0555",(short)0,"tes",1,"märket");
+			ret = ret + "Lägger till EA153 1 st<br>";
+			soh.addRow("EA153", 1.0);
+			ret = ret + "Lägger till EA163 2 st<br>";
+			soh.addRow("EA163", 2.0);
+			ret = ret + testerPrintOrder(soh.getTableOrder1(),soh.getOrdreg(),"Original SimpleOrder");
+			
+			OrderHandler oh  = soh.testSplitOrderSetUp();
+			ret = ret + testerPrintOrder(soh.getTableOrder1(),soh.getOrdreg(),"Original Order med priser (efter testsplitordersetup) som ska splittas upp");
+			
+			OrderHandler splitoh;
+			int cn = 0;
+			while (( splitoh = soh.getNextSplitOrder(oh)) != null) {
+				cn++;
+				ret = ret + testerPrintOrder(splitoh.getTableOrder1(),splitoh.getOrdreg(),"splitad delOrder " + cn);
+				
+			}
+			ret = ret + "<br> totalt antal spliorder = " + cn + "<br>";
 			
 		} else { ret = "<br>Ogigiltig test: " + testTyp + "<br>"; }
 		return ret;
 		
 	}
 
-	private String testerPrintOrder(OrderHandler o, String rubrik) {
+	private String testerPrintOrder(TableOrder1 t, ArrayList<OrderHandlerRad> or, String rubrik) {
 		String ret;
-		ArrayList<OrderHandlerRad> or = o.getOrdreg();
-		TableOrder1 t = o.getTableOrder1();
 		ret = "<br><b>" + rubrik + "</b><br>" + "<table><tr>"
 			+ "<td>Ordernr</td><td>" + t.getOrdernr() + "</td><td>Datum</td><td>" + t.getDatum() + "</td><td>KundNr</td><td>" + t.getKundnr() + "</td></tr>"
 			+ "<td>Adress</td><td>" + t.getAdr1() + "</td><td> </td><td>" + t.getAdr2() + "</td><td> </td><td>" + t.getAdr3() + "</td></tr>"

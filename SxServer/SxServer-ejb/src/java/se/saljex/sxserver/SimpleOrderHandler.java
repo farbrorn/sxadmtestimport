@@ -53,7 +53,7 @@ public class SimpleOrderHandler {
 	}
 	
 	public void setAnvandare(String anvandare) {
-		this.anvandare = anvandare;
+		this.anvandare = new String(anvandare);
 	}
 	public void setWordernr(int wordernr) {
 		sor1.setWordernr(wordernr);
@@ -62,7 +62,7 @@ public class SimpleOrderHandler {
 	public OrderHandlerRad addRow(String artnr, Double antal) {
 		ord = new OrderHandlerRad();
 		ord.best = antal;
-		ord.artnr = art.getNummer();
+		ord.artnr = new String(artnr);
 		ordreg.add(ord);
 		return ord;
 	}
@@ -80,6 +80,11 @@ public class SimpleOrderHandler {
 		return ordreg;
 	}
 
+	public TableOrder1 getTableOrder1() {
+		return sor1;
+	}
+	
+	
 	public void setKund(String kundNr) {		
 		sor1.setKundnr(kundNr);
 	}
@@ -99,9 +104,9 @@ public class SimpleOrderHandler {
 	
 	public void setLevAdr(String adr1, String adr2, String adr3) {
 		levAdressAndrad = true;
-		sor1.setLevadr1(adr1);
-		sor1.setLevadr2(adr2);
-		sor1.setLevadr3(adr3);
+		sor1.setLevadr1(new String(adr1));
+		sor1.setLevadr2(new String(adr2));
+		sor1.setLevadr3(new String(adr3));
 	}
 	
 	public void setAnnanLevAdr(String adr1, String adr2, String adr3) {
@@ -124,6 +129,7 @@ public class SimpleOrderHandler {
 		for (OrderHandlerRad or : ordreg) {
 			mainOrh.addRow(or.artnr, or.best);
 		}
+		mainOrh.sortLevNr();				// Sortera efter leverantörsordning för att kolla varje leverantör för direktleverans
 		//Nu är alla rader från SimpleOrder inlästa i main-ordern med korrekta priser
 		//Nu fortsätter vi med att skanna igenom ordern och delqa den ifall det finns direkleveransartiklar
 		//samt lägger till ev. fraktkostnad på varje delorder.
@@ -144,11 +150,22 @@ public class SimpleOrderHandler {
 		return ordList;
 	}
 	
-	private OrderHandler getNextSplitOrder(OrderHandler orh) {
+	public OrderHandler testSplitOrderSetUp() {
+		// Börja med att sätta upp main-ordern. Från denna hämtar vi sedan alla rader 
+		// Vi behöver inte sätta huvudet (Order1) till denna order, utan nya huvuden skapas löpande för varje delorder
+		OrderHandler mainOrh = new OrderHandler(em, sor1.getKundnr(),  sor1.getLagernr(), anvandare);
+		for (OrderHandlerRad or : ordreg) {
+			mainOrh.addRow(or.artnr, or.best);
+		}
+		mainOrh.sortLevNr();				// Sortera efter leverantörsordning för att kolla varje leverantör för direktleverans
+		return mainOrh;
+	}
+	
+	public OrderHandler getNextSplitOrder(OrderHandler orh) {
 		// Skapar en ny orderhandler med simpleordern splittade för direktleveranser
 		// samt ev. med fraktkostnad tillagd
 		// Returnrear OrderHandler eller null om det inte finns mer
-		OrderHandler delOrh = new OrderHandler(em, sor1.getKundnr(),  sor1.getLagernr(), anvandare);
+		OrderHandler delOrh = new OrderHandler(em, orh.getKundNr(),  orh.getLagerNr(), anvandare);
 		return delOrh;
 	}
 	
