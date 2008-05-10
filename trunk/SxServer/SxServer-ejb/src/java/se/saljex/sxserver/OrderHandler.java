@@ -69,13 +69,13 @@ public class OrderHandler {
 	}
 	
 	public void setAnvandare(String anvandare) {
-		this.anvandare = anvandare;
+		this.anvandare = new String(anvandare);  // Skapar en ny Stringclass ifall användaren kommer att ändras i någon annan class
 	}
 	public void setWordernr(int wordernr) {
 		or1.setWordernr(wordernr);
 	}
 	
-	public OrderHandlerRad addRow(String artnr, Double antal) {
+	public OrderHandlerRad addRow(String artnr, double antal) {
 		ord = new OrderHandlerRad();
 		art = em.find(TableArtikel.class, artnr); 
 		if (art == null) { 
@@ -97,9 +97,9 @@ public class OrderHandler {
 		// Börja ta fram det bästa priset
 		
 		// Ta fram bästa rabatten
-		Double bastaRab = 0.0;
-		Double bastaBruttoPris = 0.0;
-		Double bastaNettoPris = 0.0;
+		double bastaRab = 0.0;
+		double bastaBruttoPris = 0.0;
+		double bastaNettoPris = 0.0;
 		TableKunrab kra;
 		if (!art.getRabkod().isEmpty()) {	// Om rabkoden är tom så gäller ingen rabatt
 			if (!art.getRabkod().equals("NTO")) {	// Vi kan inte ha rabatter för hela NTO-gruppen
@@ -215,6 +215,14 @@ public class OrderHandler {
 		return or1;
 	}
 
+	public String getKundNr() {
+		return or1.getKundnr();
+	}
+
+	public Short getLagerNr() {
+		return or1.getLagernr();
+	}
+	
 	
 	public void setKund(String kundNr) {
 		// Hämta kund och sätt standardvärden för or1
@@ -252,13 +260,13 @@ public class OrderHandler {
 
 	
 	public void setMarke(String m) {
-		or1.setMarke(m);
+		or1.setMarke(new String(m));
 	}
 	
 	public void setLevAdr(String adr1, String adr2, String adr3) {
-		or1.setLevadr1(adr1);
-		or1.setLevadr2(adr2);
-		or1.setLevadr3(adr3);
+		or1.setLevadr1(new String(adr1));
+		or1.setLevadr2(new String(adr2));
+		or1.setLevadr3(new String(adr3));
 	}
 	
 	public void setAnnanLevAdr(String adr1, String adr2, String adr3) {

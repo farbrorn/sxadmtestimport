@@ -29,7 +29,7 @@ public class WebOrderHandler {
 	public WebOrderHandler(EntityManager e, Connection c, String anvandare) {
 			em = e;
 			con = c;
-			this.anvandare = anvandare;
+			this.anvandare = new String(anvandare);
 	}
 
 	
