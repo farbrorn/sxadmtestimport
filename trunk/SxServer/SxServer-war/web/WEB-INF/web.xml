@@ -4,10 +4,6 @@
         <listener-class>se.saljex.sxserver.web.SXListener</listener-class>
     </listener>
     <servlet>
-        <servlet-name>getdbtest</servlet-name>
-        <servlet-class>se.saljex.sxserver.web.getdbtest</servlet-class>
-    </servlet>
-    <servlet>
         <servlet-name>getPDF</servlet-name>
         <servlet-class>se.saljex.sxserver.web.getPDF</servlet-class>
     </servlet>
@@ -16,17 +12,9 @@
         <servlet-class>se.saljex.sxserver.web.status</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>testorderhandler</servlet-name>
-        <servlet-class>se.saljex.sxserver.web.testorderhandler</servlet-class>
-    </servlet>
-    <servlet>
         <servlet-name>tester</servlet-name>
         <servlet-class>se.saljex.sxserver.web.tester</servlet-class>
     </servlet>
-    <servlet-mapping>
-        <servlet-name>getdbtest</servlet-name>
-        <url-pattern>/getdbtest</url-pattern>
-    </servlet-mapping>
     <servlet-mapping>
         <servlet-name>getPDF</servlet-name>
         <url-pattern>/getPDF</url-pattern>
@@ -34,10 +22,6 @@
     <servlet-mapping>
         <servlet-name>status</servlet-name>
         <url-pattern>/status</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>testorderhandler</servlet-name>
-        <url-pattern>/testorderhandler</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>tester</servlet-name>

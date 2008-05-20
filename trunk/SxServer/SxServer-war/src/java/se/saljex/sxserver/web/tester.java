@@ -37,7 +37,7 @@ public class tester extends HttpServlet {
             out.println("</head>");
             out.println("<body>");
             out.println("<h1>Servlet tester at " + request.getContextPath () + "</h1><br>");
-				out.println(SxServerMainBean.tester("OrderHandler"));
+				out.println(SxServerMainBean.tester("SimpleOrderHandler"));
             out.println("</body>");
             out.println("</html>");
         } finally { 
