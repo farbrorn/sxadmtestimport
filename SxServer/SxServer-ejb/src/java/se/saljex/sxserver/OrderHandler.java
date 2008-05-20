@@ -25,7 +25,6 @@ public class OrderHandler {
 	private OrderHandlerRad ord;
 	private TableNettopri net;
 
-	private	boolean orderLaddad = false;			//Sinal om ordern är laddad
 	private ArrayList<OrderHandlerRad> ordreg = new ArrayList<OrderHandlerRad>();  //Holds all rows in the order
 	
 	private String anvandare;
@@ -54,15 +53,15 @@ public class OrderHandler {
 		TableLager l;
 		l = em.find(TableLager.class, new TableLagerPK(o.artnr, or1.getLagernr()));
 		if (l == null) {
-			ord.artLagerplats = null;
-			ord.artBest = null;
-			ord.artIlager = null;
-			ord.artIorder = null;
+			o.artLagerplats = null;
+			o.artBest = null;
+			o.artIlager = null;
+			o.artIorder = null;
 		} else {
-			ord.artLagerplats = l.getLagerplats();
-			ord.artBest = l.getBest();
-			ord.artIorder = l.getIorder();
-			ord.artIlager = l.getIlager();
+			o.artLagerplats = l.getLagerplats();
+			o.artBest = l.getBest();
+			o.artIorder = l.getIorder();
+			o.artIlager = l.getIlager();
 			
 		}
 		
@@ -82,7 +81,6 @@ public class OrderHandler {
 			SXUtil.log("OrderHandler-addRow-Kan inte hitta artikel " + artnr + " för order."); 
 			return null;
 		}
-		setLagerToOrderRad(ord); // Sätt lagersaldon
 		ord.best = antal;
 		ord.lev = antal;
 		ord.artnr = art.getNummer();
@@ -93,6 +91,8 @@ public class OrderHandler {
 		ord.artDirektlev = art.getDirektlev();
 		ord.artFraktvillkor = art.getFraktvillkor();
 		ord.prisnr = (short)1;
+		
+		setLagerToOrderRad(ord); // Sätt lagersaldon
 		
 		// Börja ta fram det bästa priset
 		
@@ -129,18 +129,20 @@ public class OrderHandler {
 		final short		KAMPBITINDUSTRI		= 4;
 		final short		KAMPBITOEM			= 8;
 		final short		KAMPBITGROSSIST		= 16;
-		
-		//Skapa ett datum i SQL.Date format
-		Calendar idag = SXUtil.getTodayDate();  // Returns a calendar with time set  to 0
-		// Skapa calendarobjekt med kampanjperioden
-		Calendar kampfrdat = Calendar.getInstance();
-		kampfrdat.setTime(art.getKampfrdat());
-		Calendar kamptidat = Calendar.getInstance();
-		kamptidat.setTime(art.getKamptidat());
 
 		boolean kampanj = false;
-		
+
 		try {	// Fångar null-pointer ifall något kampanjdatum är felaktigt
+
+			//Skapa ett datum i SQL.Date format
+			Calendar idag = SXUtil.getTodayDate();  // Returns a calendar with time set  to 0
+			// Skapa calendarobjekt med kampanjperioden
+			Calendar kampfrdat = Calendar.getInstance();
+			kampfrdat.setTime(art.getKampfrdat());
+			Calendar kamptidat = Calendar.getInstance();
+			kamptidat.setTime(art.getKamptidat());
+
+		
 			if (idag.compareTo(kampfrdat) >= 0 && idag.compareTo(kamptidat) <= 0) {	// Det finns kampanj på artikeln, nu ska vi kolla om den gäller för kunden
 				if (art.getKampkundartgrp() == 0 && art.getKampkundgrp() == 0) {
 					kampanj = true;
@@ -192,7 +194,7 @@ public class OrderHandler {
 		}
 		// Nu ska bästa priset vara satt
 
-		ord.summa = ord.pris * antal * (1-ord.rab);
+		ord.summa = ord.pris * antal * (1-ord.rab/100);
 		ord.netto = (art.getInpris() * (1-art.getRab()/100) * (1+art.getInpFraktproc()/100)) + art.getInpFrakt() + art.getInpMiljo();
 		ordreg.add(ord);
 		return ord;
@@ -364,11 +366,15 @@ public class OrderHandler {
 				String l2 = ((OrderHandlerRad)o2).artLagerplats;
 				String a1 = ((OrderHandlerRad)o1).artnr;
 				String a2 = ((OrderHandlerRad)o2).artnr;
-				if (l1 == null || a1 == null) {
+				if (l1 == null) {
 					return 0;
 				} else {
-					if (a1.equals(a2)) {
-						return a1.compareTo(a2);
+					if (l1.equals(l2)) {
+						if (a1 == null) {
+							return 0;
+						} else {
+							return a1.compareTo(a2);
+						}
 					}	else {
 						return l1.compareTo(l2);
 					}
