@@ -6,11 +6,8 @@
 package se.saljex.sxserver;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
+import java.util.ListIterator;
 import javax.persistence.EntityManager;
-import javax.persistence.EntityNotFoundException;
-import javax.persistence.PersistenceException;
 
 /**
  *
@@ -165,7 +162,34 @@ public class SimpleOrderHandler {
 		// Skapar en ny orderhandler med simpleordern splittade för direktleveranser
 		// samt ev. med fraktkostnad tillagd
 		// Returnrear OrderHandler eller null om det inte finns mer
+		ArrayList<OrderHandlerRad> or = orh.getOrdreg();
+		String direktlevLev = null;
+		for (OrderHandlerRad o : or) {		// Kolla om det finns leverantörer med direktlev
+			if (o.artDirektlev > 0 && o.levnr != null) {
+				direktlevLev = o.levnr;
+				break;
+			}
+		}												// Nu har vi första leverantören med direktleverans i direktlevLev, eller null om ingen hittades
+		// Loopa igenom raderna på angiven leverantör eller alla om direktlevLev=null, och skapa ny order
 		OrderHandler delOrh = new OrderHandler(em, orh.getKundNr(),  orh.getLagerNr(), anvandare);
+		ListIterator<OrderHandlerRad> orl = or.listIterator();
+		OrderHandlerRad rad;
+		boolean behandlaRad;
+		while (orl.hasNext()) {
+			behandlaRad = false;
+			rad = orl.next();
+			if (direktlevLev != null)  {
+				if (rad.levnr.equals(direktlevLev)) {   // Är denna rad från leverantören med direktleverans?
+					behandlaRad = true;
+				}
+			} else { behandlaRad = true; }
+			
+			if (behandlaRad) {		// Vi ska behandla denna raden
+				delOrh.getOrdreg().add(rad);		// Lägg till i delordern
+				orl.remove();							// och ta sedan bort den
+			}
+		}
+		if (delOrh.getOrdreg().isEmpty()) { delOrh = null; }			// Om vi inte har någon rad returneras null
 		return delOrh;
 	}
 	

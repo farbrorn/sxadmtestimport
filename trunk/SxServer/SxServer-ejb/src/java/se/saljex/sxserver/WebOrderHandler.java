@@ -69,7 +69,6 @@ public class WebOrderHandler {
 		// Hämtar data ur weborder1 och skapar en SimpleOrderHandler och läser in angiven order.
 		// Throws EntityNotFound om inte wordernumret hittas
 		Statement s = con.createStatement();
-		Statement s3 = con.createStatement();
 		ResultSet r = s.executeQuery("select wordernr, kundnr, marke, lagernr, antalrader, kreditsparr from weborder1 where wordernr = " + worderNr);
 		if (r.next()) {
 			loadWorder(r.getInt(1), r.getString(2), r.getString(3), r.getShort(4));
