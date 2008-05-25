@@ -391,12 +391,12 @@ z							, SXUtil.getSXReg(con,"SxServMailFakturaBodyPrefix") + SXUtil.getSXReg(c
 			+ "</table>"
 			
 			+ "<table><tr><th>Rad</th><th>Artikelnr</th><th>Namn</th><th>Best</th><th>Lev</th><th>Enhet</th><th>Pris</th><th>Rab</th><th>Summa</th><th>Netto</th>" + 
-					"<th>Stjid</th><th>Levdat</th><th>Lev</th><th>ilager</th><th>iorder</th><th>beställda</th><th>Lagerplats</th></tr>";
+					"<th>Stjid</th><th>Levdat</th><th>Lev</th><th>ilager</th><th>iorder</th><th>beställda</th><th>Lagerplats</th><th>Direktlev</th></tr>";
 		for (OrderHandlerRad ohr : or) { 
 			ret = ret + "<tr><td>" + ohr.pos + "</td><td>" + ohr.artnr + "</td><td>" + ohr.namn + "</td><td>" + ohr.best + "</td><td> " + ohr.lev + "</td><td>"
 				+ ohr.enh + "</td><td>" + ohr.pris + "</td><td>" + ohr.rab + "</td><td>" + ohr.summa
 				+ "</td><td>" + ohr.netto + "</td><td>" + ohr.stjid + "</td><td>" + ohr.levdat + "</td><td>" + ohr.levnr
-				+ "</td><td>" + ohr.artIlager + "</td><td>" + ohr.artIorder + "</td><td>" + ohr.artBest + "</td><td>" + ohr.artLagerplats + "</td></tr>";
+				+ "</td><td>" + ohr.artIlager + "</td><td>" + ohr.artIorder + "</td><td>" + ohr.artBest + "</td><td>" + ohr.artLagerplats + "</td><td>"+ ohr.artDirektlev + "</td></tr>";
 		}
 		ret = ret + "</table><br>";
 		return ret;

@@ -172,9 +172,12 @@ public class SimpleOrderHandler {
 		}												// Nu har vi första leverantören med direktleverans i direktlevLev, eller null om ingen hittades
 		// Loopa igenom raderna på angiven leverantör eller alla om direktlevLev=null, och skapa ny order
 		OrderHandler delOrh = new OrderHandler(em, orh.getKundNr(),  orh.getLagerNr(), anvandare);
+		delOrh.setMarke(orh.getMarke());
+		
 		ListIterator<OrderHandlerRad> orl = or.listIterator();
 		OrderHandlerRad rad;
 		boolean behandlaRad;
+		boolean fraktTillkommer = false;
 		while (orl.hasNext()) {
 			behandlaRad = false;
 			rad = orl.next();
@@ -185,10 +188,29 @@ public class SimpleOrderHandler {
 			} else { behandlaRad = true; }
 			
 			if (behandlaRad) {		// Vi ska behandla denna raden
+				if ((rad.artFraktvillkor == 1 && delOrh.getTableKund().getDistrikt() != 1) || rad.artFraktvillkor == 2) {
+					fraktTillkommer = true;
+				}
 				delOrh.getOrdreg().add(rad);		// Lägg till i delordern
 				orl.remove();							// och ta sedan bort den
 			}
 		}
+		
+		if (fraktTillkommer) {
+			OrderHandlerRad delOrhRad = delOrh.addRow(SXUtil.getSXReg(em, "ArtNrFrakt", "0000"),1);
+			if (direktlevLev != null) {
+				delOrhRad.levnr = direktlevLev;
+			}			
+			if (direktlevLev == null) {
+				 delOrh.setStatus(delOrh.STATUS_SPARAD);
+			} else {
+				 delOrh.setStatus(delOrh.STATUS_DIREKTLEV);
+			}
+			
+		}
+		
+		delOrh.sortLagerPlatsArtNr();
+		
 		if (delOrh.getOrdreg().isEmpty()) { delOrh = null; }			// Om vi inte har någon rad returneras null
 		return delOrh;
 	}

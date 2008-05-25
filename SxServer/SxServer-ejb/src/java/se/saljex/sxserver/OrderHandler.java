@@ -7,7 +7,7 @@ package se.saljex.sxserver;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
+import java.util.Date;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceException;
@@ -25,6 +25,10 @@ public class OrderHandler {
 	private OrderHandlerRad ord;
 	private TableNettopri net;
 
+	public final  String STATUS_SPARAD = "Sparad";
+	public final  String STATUS_DIREKTLEV = "Sparad";
+	
+	
 	private ArrayList<OrderHandlerRad> ordreg = new ArrayList<OrderHandlerRad>();  //Holds all rows in the order
 	
 	private String anvandare;
@@ -225,6 +229,16 @@ public class OrderHandler {
 		return or1.getLagernr();
 	}
 	
+	public TableKund getTableKund() {
+		return kun;
+	}
+	
+	public String getStatus() {
+		return or1.getStatus();
+	}
+	public void setStatus(String status) {
+		or1.setStatus(new String(status));
+	}
 	
 	public void setKund(String kundNr) {
 		// Hämta kund och sätt standardvärden för or1
@@ -260,9 +274,57 @@ public class OrderHandler {
 		or1.setLinjenr3(kun.getLinjenr3());		
 	}
 
+	public boolean checkKreditvardighet(Double kreditBelopp) {
+		Double b;
+		b = (Double)em.createNamedQuery("TableKundres.findSumForKreditTest")
+			.setParameter("kundnr", kun.getNummer())
+			.setParameter("falldat", SXUtil.addDate(new Date(), 60))
+			.getSingleResult();
+		
+		if (b.compareTo(new Double(1000)) > 0) { return false; }
+
+		b = (Double)em.createNamedQuery("TableKundres.findSumForKreditTest")
+			.setParameter("kundnr", kun.getNummer())
+			.setParameter("falldat", SXUtil.addDate(new Date(), 30))
+			.getSingleResult();
+		
+		if (b.compareTo(kun.getKgransforfall30()) > 0) { return false; }
+		
+		if (kun.getKgrans() > 0) {
+			sadsad
+		}
+		
+		return true;
+	}
+	/*
+    RetVarde = TRUE
+    LOOP            !Används bara som hållare för att enkelt ta sig ur strukturen med break
+       GetSQLFile('select sum(tot) from kundres where kundnr = ''' & CLIP(KUN:Nummer) & ''' and (falldat < ''' & FORMAT(Today()-60,@D17) & ''' or tot < 0)')
+       IF SQLFile.F1 > 1000
+          RetVarde = FALSE
+          BREAK
+       .
+       GetSQLFile('select sum(tot) from kundres where kundnr = ''' & CLIP(KUN:Nummer) & ''' and (falldat < ''' & FORMAT(Today()-30,@D17) & ''' or tot < 0)')
+       IF SQLFile.F1 > KUN:KGransForfall30
+          RetVarde = FALSE
+          BREAK
+       .
+       IF KUN:KGrans > 0
+          GetSQLFile('select sum(tot) from kundres where kundnr = ''' & CLIP(KUN:Nummer) & '''')
+          IF SQLFile.f1 > KUN:KGrans - (OrderSumma*0.95)  !Vi minskar kreditgränsen med aktuell order, och tillåter 5% marginal
+             RetVarde = FALSE
+             BREAK
+          .
+       .
+       BREAK            !Avsluta alltid loopen
+    .
 	
-	public void setMarke(String m) {
-		or1.setMarke(new String(m));
+	 */
+	public void setMarke(String marke) {
+		or1.setMarke(new String(marke));
+	}
+	public String getMarke() {
+		return or1.getMarke();
 	}
 	
 	public void setLevAdr(String adr1, String adr2, String adr3) {
@@ -307,7 +369,9 @@ public class OrderHandler {
 		
 		or1.setOrdernr(fdo.getOrdernr());
 	
-		or1.setStatus("Sparad");
+		if (or1.getStatus() == null ) {		// Om vi inte satt status sätter vi förvald nu
+			or1.setStatus(STATUS_SPARAD);
+		}
 		em.persist(or1); 
 		scn = 0;
 		for (OrderHandlerRad o : ordreg) {
