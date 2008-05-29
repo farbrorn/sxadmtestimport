@@ -19,7 +19,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "FUPPG")
-@NamedQueries({@NamedQuery(name = "TableFuppg.find", query = "SELECT t FROM TableFuppg t")})
+@NamedQueries({@NamedQuery(name = "TableFuppg.findAll", query = "SELECT t FROM TableFuppg t")})
 public class TableFuppg implements Serializable {
 	private static final long serialVersionUID = 1L;
 	@Column(name = "DROJ", nullable = false)

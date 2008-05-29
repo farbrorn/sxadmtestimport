@@ -239,6 +239,13 @@ public class OrderHandler {
 	public void setStatus(String status) {
 		or1.setStatus(new String(status));
 	}
+	public Double getOrderSumma() {
+		double summa = 0;
+		for (OrderHandlerRad o: ordreg) {
+			summa = summa + o.summa;
+		}
+		return summa;
+	}
 	
 	public void setKund(String kundNr) {
 		// Hämta kund och sätt standardvärden för or1
@@ -274,7 +281,7 @@ public class OrderHandler {
 		or1.setLinjenr3(kun.getLinjenr3());		
 	}
 
-	public boolean checkKreditvardighet(Double kreditBelopp) {
+	public boolean checkKreditvardighet() {
 		Double b;
 		b = (Double)em.createNamedQuery("TableKundres.findSumForKreditTest")
 			.setParameter("kundnr", kun.getNummer())
@@ -291,35 +298,16 @@ public class OrderHandler {
 		if (b.compareTo(kun.getKgransforfall30()) > 0) { return false; }
 		
 		if (kun.getKgrans() > 0) {
-			sadsad
+			b = (Double)em.createNamedQuery("TableKundres.findSumForKund")
+				.setParameter("kundnr", kun.getNummer())
+				.getSingleResult();
+			if (b.compareTo(kun.getKgrans() - getOrderSumma()) > 0) { return false; }		// Jämför mot nuvarande orderns värde om kunden är kredivärdig
 		}
-		
+
+		// Har vi kommit hit så har alla spärrar passerats, och det är grönt för kunden att handla
 		return true;
 	}
-	/*
-    RetVarde = TRUE
-    LOOP            !Används bara som hållare för att enkelt ta sig ur strukturen med break
-       GetSQLFile('select sum(tot) from kundres where kundnr = ''' & CLIP(KUN:Nummer) & ''' and (falldat < ''' & FORMAT(Today()-60,@D17) & ''' or tot < 0)')
-       IF SQLFile.F1 > 1000
-          RetVarde = FALSE
-          BREAK
-       .
-       GetSQLFile('select sum(tot) from kundres where kundnr = ''' & CLIP(KUN:Nummer) & ''' and (falldat < ''' & FORMAT(Today()-30,@D17) & ''' or tot < 0)')
-       IF SQLFile.F1 > KUN:KGransForfall30
-          RetVarde = FALSE
-          BREAK
-       .
-       IF KUN:KGrans > 0
-          GetSQLFile('select sum(tot) from kundres where kundnr = ''' & CLIP(KUN:Nummer) & '''')
-          IF SQLFile.f1 > KUN:KGrans - (OrderSumma*0.95)  !Vi minskar kreditgränsen med aktuell order, och tillåter 5% marginal
-             RetVarde = FALSE
-             BREAK
-          .
-       .
-       BREAK            !Avsluta alltid loopen
-    .
-	
-	 */
+
 	public void setMarke(String marke) {
 		or1.setMarke(new String(marke));
 	}

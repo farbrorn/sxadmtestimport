@@ -39,7 +39,7 @@ public class OrderHandlerRad {
 	public Double artIorder = null;
 	public Double artBest = null;
 	public Double artIlager = null;
-	
+		
 	public void setAll(TableOrder2 o) {
 		ordernr = o.tableOrder2PK.getOrdernr();
 		pos = o.tableOrder2PK.getPos();
