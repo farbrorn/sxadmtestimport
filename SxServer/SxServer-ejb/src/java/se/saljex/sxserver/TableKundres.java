@@ -22,7 +22,7 @@ import javax.persistence.TemporalType;
  */
 @Entity
 @Table(name = "KUNDRES")
-@NamedQueries({@NamedQuery(name = "TableKundres.findSumForKreditTest", query = "select sum(k.tot) from TableKundres k where k.kundnr=:kundnr and (k.falldat < :falldat or k.tot < 0)")})
+@NamedQueries({@NamedQuery(name = "TableKundres.findSumForKreditTest", query = "select sum(k.tot) from TableKundres k where k.kundnr=:kundnr and (k.falldat < :falldat or k.tot < 0)"), @NamedQuery(name = "TableKundres.findSumForKund", query = "select sum(k.tot) from TableKundres k where k.kundnr=:kundnr")})
 public class TableKundres implements Serializable {
 	  private static final long serialVersionUID = 1L;
 	  @Column(name = "RANTFAKT", nullable = false)

@@ -35,26 +35,14 @@ public class TableBesthand implements Serializable {
 	}
 
 
-	public TableBesthand(int bestnr, Date datum, Date tid, String anvandare, String handelse, int inlevid) {
-		this.tableBesthandPK = new TableBesthandPK(bestnr, datum, tid);
+	public TableBesthand(int bestnr, String anvandare, String handelse, int inlevid) {
+		Date d = new Date();
+		this.tableBesthandPK = new TableBesthandPK(bestnr, d, d);
 		this.anvandare = anvandare;
 		this.handelse = handelse;
 		this.inlevid = inlevid;
 	}
 
-	public TableBesthand(int bestnr, String handelse, int inlevid) {
-		this.tableBesthandPK = new TableBesthandPK(bestnr, new Date(), new Date());
-		this.anvandare = "00";
-		this.handelse = handelse;
-		this.inlevid = inlevid;
-	}
-
-	public TableBesthand(int bestnr, String handelse) {
-		this.tableBesthandPK = new TableBesthandPK(bestnr, new Date(), new Date());
-		this.anvandare = "00";
-		this.handelse = handelse;
-		this.inlevid = 0;
-	}
 	
 	
 	public TableBesthandPK getTableBesthandPK() {

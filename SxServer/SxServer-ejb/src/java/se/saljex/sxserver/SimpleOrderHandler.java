@@ -118,6 +118,7 @@ public class SimpleOrderHandler {
 	}
 	
 	public ArrayList<Integer> saveAsOrder() {
+		BestHandler bes;
 		ArrayList<Integer> ordList = new ArrayList();
 	
 		// Börja med att sätta upp main-ordern. Från denna hämtar vi sedan alla rader 
@@ -138,6 +139,17 @@ public class SimpleOrderHandler {
 					delOrh.setAnnanLevAdr(sor1.getLevadr1(), sor1.getLevadr2(), sor1.getLevadr3());
 				} else {
 					delOrh.setLevAdr(sor1.getLevadr1(), sor1.getLevadr2(), sor1.getLevadr3());				
+				}
+			}
+			if (delOrh.getStatus().equals(delOrh.STATUS_DIREKTLEV)) {
+				// Här måste vi också spara beställningen
+				bes = new BestHandler(em,delOrh.getRow(0).levnr);		// LevNr är i detta fall samma på varje rad, och vi tar bara första levnumret
+				ArrayList<OrderHandlerRad> ord = delOrh.getOrdreg();
+				for (OrderHandlerRad rad : ord ) {
+					if (bes.addRow(rad.artnr, rad.best) == null) {
+						// Vi får fel att artikeln inte finns
+						bes.addRow();
+					}
 				}
 			}
 
