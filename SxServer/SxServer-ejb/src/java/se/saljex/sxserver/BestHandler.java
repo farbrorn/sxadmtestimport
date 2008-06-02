@@ -17,12 +17,6 @@ import javax.persistence.PersistenceException;
  * @author Ulf
  */
 public class BestHandler {
-	public final String SKICKASOM_EPOST = "epost";
-	public final String STATUS_SKAPAD = "Skapad";
-	public final String STATUS_VANTAR = "Väntar";
-	public final String STATUS_FEL = "Fel";
-	public final String STATUS_MOTTAGEN = "Mottagen";
-	public final String STATUS_SKICKAD = "Skickad";
 	
 	private EntityManager em;
 	private TableArtikel art;
@@ -34,6 +28,8 @@ public class BestHandler {
 	private ArrayList<BestHandlerRad> bordreg = new ArrayList<BestHandlerRad>();  //Holds all rows in the order
 	
 	private String anvandare;
+	
+	private boolean bestLaddad = false;
 	
 
 	public BestHandler(EntityManager e, String levNr, short lagerNr, String anvandare) {
@@ -109,6 +105,9 @@ public class BestHandler {
 		bord.enh = art.getEnhet();
 		bord.artDirektlev = art.getDirektlev();
 		bord.artFraktvillkor = art.getFraktvillkor();
+		bord.inpFrakt = art.getInpFrakt();
+		bord.inpFraktproc = art.getInpFraktproc();
+		bord.inpMiljo = art.getInpMiljo();
 		
 		setLagerToOrderRad(bord); // Sätt lagersaldon
 		calcRadSumma(bord);
@@ -130,7 +129,7 @@ public class BestHandler {
 		return b;
 	}
 
-	public ArrayList getOrdreg() {
+	public ArrayList getBordreg() {
 		return bordreg;
 	}
 
@@ -244,7 +243,7 @@ public class BestHandler {
 		be1.setBestnr(fdt.getBestnr());
 	
 		if (be1.getStatus() == null ) {		// Om vi inte satt status sätter vi förvald nu
-			be1.setStatus(STATUS_SKAPAD);
+			be1.setStatus(SXConstant.BEST_STATUS_SKAPAD);
 		}
 		
 		em.persist(be1); 
@@ -268,6 +267,7 @@ public class BestHandler {
 		}
 		em.persist( new TableBesthand(be1.getBestnr(), anvandare, "Skapad", 0));
 		em.flush();
+		bestLaddad = true;		//Signalera att beställning är sparad, och därför att betrakta som laddad
 		return be1.getBestnr();
 	}
 	

@@ -11,6 +11,7 @@ import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -21,7 +22,7 @@ import javax.persistence.TemporalType;
  */
 @Entity
 @Table(name = "ORDER2")
-@NamedQueries({})
+@NamedQueries({@NamedQuery(name = "TableOrder2.findByOrdernr", query = "SELECT o FROM TableOrder2 o where o.ordernr = :ordernr order by t.tableOrder2PK.pos")})
 public class TableOrder2 implements Serializable {
 	private static final long serialVersionUID = 1L;
 	@EmbeddedId
