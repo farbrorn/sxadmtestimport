@@ -6,21 +6,18 @@
 package se.saljex.sxserver;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.ListIterator;
 import javax.persistence.EntityManager;
+import javax.persistence.EntityNotFoundException;
 
 /**
  *
  * @author Ulf
  */
-public class SimpleOrderHandler {
+public class SimpleOrderHandler  {
 	private EntityManager em;
 	private TableOrder1 sor1;
-	private TableOrder2 sor2;
-	private TableKund kun;
-	private TableArtikel art;
-	private OrderHandlerRad ord;
-	private TableNettopri net;
 
 	private	boolean orderLaddad = false;			//Sinal om ordern är laddad
 	
@@ -31,20 +28,56 @@ public class SimpleOrderHandler {
 	private String anvandare;
 	
 	public SimpleOrderHandler(EntityManager e) {
+			orderLaddad = false;
 			em = e;
 			sor1 = new TableOrder1();
 	}
 
 	public SimpleOrderHandler(EntityManager e, String kundNr, short lagerNr, String anvandare, int worderNr, String marke) {
+		// Skapar ny order
 		this(e);
 		setKund(kundNr);
 		setLagerNr(lagerNr);
 		setAnvandare(anvandare);
 		setWorderNr(worderNr);
 		setMarke(marke);
+		orderLaddad = false;
+	}
+
+	
+/* 2008-06-02 Rutin för att läsa in en simple order är inte testkörd, eller färdig
+ * funktionen som hanterar låsta ordrar är inte färdig, och behöver komplettreras med funktion för att automatiskt låsa upp order
+ * funderar också på att flytta den in i OrderHandler, och inte låta SimpleOrderHandler göra läsfunktion från databas.
+ * 
+	public SimpleOrderHandler(EntityManager e, int orderNr) {
+		// Hämtar en Simple order
+		this(e);
+		loadOrder(orderNr);
 		
 	}
 	
+	public void loadOrder(int orderNr) {
+		TableOrder1 or1 = (TableOrder1)em.find(TableOrder1.class, orderNr);
+		if(!or1.getStatus().equals(SXConstant.ORDER_STATUS_SIMPLEORDER)) {	//Detta var inte en simpleorder, och kan inte laddas
+			String s = "Order " + orderNr + " försöker hämtas som en SimpleOrder, men den har status " + or1.getStatus() + " och kan inte behandlas.";
+			SXUtil.log(s);
+			throw new EntityNotFoundException(s);
+		} else if (or1.getLastdatum() != null) {
+			String s = "Order " + orderNr + " är låst och kan inte behandlas.";
+			SXUtil.log(s);
+			throw new EntityNotFoundException(s);
+		} else {  
+			sor1 = or1;			// Detta objekt blir nu huvudobjekt
+			
+			List<TableOrder2> l = em.createNamedQuery("TableOrder2.findByOrdernr").setParameter("ordernr", orderNr).getResultList();
+			for (TableOrder2 o : l) {
+				addRow(o.getArtnr(), o.getBest());
+			}
+			orderLaddad = true;
+		}
+	}
+	
+ */
 	public void setLagerNr(short lagernr) {
 		sor1.setLagernr(lagernr);
 	}
@@ -57,7 +90,7 @@ public class SimpleOrderHandler {
 	}
 	
 	public OrderHandlerRad addRow(String artnr, Double antal) {
-		ord = new OrderHandlerRad();
+		OrderHandlerRad ord = new OrderHandlerRad();
 		ord.best = antal;
 		ord.artnr = new String(artnr);
 		ordreg.add(ord);
@@ -127,7 +160,6 @@ public class SimpleOrderHandler {
 		for (OrderHandlerRad or : ordreg) {
 			mainOrh.addRow(or.artnr, or.best);
 		}
-		mainOrh.sortLevNr();				// Sortera efter leverantörsordning för att kolla varje leverantör för direktleverans
 		//Nu är alla rader från SimpleOrder inlästa i main-ordern med korrekta priser
 		//Nu fortsätter vi med att skanna igenom ordern och delqa den ifall det finns direkleveransartiklar
 		//samt lägger till ev. fraktkostnad på varje delorder.
@@ -141,16 +173,24 @@ public class SimpleOrderHandler {
 					delOrh.setLevAdr(sor1.getLevadr1(), sor1.getLevadr2(), sor1.getLevadr3());				
 				}
 			}
-			if (delOrh.getStatus().equals(delOrh.STATUS_DIREKTLEV)) {
+			if (delOrh.getStatus().equals(SXConstant.ORDER_STATUS_DIREKTLEV)) {
 				// Här måste vi också spara beställningen
-				bes = new BestHandler(em,delOrh.getRow(0).levnr);		// LevNr är i detta fall samma på varje rad, och vi tar bara första levnumret
+				bes = new BestHandler(em,delOrh.getRow(0).levnr, sor1.getLagernr(), anvandare);		// LevNr är i detta fall samma på varje rad, och vi tar bara första levnumret
 				ArrayList<OrderHandlerRad> ord = delOrh.getOrdreg();
 				for (OrderHandlerRad rad : ord ) {
 					if (bes.addRow(rad.artnr, rad.best) == null) {
 						// Vi får fel att artikeln inte finns
-						bes.addRow();
+						SXUtil.log("Artikel " + rad.artnr + " finns i en SimpleOrder (kund " + sor1.getKundnr() + "), men kan inte hittas när beställning ska skapas. Raden hoppas över.");
 					}
 				}
+				if (sor1.getLevadr1().isEmpty() && sor1.getLevadr2().isEmpty() && sor1.getLevadr3().isEmpty()) {
+					bes.setLevAdr(sor1.getNamn(), sor1.getAdr1()+sor1.getAdr2(), sor1.getAdr3());
+				} else {
+					bes.setLevAdr(sor1.getLevadr1(), sor1.getLevadr2(), sor1.getLevadr3());	
+				}
+				bes.setStatus(SXConstant.BEST_STATUS_VANTAR); //Väntar på godkännande innan den skickas
+				delOrh.setStatus(SXConstant.ORDER_STATUS_VANTAR);
+				bes.persistBest();
 			}
 
 
@@ -209,14 +249,14 @@ public class SimpleOrderHandler {
 		}
 		
 		if (fraktTillkommer) {
-			OrderHandlerRad delOrhRad = delOrh.addRow(SXUtil.getSXReg(em, "ArtNrFrakt", "0000"),1);
+			OrderHandlerRad delOrhRad = delOrh.addRow(SXUtil.getSXReg(em, SXConstant.SXREG_ARTNRFRAKT, SXConstant.SXREG_ARTNRFRAKT_DEFAULT),1);
 			if (direktlevLev != null) {
 				delOrhRad.levnr = direktlevLev;
 			}			
 			if (direktlevLev == null) {
-				 delOrh.setStatus(delOrh.STATUS_SPARAD);
+				 delOrh.setStatus(SXConstant.ORDER_STATUS_SPARAD);
 			} else {
-				 delOrh.setStatus(delOrh.STATUS_DIREKTLEV);
+				 delOrh.setStatus(SXConstant.ORDER_STATUS_DIREKTLEV);
 			}
 			
 		}
@@ -240,6 +280,9 @@ public class SimpleOrderHandler {
  LEV:Nummer = TempLevNr          !Skicka med vilken leverantör det rör sig om i denna globala variabel
 
  cn = 1
+	 * 
+	 * 
+	 * 
  BestBehov = FALSE
  LOOP    !Nu loopar vi igenom och filtrerar ifall det fanns leverantören med direktlev, de rader vi hittar raderas
     GET(OS,cn)

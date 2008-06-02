@@ -25,9 +25,8 @@ public class OrderHandler {
 	private OrderHandlerRad ord;
 	private TableNettopri net;
 
-	public final  String STATUS_SPARAD = "Sparad";
-	public final  String STATUS_DIREKTLEV = "Sparad";
-	
+	private boolean orderLaddad = false;			// Signalerar om aktuell order är laddad från order1 oh order2
+
 	
 	private ArrayList<OrderHandlerRad> ordreg = new ArrayList<OrderHandlerRad>();  //Holds all rows in the order
 	
@@ -40,6 +39,7 @@ public class OrderHandler {
 		setKund(kundNr);
 		setLagerNr(lagerNr);
 		setAnvandare(anvandare);
+		orderLaddad = false;
 	}
 	
 	public void setLagerNr(short lagernr) {
@@ -358,7 +358,7 @@ public class OrderHandler {
 		or1.setOrdernr(fdo.getOrdernr());
 	
 		if (or1.getStatus() == null ) {		// Om vi inte satt status sätter vi förvald nu
-			or1.setStatus(STATUS_SPARAD);
+			or1.setStatus(SXConstant.ORDER_STATUS_SPARAD);
 		}
 		em.persist(or1); 
 		scn = 0;
@@ -381,6 +381,7 @@ public class OrderHandler {
 		}
 		em.persist( new TableOrderhand(or1.getOrdernr(), anvandare, "Skapad"));
 		em.flush();
+		orderLaddad = true;			// Signalera att ordern nu finns sparad, och aktuell order därför betraktas som laddad
 		return or1.getOrdernr();
 	}
 	
