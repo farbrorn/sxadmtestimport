@@ -153,7 +153,7 @@ public class SimpleOrderHandler  {
 	public ArrayList<Integer> saveAsOrder() {
 		BestHandler bes;
 		ArrayList<Integer> ordList = new ArrayList();
-	
+		int bestnr;
 		// Börja med att sätta upp main-ordern. Från denna hämtar vi sedan alla rader 
 		// Vi behöver inte sätta huvudet (Order1) till denna order, utan nya huvuden skapas löpande för varje delorder
 		OrderHandler mainOrh = new OrderHandler(em, sor1.getKundnr(),  sor1.getLagernr(), anvandare);
@@ -190,7 +190,8 @@ public class SimpleOrderHandler  {
 				}
 				bes.setStatus(SXConstant.BEST_STATUS_VANTAR); //Väntar på godkännande innan den skickas
 				delOrh.setStatus(SXConstant.ORDER_STATUS_VANTAR);
-				bes.persistBest();
+				bestnr = bes.persistBest();
+				delOrh.setDirektlevnr(bestnr);
 			}
 
 

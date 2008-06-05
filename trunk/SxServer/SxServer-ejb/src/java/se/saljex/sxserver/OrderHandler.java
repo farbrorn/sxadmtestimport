@@ -332,6 +332,13 @@ public class OrderHandler {
 		or1.setKtid(ktid);
 	}
 	
+	public void setDirektlevnr(int direktlevnr) {
+		or1.setDirektlevnr(direktlevnr);
+	}
+	public int getDirektlevnr() {
+		return or1.getDirektlevnr();
+	}
+	
 	public Integer persistOrder() {
 		//Sparar som ny order
 		// Returnerar ordernumret
@@ -379,7 +386,7 @@ public class OrderHandler {
 			}
 			em.persist(lag);				
 		}
-		em.persist( new TableOrderhand(or1.getOrdernr(), anvandare, "Skapad"));
+		em.persist( new TableOrderhand(or1.getOrdernr(), anvandare, SXConstant.ORDERHAND_SKAPAD));
 		em.flush();
 		orderLaddad = true;			// Signalera att ordern nu finns sparad, och aktuell order därför betraktas som laddad
 		return or1.getOrdernr();

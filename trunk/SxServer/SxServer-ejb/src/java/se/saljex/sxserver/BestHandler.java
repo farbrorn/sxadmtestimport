@@ -218,8 +218,8 @@ public class BestHandler {
 	
 	
 	public Integer persistBest() {
-		//Sparar som ny order
-		// Returnerar ordernumret
+		//Sparar som ny best
+		// Returnerar bestnrnumret
 		short scn;
 		TableLager lag;
 		
@@ -228,8 +228,8 @@ public class BestHandler {
 		scn = 0;
 		while (true) {
 			scn++;			//Räkna antalet loopar för att avgöra när fel skall skapass
-			fdt = (TableFaktdat)em.createNamedQuery("TableFaktdat.findAll").getResultList().get(0); skapa fråga spm named query
-			if (em.createNamedQuery("TableFaktdat.updateBestnrBy1").setParameter("bestnr", fdt.getBestnr()).executeUpdate() > 0) {
+			fdt = (TableFaktdat)em.find(TableFaktdat.class, SXConstant.DEFAULT_FT);
+			if (em.createNamedQuery("TableFaktdat.updateBestnrBy1").setParameter("bestnr", fdt.getBestnr()).setParameter("ft", SXConstant.DEFAULT_FT) .executeUpdate() > 0) {
 				// Uppdatering lyckades, avbryt while/loopen
 				break;
 			} else {						
@@ -265,7 +265,7 @@ public class BestHandler {
 			}
 			em.persist(lag);				
 		}
-		em.persist( new TableBesthand(be1.getBestnr(), anvandare, "Skapad", 0));
+		em.persist( new TableBesthand(be1.getBestnr(), anvandare, SXConstant.BESTHAND_SKAPAD, 0));
 		em.flush();
 		bestLaddad = true;		//Signalera att beställning är sparad, och därför att betrakta som laddad
 		return be1.getBestnr();
