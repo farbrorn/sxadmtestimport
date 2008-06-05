@@ -16,6 +16,8 @@ public class SXConstant {
 	public static final  String ORDER_STATUS_SIMPLEORDER = "Simple";
 	public static final  String ORDER_STATUS_VANTAR = "Väntar";
 	
+	public static final  String ORDERHAND_SKAPAD = "Skapad";
+	
 	public static final  String SXREG_ARTNRFRAKT = "ArtNrFrakt";
 	public static final  String SXREG_ARTNRFRAKT_DEFAULT = "0000";
 	
@@ -25,5 +27,9 @@ public class SXConstant {
 	public static final String BEST_STATUS_FEL = "Fel";
 	public static final String BEST_STATUS_MOTTAGEN = "Mottagen";
 	public static final String BEST_STATUS_SKICKAD = "Skickad";
+
+	public static final  String BESTHAND_SKAPAD = "Skapad";
+
+	public static final int DEFAULT_FT = 0; // Förvalt företag vid t.ex. tablefaktdat. Kommer kanske att ändra namn senare. ft är reserverat för att hålla reda på olika företag i samma databas, 
 	
 }
