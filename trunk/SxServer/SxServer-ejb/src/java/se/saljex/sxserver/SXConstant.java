@@ -30,6 +30,20 @@ public class SXConstant {
 
 	public static final  String BESTHAND_SKAPAD = "Skapad";
 
+	
+	public static final short		KAMPBIT_ELKUND	= 1;
+	public static	final short		KAMPBIT_VVSKUND	= 2;
+	public static	final short		KAMPBIT_VAKUND	= 4;
+	public static	final short		KAMPBIT_GOLVKUND	= 8;
+	public static	final short		KAMPBIT_FASTIGHETSKUND = 16;
+
+	public static final short		KAMPBIT_INSTALLATOR	=1;
+	public static	final short		KAMPBIT_BUTIK		= 2;
+	public static	final short		KAMPBIT_INDUSTRI		= 4;
+	public static	final short		KAMPBIT_OEM			= 8;
+	public static	final short		KAMPBIT_GROSSIST		= 16;
+
+	
 	public static final int DEFAULT_FT = 0; // Förvalt företag vid t.ex. tablefaktdat. Kommer kanske att ändra namn senare. ft är reserverat för att hålla reda på olika företag i samma databas, 
 	
 }

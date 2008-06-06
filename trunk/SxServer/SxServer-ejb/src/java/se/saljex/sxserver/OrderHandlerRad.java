@@ -16,21 +16,21 @@ public class OrderHandlerRad {
 	public Short pos = 0;
 	public Short prisnr = 0;
 	public Short dellev = 0;
-	public String artnr = new String();
-	public String namn = new String();
-	public String levnr = new String(); 
+	public String artnr;
+	public String namn;
+	public String levnr; 
 	public Double best = 0.0;
 	public Double rab = 0.0;
 	public Double lev = 0.0;
-	public String text = new String();
+	public String text;
 	public Double pris = 0.0;
 	public Double summa = 0.0;
-	public String konto = new String();
+	public String konto;
 	public Double netto = 0.0;
-	public String enh = new String();
-	public Date levdat = new Date();
-	public Date utskrivendatum = new Date();
-	public Date utskriventid = new Date();
+	public String enh;
+	public Date levdat;
+	public Date utskrivendatum;
+	public Date utskriventid;
 	public Integer stjid = 0;
 
 	public Short artDirektlev = null;		// Signalerar om det är direkleverans från leverantör på denna artikel, behöver inte initieras 

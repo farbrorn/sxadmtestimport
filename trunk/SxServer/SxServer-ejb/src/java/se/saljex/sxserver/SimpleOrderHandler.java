@@ -92,7 +92,7 @@ public class SimpleOrderHandler  {
 	public OrderHandlerRad addRow(String artnr, Double antal) {
 		OrderHandlerRad ord = new OrderHandlerRad();
 		ord.best = antal;
-		ord.artnr = new String(artnr);
+		ord.artnr = artnr;
 		ordreg.add(ord);
 		return ord;
 	}
@@ -134,9 +134,9 @@ public class SimpleOrderHandler  {
 	
 	public void setLevAdr(String adr1, String adr2, String adr3) {
 		levAdressAndrad = true;
-		sor1.setLevadr1(new String(adr1));
-		sor1.setLevadr2(new String(adr2));
-		sor1.setLevadr3(new String(adr3));
+		sor1.setLevadr1(adr1);
+		sor1.setLevadr2(adr2);
+		sor1.setLevadr3(adr3);
 	}
 	
 	public void setAnnanLevAdr(String adr1, String adr2, String adr3) {
@@ -163,6 +163,9 @@ public class SimpleOrderHandler  {
 		//Nu är alla rader från SimpleOrder inlästa i main-ordern med korrekta priser
 		//Nu fortsätter vi med att skanna igenom ordern och delqa den ifall det finns direkleveransartiklar
 		//samt lägger till ev. fraktkostnad på varje delorder.
+		
+		
+		
 		OrderHandler delOrh;
 		while ( (delOrh = getNextSplitOrder(mainOrh)) != null) {
 
@@ -173,7 +176,7 @@ public class SimpleOrderHandler  {
 					delOrh.setLevAdr(sor1.getLevadr1(), sor1.getLevadr2(), sor1.getLevadr3());				
 				}
 			}
-			if (delOrh.getStatus().equals(SXConstant.ORDER_STATUS_DIREKTLEV)) {
+			if (delOrh.getStatus() != null) if (delOrh.getStatus().equals(SXConstant.ORDER_STATUS_DIREKTLEV)) {
 				// Här måste vi också spara beställningen
 				bes = new BestHandler(em,delOrh.getRow(0).levnr, sor1.getLagernr(), anvandare);		// LevNr är i detta fall samma på varje rad, och vi tar bara första levnumret
 				ArrayList<OrderHandlerRad> ord = delOrh.getOrdreg();
@@ -183,10 +186,13 @@ public class SimpleOrderHandler  {
 						SXUtil.log("Artikel " + rad.artnr + " finns i en SimpleOrder (kund " + sor1.getKundnr() + "), men kan inte hittas när beställning ska skapas. Raden hoppas över.");
 					}
 				}
-				if (sor1.getLevadr1().isEmpty() && sor1.getLevadr2().isEmpty() && sor1.getLevadr3().isEmpty()) {
-					bes.setLevAdr(sor1.getNamn(), sor1.getAdr1()+sor1.getAdr2(), sor1.getAdr3());
+				
+				if (delOrh.getLevadr1().isEmpty() && delOrh.getLevadr2().isEmpty() && delOrh.getLevadr3().isEmpty()) {
+					String tempstr = delOrh.getAdr1()+ " " + delOrh.getAdr2();
+					if (tempstr.length() > 30) { tempstr = tempstr.substring(0, 30); }	// sätt maxlängden så den inte blir för lång
+					bes.setLevAdr(delOrh.getNamn(), tempstr, delOrh.getAdr3());
 				} else {
-					bes.setLevAdr(sor1.getLevadr1(), sor1.getLevadr2(), sor1.getLevadr3());	
+					bes.setLevAdr(delOrh.getLevadr1(), delOrh.getLevadr2(), delOrh.getLevadr3());	
 				}
 				bes.setStatus(SXConstant.BEST_STATUS_VANTAR); //Väntar på godkännande innan den skickas
 				delOrh.setStatus(SXConstant.ORDER_STATUS_VANTAR);
@@ -226,7 +232,7 @@ public class SimpleOrderHandler  {
 		// Loopa igenom raderna på angiven leverantör eller alla om direktlevLev=null, och skapa ny order
 		OrderHandler delOrh = new OrderHandler(em, orh.getKundNr(),  orh.getLagerNr(), anvandare);
 		delOrh.setMarke(orh.getMarke());
-		
+		if (direktlevLev != null) { delOrh.setStatus(SXConstant.ORDER_STATUS_DIREKTLEV); }
 		ListIterator<OrderHandlerRad> orl = or.listIterator();
 		OrderHandlerRad rad;
 		boolean behandlaRad;

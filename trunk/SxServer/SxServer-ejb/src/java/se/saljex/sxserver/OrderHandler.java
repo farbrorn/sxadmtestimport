@@ -36,9 +36,9 @@ public class OrderHandler {
 	public OrderHandler(EntityManager e, String kundNr, short lagerNr, String anvandare) {
 		em = e;
 		or1 = new TableOrder1();
+		setAnvandare(anvandare);		//V iktigt att setAnvandare anropas före setKund() eftersom setKund() använder aktuell användare
 		setKund(kundNr);
 		setLagerNr(lagerNr);
-		setAnvandare(anvandare);
 		orderLaddad = false;
 	}
 	
@@ -72,7 +72,10 @@ public class OrderHandler {
 	}
 	
 	public void setAnvandare(String anvandare) {
-		this.anvandare = new String(anvandare);  // Skapar en ny Stringclass ifall användaren kommer att ändras i någon annan class
+		this.anvandare = anvandare;
+		if (this.anvandare != null) if (this.anvandare.length() > 3) {		//Max 3 tecken i användaren
+			this.anvandare = this.anvandare.substring(0, 4);	//Tar de tre första tecknen
+		}
 	}
 	public void setWordernr(int wordernr) {
 		or1.setWordernr(wordernr);
@@ -122,17 +125,6 @@ public class OrderHandler {
 		// Nu ska vi ha bastaRab laddat och klart
 
 		// Kolla om vi har en kampanj, och i så fall om den gäller för kunde
-		final short		KAMPBITELKUND	= 1;
-		final short		KAMPBITVVSKUND	= 2;
-		final short		KAMPBITVAKUND	= 4;
-		final short		KAMPBITGOLVKUND	= 8;
-		final short		KAMPBITFASTIGHETSKUND = 16;
-
-		final short		KAMPBITINSTALLATOR	=1;
-		final short		KAMPBITBUTIK		= 2;
-		final short		KAMPBITINDUSTRI		= 4;
-		final short		KAMPBITOEM			= 8;
-		final short		KAMPBITGROSSIST		= 16;
 
 		boolean kampanj = false;
 
@@ -151,8 +143,8 @@ public class OrderHandler {
 				if (art.getKampkundartgrp() == 0 && art.getKampkundgrp() == 0) {
 					kampanj = true;
 				} else {
-					int q1 = kun.getElkund()*KAMPBITELKUND + kun.getVvskund()*KAMPBITVVSKUND + kun.getVakund()*KAMPBITVAKUND + kun.getGolvkund()*KAMPBITGOLVKUND + kun.getFastighetskund()*KAMPBITFASTIGHETSKUND;
-					int q2 = kun.getInstallator()*KAMPBITINSTALLATOR + kun.getButik()*KAMPBITBUTIK + kun.getIndustri()*KAMPBITINDUSTRI + kun.getOem()*KAMPBITOEM + kun.getGrossist()*KAMPBITGROSSIST;
+					int q1 = kun.getElkund()*SXConstant.KAMPBIT_ELKUND + kun.getVvskund()*SXConstant.KAMPBIT_VVSKUND + kun.getVakund()*SXConstant.KAMPBIT_VAKUND + kun.getGolvkund()*SXConstant.KAMPBIT_GOLVKUND + kun.getFastighetskund()*SXConstant.KAMPBIT_FASTIGHETSKUND;
+					int q2 = kun.getInstallator()*SXConstant.KAMPBIT_INSTALLATOR + kun.getButik()*SXConstant.KAMPBIT_BUTIK + kun.getIndustri()*SXConstant.KAMPBIT_INDUSTRI + kun.getOem()*SXConstant.KAMPBIT_OEM + kun.getGrossist()*SXConstant.KAMPBIT_GROSSIST;
 					if ((art.getKampkundartgrp() & q1) > 0 && (art.getKampkundgrp() & q2) > 0) {
 						kampanj = true;
 					}
@@ -229,6 +221,30 @@ public class OrderHandler {
 		return or1.getLagernr();
 	}
 	
+	public String getLevadr1() {
+		return or1.getLevadr1();
+	}
+	public String getLevadr2() {
+		return or1.getLevadr2();
+	}
+	public String getLevadr3() {
+		return or1.getLevadr3();
+	}
+	public String getNamn() {
+		return or1.getNamn();
+	}
+	public String getAdr1() {
+		return or1.getAdr1();
+	}
+	public String getAdr2() {
+		return or1.getAdr2();
+	}
+	public String getAdr3() {
+		return or1.getAdr3();
+	}
+	
+	
+	
 	public TableKund getTableKund() {
 		return kun;
 	}
@@ -237,7 +253,7 @@ public class OrderHandler {
 		return or1.getStatus();
 	}
 	public void setStatus(String status) {
-		or1.setStatus(new String(status));
+		or1.setStatus(status);
 	}
 	public Double getOrderSumma() {
 		double summa = 0;
@@ -279,6 +295,8 @@ public class OrderHandler {
 		or1.setLinjenr1(kun.getLinjenr1());
 		or1.setLinjenr2(kun.getLinjenr2());
 		or1.setLinjenr3(kun.getLinjenr3());		
+		or1.setFraktbolag(kun.getFraktbolag());
+		or1.setFraktfrigrans(kun.getFraktfrigrans());
 	}
 
 	public boolean checkKreditvardighet() {
@@ -309,16 +327,16 @@ public class OrderHandler {
 	}
 
 	public void setMarke(String marke) {
-		or1.setMarke(new String(marke));
+		or1.setMarke(marke);
 	}
 	public String getMarke() {
 		return or1.getMarke();
 	}
 	
 	public void setLevAdr(String adr1, String adr2, String adr3) {
-		or1.setLevadr1(new String(adr1));
-		or1.setLevadr2(new String(adr2));
-		or1.setLevadr3(new String(adr3));
+		or1.setLevadr1(adr1);
+		or1.setLevadr2(adr2);
+		or1.setLevadr3(adr3);
 	}
 	
 	public void setAnnanLevAdr(String adr1, String adr2, String adr3) {
@@ -347,26 +365,31 @@ public class OrderHandler {
 		
 		// Hämtaa nytt irdernt och räkna upp
 		TableFdordernr fdo;
-		scn = 0;
-		while (true) {
-			scn++;			//Räkna antalet loopar för att avgöra när fel skall skapass
-			fdo = (TableFdordernr)em.createNamedQuery("TableFdordernr.findAll").getResultList().get(0);
-			if (em.createNamedQuery("TableFdordernr.updateOrdernrBy1").setParameter("ordernr", fdo.getOrdernr()).executeUpdate() > 0) {
-				// Uppdatering lyckades, avbryt while/loopen
-				break;
-			} else {						
-				if (scn > 10) {				// Har vi provat så många gånger så att vi får ge upp?
-					throw new PersistenceException("Kunde inte uppdatera fdordernr för order " + or1.getNamn());
+		if (!orderLaddad) {
+			scn = 0;
+			while (true) {
+				scn++;			//Räkna antalet loopar för att avgöra när fel skall skapass
+				fdo = (TableFdordernr)em.createNamedQuery("TableFdordernr.findAll").getResultList().get(0);
+				if (em.createNamedQuery("TableFdordernr.updateOrdernrBy1").setParameter("ordernr", fdo.getOrdernr()).executeUpdate() > 0) {
+					// Uppdatering lyckades, avbryt while/loopen
+					break;
+				} else {						
+					if (scn > 10) {				// Har vi provat så många gånger så att vi får ge upp?
+						throw new PersistenceException("Kunde inte uppdatera fdordernr för order " + or1.getNamn());
+					}
 				}
-			}
-		}	
-		// OK Allt klart, vi har fått ett ordernr och kan fortsätta spara
-		
-		or1.setOrdernr(fdo.getOrdernr());
+			}	
+			// OK Allt klart, vi har fått ett ordernr och kan fortsätta spara
+
+			or1.setOrdernr(fdo.getOrdernr());
+			or1.setDatum(new Date());
+			or1.setTid(new Date());
+		}
 	
 		if (or1.getStatus() == null ) {		// Om vi inte satt status sätter vi förvald nu
 			or1.setStatus(SXConstant.ORDER_STATUS_SPARAD);
 		}
+		if (or1.getDellev() == null) { or1.setDellev((short)1); }
 		em.persist(or1); 
 		scn = 0;
 		for (OrderHandlerRad o : ordreg) {
@@ -395,7 +418,7 @@ public class OrderHandler {
 	public void sortLevNr() {
 		java.util.Collections.sort(ordreg, new OrderHandlerComparatorLevNr());
 
-	}
+	}	
 
 	public void sortLagerPlatsArtNr() {
 		java.util.Collections.sort(ordreg, new OrderHandlerComparatorLagerPlatsArtNr());
