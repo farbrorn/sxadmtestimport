@@ -42,16 +42,19 @@ public class BestHandler {
 		TableLagerid lid;
 		lid = (TableLagerid)em.find(TableLagerid.class, lagerNr);
 		setLevAdr(lid.getLevadr1(),lid.getLevadr2(), lid.getLevadr3());
-		be1.setVarRef("");
-		try {
-			TableSaljare anv = em.find(TableSaljare.class, anvandare);
+		TableSaljare anv = em.find(TableSaljare.class, anvandare);
+		if (anv != null) {
 			be1.setVarRef(anv.getNamn());
-		} catch (EntityNotFoundException en) { }
+		} else {
+			be1.setVarRef(null);
+		}
 		
 		be1.setDatum(new Date());
 		be1.setAutobestalld((short)0);
-		Random rgen = new Random(10000); // Mellan 0 och 9999
-		int r = rgen.nextInt();
+			
+//		Random rgen = new Random(10000); // Mellan 0 och 9999
+//		int r = rgen.nex .nextInt();
+		int r = (int)(Math.random()*1000);
 		if (r < 1000) { r = r+1000; }	// Minsta värdet måste vara minst 1000, ger obalans i slumptalen men det spelar mindre roll
 		be1.setSakerhetskod(r);  // 1000-9999
 		be1.setSkickasom("");	// Initiera med tomt värde
@@ -88,7 +91,7 @@ public class BestHandler {
 	}
 	
 	public void setAnvandare(String anvandare) {
-		this.anvandare = new String(anvandare);  // Skapar en ny Stringclass ifall användaren kommer att ändras i någon annan class
+		this.anvandare = anvandare;
 	}
 	
 	public BestHandlerRad addRow(String artnr, double antal) {
@@ -119,6 +122,14 @@ public class BestHandler {
 	private double calcRadSumma(BestHandlerRad b) {
 		b.summa = b.pris * b.best * (1-b.rab/100);
 		return b.summa;
+	}
+	
+	private void calcTotalSumma() {
+		double s = 0.0;
+		for (BestHandlerRad b : bordreg) {
+			s = s + calcRadSumma(b);
+		}
+		be1.setSumma(s);
 	}
 	
 	public BestHandlerRad getRow(int rad) {
@@ -153,12 +164,12 @@ public class BestHandler {
 		return be1.getStatus();
 	}
 	public void setStatus(String status) {
-		be1.setStatus(new String(status));
+		be1.setStatus(status);
 	}
 	public Double getBestSumma() {
 		double summa = 0;
 		for (BestHandlerRad b: bordreg) {
-			summa = calcRadSumma(b);
+			summa = summa + calcRadSumma(b);
 		}
 		return summa;
 	}
@@ -172,7 +183,7 @@ public class BestHandler {
 		be1.setLevnamn(lev.getNamn());
 		be1.setErRef(lev.getRef());
 
-		if (lev.getLevvillkor1().isEmpty()) {
+		if (!lev.getLevvillkor1().isEmpty()) {
 			be1.setLevvillkor1(lev.getLevvillkor1());
 			be1.setLevvillkor2(lev.getLevvillkor2());
 			be1.setLevvillkor3(lev.getLevvillkor3());
@@ -202,16 +213,16 @@ public class BestHandler {
 	}
 	
 	public void setMarke(String marke) {
-		be1.setMarke(new String(marke));
+		be1.setMarke(marke);
 	}
 	public String getMarke() {
 		return be1.getMarke();
 	}
 	
 	public void setLevAdr(String adr1, String adr2, String adr3) {
-		be1.setLevadr1(new String(adr1));
-		be1.setLevadr2(new String(adr2));
-		be1.setLevadr3(new String(adr3));
+		be1.setLevadr1(adr1);
+		be1.setLevadr2(adr2);
+		be1.setLevadr3(adr3);
 	}
 	
 
@@ -245,6 +256,8 @@ public class BestHandler {
 		if (be1.getStatus() == null ) {		// Om vi inte satt status sätter vi förvald nu
 			be1.setStatus(SXConstant.BEST_STATUS_SKAPAD);
 		}
+		
+		calcTotalSumma();
 		
 		em.persist(be1); 
 		scn = 0;
