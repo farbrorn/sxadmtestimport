@@ -22,7 +22,7 @@ import javax.persistence.TemporalType;
  */
 @Entity
 @Table(name = "BEST2")
-@NamedQueries({@NamedQuery(name = "TableBest2.findByBestnr", query = "SELECT b FROM TableBest2 b WHERE b.tableBest2PK.bestnr = :bestnr order by b.tableBest2PK.rad")})
+@NamedQueries({@NamedQuery(name = "TableBest2.findByBestnr", query = "SELECT b FROM TableBest2 b WHERE b.tableBest2PK.bestnr = :bestnr order by b.tableBest2PK.rad"),@NamedQuery(name = "TableBest2.deleteByBestnr", query = "DELETE FROM TableBest2 b WHERE b.tableBest2PK.bestnr = :bestnr")})
 public class TableBest2 implements Serializable {
 	private static final long serialVersionUID = 1L;
 	@EmbeddedId
