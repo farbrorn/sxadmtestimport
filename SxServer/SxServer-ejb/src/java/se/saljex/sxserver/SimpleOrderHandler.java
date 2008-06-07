@@ -179,6 +179,7 @@ public class SimpleOrderHandler  {
 			if (delOrh.getStatus() != null) if (delOrh.getStatus().equals(SXConstant.ORDER_STATUS_DIREKTLEV)) {
 				// Här måste vi också spara beställningen
 				bes = new BestHandler(em,delOrh.getRow(0).levnr, sor1.getLagernr(), anvandare);		// LevNr är i detta fall samma på varje rad, och vi tar bara första levnumret
+				bes.setAutobestalld((short)1);	// Detta är en automatiskt skapad beställning
 				ArrayList<OrderHandlerRad> ord = delOrh.getOrdreg();
 				for (OrderHandlerRad rad : ord ) {
 					if (bes.addRow(rad.artnr, rad.best) == null) {
@@ -188,15 +189,17 @@ public class SimpleOrderHandler  {
 				}
 				
 				if (delOrh.getLevadr1().isEmpty() && delOrh.getLevadr2().isEmpty() && delOrh.getLevadr3().isEmpty()) {
-					String tempstr = delOrh.getAdr1()+ " " + delOrh.getAdr2();
-					if (tempstr.length() > 30) { tempstr = tempstr.substring(0, 30); }	// sätt maxlängden så den inte blir för lång
-					bes.setLevAdr(delOrh.getNamn(), tempstr, delOrh.getAdr3());
+					bes.setLevAdr(delOrh.getNamn(), delOrh.getAdr1(), delOrh.getAdr2(), delOrh.getAdr3());
 				} else {
-					bes.setLevAdr(delOrh.getLevadr1(), delOrh.getLevadr2(), delOrh.getLevadr3());	
+					bes.setLevAdr(null, delOrh.getLevadr1(), delOrh.getLevadr2(), delOrh.getLevadr3());	
 				}
 				bes.setStatus(SXConstant.BEST_STATUS_VANTAR); //Väntar på godkännande innan den skickas
-				delOrh.setStatus(SXConstant.ORDER_STATUS_VANTAR);
+				if (delOrh.getOrdernr() == null || delOrh.getOrdernr() == 0) { delOrh.prepareNextOrderNr(); }		// Se till att det finns ett nytt ordernr
+				bes.setOrdernr(delOrh.getOrdernr());
+				bes.setSkickasom(SXConstant.BEST_SKICKASOM_EPOST);
 				bestnr = bes.persistBest();
+				
+				delOrh.setStatus(SXConstant.ORDER_STATUS_VANTAR);
 				delOrh.setDirektlevnr(bestnr);
 			}
 

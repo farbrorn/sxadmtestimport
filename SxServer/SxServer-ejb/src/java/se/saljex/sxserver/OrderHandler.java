@@ -263,6 +263,10 @@ public class OrderHandler {
 		return summa;
 	}
 	
+	public Integer getOrdernr() {
+		return or1.getOrdernr();
+	}
+	
 	public void setKund(String kundNr) {
 		// Hämta kund och sätt standardvärden för or1
 		kun = em.find(TableKund.class, kundNr);
@@ -356,6 +360,29 @@ public class OrderHandler {
 	public int getDirektlevnr() {
 		return or1.getDirektlevnr();
 	}
+
+	public int prepareNextOrderNr() {
+		//	 Tar fram nästa ordernr och sätter det i aktuell order , samt uppdaterar räknaren
+		TableFdordernr fdo;
+		int scn = 0;
+		while (true) {
+			scn++;			//Räkna antalet loopar för att avgöra när fel skall skapass
+			fdo = (TableFdordernr)em.createNamedQuery("TableFdordernr.findAll").getResultList().get(0);
+			if (em.createNamedQuery("TableFdordernr.updateOrdernrBy1").setParameter("ordernr", fdo.getOrdernr()).executeUpdate() > 0) {
+				// Uppdatering lyckades, avbryt while/loopen
+				break;
+			} else {						
+				if (scn > 10) {				// Har vi provat så många gånger så att vi får ge upp?
+					throw new PersistenceException("Kunde inte uppdatera fdordernr för order " + or1.getNamn());
+				}
+			}
+		}	
+		// OK Allt klart, vi har fått ett ordernr 
+
+		or1.setOrdernr(fdo.getOrdernr());
+		return(fdo.getOrdernr());
+		
+	}
 	
 	public Integer persistOrder() {
 		//Sparar som ny order
@@ -364,24 +391,10 @@ public class OrderHandler {
 		TableLager lag;
 		
 		// Hämtaa nytt irdernt och räkna upp
-		TableFdordernr fdo;
 		if (!orderLaddad) {
-			scn = 0;
-			while (true) {
-				scn++;			//Räkna antalet loopar för att avgöra när fel skall skapass
-				fdo = (TableFdordernr)em.createNamedQuery("TableFdordernr.findAll").getResultList().get(0);
-				if (em.createNamedQuery("TableFdordernr.updateOrdernrBy1").setParameter("ordernr", fdo.getOrdernr()).executeUpdate() > 0) {
-					// Uppdatering lyckades, avbryt while/loopen
-					break;
-				} else {						
-					if (scn > 10) {				// Har vi provat så många gånger så att vi får ge upp?
-						throw new PersistenceException("Kunde inte uppdatera fdordernr för order " + or1.getNamn());
-					}
-				}
-			}	
-			// OK Allt klart, vi har fått ett ordernr och kan fortsätta spara
-
-			or1.setOrdernr(fdo.getOrdernr());
+			if (or1.getOrdernr() == null || or1.getOrdernr() == 0) {
+				prepareNextOrderNr();
+			}
 			or1.setDatum(new Date());
 			or1.setTid(new Date());
 		}
