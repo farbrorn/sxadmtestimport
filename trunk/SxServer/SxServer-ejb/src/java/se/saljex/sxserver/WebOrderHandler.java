@@ -9,6 +9,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
 
@@ -116,9 +117,34 @@ public ArrayList<Integer> getSkickadWorderList() throws java.sql.SQLException {
 		Statement s = con.createStatement();                
 		ResultSet r = s.executeQuery("select wordernr from weborder1 where status = 'Skickad'");                
 		while (r.next()) {                        
-			listWor2.add(r.getInt(1));                
+			listWor2.add(r.getInt(1));                 
 		}  
 		return listWor2;
+	} 
+
+public int updateArtikel() {
+	List<TableArtikel> r = em.createNamedQuery("TableArtikel.findAllInArtklaselank").getResultList();
+	Integer cn = 0;
+	for (TableArtikel a : r) {
+		cn++;
+		if (cn < 20 ) {
+			SXUtil.log(a.getNummer());
+		}
 	}
+	SXUtil.log(cn.toString());
+	//em.createNamedQuery("TableArtikel.getAllForSaljexse").getResultList();
+	//em.cre
+	return 0;
+}
+
+public int updateArtgrp() {
+	return 0;
 	
+}
+
+public int updateArtklase() {
+	return 0;
+	
+}
+
 }

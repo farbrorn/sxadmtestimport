@@ -22,7 +22,7 @@ import javax.persistence.TemporalType;
  */
 @Entity
 @Table(name = "ORDER2")
-@NamedQueries({@NamedQuery(name = "TableOrder2.findByOrdernr", query = "SELECT o FROM TableOrder2 o where o.tableOrder2PK.ordernr = :ordernr order by o.tableOrder2PK.pos")})
+@NamedQueries({@NamedQuery(name = "TableOrder2.findByOrdernr", query = "SELECT o FROM TableOrder2 o where o.tableOrder2PK.ordernr = :ordernr order by o.tableOrder2PK.pos"), @NamedQuery(name = "TableOrder2.deleteByOrdernr", query = "DELETE FROM TableOrder2 o where o.tableOrder2PK.ordernr = :ordernr")})
 public class TableOrder2 implements Serializable {
 	private static final long serialVersionUID = 1L;
 	@EmbeddedId

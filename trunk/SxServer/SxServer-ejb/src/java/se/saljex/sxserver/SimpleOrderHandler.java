@@ -6,10 +6,8 @@
 package se.saljex.sxserver;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.ListIterator;
 import javax.persistence.EntityManager;
-import javax.persistence.EntityNotFoundException;
 
 /**
  *

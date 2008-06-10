@@ -212,7 +212,7 @@ public class JobbHandler {
 				SXUtil.log("Beställning " + be1.getBestnr() + " till " + be1.getLevnr() + " kunde inte skickas epost. Max antal försök uppnått, flaggar som fel " + e.toString());
 				be1.setStatus("Fel");
 				em.persist(be1);
-				TableBesthand beh = new TableBesthand(be1.getBestnr(),"E-Post sändning misslyckad");
+				TableBesthand beh = new TableBesthand(be1.getBestnr(),SXUtil.getSXReg(em, SXConstant.SXREG_SERVERANVANDARE, SXConstant.SXREG_SERVERANVANDARE_DEFAULT), "E-Post sändning misslyckad",0);
 				em.persist(beh);
 				em.flush();
 			}
@@ -222,7 +222,7 @@ public class JobbHandler {
 			try {
 				be1.setStatus("Skickad");
 				em.persist(be1);
-				TableBesthand beh = new TableBesthand(be1.getBestnr(),"Sänd E-Post");
+				TableBesthand beh = new TableBesthand(be1.getBestnr(),SXUtil.getSXReg(em, SXConstant.SXREG_SERVERANVANDARE, SXConstant.SXREG_SERVERANVANDARE_DEFAULT),"Sänd E-Post",0);
 				em.persist(beh);
 				em.flush();
 			} catch (Exception e) {
@@ -295,7 +295,7 @@ public class JobbHandler {
 					be1.setStatus("Fel");
 				}
 				em.persist(be1);
-				TableBesthand beh = new TableBesthand(be1.getBestnr(),"Påminnelse skickad");
+				TableBesthand beh = new TableBesthand(be1.getBestnr(),SXUtil.getSXReg(em, SXConstant.SXREG_SERVERANVANDARE, SXConstant.SXREG_SERVERANVANDARE_DEFAULT),"Påminnelse skickad",0);
 				em.persist(beh);
 				em.flush();
 			} catch (Exception e) {

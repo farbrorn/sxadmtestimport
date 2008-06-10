@@ -5,9 +5,9 @@
 
 package se.saljex.sxserver;
 
+import java.sql.Connection;
 import java.util.ArrayList;
 import javax.persistence.EntityManager;
-import javax.sql.DataSource;
 
 /**
  *
@@ -15,9 +15,11 @@ import javax.sql.DataSource;
  */
 public class SXTester {
 	protected EntityManager em;
-
-	public SXTester(EntityManager em) {
+	private Connection con;
+	
+	public SXTester(EntityManager em, Connection con) {
 		this.em  = em;
+		this.con = con;
 	}
 	
 	public String tester(String testTyp) {
@@ -103,7 +105,8 @@ public class SXTester {
 			for (Integer il : al) {
 				ret = ret + "<br> Sparad som ordernr: " + il;
 			}
-			
+		} else if (testTyp.equals("dum"))	 {
+			dumtest();
 		} else { ret = "<br>Ogigiltig test: " + testTyp + "<br>"; }
 		return ret;
 
@@ -135,5 +138,9 @@ public class SXTester {
 		return ret;
 			
 	}
-	
+
+	private void dumtest() {
+		WebOrderHandler wo = new WebOrderHandler(em, con, "d");
+		wo.updateArtikel();
+	}
 }

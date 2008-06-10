@@ -8,6 +8,7 @@ package se.saljex.sxserver;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Iterator;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceException;
@@ -383,6 +384,34 @@ public class OrderHandler {
 		return(fdo.getOrdernr());
 		
 	}
+
+	  private void deleteFromOrder2AndUpdateLager() {
+			 // Radera alla rader ur order2 samt uppdatera lager
+			 // Observera att ordernumret tas ur or1.ordernr
+			TableLager lag;
+			Iterator i = em.createNamedQuery("TableOrder2.findByOrdernr").setParameter("ordernr", or1.getOrdernr()).getResultList().iterator();
+			while (i.hasNext()) {
+				TableOrder2 o = (TableOrder2)i.next();
+				if (o.getArtnr() != null) { 
+					if (!o.getArtnr().startsWith("*")) {
+						lag = em.find(TableLager.class, new TableLagerPK(o.getArtnr(), or1.getLagernr()));
+						if (lag == null) {
+							// Normalt skulle vi lägga till raden i lager-tqbellen här, men då vi bara raderar en befintlig best så struntar vi i det 
+							// för om vi minskar best-antalet får vi ännu konstigare resultt
+						} else {
+							lag.setIorder(lag.getIorder() - o.getBest());
+						}
+						em.persist(lag);
+					} else { // Vi har en *-rad
+						// Vi gör inget med TableStjarnrad, utan låter uppdatera om något ändrats
+						// om raden har tagits bort från ordern låter vi deta bara passera
+					}
+				}
+			}
+			em.createNamedQuery("TableOrder2.deleteByOrdernr").setParameter("ordernr", or1.getOrdernr()).executeUpdate();	// Radera alla rader på best2
+	  }
+
+	
 	
 	public Integer persistOrder() {
 		//Sparar som ny order
@@ -397,6 +426,8 @@ public class OrderHandler {
 			}
 			or1.setDatum(new Date());
 			or1.setTid(new Date());
+		} else {
+			deleteFromOrder2AndUpdateLager();
 		}
 	
 		if (or1.getStatus() == null ) {		// Om vi inte satt status sätter vi förvald nu
@@ -411,16 +442,46 @@ public class OrderHandler {
 			o.dellev = or1.getDellev();
 			o.pos = scn;
 			or2 = o.getOrder2();
+			if (o.stjid == null) { o.stjid = 0; }
 			em.persist(or2);
 			
 			// Uppdatera lagersaldo
-			lag = em.find(TableLager.class, new TableLagerPK(o.artnr, or1.getLagernr()));
-			if (lag == null) {
-				lag = new TableLager(o.artnr, or1.getLagernr(),o.best,0);
-			} else {
-				lag.setIorder(lag.getIorder()+o.best);
+			if (!o.artnr.startsWith("*")) {			
+				lag = em.find(TableLager.class, new TableLagerPK(o.artnr, or1.getLagernr()));
+				if (lag == null) {
+					lag = new TableLager(o.artnr, or1.getLagernr(),o.best,0);
+				} else {
+					lag.setIorder(lag.getIorder()+o.best);
+				}
+				em.persist(lag);
+			} else { // Vi har *-rad
+				TableStjarnrad stj = null;
+				
+				if (o.stjid > 0) {
+					stj = (TableStjarnrad)em.find(TableStjarnrad.class, o.stjid);
+				}
+				
+				// Denna if-sats är beroende av resultatet från stj = em.find
+				// samt av värdet i o.stjid
+				// Så var försiktig vid ändringar
+				if (stj == null) {
+					Integer maxstjid = (Integer)em.createNamedQuery("TableStjarnrad.getMaxId").getSingleResult();
+					stj = new TableStjarnrad(maxstjid);
+					stj.setAnvandare(anvandare);
+					stj.setRegdatum(new Date());
+				}
+				stj.setAntal(o.best);
+				stj.setArtnr(o.artnr);
+				stj.setAutobestall(o.stjAutobestall);
+				stj.setFinnsilager(o.stjFinnsILager);
+				stj.setEnh(o.enh);
+				stj.setInpris(o.netto);
+				stj.setKundnr(or1.getKundnr());
+				stj.setLagernr(or1.getLagernr());
+				stj.setLevnr(o.levnr);
+				stj.setNamn(o.namn);
+				em.persist(stj);
 			}
-			em.persist(lag);				
 		}
 		em.persist( new TableOrderhand(or1.getOrdernr(), anvandare, SXConstant.ORDERHAND_SKAPAD));
 		em.flush();

@@ -20,6 +20,8 @@ public class SXConstant {
 	
 	public static final  String SXREG_ARTNRFRAKT = "ArtNrFrakt";
 	public static final  String SXREG_ARTNRFRAKT_DEFAULT = "0000";
+	public static final  String SXREG_SERVERANVANDARE = "SXServDefaultAnvandare";
+	public static final  String SXREG_SERVERANVANDARE_DEFAULT = "00";
 	
 	public static final String BEST_SKICKASOM_EPOST = "epost";
 	public static final String BEST_STATUS_SKAPAD = "Skapad";
