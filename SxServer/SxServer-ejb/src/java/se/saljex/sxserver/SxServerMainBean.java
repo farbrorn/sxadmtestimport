@@ -310,8 +310,10 @@ z							, SXUtil.getSXReg(con,"SxServMailFakturaBodyPrefix") + SXUtil.getSXReg(c
 	}
 
 	public String tester(String testTyp) {
-		SXTester t = new SXTester(em);
-		return t.tester(testTyp);
+		try {
+			SXTester t = new SXTester(em, saljexse.getConnection());
+			return t.tester(testTyp);
+		}	catch (SQLException se) { return "SQLException inträffade: " + se.toString();}
 	}
 	
 

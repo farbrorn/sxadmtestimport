@@ -32,6 +32,11 @@ public class OrderHandlerRad {
 	public Date utskrivendatum;
 	public Date utskriventid;
 	public Integer stjid = 0;
+	
+	
+	public Short stjAutobestall = 0;
+	public Short stjFinnsILager = 0;
+	
 
 	public Short artDirektlev = null;		// Signalerar om det är direkleverans från leverantör på denna artikel, behöver inte initieras 
 	public Short artFraktvillkor = null;	// Anger fraktvillkoret på artikeln, behöver inte initieras

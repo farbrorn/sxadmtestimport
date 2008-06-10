@@ -11,6 +11,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -21,7 +22,7 @@ import javax.persistence.TemporalType;
  */
 @Entity
 @Table(name = "STJARNRAD")
-@NamedQueries({})
+@NamedQueries({@NamedQuery(name = "TableStjarnrad.getMaxId", query = "SELECT max(s.stjid) FROM TableStjarnrad s")})
 public class TableStjarnrad implements Serializable {
 	  private static final long serialVersionUID = 1L;
 	  @Id
@@ -65,6 +66,9 @@ public class TableStjarnrad implements Serializable {
 	  @Column(name = "FAKTURANR")
 	  private Integer fakturanr;
 
+	  public TableStjarnrad() {
+		  
+	  }
 
 	  public TableStjarnrad(Integer stjid) {
 			 this.stjid = stjid;
