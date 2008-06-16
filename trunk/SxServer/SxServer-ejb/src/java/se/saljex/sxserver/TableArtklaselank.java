@@ -19,7 +19,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "ARTKLASELANK")
-@NamedQueries({@NamedQuery(name = "TableArtklaselank.findByKlasid", query = "SELECT t FROM TableArtklaselank t WHERE t.tableArtklaselankPK.klasid = :klasid"), @NamedQuery(name = "TableArtklaselank.findByArtnr", query = "SELECT t FROM TableArtklaselank t WHERE t.tableArtklaselankPK.artnr = :artnr"), @NamedQuery(name = "TableArtklaselank.findBySortorder", query = "SELECT t FROM TableArtklaselank t WHERE t.sortorder = :sortorder")})
+@NamedQueries({@NamedQuery(name = "TableArtklaselank.findAll", query = "SELECT t FROM TableArtklaselank t")})
 public class TableArtklaselank implements Serializable {
 	  private static final long serialVersionUID = 1L;
 	  @EmbeddedId

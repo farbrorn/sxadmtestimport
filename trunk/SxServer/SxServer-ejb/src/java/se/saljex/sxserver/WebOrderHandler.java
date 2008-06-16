@@ -6,7 +6,9 @@
 package se.saljex.sxserver;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
@@ -122,29 +124,142 @@ public ArrayList<Integer> getSkickadWorderList() throws java.sql.SQLException {
 		return listWor2;
 	} 
 
-public int updateArtikel() {
-	List<TableArtikel> r = em.createNamedQuery("TableArtikel.findAllInArtklaselank").getResultList();
+
+
+public int updateWArtikel() throws SQLException {
+	con.createStatement().executeUpdate("delete from wartikelup");		// Rensar temporära tebellen
+	
+	List<TableArtikel> r = em.createNamedQuery("TableArtikel.findAllInArtklaselank").getResultList(); // Hämtar alla aritklar som är med i någon klase
 	Integer cn = 0;
+	TableLager lag;
+	// Prepare frågan för att användas i insert-loopen
+	PreparedStatement prep = con.prepareStatement("insert into wartikelup (namn, enhet, utpris, staf_pris1, staf_pris2, staf_pris1_dat, staf_pris2_dat," +
+		" staf_antal1, staf_antal2, bestnr, rabkod, kod1, prisdatum, refnr, vikt, volym, minsaljpack, forpack, rsk, enummer," +
+		" fraktvillkor, prisgiltighetstid, utgattdatum, katnamn, bildartnr, maxlager, ilager) values (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 	for (TableArtikel a : r) {
-		cn++;
-		if (cn < 20 ) {
-			SXUtil.log(a.getNummer());
-		}
+		lag = em.find(TableLager.class, new TableLagerPK(a.getNummer(),(short)0));		// Hämtar lagervärdena
+		prep.setString	(1 , a.getNummer());
+		prep.setString	(2 , a.getEnhet());
+		prep.setDouble	(3 , a.getUtpris());
+		prep.setDouble	(4 , a.getStafPris1());
+		prep.setDouble	(5 , a.getStafPris2()); 
+		prep.setDate	(6 , new java.sql.Date(a.getStafPris1Dat().getTime()));
+		prep.setDate	(7 , new java.sql.Date(a.getStafPris2Dat().getTime()));
+		prep.setDouble	(8 , a.getStafAntal1());
+		prep.setDouble	(9, a.getStafAntal2());
+		prep.setString	(10, a.getBestnr());
+		prep.setString	(11, a.getRabkod());
+		prep.setString	(12, a.getKod1());
+		prep.setDate	(13, new java.sql.Date(a.getPrisdatum().getTime()));
+		prep.setString	(14, a.getRefnr());
+		prep.setDouble	(15, a.getVikt());
+		prep.setDouble	(16, a.getVolym());
+		prep.setDouble	(17, a.getMinsaljpack());
+		prep.setDouble	(18, a.getForpack());
+		prep.setString	(19, a.getRsk());
+		prep.setString	(20, a.getEnummer());
+		prep.setShort	(21, a.getFraktvillkor());
+		prep.setInt		(22, a.getPrisgiltighetstid());
+		prep.setDate	(23, new java.sql.Date(a.getUtgattdatum().getTime()));
+		prep.setString	(24, a.getKatnamn());
+		prep.setString	(25, a.getBildartnr());
+		prep.setDouble	(26, lag.getMaxlager());
+		prep.setDouble	(27, lag.getIlager() - lag.getIorder());
+		prep.executeUpdate();
+		cn++;		
 	}
-	SXUtil.log(cn.toString());
-	//em.createNamedQuery("TableArtikel.getAllForSaljexse").getResultList();
-	//em.cre
-	return 0;
-}
-
-public int updateArtgrp() {
-	return 0;
+	con.createStatement().executeUpdate("drop table wartikel");											// Rensar originaltabellen på webb-sertvern
+	con.createStatement().executeUpdate("create table wartikel select * from wartikelup");		// Kopierar temporära tabellen till original
 	
+	return cn;
 }
 
-public int updateArtklase() {
-	return 0;
+public int updateWArtgrp() throws SQLException {
+	con.createStatement().executeUpdate("delete from wartgrpup");		// Rensar temporära tebellen
+	int cn = 0;
 	
+	List<TableArtgrp> r = em.createNamedQuery("TableArtgrp.findAll").getResultList(); // Hämtar alla rader
+	// Prepare frågan för att användas i insert-loopen
+	PreparedStatement prep = con.prepareStatement("insert into wartgrpup (grpid, prevgrpid, rubrik, infourl, sortorder, text, html)" +
+		" values (?,?,?,?,?,?,?)");
+	for (TableArtgrp a : r) {
+		prep.setInt		(1 , a.getGrpid());
+		prep.setInt		(2 , a.getPrevgrpid());
+		prep.setString	(3 , a.getRubrik());
+		prep.setString	(4 , a.getInfourl());
+		prep.setInt		(5 , a.getSortorder());		
+		prep.setString	(6 , a.getText());
+		prep.setString	(7 , a.getHtml());
+		prep.executeUpdate();
+		cn++;		
+	}
+	con.createStatement().executeUpdate("drop table wartgrp");											// Rensar originaltabellen på webb-sertvern
+	con.createStatement().executeUpdate("create table wartgrp select * from wartgrpup");		// Kopierar temporära tabellen till original
+	return cn;	
+}
+
+public int updateWArtgrplank() throws SQLException {
+	con.createStatement().executeUpdate("delete from wartgrplankup");		// Rensar temporära tebellen
+	int cn = 0;
+	
+	List<TableArtgrplank> r = em.createNamedQuery("TableArtgrplank.findAll").getResultList(); // Hämtar alla rader
+	// Prepare frågan för att användas i insert-loopen
+	PreparedStatement prep = con.prepareStatement("insert into wartgrplankup (grpid, klasid, sortorder)" +
+		" values (?,?,?)");
+	for (TableArtgrplank a : r) {
+		prep.setInt		(1 , a.getTableArtgrplankPK().getGrpid());
+		prep.setInt		(2 , a.getTableArtgrplankPK().getKlasid());
+		prep.setInt		(3 , a.getSortorder());	
+		prep.executeUpdate();
+		cn++;		
+	}
+	con.createStatement().executeUpdate("drop table wartgrplank");											// Rensar originaltabellen på webb-sertvern
+	con.createStatement().executeUpdate("create table wartgrplank select * from wartgrplankup");		// Kopierar temporära tabellen till original
+	return cn;	
+}
+
+public int updateWArtklase() throws SQLException {
+	con.createStatement().executeUpdate("delete from wartklaseup");		// Rensar temporära tebellen
+	int cn = 0;
+	
+	List<TableArtklase> r = em.createNamedQuery("TableArtklase.findAll").getResultList(); // Hämtar alla rader
+	// Prepare frågan för att användas i insert-loopen
+	PreparedStatement prep = con.prepareStatement("insert into wartklaseup (klasid, rubrik, infourl, fraktvillkor, text, html)" +
+		" values (?,?,?,?,?,?)");
+	for (TableArtklase a : r) {
+		prep.setInt			(1 , a.getKlasid());
+		prep.setString		(2 , a.getRubrik());
+		prep.setString		(3 , a.getInfourl());	
+		prep.setString		(4 , a.getFraktvillkor());
+		prep.setString		(5 , a.getText());	
+		prep.setString		(6 , a.getHtml());	
+		prep.executeUpdate();
+		cn++;		
+	}
+	con.createStatement().executeUpdate("drop table wartklase");											// Rensar originaltabellen på webb-sertvern
+	con.createStatement().executeUpdate("create table wartklase select * from wartklaseup");		// Kopierar temporära tabellen till original
+	return cn;	
+}
+
+public int updateWArtklaselank() throws SQLException {
+	con.createStatement().executeUpdate("delete from wartklaselankup");		// Rensar temporära tebellen
+	int cn = 0;
+	
+	List<TableArtklaselank> r = em.createNamedQuery("TableArtklaselank.findAll").getResultList(); // Hämtar alla rader
+	// Prepare frågan för att användas i insert-loopen
+	PreparedStatement prep = con.prepareStatement("insert into wartklaselankup (klasid, artnr, sortorder)" +
+		" values (?,?,?)");
+	for (TableArtklaselank a : r) {
+		prep.setInt		(1 , a.getTableArtklaselankPK().getKlasid());
+		prep.setString	(2 , a.getTableArtklaselankPK().getArtnr());
+		prep.setInt		(3 , a.getSortorder());	
+		prep.executeUpdate();
+		cn++;		
+	}
+	con.createStatement().executeUpdate("drop table wartklaselank");											// Rensar originaltabellen på webb-sertvern
+	con.createStatement().executeUpdate("create table wartklaselank select * from wartklaselankup");		// Kopierar temporära tabellen till original
+	return cn;	
 }
 
 }
+    
