@@ -106,7 +106,7 @@ public class SXTester {
 				ret = ret + "<br> Sparad som ordernr: " + il;
 			}
 		} else if (testTyp.equals("dum"))	 {
-			dumtest();
+			ret = dumtest();
 		} else { ret = "<br>Ogigiltig test: " + testTyp + "<br>"; }
 		return ret;
 
@@ -139,8 +139,7 @@ public class SXTester {
 			
 	}
 
-	private void dumtest() {
-		WebOrderHandler wo = new WebOrderHandler(em, con, "d");
-		wo.updateArtikel();
+	private String dumtest() {
+		return "dumtest";
 	}
 }

@@ -19,7 +19,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "ARTKLASE")
-@NamedQueries({@NamedQuery(name = "TableArtklase.findByKlasid", query = "SELECT t FROM TableArtklase t WHERE t.klasid = :klasid"), @NamedQuery(name = "TableArtklase.findByRubrik", query = "SELECT t FROM TableArtklase t WHERE t.rubrik = :rubrik"), @NamedQuery(name = "TableArtklase.findByText", query = "SELECT t FROM TableArtklase t WHERE t.text = :text"), @NamedQuery(name = "TableArtklase.findByInfourl", query = "SELECT t FROM TableArtklase t WHERE t.infourl = :infourl"), @NamedQuery(name = "TableArtklase.findByFraktvillkor", query = "SELECT t FROM TableArtklase t WHERE t.fraktvillkor = :fraktvillkor"), @NamedQuery(name = "TableArtklase.findByHtml", query = "SELECT t FROM TableArtklase t WHERE t.html = :html")})
+@NamedQueries({@NamedQuery(name = "TableArtklase.findAll", query = "SELECT t FROM TableArtklase t") })
 public class TableArtklase implements Serializable {
 	  private static final long serialVersionUID = 1L;
 	  @Id
