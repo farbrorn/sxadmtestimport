@@ -3,21 +3,27 @@
     Created on : 2008-jun-16, 21:59:23
     Author     : ulf
 --%>
-
+<%@ page import="se.saljex.sxserver.web.*" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-   "http://www.w3.org/TR/html4/loose.dtd">
-
-<html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>Login</title>
-    </head>
-    <body>
-        <h2>Logga in</h2>
-		  <form name="loginfr" action="login" method="POST">
-			Kundnr: <input type="text" name="kundnr" value="" size="20" />
-			 <input type="submit" value="Login" name="loginbt" />
-</form>
-    </body>
-</html>
+<%
+LoginFormData f = (LoginFormData)request.getAttribute("loginformdata");
+if (f == null) { f = new LoginFormData(); }
+String refPage = request.getParameter("refpage");
+if (refPage == null) { refPage = ""; } else { refPage = "?refpage=" + refPage; }
+			  
+SXSession sxSession = WebUtil.getSXSession(session);
+request.getRequestDispatcher("/WEB-INF/jspf/siteheader.jsp").include(request, response);
+%>
+	<div id="body">
+	  <div id="midbar">
+		<h2>Logga in</h2>
+		<form name="loginfr" action="login<%= refPage %>" method="POST">
+			Kundnr: <input type="text" name="kundnr" value="<%= f.kundnr %>" size="20" />
+			<div id="errtext"><%= f.kundnrErr %></div>
+			<input type="submit" value="Login" name="loginbt" />
+		</form>
+	 </div>
+  </div>
+<%
+request.getRequestDispatcher("/WEB-INF/jspf/sitefooter.jsp").include(request, response);
+%>

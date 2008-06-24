@@ -29,31 +29,46 @@ public class Login extends HttpServlet {
 	
 	protected void processRequest(HttpServletRequest request, HttpServletResponse response)
 	throws ServletException, IOException {
-		response.setContentType("text/html;charset=UTF-8");
+//		response.setContentType("text/html;charset=UTF-8");
 		HttpSession session = request.getSession(); 
-		SXSession sxSession = (SXSession)session.getAttribute("sxsession");
-		if (sxSession == null) { session.setAttribute("sxsession", new SXSession()); }
+		SXSession sxSession = WebUtil.getSXSession(session);
+
 		RequestDispatcher dispatcher;
+		LoginFormData f = new LoginFormData();
 		
-		String kundnr = request.getParameter("kundnr");
+		f.kundnr = request.getParameter("kundnr");
+		String action = request.getParameter("action");
+		if (action == null) { action = "login"; }
 		
-		if (kundnr != null) {
-			sxSession.kun = LocalWebSupportBean.getTableKund(kundnr);
-			if (sxSession.kun != null) {
-				sxSession.setInloggad(true);
+		if (action.equals("logout")) {
+				session.invalidate();
+				dispatcher = request.getRequestDispatcher("WEB-INF/jspf/login/logoutpage.jsp");
+				dispatcher.forward(request, response);
+		} else {		//Default action = login
+			if (f.kundnr != null) {
+				TableKund kun = LocalWebSupportBean.getTableKund(f.kundnr);
+				if (kun != null) {
+					sxSession.setInloggad(true);
+					sxSession.setKundnr(kun.getNummer());
+					sxSession.setKundnamn(kun.getNamn());
+				} else {
+					f.kundnrErr = "Felaktigt kundnr";
+					request.setAttribute("loginformdata", f);
+				}
+			}
+			if (sxSession.getInloggad()) {
+				String refPage = request.getParameter("refpage");
+				if (refPage == null) { refPage = "kund"; }
+	//			dispatcher = request.getRequestDispatcher(refPage);
+	//			dispatcher.forward(request, response);
+				response.setStatus(response.SC_MOVED_TEMPORARILY);
+				response.setHeader("Location", refPage);
+			} else {
+				dispatcher = request.getRequestDispatcher("WEB-INF/jspf/login/loginpage.jsp");
+				dispatcher.forward(request, response);
+
 			}
 		}
-		if (sxSession.getInloggad()) {
-			String refPage = (String)request.getAttribute("loginrefpage");
-			if (refPage == null) { refPage = "kund"; }
-			dispatcher = request.getRequestDispatcher(refPage);
-			dispatcher.forward(request, response);
-		} else {
-			dispatcher = request.getRequestDispatcher("WEB-INF/jspf/login/loginpage.jsp");
-			dispatcher.forward(request, response);
-			
-		}
-		
 		
 /*		PrintWriter out = response.getWriter();
 		try {

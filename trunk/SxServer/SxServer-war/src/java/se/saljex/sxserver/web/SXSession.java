@@ -16,9 +16,28 @@ public class SXSession {
 	
 	private boolean inloggad = false;
 	private String anvandare = null;
-	public TableKund kun = null;
-	public TableLev lev = null;
+	private String kundnr = null;
+	private String levnr = null;
+	private String kundnamn = null;
+	private String levnamn = null;
+	private boolean superuser = false;
+	private boolean adminuser = false;
+	private boolean internuser = false;
 	
+	public boolean checkBehorighetKund() {
+		if (inloggad) {
+			if (kundnr != null) return true;
+			if (superuser || adminuser || internuser) return true;
+		}
+		return false;
+	}
+	public boolean checkInternBehorighetKund() {
+		if (inloggad) { 
+			if (superuser || adminuser) return true;
+			if (internuser) return true;
+		}
+		return false;
+	}
 	
 	public boolean getInloggad() {
 		return inloggad;
@@ -35,5 +54,61 @@ public class SXSession {
 	public void setAnvandare(String anvandare) {
 		this.anvandare = anvandare;
 	}
+
+	public String getKundnr() {
+		return kundnr;
+	}
+	
+	public void setKundnr(String kundnr) {
+		this.kundnr = kundnr;
+	}
+
+	public String getLevnr() {
+		return levnr;
+	}
+	
+	public void setLevnr(String levnr) {
+		this.levnr = levnr;
+	}
+
+	  public String getKundnamn() {
+			 return kundnamn;
+	  }
+
+	  public void setKundnamn(String kundnamn) {
+			 this.kundnamn = kundnamn;
+	  }
+
+	  public boolean isAdminuser() {
+			 return adminuser;
+	  }
+
+	  public void setAdminuser(boolean adminuser) {
+			 this.adminuser = adminuser;
+	  }
+
+	  public String getLevnamn() {
+			 return levnamn;
+	  }
+
+	  public void setLevnamn(String levnamn) {
+			 this.levnamn = levnamn;
+	  }
+
+	  public boolean isSuperuser() {
+			 return superuser;
+	  }
+
+	  public void setSuperuser(boolean superuser) {
+			 this.superuser = superuser;
+	  }
+
+	  public boolean isInternuser() {
+			 return internuser;
+	  }
+
+	  public void setInternuser(boolean internuser) {
+			 this.internuser = internuser;
+	  }
 	
 }
