@@ -7,12 +7,10 @@
 <%@ page import="se.saljex.sxserver.web.*" %>
 
 <% 
-SXSession sxSession = (SXSession)session.getAttribute("sxsession");
-TableKund k = sxSession.kun;
+String divInfo = (String)request.getAttribute("divinfo");
+if (divInfo == null) divInfo = "";
 %>
+<div <%= divInfo %>>
 
-<div>
-Inloggad <%= k.getNamn() %>
-<a href="?id=logout">Logga ut</a><br/>
-
+Detta är topbaren för kund
 </div>

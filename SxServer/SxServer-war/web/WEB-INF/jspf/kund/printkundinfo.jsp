@@ -7,9 +7,13 @@
 <%@ page import="se.saljex.sxserver.web.*" %>
 
 <% 
-SXSession sxSession = (SXSession)session.getAttribute("sxsession");
+SXSession sxSession = WebUtil.getSXSession(session);
 TableKund k = sxSession.kun;
+
+String divInfo = (String)request.getAttribute("divinfo");
+if (divInfo == null) divInfo = "";
 %>
+<div <%= divInfo %>>
 
 <h1>Kontoinformation</h1>
 
@@ -49,3 +53,4 @@ TableKund k = sxSession.kun;
 </tr>
 </tbody>
 </table>
+</div>
