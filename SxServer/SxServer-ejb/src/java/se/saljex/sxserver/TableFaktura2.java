@@ -10,10 +10,11 @@ import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
-import javax.persistence.NamedQueries;
-import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.Table;
 
 /**
  *
@@ -21,7 +22,8 @@ import javax.persistence.TemporalType;
  */
 @Entity
 @Table(name = "FAKTURA2")
-@NamedQueries({})
+@NamedQueries({@NamedQuery(name = "TableFaktura2.findByFaktnr", query = "SELECT t FROM TableFaktura2 t WHERE t.tableFaktura2PK.faktnr = :faktnr order by t.tableFaktura2PK.pos")})
+
 public class TableFaktura2 implements Serializable {
 	private static final long serialVersionUID = 1L;
 	@EmbeddedId

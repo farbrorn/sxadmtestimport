@@ -19,7 +19,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "ARTGRP")
-@NamedQueries({@NamedQuery(name = "TableArtgrp.findAll", query = "SELECT t FROM TableArtgrp")})
+@NamedQueries({@NamedQuery(name = "TableArtgrp.findAll", query = "SELECT t FROM TableArtgrp t")})
 public class TableArtgrp implements Serializable {
 	  private static final long serialVersionUID = 1L;
 	  @Id

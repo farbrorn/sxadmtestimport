@@ -104,9 +104,12 @@ public class SXUtil {
 	}
 	
     public static String getFormatDate(Date d) {
-       SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-       return simpleDateFormat.format(d);
+		 if (d != null) {
+			 SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+			 return simpleDateFormat.format(d);
+		 } else { return ""; }
     }
+	 
     public static String getFormatDate() {
        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
        return simpleDateFormat.format(new Date());
