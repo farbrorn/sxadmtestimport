@@ -84,6 +84,10 @@ public class kund extends HttpServlet {
 					if (sxSession.checkInternBehorighetKund()) {
 						printKundLista(request, response,"", request.getParameter("sokstr"),false);
 					}
+				} else if (get.equals("statfaktura2")) {
+					printStatFaktura2(request, response,"", sxSession.getKundnr());
+				} else if (get.equals("statfaktura12")) {
+					printStatFaktura12(request, response,"", sxSession.getKundnr());
 				} else {
 					out.println("Inga data tillgängliga!");
 				}
@@ -107,6 +111,9 @@ public class kund extends HttpServlet {
 					printRightSideBar(request,response,"id=\"rightbar\"");
 				} else if (id.equals("5")) {
 					printBetjourLista(request, response,"id=\"midbar\"", sxSession.getKundnr());
+					printRightSideBar(request,response,"id=\"rightbar\"");
+				} else if (id.equals("7")) {
+					printStatFaktura2SokHuvud(request, response,"id=\"midbar\"");
 					printRightSideBar(request,response,"id=\"rightbar\"");
 				} else if (id.equals("kundlista")) {
 					if (sxSession.checkInternBehorighetKund()) {
@@ -138,6 +145,58 @@ public class kund extends HttpServlet {
 			sxSession.setKundnamn(kun.getNamn());
 		}
 	}
+	
+	private void printStatFaktura2SokHuvud(HttpServletRequest request, HttpServletResponse response, String divInfo) throws ServletException, IOException{
+			request.setAttribute("divinfo", divInfo);
+			request.getRequestDispatcher("WEB-INF/jspf/kund/printstatfaktura2sokhuvud.jsp").include(request, response);
+	}
+	private void printStatFaktura2(HttpServletRequest request, HttpServletResponse response, String divInfo, String kundnr) throws ServletException, IOException{
+		PageListStatFaktura2 pl = null;
+			int page;
+			try {
+				page = Integer.parseInt(request.getParameter("page"));
+			} catch (Exception e) {page = 1; }
+			if (page < 1) page = 1;
+			try {
+				pl = new PageListStatFaktura2(sxadm, kundnr); 
+				pl.setPeriod(request.getParameter("frdat"), request.getParameter("tidat"));
+				
+				if ("summa".equals(request.getParameter("orderby"))) pl.setOrderBySumma();
+				else if ("antalkopta".equals(request.getParameter("orderby"))) pl.setOrderByAntalKopta();
+				else if ("antalkop".equals(request.getParameter("orderby"))) pl.setOrderByAntalKop();
+				
+				pl.getPage(page);
+				request.setAttribute("pageliststatfaktura2", pl);
+			} catch (SQLException sqe) {}
+		request.setAttribute("divinfo", divInfo);
+		request.getRequestDispatcher("WEB-INF/jspf/kund/printstatfaktura2.jsp").include(request, response);
+		try {
+			if (pl!=null) pl.close();
+		} catch (SQLException sqe) {}
+	}
+
+		private void printStatFaktura12(HttpServletRequest request, HttpServletResponse response, String divInfo, String kundnr) throws ServletException, IOException{
+		PageListStatFaktura12 pl = null;
+		int page;
+		try {
+			page = Integer.parseInt(request.getParameter("page"));
+		} catch (Exception e) {page = 1; }
+		if (page < 1) page = 1;
+		try {
+			pl = new PageListStatFaktura12(sxadm, kundnr, request.getParameter("artnr")); 
+			pl.setPeriod(request.getParameter("frdat"), request.getParameter("tidat"));
+
+			pl.getPage(page);
+			request.setAttribute("pageliststatfaktura12", pl);
+		} catch (SQLException sqe) {}
+		request.setAttribute("divinfo", divInfo);
+		request.getRequestDispatcher("WEB-INF/jspf/kund/printstatfaktura12.jsp").include(request, response);
+
+		try {
+			if (pl!=null) pl.close();
+		} catch (SQLException sqe) {}
+	}
+
 	private void printKundinfo(HttpServletRequest request, HttpServletResponse response, String divInfo) throws ServletException, IOException{
 		request.setAttribute("divinfo", divInfo);
 		request.getRequestDispatcher("WEB-INF/jspf/kund/printkundinfo.jsp").include(request, response);

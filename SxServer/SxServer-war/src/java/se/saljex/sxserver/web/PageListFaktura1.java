@@ -17,87 +17,41 @@ import se.saljex.sxserver.SXUtil;
  *
  * @author ulf
  */
-public class PageListFaktura1 {
-private Connection con;
-private int pageSize = 40;
-private ResultSet rs;
-private int fetchedRowsCount = 0;
+public class PageListFaktura1 extends PageList {
 private String kundnr;
 
 	public PageListFaktura1(DataSource ds, String kundnr) throws SQLException{
-		this.con = ds.getConnection();
+		super(ds);
+		super.setPageSize(40);
 		this.kundnr = kundnr;
 	}
 	
-	public void close() throws SQLException{
-		if (rs!=null) rs.close();
-		if (con!=null) con.close();
-	}
-	
+	@Override 
 	public void getPage(int page) {
 		try {
-			PreparedStatement query =  con.prepareStatement("select f1.faktnr, f1.datum, f1.namn, f1.t_attbetala, u1.ordernr, u1.marke from faktura1 f1 left outer join utlev1 u1 on (u1.faktnr=f1.faktnr) where f1.kundnr = ? order by f1.faktnr desc");  
-			query.setString(1, kundnr);
-			rs = query.executeQuery();  
-			if (page > 1) {
-				for (int cn=1; cn<=(page-1)*pageSize; cn++) {
-					if (!rs.next()) { break; }
-				}
-			}
+			super.initSql("select f1.faktnr, f1.datum, f1.namn, f1.t_attbetala, u1.ordernr, u1.marke from faktura1 f1 left outer join utlev1 u1 on (u1.faktnr=f1.faktnr) where f1.kundnr = ? order by f1.faktnr desc");  
+			super.query.setString(1, kundnr);
+			super.getPage(page);
 		} catch (SQLException sqe) { SXUtil.log("Exception i getPage" + sqe.toString()); }
-		fetchedRowsCount = 0;
 	}	
-	public boolean next() {
-		boolean ret = false;
-		if (rs == null) { getPage(1); }
-		fetchedRowsCount++;
-		if (fetchedRowsCount > pageSize)  { return false; }
-		try {
-			ret = rs.next();
-		} catch (SQLException sqe) {}
-		return ret;
-	}
+
 	public Integer getFaktnr() {
-		Integer ret = null;
-		try {
-			ret = rs.getInt(1);
-		} catch (SQLException sqe) {}
-		return ret;
+		return (Integer)super.getColumn(1);
 	}
 	public Date getDatum() {
-		Date ret = null;
-		try {
-			ret = rs.getDate(2);
-		} catch (SQLException sqe) {}
-		return ret;
+		return (java.util.Date)super.getColumn(2);
 	}
 	public String getNamn() {
-		String ret = null;
-		try {
-			ret = rs.getString(3);
-		} catch (SQLException sqe) {}
-		return ret;
+		return (String)super.getColumn(3);
 	}
 	public Double getAttbetala() {
-		Double ret = null;
-		try {
-			ret = rs.getDouble(4);
-		} catch (SQLException sqe) {}
-		return ret;
+		return (Double)super.getColumn(4);
 	}
 	public Integer getOrdernr() {
-		Integer ret = null;
-		try {
-			ret = rs.getInt(5);
-		} catch (SQLException sqe) {}
-		return ret;
+		return (Integer)super.getColumn(5);
 	}
 	public String getMarke() {
-		String ret = null;
-		try {
-			ret = rs.getString(6);
-		} catch (SQLException sqe) {}
-		return ret;
+		return (String)super.getColumn(6);
 	}
 	
 }
