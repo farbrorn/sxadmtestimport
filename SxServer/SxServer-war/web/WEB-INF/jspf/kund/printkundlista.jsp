@@ -59,5 +59,10 @@ while (pl.next()) {
 <%
 }
 %>
+<form name="data">
+	 <input name="currentpage" value="<%= pl.getCurrentPage() %>" type="hidden" />
+	 <input name="nextpage" value="<%= pl.getNextPage() %>" type="hidden" />
+	 <input name="previouspage" value="<%= pl.getPreviousPage() %>" type="hidden" />
+</form>
 	
 </div>

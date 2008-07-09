@@ -5,41 +5,42 @@
 --%>
 <%@ page import="se.saljex.sxserver.SXUtil" %>
 <%@ page import="se.saljex.sxserver.web.*" %>
-
 <% 
-	String sokstr = request.getParameter("sokstr");
-	if (sokstr == null) sokstr = "";
-
+	String frdat = request.getParameter("frdat");
+	if (frdat == null) frdat = "";
+	String tidat = request.getParameter("tidat");
+	if (tidat == null) tidat = "";
 	Integer page1 = 1;
 	try { page1 = Integer.parseInt(request.getParameter("page")); } catch (Exception e) {  }
 	if (page1 < 1) page1 = 1;
-
+	
 	String divInfo = (String)request.getAttribute("divinfo");
 	if (divInfo == null) divInfo = "";
-	
- %>
+
+%>
  <script type="text/javascript" src="sxdoclib.js"></script>
  <script type="text/javascript">
 $(document).ready(function() {
-	$("input[@name=bsok]").click( function() {  loadsokres(); return false;});
-	$("input[@name=sokstr]").keyup( function() {  loadsokres(); });
+	$("#d1").hide();
 	$("#inputpage").hide();
+	$("input[@name=bsok]").click( function() { $("input[@name=page]").val(1); loadsokres(); return false;});
 	loadsokres();
-	 
 });
+		 
  </script> 
 
 <div <%= divInfo %>>
 <span id="divdocsok">
 
-<h1>Sök kund</h1>
+<h1>Fakturor</h1>
 <form id="sokform">
-<input type="hidden" name="get" value="kundlista"/>
+<input type="hidden" name="get" value="fakturalista"/>
 <table id="doclist"><tr>
 <td colspan="3" id="d1">
-Sök: <input id="sokstr" type="text" name="sokstr" value="" />
+Till datum: (åååå-mm-dd) <input id="tidat" type="text" name="tidat" value="<%= tidat %>"/>
 <span id="inputpage">Sida: <input type="text" name="page" value="<%= page1 %>"/></span>
-<input type="submit" value="Sök" name="bsok"/>
+<input type="submit" value="Sök" name="bsok" />
+
 </td></tr><tr><td>
 <a href="javascript:toggleD1();" id="aToggleD1" >Alternativ</a>
 <td align="left">Sida: <span id="sida"></span></td>

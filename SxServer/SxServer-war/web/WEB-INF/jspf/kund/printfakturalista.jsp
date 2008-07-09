@@ -22,8 +22,6 @@ if (divInfo == null) divInfo = "";
 %>
 <div <%= divInfo %>>
 
-<h1>Fakturalista</h1>
-
 <%
 if (pl == null) { out.println("Inga data"); } else { %>
 <table id="doclist">
@@ -83,5 +81,10 @@ if (pl.next()) {
 <%
 }
 %>
+<form name="data">
+	 <input name="currentpage" value="<%= pl.getCurrentPage() %>" type="hidden" />
+	 <input name="nextpage" value="<%= pl.getNextPage() %>" type="hidden" />
+	 <input name="previouspage" value="<%= pl.getPreviousPage() %>" type="hidden" />
+</form>
 	
 </div>
