@@ -41,16 +41,19 @@ public class SXUtil {
 	
 	public static Calendar getTodayDate()  {
 		// Returns todys date as a Calendar and WITH TIME PART SET TO 0
+		return getCalendarFromDate(new Date());
+	}
+	
+	public static Calendar getCalendarFromDate(Date d) {
 		Calendar idag = Calendar.getInstance();
-		idag.setTime(new Date());
+		idag.setTime(d);
 		idag.set( idag.HOUR_OF_DAY, 0 );
 		idag.set( idag.MINUTE, 0 );
 		idag.set( idag.SECOND, 0 );
 		idag.set( idag.MILLISECOND, 0 );
 		return idag;
+		
 	}
-	
-	
 	public static String getSXReg(EntityManager em, String id)  {
 		return getSXReg(em,id,"");
 	}
