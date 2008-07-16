@@ -37,6 +37,7 @@ public interface SxServerMainLocal {
 	void handleJobb(TableSxservjobb t) throws DocumentException, IOException,  NamingException, MessagingException;
 
 	void handleSandBestEpost(TableBest1 be1) throws DocumentException, IOException,  NamingException, MessagingException;
+	void handleSandBestPaminEpost(TableBest1 be1) throws DocumentException, IOException,  NamingException, MessagingException;
 
 	  String tester(String testTyp);
 

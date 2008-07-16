@@ -90,25 +90,55 @@ public class SxServerMainBean implements SxServerMainLocal {
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	@Timeout
 	public void handleTimer(Timer timer)   {
-		
-		System.out.println("************************'handleTimer startad");
-		Integer maxid;
-		TableSxservjobb j;
-		boolean ss;
-		
+		System.out.println("handleTimer startad: " + timer.getInfo());		
 
-		if (timer.getInfo().equals("JobbTimer")) {
+		if (timer.getInfo().equals("JobbTimer")) handleJobbTimer();
+		else if (timer.getInfo().equals("KvartTimer")) handleKvartTimer();
+		else if (timer.getInfo().equals("TimTimer")) handleTimTimer();
+		else if (timer.getInfo().equals("DygnsTimer")) handleDygnsTimer();
+		else if (timer.getInfo().equals("VeckoTimer")) handleVeckoTimer();
+	}
+
+	private void handleKvartTimer() {
+		
+	}
+	
+	private void handleTimTimer() {
+		
+	}
+	
+	private void handleDygnsTimer() {
+		//Uppdatera priser mm på nätet
+		try {
+			WebArtikelUpdater w = new WebArtikelUpdater(em, saljexse.getConnection());
+			w.updateWArt();
+		} catch (SQLException e) { SXUtil.log("Undantag i handleDygnsTimer vid WebArtikelUpdater: " + e.toString()); }		
+		
+		// Räkna om alla lagervärden
+		try {
+			LagerCheck lagerCheck = new LagerCheck(sxadm);
+			lagerCheck.run();
+		} catch (SQLException e) { SXUtil.log("Undantag i handleDygnsTimer vid LagerCheck: " + e.toString()); }		
+		
+	}
+	
+	private void handleVeckoTimer() {
+		// Uppdatera trädstrukturen
+		try {
+			WebArtikelUpdater w = new WebArtikelUpdater(em, saljexse.getConnection());
+			w.updateWArtGrp();
+			w.updateWArtGrp();
+			w.updateWArtKlase();
+			w.updateWArtKlaseLank();
+		} catch (SQLException e) { SXUtil.log("Undantag i handleVeckoTimer vid WebArtikelUpdater: " + e.toString()); }
+	}
+	
+	private void handleJobbTimer() {
 			JobbHandler jobbHandler;
-			LagerCheck	lagerCheck;
 			String q;
-			int r = 0;
 
 			try {
 				jobbHandler = new JobbHandler(em,mailsxmail);
-//				jobbHandler.checkSandBestallningEpost();
-//				lagerCheck = new LagerCheck(sxadm);
-//				lagerCheck.run();
-//				SXUtil.sendAdmMessage(em, "test1", "test2");
 				
 				//Behandlar jobbkö från lista
 				java.util.List<TableSxservjobb> ljob = jobbHandler.getJobbList();
@@ -120,13 +150,24 @@ public class SxServerMainBean implements SxServerMainLocal {
 					}
 				}
 				
-				//Behandlar best1 kö från lista
-				java.util.List<TableBest1> lbe1 = jobbHandler.getSandBestEpostList();
+				java.util.List<TableBest1> lbe1;
+				//Sänd alla osända beställningar
+				lbe1 = jobbHandler.getSandBestEpostList();
 				for (TableBest1 be1 : lbe1) {
 					try {
 						sxServerMainBean.handleSandBestEpost(be1);		//aNROPAS SÅ HÄR FÖR ATT STARTA NY TRANSAKTION
 					} catch (Exception e) {
 						SXUtil.log("Ett undantagsfel uppstod vid bearbetning av sänd best1 epost." + be1.getBestnr() + ". Försöker fortsätta med nästa " + e.toString()); 
+					}
+				} 
+
+				//Sänd påminnelser på beställning
+				lbe1 = jobbHandler.getSandBestEpostList();
+				for (TableBest1 be1 : lbe1) {
+					try {
+						sxServerMainBean.handleSandBestPaminEpost(be1);		//aNROPAS SÅ HÄR FÖR ATT STARTA NY TRANSAKTION
+					} catch (Exception e) {
+						SXUtil.log("Ett undantagsfel uppstod vid bearbetning av sänd best1 påminnelse epost." + be1.getBestnr() + ". Försöker fortsätta med nästa " + e.toString()); 
 					}
 				} 
 				
@@ -137,10 +178,8 @@ public class SxServerMainBean implements SxServerMainLocal {
 			finally { 
 				//startJobbTimer();	
 			} 
-		}
-		 
+		
 	}
-
 	
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public void handleJobb(TableSxservjobb t) throws  DocumentException, IOException, NamingException, MessagingException {
@@ -166,6 +205,11 @@ public class SxServerMainBean implements SxServerMainLocal {
 		jobbHandler.sandBestEpost(be1);
 	}
 	
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+	public void handleSandBestPaminEpost(TableBest1 be1) throws  DocumentException, IOException, NamingException, MessagingException {
+		JobbHandler jobbHandler = new JobbHandler(em,mailsxmail);		//Vi gör detta kryptiska anrop för att ny transaktion ska startas för varje jobb
+		jobbHandler.sandBestPaminEpost(be1);
+	}
 	
 	
 	
@@ -175,14 +219,26 @@ public class SxServerMainBean implements SxServerMainLocal {
 
 	public void startTimers() {
 		startJobbTimer();
-		startKvartTimer();
+		//startKvartTimer();
+		//startTimTimer();
+		//startDygnsTimer();
+		//startVeckoTimer();
 	}
 	
 	private void startJobbTimer() {
 		sxServerMainBean.startTimer(7000,"JobbTimer");	//Måste startas som EJB-anrop för att new transaction skall funka
 	}
 	private void startKvartTimer() {
-		sxServerMainBean.startTimer(63000,"KvartTimer");	//Måste startas som EJB-anrop för att new transaction skall funka
+		sxServerMainBean.startTimer(15*60*1000,"KvartTimer");	//Måste startas som EJB-anrop för att new transaction skall funka
+	}
+	private void startTimTimer() {
+		sxServerMainBean.startTimer(60*60*1000,"TimTimer");	//Måste startas som EJB-anrop för att new transaction skall funka
+	}
+	private void startDygnsTimer() {
+		sxServerMainBean.startTimer(24*60*60*1000,"DygnsTimer");	//Måste startas som EJB-anrop för att new transaction skall funka
+	}
+	private void startVeckoTimer() {
+		sxServerMainBean.startTimer(7*24*60*60*1000,"VeckoTimer");	//Måste startas som EJB-anrop för att new transaction skall funka
 	}
 	
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW) public void startTimer(int time, String timerName) {
@@ -311,7 +367,7 @@ z							, SXUtil.getSXReg(con,"SxServMailFakturaBodyPrefix") + SXUtil.getSXReg(c
 
 	public String tester(String testTyp) {
 		try {
-			SXTester t = new SXTester(em, saljexse.getConnection());
+			SXTester t = new SXTester(em, sxadm.getConnection() ,saljexse.getConnection());
 			return t.tester(testTyp);
 		}	catch (SQLException se) { return "SQLException inträffade: " + se.toString();}
 	}
