@@ -6,6 +6,7 @@
 package se.saljex.sxserver;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import javax.persistence.EntityManager;
 
@@ -16,10 +17,12 @@ import javax.persistence.EntityManager;
 public class SXTester {
 	protected EntityManager em;
 	private Connection con;
+	private Connection webcon;
 	
-	public SXTester(EntityManager em, Connection con) {
+	public SXTester(EntityManager em, Connection con, Connection webcon) {
 		this.em  = em;
 		this.con = con;
+		this.webcon = webcon;
 	}
 	
 	public String tester(String testTyp) {
@@ -140,6 +143,14 @@ public class SXTester {
 	}
 
 	private String dumtest() {
+		WebArtikelUpdater w = new WebArtikelUpdater(em, webcon);
+		try {
+			w.updateWArt();
+			w.updateWArtGrp();
+			w.updateWArtGrpLank();
+			w.updateWArtKlase();
+			w.updateWArtKlaseLank();
+		} catch(SQLException e) { SXUtil.log(e.toString()); }
 		return "dumtest";
 	}
 }

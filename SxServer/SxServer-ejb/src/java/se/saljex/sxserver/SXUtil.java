@@ -41,18 +41,22 @@ public class SXUtil {
 	
 	public static Calendar getTodayDate()  {
 		// Returns todys date as a Calendar and WITH TIME PART SET TO 0
-		return getCalendarFromDate(new Date());
+		return getSqlCalendarFromDate(new Date());
 	}
 	
-	public static Calendar getCalendarFromDate(Date d) {
+	public static Calendar getSqlCalendarFromDate(Date d) {
+		if (d == null) return null;
 		Calendar idag = Calendar.getInstance();
 		idag.setTime(d);
 		idag.set( idag.HOUR_OF_DAY, 0 );
 		idag.set( idag.MINUTE, 0 );
 		idag.set( idag.SECOND, 0 );
 		idag.set( idag.MILLISECOND, 0 );
-		return idag;
-		
+		return idag;		
+	}
+	public static java.sql.Date getSqlDate(java.util.Date d) {
+		if (d == null) return null;
+		return new java.sql.Date(getSqlCalendarFromDate(d).getTimeInMillis()); 
 	}
 	public static String getSXReg(EntityManager em, String id)  {
 		return getSXReg(em,id,"");
@@ -147,5 +151,40 @@ public class SXUtil {
        calendar.add(Calendar.DATE, dagar);
        return calendar.getTime();
     }
-    
+
+	public static String toHtml(String string) {
+		// Baserat på kod från http://www.rgagnon.com/javadetails/java-0306.html av S. Bayer
+		StringBuffer sb = new StringBuffer(string.length());
+		// true if last char was blank
+		boolean lastWasBlankChar = false;
+		int len = string.length();
+		char c;
+
+		for (int i = 0; i < len; i++)	{
+			c = string.charAt(i);
+			if (c == ' ') {
+				// blank gets extra work,
+				// this solves the problem you get if you replace all
+				// blanks with &nbsp;, if you do that you loss 
+				// word breaking
+				if (lastWasBlankChar) {
+					 lastWasBlankChar = false;
+					 sb.append("&nbsp;");
+				 } else {
+					 lastWasBlankChar = true;
+					 sb.append(' ');
+				}
+			} else {
+            lastWasBlankChar = false;
+				// HTML Special Chars
+				if (c == '"') sb.append("&quot;");
+				else if (c == '&') sb.append("&amp;");
+				else if (c == '<') sb.append("&lt;");
+				else if (c == '>') sb.append("&gt;");
+				else if (c == '\n') sb.append("&lt;br/&gt;");
+				else sb.append(c);
+			}
+		}
+		return sb.toString();
+	}
 }
