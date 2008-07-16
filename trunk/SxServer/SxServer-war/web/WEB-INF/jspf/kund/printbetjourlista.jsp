@@ -35,6 +35,7 @@ if (pl == null) { out.println("Inga data"); } else { %>
 		<th class="tdn14">Belopp</th>
 		 <th></th>
 	</tr>
+	 <tr><td colspan="6">Visar betalningar tom: <%= pl.getTidatStr() %></td></tr>
 <%
 int radcn = 0;
 while (pl.next()) {
@@ -61,6 +62,7 @@ while (pl.next()) {
 	 <input name="currentpage" value="<%= pl.getCurrentPage() %>" type="hidden" />
 	 <input name="nextpage" value="<%= pl.getNextPage() %>" type="hidden" />
 	 <input name="previouspage" value="<%= pl.getPreviousPage() %>" type="hidden" />
+	 <input name="datatidat" value="<%= pl.getTidatStr() %>" type="hidden" />
 </form>
 
 </div>

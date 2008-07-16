@@ -41,16 +41,16 @@ $(document).ready(function() {
  </script> 
 
 <div <%= divInfo %>>
-<span id="divdocsok">
+<div id="divdocsok">
 
 <h1>Levererade order</h1>
-<form id="sokform">
+<form id="sokform" action="">
 <input type="hidden" name="get" value="utlev1"/>
 <table id="doclist"><tr>
 <td colspan="3" id="d1">
 Sortera efter
 <input id="orderbyordernr" type="radio" name="orderby" value="ordernr" <% if ("ordernr".equals(orderBy)) out.print(checkedStr); %> />Ordernr
-<input id=orderbymarke" type="radio" name="orderby" value="marke" <% if ("marke".equals(orderBy)) out.print(checkedStr); %> />Märke
+<input id="orderbymarke" type="radio" name="orderby" value="marke" <% if ("marke".equals(orderBy)) out.print(checkedStr); %> />Märke
 <br/>	
 Från datum: (åååå-mm-dd) <input id="frdat" type="text" name="frdat" value="<%= frdat %>"/>
 Till datum: (åååå-mm-dd) <input id="tidat" type="text" name="tidat" value="<%= tidat %>"/>
@@ -63,6 +63,6 @@ Till datum: (åååå-mm-dd) <input id="tidat" type="text" name="tidat" value="<%= t
 <td align="left">Sida: <span id="sida"></span></td>
 <td align="right"><a href="javascript:loadPreviousPage();" id="getpreviouspage" ></a>&nbsp;<a href="javascript:loadNextPage();" id="getnextpage" ></a></td>
 </tr></table></form>
-</span>
+</div>
 <div id="divdoclist"></div>
 </div>

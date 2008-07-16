@@ -13,8 +13,8 @@ SXSession sxSession = WebUtil.getSXSession(session);
 		<link href="style.css" type="text/css" rel="stylesheet" />
 		<meta content="Säljex AB" name="description" />
 		<meta content="säljex,logga in, kund" name="keywords" />
-		<meta http-equiv="Pragma" content="no-cache">
-		<meta http-equiv="expires" content="0">
+		<meta http-equiv="Pragma" content="no-cache"/>
+		<meta http-equiv="expires" content="0"/>
 <script type="text/javascript" src="jquery.js"></script>          
 	</head>
 	<body>

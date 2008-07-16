@@ -19,6 +19,7 @@ private String kundnr;
 private Date frdat;
 private Date tidat;
 private String orderByStr;
+private String orderBy;
 private static final String ORDERBYSUMMA = "sum(summa) desc";
 private static final String ORDERBYANTALKOPTA = "sum(lev) desc";
 private static final String ORDERBYANTALKOP = "count(*) desc";
@@ -27,15 +28,18 @@ private PreparedStatement qart;
 	public PageListStatFaktura2(DataSource ds, String kundnr) throws SQLException{
 		super(ds);
 		this.kundnr = kundnr;
-		orderByStr = ORDERBYSUMMA;
+		setOrderBySumma();
 		qart =  super.con.prepareStatement("select namn from artikel where nummer = ?");  
 		setPeriod((Date)null,(Date)null);
 	}
 	
-	public void setOrderBySumma() { orderByStr = ORDERBYSUMMA; }
-	public void setOrderByAntalKopta() { orderByStr = ORDERBYANTALKOPTA; }
-	public void setOrderByAntalKop() { orderByStr = ORDERBYANTALKOP; }
+	public void setOrderBySumma() { orderBy = "summa"; orderByStr = ORDERBYSUMMA; }
+	public void setOrderByAntalKopta() { orderBy = "antalkopta"; orderByStr = ORDERBYANTALKOPTA; }
+	public void setOrderByAntalKop() { orderBy = "antalkop"; orderByStr = ORDERBYANTALKOP; }
 	
+	public String getOrderBy() {
+		return this.orderBy;
+	}
 	
 	public void setPeriod(String frdatStr, String tidatStr) {
 		java.util.Date fr = null;

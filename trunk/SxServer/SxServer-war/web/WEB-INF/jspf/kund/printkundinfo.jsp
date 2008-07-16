@@ -21,35 +21,35 @@ if (divInfo == null) divInfo = "";
 <tbody>
 <tr>
 <td>Kundnr</td>
-<td><%= k.getNummer() %></td>
+<td><%= SXUtil.toHtml(k.getNummer()) %></td>
 </tr>
 <tr>
 <td>Namn</td>
-<td><%= k.getNamn() %></td>
+<td><%= SXUtil.toHtml(k.getNamn()) %></td>
 </tr>
 <tr>
 <td>Fakturaadress</td>
-<td><%= k.getAdr1() %></td>
+<td><%= SXUtil.toHtml(k.getAdr1()) %></td>
 </tr>
 <tr>
 <td></td>
-<td><%= k.getAdr2() %></td>
+<td><%= SXUtil.toHtml(k.getAdr2()) %></td>
 </tr>
 <tr>
 <td></td>
-<td><%= k.getAdr3() %></td>
+<td><%= SXUtil.toHtml(k.getAdr3()) %></td>
 </tr>
 <tr>
 <td>Leveransadress</td>
-<td><%= k.getLnamn() %></td>
+<td><%= SXUtil.toHtml(k.getLnamn()) %></td>
 </tr>
 <tr>
 <td></td>
-<td><%= k.getLadr2() %></td>
+<td><%= SXUtil.toHtml(k.getLadr2()) %></td>
 </tr>
 <tr>
 <td></td>
-<td><%= k.getLadr3() %></td>
+<td><%= SXUtil.toHtml(k.getLadr3()) %></td>
 </tr>
 </tbody>
 </table>

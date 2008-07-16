@@ -42,27 +42,27 @@ if (f1 == null) { out.println("Inga data föra fakturahuvud"); } else { %>
 </tr>
 <tr>
 <td class="tddocheadrubrik">Fakturaadress</td>
-<td class="tds30"><%= f1.getNamn() %></td>
+<td class="tds30"><%= SXUtil.toHtml(f1.getNamn()) %></td>
 <td class="tddocheadrubrik">Leveransadress</td>
-<td class="tds30"><%= f1.getLevadr1() %></td>
+<td class="tds30"><%= SXUtil.toHtml(f1.getLevadr1()) %></td>
 </tr>
 <tr>
 <td class="tddocheadrubrik"></td>
-<td class="tds30"><%= f1.getAdr1() %></td>
+<td class="tds30"><%= SXUtil.toHtml(f1.getAdr1()) %></td>
 <td class="tddocheadrubrik"></td>
-<td class="tds30"><%= f1.getLevadr2() %></td>
+<td class="tds30"><%= SXUtil.toHtml(f1.getLevadr2()) %></td>
 </tr>
 <tr>
 <td class="tddocheadrubrik"></td>
-<td class="tds30"><%= f1.getAdr2() %></td>
+<td class="tds30"><%= SXUtil.toHtml(f1.getAdr2()) %></td>
 <td class="tddocheadrubrik"></td>
 <td class="tds30"></td>
 </tr>
 <tr>
 <td class="tddocheadrubrik"></td>
-<td class="tds30"><%= f1.getAdr3() %></td>
+<td class="tds30"><%= SXUtil.toHtml(f1.getAdr3()) %></td>
 <td class="tddocheadrubrik"></td>
-<td class="tds30"><%= f1.getLevadr3() %></td>
+<td class="tds30"><%= SXUtil.toHtml(f1.getLevadr3()) %></td>
 </tr>
 </table>
 
@@ -83,17 +83,17 @@ for (TableFaktura2 f2 : lf2) {
 	if (!text.isEmpty()) {
 %>
 <tr>
-<td colspan="6"><%= text %></td>
+<td colspan="6"><%= SXUtil.toHtml(text) %></td>
 <td class="tdn12"><%= SXUtil.getFormatNumber(f2.getSumma()) %></td>
 </tr>
 <%
 	} else {
 %>
 <tr>
-<td class="tds15"><%= f2.getArtnr() %></td>
-<td class="tds30"><%= f2.getNamn() %></td>
+<td class="tds15"><%= SXUtil.toHtml(f2.getArtnr()) %></td>
+<td class="tds30"><%= SXUtil.toHtml(f2.getNamn()) %></td>
 <td class="tdn12"><%= f2.getLev() %></td>
-<td class="tds3"><%= f2.getEnh() %></td>
+<td class="tds3"><%= SXUtil.toHtml(f2.getEnh()) %></td>
 <td class="tdn12"><%= SXUtil.getFormatNumber(f2.getPris()) %></td>
 <td class="tdn4"><%= SXUtil.getFormatNumber(f2.getRab(),1) %></td>
 <td class="tdn12"><%= SXUtil.getFormatNumber(f2.getSumma()) %></td>

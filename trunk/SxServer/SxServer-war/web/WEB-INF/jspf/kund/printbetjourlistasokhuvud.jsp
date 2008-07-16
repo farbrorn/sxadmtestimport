@@ -30,10 +30,10 @@ $(document).ready(function() {
  </script> 
 
 <div <%= divInfo %>>
-<span id="divdocsok">
+<div id="divdocsok">
 
 <h1>Betalningar</h1>
-<form id="sokform">
+<form id="sokform" action="">
 <input type="hidden" name="get" value="betjourlista"/>
 <table id="doclist"><tr>
 <td colspan="3" id="d1">
@@ -46,6 +46,6 @@ Till datum: (ееее-mm-dd) <input id="tidat" type="text" name="tidat" value="<%= t
 <td align="left">Sida: <span id="sida"></span></td>
 <td align="right"><a href="javascript:loadPreviousPage();" id="getpreviouspage" ></a>&nbsp;<a href="javascript:loadNextPage();" id="getnextpage" ></a></td>
 </tr></table></form>
-</span>
+</div>
 <div id="divdoclist"></div>
 </div>

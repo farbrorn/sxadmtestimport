@@ -47,11 +47,11 @@ if (radcn % 2 > 0) { %> <tr id="tr<%= radcn %>" class="trdocodd"> <%} else { %><
 <td class="tdknapp"><a href="JavaScript:showorder(<%= radcn %>, <%= t.getOrdernr() %>)" name="a<%= radcn %>">Visa</a></td>
 <td class="tds15"><%= t.getOrdernr() %></td>
 <td class="tddatum"><%= SXUtil.getFormatDate(t.getDatum()) %></td>
-<td class="tds10"><%= t.getStatus() %></td>
-<td class="tds30"><%= t.getMarke() %></td>
-<td></td>
+<td class="tds10"><%= SXUtil.toHtml(t.getStatus()) %></td>
+<td class="tds30"><%= SXUtil.toHtml(t.getMarke()) %></td>
+<td><a href="?id=editorder&ordernr=<%= t.getOrdernr() %>">Redigera</a></td>
 </tr>
-<tr><td colspan="5"><div id="f<%= radcn %>" class="docgrupp"></div</td></tr>	
+<tr><td colspan="6"><div id="f<%= radcn %>" class="docgrupp"></div</td></tr>	
 <%
 }
 %>

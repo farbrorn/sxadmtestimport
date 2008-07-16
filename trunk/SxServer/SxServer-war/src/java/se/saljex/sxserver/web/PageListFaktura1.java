@@ -38,6 +38,9 @@ private Date tidat;
 	public void setTidat(Date ti) {
 		this.tidat = ti;
 	}
+	public String getTidatStr() {
+		return SXUtil.getFormatDate(tidat);
+	}
 	
 	@Override 
 	public void getPage(int page) {

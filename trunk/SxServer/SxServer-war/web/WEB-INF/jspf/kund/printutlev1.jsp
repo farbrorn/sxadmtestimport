@@ -34,6 +34,7 @@ if (pl == null) { out.println("Inga data"); } else { %>
 		<th class="tds30">Märke</th>
 		 <th></th>
 	</tr>
+<tr><td colspan="5">Visar leveranser för period : <%= pl.getFrdatStr() + " - " + pl.getTidatStr() %></td></tr>
 <%
 int radcn = 0;
 while (pl.next()) {
@@ -41,10 +42,10 @@ while (pl.next()) {
 	if (radcn % 2 > 0) { %> <tr id="tr<%= radcn %>" class="trdocodd"> <%} else { %><tr id="tr<%= radcn %>" class="trdoceven"> <%}
 %>
 
-<td class="tdknapp"><a href="JavaScript:show(<%= radcn %>,<%= pl.getOrdernr() %>)" name="a<%= radcn %>">Visa</a></td>
+<td class="tdknapp"><a href="JavaScript:showutlev2(<%= radcn %>,<%= pl.getOrdernr() %>)" name="a<%= radcn %>">Visa</a></td>
 <td class="tdn12"><%= pl.getOrdernr() %></td>
 <td class="tddatum"><%= SXUtil.getFormatDate(pl.getDatum()) %></td>
-<td class="tds30"><%= pl.getMarke() %></td>
+<td class="tds30"><%= SXUtil.toHtml(pl.getMarke()) %></td>
 <td></td>
 </tr>
 <tr><td colspan="5"><div id="f<%= radcn %>" class="docgrupp" ></div></td></tr>	

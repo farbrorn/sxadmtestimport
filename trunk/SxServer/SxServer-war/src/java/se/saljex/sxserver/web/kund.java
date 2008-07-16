@@ -96,7 +96,11 @@ public class kund extends HttpServlet {
 				} else if (get.equals("utlev1")) {
 					printUtlev1(request, response,"", sxSession.getKundnr());
 				} else if (get.equals("utlev2")) {
-					printUtlev2(request, response,"", sxSession.getKundnr());
+					int nr = 0;
+					try {
+						nr = Integer.parseInt(request.getParameter("ordernr"));
+					} catch (Exception e) {}
+					printUtlev2(request, response,"", sxSession.getKundnr(), nr);
 				} else {
 					out.println("Inga data tillgängliga!");
 				}
@@ -114,6 +118,9 @@ public class kund extends HttpServlet {
 					printRightSideBar(request,response,"id=\"rightbar\"");
 				} else if (id.equals("3")) {
 					printOrderLista(request, response,"id=\"midbar\"", sxSession.getKundnr());
+					printRightSideBar(request,response,"id=\"rightbar\"");
+				} else if (id.equals("editorder")) {
+					printEditOrder(request, response,"id=\"midbar\"", sxSession.getKundnr());
 					printRightSideBar(request,response,"id=\"rightbar\"");
 				} else if (id.equals("4")) {
 					printKundresLista(request, response,"id=\"midbar\"", sxSession.getKundnr());
@@ -247,6 +254,22 @@ private void printOrderInfo(HttpServletRequest request, HttpServletResponse resp
 		request.getRequestDispatcher("WEB-INF/jspf/kund/printorderinfo.jsp").include(request, response);
 	}
 
+private void printEditOrder(HttpServletRequest request, HttpServletResponse response, String divInfo, String kundnr) throws ServletException, IOException{
+		int ordernr;
+		try {
+			ordernr = Integer.parseInt(request.getParameter("ordernr"));
+		} catch (Exception e) {ordernr = 0; }
+		TableOrder1 tableOrder1 = LocalWebSupportBean.getTableOrder1(ordernr);
+		if (tableOrder1 != null && kundnr != null) if (tableOrder1.getKundnr().equals(kundnr)) {
+			List<TableOrder2> to =  LocalWebSupportBean.getListTableOrder2(ordernr);
+			request.setAttribute("tableorder1", tableOrder1);
+			request.setAttribute("listtableorder2", to);
+		}
+		request.setAttribute("divinfo", divInfo);
+		request.getRequestDispatcher("WEB-INF/jspf/kund/editorder.jsp").include(request, response);
+	}
+
+
 private void printKundresLista(HttpServletRequest request, HttpServletResponse response, String divInfo, String kundnr) throws ServletException, IOException{
 		if (kundnr != null) {
 			List<TableKundres> tk =  LocalWebSupportBean.getListTableKundres(kundnr);
@@ -314,7 +337,21 @@ private void printUtlev1(HttpServletRequest request, HttpServletResponse respons
 		} catch (SQLException sqe) {}
 	}
 
-private void printUtlev2(HttpServletRequest request, HttpServletResponse response, String divInfo, String kundnr) throws ServletException, IOException{
+private void printUtlev2(HttpServletRequest request, HttpServletResponse response, String divInfo, String kundnr, int ordernr) throws ServletException, IOException{
+		PageListUtlev2 pl = null;
+		if (kundnr != null && ordernr > 0) {
+			try {
+				pl = new PageListUtlev2(sxadm, kundnr, ordernr); 
+				pl.getPage(1);
+				request.setAttribute("pagelistutlev2", pl);
+			} catch (SQLException sqe) {}
+		}
+		
+		request.setAttribute("divinfo", divInfo);
+		request.getRequestDispatcher("WEB-INF/jspf/kund/printutlev2.jsp").include(request, response);
+		try {
+			if (pl!=null) pl.close();
+		} catch (SQLException sqe) {}
 	}
 
 private void printKundListaSokHuvud(HttpServletRequest request, HttpServletResponse response, String divInfo) throws ServletException, IOException{
