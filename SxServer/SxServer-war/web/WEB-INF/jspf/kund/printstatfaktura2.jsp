@@ -35,6 +35,7 @@ if (pl == null) { out.println("Inga data"); } else { %>
 		<th class="tdn16">Köptillfällen</th>
 		 <th></th>
 	</tr>
+<tr><td colspan="6">Visar för period : <%= pl.getFrdatStr() + " - " + pl.getTidatStr() %></td></tr>
 <%
 int radcn = 0;
 while ( pl.next() ) {
@@ -44,7 +45,7 @@ if (radcn % 2 > 0) { %> <tr id="tr<%= radcn %>" class="trdocodd"> <%} else { %><
 %>
 <td class="tdknapp"><a href="JavaScript:showstatfaktura12(<%= radcn %>, '<%= pl.getFrdatStr() %>', '<%= pl.getTidatStr() %>', '<%= pl.getArtnr() %>')" name="a<%= radcn %>">Visa</a></td>
 <td class="tds15"><%= pl.getArtnr() %></td>
-<td class="tds30"><%= pl.getNamn() %></td>
+<td class="tds30"><%= SXUtil.toHtml(pl.getNamn()) %></td>
 <td class="tdn16"><%= SXUtil.getFormatNumber(pl.getSumma()) %></td>
 <td class="tdn16"><%= SXUtil.getFormatNumber(pl.getAntalKopta(),0) %></td>
 <td class="tdn16"><%= pl.getAntalKop() %></td>
@@ -62,6 +63,9 @@ if (radcn % 2 > 0) { %> <tr id="tr<%= radcn %>" class="trdocodd"> <%} else { %><
 	 <input name="currentpage" value="<%= pl.getCurrentPage() %>" type="hidden" />
 	 <input name="nextpage" value="<%= pl.getNextPage() %>" type="hidden" />
 	 <input name="previouspage" value="<%= pl.getPreviousPage() %>" type="hidden" />
+	 <input name="datafrdat" value="<%= pl.getFrdatStr() %>" type="hidden" />
+	 <input name="datatidat" value="<%= pl.getTidatStr() %>" type="hidden" />
+	 <input name="dataorderby" value="<%= pl.getOrderBy() %>" type="hidden" />
 </form>
 	
 </div>

@@ -34,6 +34,7 @@ if (pl == null) { out.println("Inga data"); } else { %>
 		<th class="tds30">Märke</th>
 		 <th></th>
 	</tr>
+<tr><td colspan="6">Visar fakturor fram till : <%= pl.getTidatStr() %></td></tr>
 <%
 int radcn = 0;
 int tempfaktnr = 0;
@@ -58,7 +59,7 @@ if (pl.next()) {
 	markestr = "";
 	while (true) {
 		if (pl.getOrdernr() == null || pl.getOrdernr() == 0) tempordernr = ""; else tempordernr = pl.getOrdernr().toString();
-		if (pl.getMarke() == null) tempmarke = ""; else tempmarke = pl.getMarke();
+		if (pl.getMarke() == null) tempmarke = ""; else tempmarke = SXUtil.toHtml(pl.getMarke());
 		if (!ordernrstr.isEmpty()) ordernrstr = ordernrstr + "<br/>";
 		if (!markestr.isEmpty()) markestr = markestr + "<br/>";
 		ordernrstr = ordernrstr + tempordernr;
@@ -85,6 +86,7 @@ if (pl.next()) {
 	 <input name="currentpage" value="<%= pl.getCurrentPage() %>" type="hidden" />
 	 <input name="nextpage" value="<%= pl.getNextPage() %>" type="hidden" />
 	 <input name="previouspage" value="<%= pl.getPreviousPage() %>" type="hidden" />
+	 <input name="datatidat" value="<%= pl.getTidatStr() %>" type="hidden" />
 </form>
 	
 </div>

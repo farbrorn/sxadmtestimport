@@ -38,6 +38,9 @@ function updateNextPrev() {
 	 if (prev < cur) { $("#getpreviouspage").html("Föregående"); } else {$("#getpreviouspage").html("");}
 	 if (next > cur) { $("#getnextpage").html("Nästa"); } else {$("#getnextpage").html("");}
 	 $("#sida").html(cur);
+	 $("input[@name=tidat]").val($("input[@name=datatidat]").val());
+	 $("input[@name=frdat]").val($("input[@name=datafrdat]").val());
+	 
 }
 
 function loadNextPage() {

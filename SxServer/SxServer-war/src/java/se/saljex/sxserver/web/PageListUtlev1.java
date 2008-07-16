@@ -67,7 +67,7 @@ private String orderByStr;
 			if (fr == null) {
 				cal = SXUtil.getTodayDate();
 			} else { 
-				cal = SXUtil.getCalendarFromDate(fr); 
+				cal = SXUtil.getSqlCalendarFromDate(fr); 
 			}
 			cal.add(Calendar.YEAR, -1);
 			fr = cal.getTime();

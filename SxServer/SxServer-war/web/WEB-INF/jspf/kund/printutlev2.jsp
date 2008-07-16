@@ -6,31 +6,23 @@
 <%@ page import="se.saljex.sxserver.SXUtil" %>
 <%@ page import="se.saljex.sxserver.web.*" %>
 <%@ page import="se.saljex.sxserver.TableOrder1" %>
-<%@ page import="se.saljex.sxserver.TableOrder2" %>
 <%@ page import="java.util.List" %>
- <script type="text/javascript">
-	$(document).ready(function() {
-
-	 });
-				
- </script> 
 
 <% 
 SXSession sxSession = WebUtil.getSXSession(session);
 
-PageListStatFaktura12 pl = (PageListStatFaktura12)request.getAttribute("pageliststatfaktura12");
+//TableOrder1 o1 = (TableOrder1)request.getAttribute("tableorder1");
+PageListUtlev2 pl = (PageListUtlev2)request.getAttribute("pagelistutlev2");
 
 String divInfo = (String)request.getAttribute("divinfo");
 if (divInfo == null) divInfo = "";
 %>
 <div <%= divInfo %>>
-<%
-if (pl == null) { out.println("Inga data"); } else { %>
 
 <table id="doc">
 <tr>
-<th class="tds15">Datum</th>
-<th class="tdn12">Fakturanr</th>
+<th class="tds15">Art.nr.</th>
+<th class="tds30">Benämning</th>
 <th class="tdn12">Antal</th>
 <th class="tds3">Enh</th>
 <th class="tdn12">Pris</th>
@@ -42,8 +34,8 @@ if (pl == null) { out.println("Inga data"); } else { %>
 while (pl.next()) {
 %>
 <tr>
-<td class="tds15"><%= pl.getDatum() %></td>
-<td class="tdn12"><%= pl.getFaktnr() %></td>
+<td class="tds15"><%= pl.getArtnr() %></td>
+<td class="tds30"><%= SXUtil.toHtml(pl.getNamn()) %></td>
 <td class="tdn12"><%= pl.getLev() %></td>
 <td class="tds3"><%= SXUtil.toHtml(pl.getEnh()) %></td>
 <td class="tdn12"><%= SXUtil.getFormatNumber(pl.getPris()) %></td>
@@ -55,7 +47,4 @@ while (pl.next()) {
 	}
 %>
 </table>
-<%
-}
-%>
 </div>

@@ -46,9 +46,9 @@ while (pl.next()) {
 
 <td class="tdknapp"><a href="JavaScript:void()" name="a<%= radcn %>">Visa</a></td>
 <td class="tds15"><a href="?id=setkund&kundnr=<%= pl.getNummer() %>"><%= pl.getNummer() %></a></td>
-<td class="tds30"><%= pl.getNamn() %></td>
-<td class="tds30"><%= pl.getAdr3() %></td>
-<td class="tds30"><%= pl.getRef() %></td>
+<td class="tds30"><%= SXUtil.toHtml(pl.getNamn()) %></td>
+<td class="tds30"><%= SXUtil.toHtml(pl.getAdr3()) %></td>
+<td class="tds30"><%= SXUtil.toHtml(pl.getRef()) %></td>
 <td></td>
 </tr>
 <tr><td colspan="5"><div id="f<%= radcn %>" class="docgrupp" ></div></td></tr>	

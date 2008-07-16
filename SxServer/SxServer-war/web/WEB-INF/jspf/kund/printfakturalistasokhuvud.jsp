@@ -24,16 +24,17 @@ $(document).ready(function() {
 	$("#d1").hide();
 	$("#inputpage").hide();
 	$("input[@name=bsok]").click( function() { $("input[@name=page]").val(1); loadsokres(); return false;});
+
 	loadsokres();
 });
 		 
  </script> 
 
 <div <%= divInfo %>>
-<span id="divdocsok">
+<div id="divdocsok">
 
 <h1>Fakturor</h1>
-<form id="sokform">
+<form id="sokform" action="">
 <input type="hidden" name="get" value="fakturalista"/>
 <table id="doclist"><tr>
 <td colspan="3" id="d1">
@@ -46,6 +47,6 @@ Till datum: (ееее-mm-dd) <input id="tidat" type="text" name="tidat" value="<%= t
 <td align="left">Sida: <span id="sida"></span></td>
 <td align="right"><a href="javascript:loadPreviousPage();" id="getpreviouspage" ></a>&nbsp;<a href="javascript:loadNextPage();" id="getnextpage" ></a></td>
 </tr></table></form>
-</span>
+<div>
 <div id="divdoclist"></div>
 </div>

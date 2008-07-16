@@ -33,6 +33,13 @@ private Date tidat;
 		} catch (Exception e1) {}
 		setTidat(ti);
 	}
+	public String getTidatStr() {
+		if (tidat == null) {
+			return "Alla";
+		} else {
+			return SXUtil.getFormatDate(tidat);
+		}
+	}
 	
 	
 	public void setTidat(Date ti) {
