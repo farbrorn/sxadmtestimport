@@ -54,7 +54,7 @@ public class kund extends HttpServlet {
 			sxSession.setKundnr("0555");
 			sxSession.setKundnamn("Grums rör");
 			sxSession.setAnvandare("Lokalnvändare");
-			sxSession.setInternuser(true);
+			sxSession.setIntrauser(true);
 		}
 		
 		if (!sxSession.getInloggad()) {
@@ -82,7 +82,7 @@ public class kund extends HttpServlet {
 					} catch (Exception e) {}
 					printOrderInfo(request, response,"", sxSession.getKundnr(), nr);
 				} else if (get.equals("kundlista")) {
-					if (sxSession.checkInternBehorighetKund()) {
+					if (sxSession.checkIntraBehorighetKund()) {
 						printKundLista(request, response,"");
 					}
 				} else if (get.equals("fakturalista")) {
@@ -135,12 +135,12 @@ public class kund extends HttpServlet {
 					printStatFaktura2SokHuvud(request, response,"id=\"midbar\"");
 					printRightSideBar(request,response,"id=\"rightbar\"");
 				} else if (id.equals("kundlista")) {
-					if (sxSession.checkInternBehorighetKund()) {
+					if (sxSession.checkIntraBehorighetKund()) {
 						printKundListaSokHuvud(request, response,"id=\"midbar\"");
 						printRightSideBar(request,response,"id=\"rightbar\"");
 					}
 				} else if (id.equals("setkund")) {
-					if (sxSession.checkInternBehorighetKund()) {
+					if (sxSession.checkIntraBehorighetKund()) {
 						setSXSessionKund(request, response,request.getParameter("kundnr"), sxSession);
 						printKundinfo(request, response,"id=\"midbar\"");
 						printRightSideBar(request,response,"id=\"rightbar\"");				
