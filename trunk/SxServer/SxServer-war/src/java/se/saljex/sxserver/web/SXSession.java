@@ -16,25 +16,34 @@ public class SXSession {
 	
 	private boolean inloggad = false;
 	private String anvandare = null;
+	private String intraAnvandareKort = null;
 	private String kundnr = null;
 	private String levnr = null;
 	private String kundnamn = null;
 	private String levnamn = null;
 	private boolean superuser = false;
 	private boolean adminuser = false;
-	private boolean internuser = false;
+	private boolean intrauser = false;
 	
 	public boolean checkBehorighetKund() {
 		if (inloggad) {
 			if (kundnr != null) return true;
-			if (superuser || adminuser || internuser) return true;
+			if (superuser || adminuser || intrauser) return true;
 		}
 		return false;
 	}
-	public boolean checkInternBehorighetKund() {
+	public boolean checkIntraBehorighetKund() {
 		if (inloggad) { 
 			if (superuser || adminuser) return true;
-			if (internuser) return true;
+			if (intrauser) return true;
+		}
+		return false;
+	}
+	
+	public boolean checkIntraBehorighetRapp() {
+		if (inloggad) { 
+			if (superuser || adminuser) return true;
+			if (intrauser) return true;
 		}
 		return false;
 	}
@@ -50,11 +59,19 @@ public class SXSession {
 	public String getAnvandare() {
 		return anvandare;
 	}
+
+	public String getIntraAnvandareKort() {
+		return intraAnvandareKort;
+	}
 	
 	public void setAnvandare(String anvandare) {
 		this.anvandare = anvandare;
 	}
 
+	public void setIntraAnvandareKort(String intraAnvandareKort) {
+		this.intraAnvandareKort = intraAnvandareKort;
+	}
+	
 	public String getKundnr() {
 		return kundnr;
 	}
@@ -103,12 +120,12 @@ public class SXSession {
 			 this.superuser = superuser;
 	  }
 
-	  public boolean isInternuser() {
-			 return internuser;
+	  public boolean isIntrauser() {
+			 return intrauser;
 	  }
 
-	  public void setInternuser(boolean internuser) {
-			 this.internuser = internuser;
+	  public void setIntrauser(boolean intrauser) {
+			 this.intrauser = intrauser;
 	  }
 	
 }

@@ -23,6 +23,14 @@
         <servlet-name>Login</servlet-name>
         <servlet-class>se.saljex.sxserver.web.Login</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>intra</servlet-name>
+        <servlet-class>se.saljex.sxserver.web.intra</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>rapp</servlet-name>
+        <servlet-class>se.saljex.sxserver.web.rapp</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>getPDF</servlet-name>
         <url-pattern>/getPDF</url-pattern>
@@ -42,6 +50,11 @@
     <servlet-mapping>
         <servlet-name>Login</servlet-name>
         <url-pattern>/login</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping><servlet-name>intra</servlet-name><url-pattern>/intra</url-pattern></servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>rapp</servlet-name>
+        <url-pattern>/rapp</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

@@ -35,16 +35,15 @@ h1 {
 }
 
 h2 {
-	color: #8899aa;
-	font-size: 12pt;
+	margin: 0;
+	font-size: 14pt;
+	font-weight: bold;	 
 }
 
 h3 {
-	color: #000000;
-	font-size: 14px;
+	margin: 0;
+	font-size: 12px;
 	font-weight: bold;
-	margin: 20px 0px 2px 0px;
-/*	line-height: 1.9em; */
 }
 
 h4 {
@@ -230,6 +229,9 @@ table#doc td {
 .tdknapp {
 	width: 30px;
 }
+.tdn {
+	text-align: right;
+}
 .tdn4 {
 	width: 30px;
 	text-align: right;
@@ -245,6 +247,9 @@ table#doc td {
 .tdn16 {
 	width: 80px;
 	text-align: right;
+}
+.tds {
+	width: 60px;
 }
 .tds3 {
 	width: 60px;
@@ -265,6 +270,25 @@ table#doc td {
 .tddocheadrubrik {
 	width: 100px;
 	font-size: 10px;
+	font-weight: bold;
+}
+
+.trrappgroupheader {
+	background: #707070;
+}
+.trrappgroupfooter {
+	background: #707070;
+}
+.trrappsum {
+	background: #808080;
+}
+.tdrappgroupheader {
+	font-weight: bold;
+}
+.tdrappgroupfooter {
+	font-weight: bold;
+}
+.tdrappsum {
 	font-weight: bold;
 }
 
@@ -328,3 +352,27 @@ table#doc td {
 		float: right;
 		clear: right;
 }
+
+
+
+
+
+table#rapp {
+	font-size: 12px;
+	table-layout: fixed;
+	border-collapse: collapse;
+	 width: 705px;  
+}
+table#rapp th {
+	background: #606060;
+	font-size: 10px;
+	font-weight: bold;
+	padding: 0px 1px 0px 1px;
+	margin: 0px 0px 0px 0px;
+}
+table#rapp td {
+	padding: 0px 1px 0px 1px;
+	margin: 0px 0px 0px 0px;
+	vertical-align: top;
+}
+
