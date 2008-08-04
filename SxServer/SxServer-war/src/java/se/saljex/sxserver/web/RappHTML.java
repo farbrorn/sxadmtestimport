@@ -106,7 +106,7 @@ public class RappHTML extends RappHandler {
 			sb.append("<tr><td colspan=\"2\">" + SXUtil.toHtml(rs1.getString(1)) + "</td></tr>");
 			sb.append("<tr><td colspan=\"2\">" + SXUtil.toHtml(rs1.getString(2)) + "</td></tr>");
 		}
-		rs1 = s1.executeQuery("select name, label, hidden, defaultvalue from rappprops where rappid = " + rappId + " and type='Filter' and (hidden = 0 or hidden is null) order by pos");
+		rs1 = s1.executeQuery("select name, label, hidden, defaultvalue from rappprops where rappid = " + rappId + " and type='Filter' and (hidden = 0 or hidden is null) order by wherepos");
 		while(rs1.next()) {
 			sb.append("<tr><td>" + SXUtil.toHtml(rs1.getString(2)) + "</td><td><input type=\"text\" name=\"" + rs1.getString(1) + "\" value=\"" + rs1.getString(4) + "\"/></td></tr>");
 		}
