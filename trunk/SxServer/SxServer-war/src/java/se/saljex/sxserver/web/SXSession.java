@@ -4,6 +4,7 @@
  */
 
 package se.saljex.sxserver.web;
+import java.util.ArrayList;
 import se.saljex.sxserver.*;
 
 /**
@@ -24,6 +25,8 @@ public class SXSession {
 	private boolean superuser = false;
 	private boolean adminuser = false;
 	private boolean intrauser = false;
+
+	private ArrayList<RappEdit> arrRappEdit = new ArrayList();
 	
 	public boolean checkBehorighetKund() {
 		if (inloggad) {
@@ -110,6 +113,14 @@ public class SXSession {
 
 	  public void setLevnamn(String levnamn) {
 			 this.levnamn = levnamn;
+	  }
+
+	  public ArrayList<RappEdit> getArrRappEdit() {
+			 return arrRappEdit;
+	  }
+
+	  public void setRappEdit(ArrayList<RappEdit> arrRappEdit) {
+			 this.arrRappEdit = arrRappEdit;
 	  }
 
 	  public boolean isSuperuser() {

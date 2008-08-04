@@ -37,6 +37,7 @@ for (RappHTML.RappHuvudList r : rl) {
 %>
 <tr>
 <td><%= "<a href=\"?id=2&rappid=" + r.rappid + "\">" + SXUtil.toHtml(r.kortbeskrivning) + "</a>" %></td>
+<td><a href="?id=editrappid&rappid=<%= r.rappid %>">Ändra</a></td>
 </tr>
 <%
 }

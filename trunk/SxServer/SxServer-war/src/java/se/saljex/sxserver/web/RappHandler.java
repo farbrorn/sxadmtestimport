@@ -124,7 +124,7 @@ create table rappcolumns (
 		sb.append(" from ");
 		sb.append(sqlFrom);
 		// Ta fram filtren
-		rs1 = s1.executeQuery("select type, sumcolumn, resetcolumn, sumtype, sumtext, pos, javatype, name, label, hidden, defaultvalue from rappprops where rappid = " + rappId + " order by pos");
+		rs1 = s1.executeQuery("select type, sumcolumn, resetcolumn, sumtype, sumtext, wherepos, javatype, name, label, hidden, defaultvalue from rappprops where rappid = " + rappId + " order by wherepos");
 		while(rs1.next()) {
 			if ("Filter".equals(rs1.getString(1))) {
 				this.addSqlFilterField(rs1.getInt(6), rs1.getString(7), rs1.getString(8), rs1.getString(9), rs1.getInt(10) != 0, stringToJavaTypeObject(rs1.getString(7),rs1.getString(11)), stringToJavaTypeObject(rs1.getString(7),getFilterValue(rs1.getString(8))));
@@ -141,7 +141,7 @@ create table rappcolumns (
 			this.colArr[r.getPos()].setLabel(r.getLabel());
 		}
 		// Ta fram summorna
-		rs1 = s1.executeQuery("select type, sumcolumn, resetcolumn, sumtype, sumtext, pos, javatype, name, label, hidden, defaultvalue from rappprops where rappid = " + rappId + " order by pos");
+		rs1 = s1.executeQuery("select type, sumcolumn, resetcolumn, sumtype, sumtext, wherepos, javatype, name, label, hidden, defaultvalue from rappprops where rappid = " + rappId + " order by wherepos");
 		while(rs1.next()) {
 			if ("Sum".equals(rs1.getString(1))) {
 				this.addSum(rs1.getInt(2), rs1.getInt(3), rs1.getString(4), rs1.getString(5));
