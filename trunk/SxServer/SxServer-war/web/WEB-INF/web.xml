@@ -31,6 +31,10 @@
         <servlet-name>rapp</servlet-name>
         <servlet-class>se.saljex.sxserver.web.rapp</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>inkop</servlet-name>
+        <servlet-class>se.saljex.sxserver.web.inkop</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>getPDF</servlet-name>
         <url-pattern>/getPDF</url-pattern>
@@ -55,6 +59,10 @@
     <servlet-mapping>
         <servlet-name>rapp</servlet-name>
         <url-pattern>/rapp</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>inkop</servlet-name>
+        <url-pattern>/inkop</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

@@ -43,4 +43,5 @@ for (RappHTML.RappHuvudList r : rl) {
 }
 %>
 </table>
+<a href="?id=new">Ny rapport</a>
 </div>

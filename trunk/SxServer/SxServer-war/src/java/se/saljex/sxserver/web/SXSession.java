@@ -22,11 +22,14 @@ public class SXSession {
 	private String levnr = null;
 	private String kundnamn = null;
 	private String levnamn = null;
+	private Integer inkopInloggatBestNr = null;
 	private boolean superuser = false;
 	private boolean adminuser = false;
 	private boolean intrauser = false;
 
 	private ArrayList<RappEdit> arrRappEdit = new ArrayList();
+	public void setInkopInloggatBestNr(Integer inkopInloggatBestNr) { this.inkopInloggatBestNr = inkopInloggatBestNr; }
+	public Integer getInkopInloggatBestNr() { return this.inkopInloggatBestNr; }
 	
 	public boolean checkBehorighetKund() {
 		if (inloggad) {
