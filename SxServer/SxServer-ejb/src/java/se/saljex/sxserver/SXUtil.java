@@ -152,8 +152,13 @@ public class SXUtil {
        return calendar.getTime();
     }
 
+	 public static String toStr(String s) {
+		 if (s == null) return ""; else return s;
+	 }	 
+	 
 	public static String toHtml(String string) {
 		// Baserat på kod från http://www.rgagnon.com/javadetails/java-0306.html av S. Bayer
+		if (string == null) return "";
 		StringBuffer sb = new StringBuffer(string.length());
 		// true if last char was blank
 		boolean lastWasBlankChar = false;
