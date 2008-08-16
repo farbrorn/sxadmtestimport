@@ -36,17 +36,21 @@ public class rapp extends HttpServlet {
 	private DataSource sxadm;
 	
 	private Connection con;
+	private HttpServletRequest request;
+	private HttpServletResponse response;
+	private PrintWriter out;
 	
-	protected void processRequest(HttpServletRequest request, HttpServletResponse response)	throws ServletException, IOException {
+	protected void processRequest(HttpServletRequest req, HttpServletResponse res)	throws ServletException, IOException {
 		try {	con = sxadm.getConnection(); } catch (SQLException e) { SXUtil.log(e.toString());}
+		this.request = req;
+		this.response = res;
+		this.out = response.getWriter();
 		
-		request.setCharacterEncoding("UTF-8");
-		response.setContentType("text/html;charset=UTF-8");
-		PrintWriter out = response.getWriter();
+		//request.setCharacterEncoding("UTF-8");
+		//response.setContentType("text/html;charset=UTF-8");
 		String get = request.getParameter("get");
 		String id = request.getParameter("id");
 		if (id == null) { id = "1"; }
-		RequestDispatcher dispatcher;
 		
 		HttpSession session = request.getSession();
 		SXSession sxSession = WebUtil.getSXSession(session);
@@ -61,7 +65,10 @@ public class rapp extends HttpServlet {
 		try {
 			rappSession = Integer.parseInt(request.getParameter("rappsession"));
 			currentRappEdit = sxSession.getArrRappEdit().get(rappSession);
-		} catch (Exception e) { SXUtil.log(e.toString());}
+		} 
+		catch (NumberFormatException e) {SXUtil.log(e.toString()); }
+		catch (NullPointerException e) {SXUtil.log(e.toString()); }
+		catch (IndexOutOfBoundsException e) { out.println("Felaktig rappsession. Möjligen har sessionen utgått pga timeout."); return; }
 
 		
 		// Två rader som fixaar automatisk inloggning för test
@@ -87,23 +94,21 @@ public class rapp extends HttpServlet {
 		try {
 			if (get != null) {			//Vi har en get-request som bara skickar en del av sidan
 				if (get.equals("viewrapp")) {
-					printRapp(request, response,"", sxSession.getIntraAnvandareKort(), rappId);
+					printRapp("", sxSession.getIntraAnvandareKort(), rappId);
 				} else {
 					out.println("Inga data tillgängliga!");
 				}
 			} else {			// Om vi inte har någon annan request så antar vi en id-request som ritar en hel sida
-				request.getRequestDispatcher("/WEB-INF/jspf/siteheader.jsp").include(request, response);
-				printTopBar(request,response,"id=\"top\"");
-				printLeftSideBar(request,response,"id=\"leftbar\"");
-				out.println("<div id=\"body\">");
+				printHeader();
 
 				if (id.equals("1")) {
-					printRappHuvudList(request, response,"id=\"midbar\"");
+					printRappHuvudList("id=\"midbar\"");
 				} else if (id.equals("2")) {
-					printRappInput(request, response,"id=\"midbar\"", sxSession.getIntraAnvandareKort(), rappId);
+					printRappInput("id=\"midbar\"", sxSession.getIntraAnvandareKort(), rappId);
 //					printKundinfo(request, response,"id=\"midbar\"");
 //					printRightSideBar(request,response,"id=\"rightbar\"");
 				} else if (id.equals("edithuvud")) {
+					out.print("<div id=\"midbar\">" + currentRappEdit.editHuvud() + "</div>");
 				} else if (id.equals("editcolumn")) {
 					out.print("<div id=\"midbar\">" + currentRappEdit.editColumn(request) + "</div>");
 				} else if (id.equals("editfilter")) {
@@ -115,18 +120,18 @@ public class rapp extends HttpServlet {
 					try {
 						currentRappEdit.updateHuvud(request);
 						out.print("Sparat ok!");
-						//printRappInput(request, response,"", sxSession.getIntraAnvandareKort(), currentRappEdit.rappId);
+						printRappEdit("", currentRappEdit);
 					} catch (RappEdit.RappException e) {
 						out.print("<b>Något gick fel - " + e.toString() + "</b>");
+						out.print(currentRappEdit.editHuvud());
 					}
-					printRappEdit(request, response,"", currentRappEdit);
 					out.print("</div>");					
 				} else if (id.equals("updatecolumn")) {
 					out.print("<div id=\"midbar\">");
 					try {
 						currentRappEdit.updateColumn(request);
 						out.print("Sparat ok!");
-						printRappEdit(request, response,"", currentRappEdit);
+						printRappEdit("", currentRappEdit);
 					} catch (RappEdit.RappException e) {
 						out.print("<b>Något gick fel - " + e.toString() + "</b>");
 						out.print(currentRappEdit.editColumn(request));
@@ -137,7 +142,7 @@ public class rapp extends HttpServlet {
 					try {
 						currentRappEdit.updateFilter(request);
 						out.print("Sparat ok!");
-						printRappEdit(request, response,"", currentRappEdit);
+						printRappEdit("", currentRappEdit);
 					} catch (RappEdit.RappException e) {
 						out.print("<b>Något gick fel - " + e.toString() + "</b>");
 						out.print(currentRappEdit.editFilter(request));
@@ -148,7 +153,7 @@ public class rapp extends HttpServlet {
 					try {
 						currentRappEdit.updateSum(request);
 						out.print("Sparat ok!");
-						printRappEdit(request, response,"", currentRappEdit);	
+						printRappEdit("", currentRappEdit);	
 					
 					} catch (RappEdit.RappException e) {
 						out.print("<b>Något gick fel - " + e.toString() + "</b>");
@@ -169,12 +174,8 @@ public class rapp extends HttpServlet {
 					out.print(currentRappEdit.editSum(currentRappEdit.newSum()));
 					out.print("</div>");
 
-				} else if (id.equals("deltecolumn")) {
-				} else if (id.equals("deletefilter")) {
-				} else if (id.equals("deletesum")) {
-					
 				} else if (id.equals("edit")) {
-					printRappEdit(request, response,"id=\"midbar\"", currentRappEdit);
+					printRappEdit("id=\"midbar\"", currentRappEdit);
 				} else if (id.equals("editrappid")) {
 					if (rappId != null) {
 						//Null-ställ
@@ -198,9 +199,9 @@ public class rapp extends HttpServlet {
 								sxSession.getArrRappEdit().add(currentRappEdit);
 							} catch (Exception e) { rappSession=null; currentRappEdit = null; out.print(e.toString()); }
 						}
-						printRappEdit(request, response,"id=\"midbar\"", currentRappEdit);
+						printRappEdit("id=\"midbar\"", currentRappEdit);
 					} else {
-						printRappHuvudList(request, response,"id=\"midbar\"");
+						printRappHuvudList("id=\"midbar\"");
 					}
 					
 				} else if (id.equals("new")) {
@@ -210,7 +211,7 @@ public class rapp extends HttpServlet {
 						currentRappEdit = new RappEdit(con,rappSession,null);
 						sxSession.getArrRappEdit().add(currentRappEdit);
 					} catch (Exception e) { rappSession=null; currentRappEdit = null; out.print(e.toString()); }
-					printRappEdit(request, response,"id=\"midbar\"", currentRappEdit);
+					printRappEdit("id=\"midbar\"", currentRappEdit);
 					
 				} else if (id.equals("persist")) {
 					out.print("<div id=\"midbar\">");
@@ -227,8 +228,7 @@ public class rapp extends HttpServlet {
 					out.println("Felaktigt id");
 				}
 
-				out.println("</div>");
-				request.getRequestDispatcher("/WEB-INF/jspf/sitefooter.jsp").include(request, response);
+				printFooter();
 			}
 		} finally { 
 			out.close();
@@ -236,28 +236,39 @@ public class rapp extends HttpServlet {
 		}
  } 
 
+private void printHeader()  throws ServletException, IOException{
+				request.getRequestDispatcher("/WEB-INF/jspf/siteheader.jsp").include(request, response);
+				printTopBar("id=\"top\"");
+				printLeftSideBar("id=\"leftbar\"");
+				out.println("<div id=\"body\">");	
+}
 
-private void printRappInput(HttpServletRequest request, HttpServletResponse response, String divInfo, String anvandareKort, int rappId) throws ServletException, IOException{
+private void printFooter()  throws ServletException, IOException {
+				out.println("</div>");
+				request.getRequestDispatcher("/WEB-INF/jspf/sitefooter.jsp").include(request, response);	
+}
+
+private void printRappInput(String divInfo, String anvandareKort, int rappId) throws ServletException, IOException{
 		if (anvandareKort != null) {
 			try {
 				RappHTML rh = new RappHTML(sxadm, request);
-				response.getWriter().println(rh.printHTMLInputForm(rappId));
-			} catch (SQLException e) { SXUtil.log("Undantag vid rapport:" + e.toString()); response.getWriter().println("Undantag vid rapport: " + e.toString()); }
+				out.println(rh.printHTMLInputForm(rappId));
+			} catch (SQLException e) { SXUtil.log("Undantag vid rapport:" + e.toString()); out.println("Undantag vid rapport: " + e.toString()); }
 		}
 	}
-private void printRapp(HttpServletRequest request, HttpServletResponse response, String divInfo, String anvandareKort, int rappId) throws ServletException, IOException{
+private void printRapp(String divInfo, String anvandareKort, int rappId) throws ServletException, IOException{
 		request.getRequestDispatcher("/WEB-INF/jspf/rapp/rappheadervisa.jsp").include(request, response);
 		if (anvandareKort != null) {
 			try {
 				RappHTML rh = new RappHTML(sxadm, request);
 				rh.prepareFromSQLRepository(rappId);
-				response.getWriter().println(rh.print());
+				out.println(rh.print());
 			} catch (SQLException e) { SXUtil.log("Undantag vid rapport:" + e.toString()); response.getWriter().println("Undantag vid rapport: " + e.toString()); }
 		}
 		request.getRequestDispatcher("/WEB-INF/jspf/rapp/rappfootervisa.jsp").include(request, response);
 	}
 
-	private void printRappHuvudList(HttpServletRequest request, HttpServletResponse response, String divInfo) throws ServletException, IOException{
+	private void printRappHuvudList(String divInfo) throws ServletException, IOException{
 		try {
 			RappHTML r = new RappHTML(sxadm, request);
 			ArrayList<RappHTML.RappHuvudList> rl = r.getRappHuvudList();
@@ -267,35 +278,35 @@ private void printRapp(HttpServletRequest request, HttpServletResponse response,
 		} catch (SQLException e) { SXUtil.log("Undantag vid rapp: " + e.toString()); response.getWriter().println(e.toString());}
 	}
 
-	private void printRappEdit(HttpServletRequest request, HttpServletResponse response, String divInfo, RappEdit rappEdit) throws ServletException, IOException{
+	private void printRappEdit(String divInfo, RappEdit rappEdit) throws ServletException, IOException{
 		request.setAttribute("divinfo", divInfo);
 		request.setAttribute("rappedit", rappEdit);
 		request.getRequestDispatcher("WEB-INF/jspf/rapp/edit.jsp").include(request, response);
 	}
 	
-	private void printRappColumnEdit(HttpServletRequest request, HttpServletResponse response, String divInfo) throws ServletException, IOException{
+	private void printRappColumnEdit(String divInfo) throws ServletException, IOException{
 		request.setAttribute("divinfo", divInfo);
 		request.getRequestDispatcher("WEB-INF/jspf/rapp/editcolumn.jsp").include(request, response);
 	}
 
-	private void printRappFilterEdit(HttpServletRequest request, HttpServletResponse response, String divInfo) throws ServletException, IOException{
+	private void printRappFilterEdit(String divInfo) throws ServletException, IOException{
 		request.setAttribute("divinfo", divInfo);
 		request.getRequestDispatcher("WEB-INF/jspf/rapp/editfilter.jsp").include(request, response);
 	}
-	private void printRappSumEdit(HttpServletRequest request, HttpServletResponse response, String divInfo) throws ServletException, IOException{
+	private void printRappSumEdit(String divInfo) throws ServletException, IOException{
 		request.setAttribute("divinfo", divInfo);
 		request.getRequestDispatcher("WEB-INF/jspf/rapp/editsum.jsp").include(request, response);
 	}
 
-	private void printLeftSideBar(HttpServletRequest request, HttpServletResponse response, String divInfo) throws ServletException, IOException{
+	private void printLeftSideBar(String divInfo) throws ServletException, IOException{
 		request.setAttribute("divinfo", divInfo);
 		request.getRequestDispatcher("WEB-INF/jspf/rapp/leftsidebar.jsp").include(request, response);		
 	}
-	private void printRightSideBar(HttpServletRequest request, HttpServletResponse response, String divInfo) throws ServletException, IOException{
+	private void printRightSideBar(String divInfo) throws ServletException, IOException{
 		request.setAttribute("divinfo", divInfo);
 		request.getRequestDispatcher("WEB-INF/jspf/kund/rightsidebar.jsp").include(request, response);		
 	}
-	private void printTopBar(HttpServletRequest request, HttpServletResponse response, String divInfo) throws ServletException, IOException{
+	private void printTopBar(String divInfo) throws ServletException, IOException{
 		request.setAttribute("divinfo", divInfo);
 		request.getRequestDispatcher("WEB-INF/jspf/kund/topbar.jsp").include(request, response);		
 	}

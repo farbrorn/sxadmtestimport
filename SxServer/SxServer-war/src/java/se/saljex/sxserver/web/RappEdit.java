@@ -12,14 +12,13 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import javax.servlet.http.HttpServletRequest;
+import se.saljex.sxserver.SXUtil;
 
 /**
  *
  * @author ulf
  */
-public class RappEdit {
-	private boolean isLoaded = false;
-	
+public class RappEdit {	
 	protected ArrayList<RappColumn> arrColumn = new ArrayList();
 	protected ArrayList<RappFilter> arrFilter = new ArrayList();
 	protected ArrayList<RappSum> arrSum = new ArrayList();
@@ -27,6 +26,7 @@ public class RappEdit {
 	protected int rappSession;
 	protected Integer rappId = null;
 	
+	private boolean isChanged = false;
 	
 	public RappEdit(Connection con, int rappSession, Integer rappId) throws SQLException , RappEdit.RappException{
 		this.rappSession = rappSession;
@@ -35,10 +35,12 @@ public class RappEdit {
 		if (rappId != null) load(con);
 	}
 
+	public boolean getIsChanged() { return isChanged; }
 	public int getRappSession() { return rappSession; }
 	public ArrayList<RappColumn> getArrColumn () { return arrColumn; }
 	public ArrayList<RappFilter> getArrFilter () { return arrFilter; }
 	public ArrayList<RappSum> getArrSum () { return arrSum; }
+	public RappHuvud getHuvud(){ return huvud; }
 
 //	public String getLastMessageStr() { if(lastMessage != null) return lastMessage; else return "";}
 	
@@ -98,7 +100,7 @@ public class RappEdit {
 				sum.toFormData();
 				arrSum.add(sum);
 			}
-			this.isLoaded = true;				// Allt laddat och klart
+			isChanged = false;
 		
 		} else {
 			//lastMessage = "Hittar inte rapportid " + rappId;
@@ -146,53 +148,59 @@ public class RappEdit {
 			ps = con.prepareStatement("insert into rappcolumns (rappid, col, sqllabel, label, groupby, decimaler, hidden, groupbyheadertext, groupbyfootertext) values (?,?,?,?,?,?,?,?,?)");
 			int colcn = 0;
 			for (RappColumn rc : this.arrColumn) {
-				colcn++;
-				ps.setInt(1, rappId);
-				ps.setInt(2, colcn);
-				ps.setString(3, rc.sqlLabel);
-				ps.setString(4, rc.label);
-				ps.setInt(5, rc.getGroupbyToInt());
-				ps.setInt(6, rc.decimaler);
-				ps.setInt(7, rc.getHiddenToInt());
-				ps.setString(8, rc.groupbyheadertext);
-				ps.setString(9, rc.groupbyfootertext);
-				ps.executeUpdate();
+				if (!rc.markedForDelete) {
+					colcn++;
+					ps.setInt(1, rappId);
+					ps.setInt(2, colcn);
+					ps.setString(3, rc.sqlLabel);
+					ps.setString(4, rc.label);
+					ps.setInt(5, rc.getGroupbyToInt());
+					ps.setInt(6, rc.decimaler);
+					ps.setInt(7, rc.getHiddenToInt());
+					ps.setString(8, rc.groupbyheadertext);
+					ps.setString(9, rc.groupbyfootertext);
+					ps.executeUpdate();
+				}
 			}
 			ps.close();
 
 			int propsCn = 0;
 			ps = con.prepareStatement("insert into rappprops (rappid, rad, type, sumcolumn, sumtype, sumtext, wherepos, javatype, name, label, hidden, defaultvalue) values (?,?,?,?,?,?,?,?,?,?,?,?)");
 			for (RappFilter rf : this.arrFilter) {
-				propsCn++;
-				ps.setInt(1, rappId);
-				ps.setInt(2, propsCn);
-				ps.setString(3, "Filter");
-				ps.setInt(4,0);
-				ps.setString(5, null);
-				ps.setString(6, null);
-				ps.setInt(7, rf.wherepos);
-				ps.setString(8, rf.javatype);
-				ps.setString(9, "rappfilter" + propsCn);
-				ps.setString(10, rf.label);
-				ps.setInt(11, rf.getHiddenToInt());
-				ps.setString(12, rf.defaultvalue);
-				ps.executeUpdate();
+				if (!rf.markedForDelete) {
+					propsCn++;
+					ps.setInt(1, rappId);
+					ps.setInt(2, propsCn);
+					ps.setString(3, "Filter");
+					ps.setInt(4,0);
+					ps.setString(5, null);
+					ps.setString(6, null);
+					ps.setInt(7, rf.wherepos);
+					ps.setString(8, rf.javatype);
+					ps.setString(9, "rappfilter" + propsCn);
+					ps.setString(10, rf.label);
+					ps.setInt(11, rf.getHiddenToInt());
+					ps.setString(12, rf.defaultvalue);
+					ps.executeUpdate();
+				}
 			}
 			for (RappSum rsu : this.arrSum) {
-				propsCn++;
-				ps.setInt(1, rappId);
-				ps.setInt(2, propsCn);
-				ps.setString(3, "Sum");
-				ps.setInt(4,rsu.sumcolumn);
-				ps.setString(5, rsu.sumtype);
-				ps.setString(6, rsu.sumtext);
-				ps.setInt(7, 0);
-				ps.setString(8, null);
-				ps.setString(9, null);
-				ps.setString(10, null);
-				ps.setInt(11, 0);
-				ps.setString(12, null);
-				ps.executeUpdate();
+				if (!rsu.markedForDelete) {
+					propsCn++;
+					ps.setInt(1, rappId);
+					ps.setInt(2, propsCn);
+					ps.setString(3, "Sum");
+					ps.setInt(4,rsu.sumcolumn);
+					ps.setString(5, rsu.sumtype);
+					ps.setString(6, rsu.sumtext);
+					ps.setInt(7, 0);
+					ps.setString(8, null);
+					ps.setString(9, null);
+					ps.setString(10, null);
+					ps.setInt(11, 0);
+					ps.setString(12, null);
+					ps.executeUpdate();
+				}
 			}
 			ps.close();
 
@@ -201,6 +209,7 @@ public class RappEdit {
 			con.setAutoCommit(true);
 			s.close();
 		}
+		isChanged = false;
 	}
 	
 	
@@ -215,6 +224,8 @@ public class RappEdit {
 			huvud.kortbeskrivning = huvud.rappHuvudFormData.kortbeskrivning;
 			huvud.reportrubrik = huvud.rappHuvudFormData.reportrubrik;
 			huvud.sqlfrom = huvud.rappHuvudFormData.sqlfrom;
+			if (huvud.rappHuvudFormData.markedForDelete != null)	huvud.markedForDelete = "true".equals(huvud.rappHuvudFormData.markedForDelete); else huvud.markedForDelete = false;
+			isChanged = true;
 			//lastMessage = "Sparat OK!";
 		} else {
 			//lastMessage = "Fwl i formuläret";
@@ -229,7 +240,7 @@ public class RappEdit {
 	public int newColumn() {
 		RappColumn r = new RappColumn(rappSession);
 		this.arrColumn.add(r);
-		return this.arrColumn.size();
+		return this.arrColumn.size()-1;
 	}
 
 	public String editColumn(HttpServletRequest request) {
@@ -261,22 +272,24 @@ public class RappEdit {
 			
 		} catch (IndexOutOfBoundsException e) { throw new RappEdit.RappException("Angiven kolumn finns inte.");  }
 		
-		RappColumnFormData columnFormData = new RappColumnFormData(this.rappSession);
-		columnFormData.setFromForm(request);
-		if (columnFormData.isFormOK()) {
+		//RappColumnFormData columnFormData = new RappColumnFormData(this.rappSession);
+		r.rappColumnFormData.setFromForm(request);
+		if (r.rappColumnFormData.isFormOK()) {
 			try {
-				r.sortOrder = Integer.parseInt(columnFormData.sortOrder);
-				r.label = columnFormData.label;
-				r.sqlLabel = columnFormData.sqlLabel;
-				r.decimaler = Integer.parseInt(columnFormData.decimaler);
-				if (columnFormData.groupby != null)	r.groupby = "true".equals(columnFormData.groupby); else r.groupby = false;
-				if (columnFormData.hidden != null)	r.hidden = "true".equals(columnFormData.hidden); else r.hidden = false;
-				r.groupbyfootertext = columnFormData.groupbyfootertext;
-				r.groupbyheadertext = columnFormData.groupbyheadertext;
+				r.sortOrder = Integer.parseInt(r.rappColumnFormData.sortOrder);
+				r.label = r.rappColumnFormData.label;
+				r.sqlLabel = r.rappColumnFormData.sqlLabel;
+				r.decimaler = Integer.parseInt(r.rappColumnFormData.decimaler);
+				if (r.rappColumnFormData.groupby != null)	r.groupby = "true".equals(r.rappColumnFormData.groupby); else r.groupby = false;
+				if (r.rappColumnFormData.hidden != null)	r.hidden = "true".equals(r.rappColumnFormData.hidden); else r.hidden = false;
+				r.groupbyfootertext = r.rappColumnFormData.groupbyfootertext;
+				r.groupbyheadertext = r.rappColumnFormData.groupbyheadertext;
+				if (r.rappColumnFormData.markedForDelete != null)	r.markedForDelete = "true".equals(r.rappColumnFormData.markedForDelete); else r.markedForDelete = false;
 			} catch (Exception e) { throw new RappEdit.RappException("Något gick fel: " + e.toString());}
 		} else {
 			throw new RappEdit.RappException("Fel i formuläret");
 		}		
+		isChanged = true;
 	}
 
 
@@ -284,7 +297,7 @@ public class RappEdit {
 	public int newFilter() {
 		RappFilter r = new RappFilter(rappSession);
 		this.arrFilter.add(r);
-		return this.arrFilter.size(); 
+		return this.arrFilter.size()-1; 
 	}
 
 	public String editFilter(HttpServletRequest request) {
@@ -316,19 +329,21 @@ public class RappEdit {
 			
 		} catch (IndexOutOfBoundsException e) { throw new RappEdit.RappException("Angiven filterpos finns inte.");}
 		
-		RappFilterFormData filterFormData = new RappFilterFormData(this.rappSession);
-		filterFormData.setFromForm(request);
-		if (filterFormData.isFormOK()) {
+		//RappFilterFormData filterFormData = new RappFilterFormData(this.rappSession);
+		r.rappFilterFormData.setFromForm(request);
+		if (r.rappFilterFormData.isFormOK()) {
 			try {
-				r.defaultvalue = filterFormData.defaultvalue;
-				if (filterFormData.hidden != null) r.hidden ="true".equals(filterFormData.hidden); else r.hidden = false;
-				r.javatype = filterFormData.javatype;
-				r.label = filterFormData.label;
-				r.wherepos = Integer.parseInt(filterFormData.wherepos);
+				r.defaultvalue = r.rappFilterFormData.defaultvalue;
+				if (r.rappFilterFormData.hidden != null) r.hidden ="true".equals(r.rappFilterFormData.hidden); else r.hidden = false;
+				r.javatype = r.rappFilterFormData.javatype;
+				r.label = r.rappFilterFormData.label;
+				r.wherepos = Integer.parseInt(r.rappFilterFormData.wherepos);
+				if (r.rappFilterFormData.markedForDelete != null)	r.markedForDelete = "true".equals(r.rappFilterFormData.markedForDelete); else r.markedForDelete = false;
 			} catch (Exception e) { throw new RappEdit.RappException("Något gick fel: " + e.toString()); }
 		} else {
 			throw new RappEdit.RappException("Fel i formuläret");
 		}
+		isChanged = true;
 		
 	}
 
@@ -339,7 +354,7 @@ public class RappEdit {
 	public int newSum() {
 		RappSum r = new RappSum(rappSession);
 		this.arrSum.add(r);
-		return this.arrSum.size(); 
+		return this.arrSum.size()-1; 
 	}
 
 	public String editSum(HttpServletRequest request) {
@@ -371,18 +386,20 @@ public class RappEdit {
 			
 		} catch (IndexOutOfBoundsException e) { throw new RappEdit.RappException("Angiven sumpos finns inte.");}
 		
-		RappSumFormData sumFormData = new RappSumFormData(this.rappSession);
-		sumFormData.setFromForm(request);
-		if (sumFormData.isFormOK()) {
+		//RappSumFormData sumFormData = new RappSumFormData(this.rappSession);
+		r.rappSumFormData.setFromForm(request);
+		if (r.rappSumFormData.isFormOK()) {
 			try {
-				r.resetcolumn = Integer.parseInt(sumFormData.resetcolumn);
-				r.sumcolumn = Integer.parseInt(sumFormData.sumcolumn);
-				r.sumtext = sumFormData.sumtext;
-				r.sumtype = sumFormData.sumtype;
+				r.resetcolumn = Integer.parseInt(r.rappSumFormData.resetcolumn);
+				r.sumcolumn = Integer.parseInt(r.rappSumFormData.sumcolumn);
+				r.sumtext = r.rappSumFormData.sumtext;
+				r.sumtype = r.rappSumFormData.sumtype;
+				if (r.rappSumFormData.markedForDelete != null)	r.markedForDelete = "true".equals(r.rappSumFormData.markedForDelete); else r.markedForDelete = false;
 			} catch (Exception e) { throw new RappEdit.RappException("Något gick fel: " + e.toString()); }
 		} else {
 			throw new RappEdit.RappException("Fel i formuläret");
 		}
+		isChanged = true;
 		
 	}
 
@@ -420,6 +437,8 @@ public class RappEdit {
 		public String reportrubrik = null;
 		public String sqlfrom = null;
 		public String isdistinct = null;
+		public String markedForDelete = null;
+
 		public String behorighetErr = null;
 		public String kategoriErr = null;
 		public String undergruppErr = null;
@@ -476,14 +495,16 @@ public class RappEdit {
 				ret = false;				
 			}
 			if (isdistinct == null) {
-				isdistinctErr = "Värde måste anges";
-				ret = false;
+				isdistinct = "false";
 			} else {
 				if (!"true".equals(isdistinct) && !"false".equals(isdistinct)) {
 					isdistinctErr = "Värde måste vara sant eller falskt";
 					ret = false;					
 				}
 			}
+			if (markedForDelete == null) {
+				markedForDelete = "false";
+			} else if (!"true".equals(markedForDelete)) { markedForDelete = "false"; }
 			return ret;
 		}
 		
@@ -496,6 +517,7 @@ public class RappEdit {
 			reportrubrik = request.getParameter("reportrubrik");
 			sqlfrom = request.getParameter("sqlfrom");
 			isdistinct = request.getParameter("isdistinct");
+			markedForDelete = request.getParameter("markedfordelete");
 		}
 
 		
@@ -506,13 +528,15 @@ public class RappEdit {
 			sb.append("<input type=\"hidden\" name=\"id\" value=\"updatehuvud\">");
 			sb.append("<input type=\"hidden\" name=\"rappsession\" value=\"" + rappSession + "\">");
 			sb.append("<table>");
-			sb.append("<tr><td>Kategori:</td><td><input type=\"text\" name=\"kategori\" value=\"" + kategori + "\"></td><td>" + kategoriErr + "</td></tr>");
-			sb.append("<tr><td>Undergrupp:</td><td><input type=\"text\" name=\"undergrupp\" value=\"" + undergrupp + "\"></td><td>" + undergruppErr + "</td></tr>");
-			sb.append("<tr><td>Kortbeskrivning:</td><td><input type=\"text\" name=\"kortbeskrivning\" value=\"" + kortbeskrivning + "\"></td><td>" + kortbeskrivningErr + "</td></tr>");
-			sb.append("<tr><td>Rubrik:</td><td><input type=\"text\" name=\"reportrubrik\" value=\"" + reportrubrik + "\"></td><td>" + reportrubrikErr + "</td></tr>");
-			sb.append("<tr><td>SQL from-sats:</td><td><input type=\"text\" name=\"sqlfrom\" value=\"" + sqlfrom + "\"></td><td>" + sqlfromErr + "</td></tr>");
+			sb.append("<tr><td>Kategori:</td><td><input type=\"text\" name=\"kategori\" value=\"" + SXUtil.toHtml(kategori) + "\"></td><td>" + SXUtil.toHtml(kategoriErr) + "</td></tr>");
+			sb.append("<tr><td>Undergrupp:</td><td><input type=\"text\" name=\"undergrupp\" value=\"" + SXUtil.toHtml(undergrupp) + "\"></td><td>" + SXUtil.toHtml(undergruppErr) + "</td></tr>");
+			sb.append("<tr><td>Kortbeskrivning:</td><td><input type=\"text\" name=\"kortbeskrivning\" value=\"" + SXUtil.toHtml(kortbeskrivning) + "\"></td><td>" + SXUtil.toHtml(kortbeskrivningErr) + "</td></tr>");
+			sb.append("<tr><td>Rubrik:</td><td><input type=\"text\" name=\"reportrubrik\" value=\"" + SXUtil.toHtml(reportrubrik) + "\"></td><td>" + SXUtil.toHtml(reportrubrikErr) + "</td></tr>");
+			sb.append("<tr><td>SQL from-sats:</td><td><input type=\"text\" name=\"sqlfrom\" size=\"100\" value=\"" + SXUtil.toHtml(sqlfrom) + "\"></td><td>" + SXUtil.toHtml(sqlfromErr) + "</td></tr>");
 			if ("true".equals(isdistinct))  checked = "checked"; else checked = "";
-			sb.append("<tr><td colspan=\"2\">SQL distinct: <input type=\"checkbox\" name=\"sqlfrom\" value=\"true\" " + checked + "></td><td>" + isdistinctErr + "</td></tr>");
+			sb.append("<tr><td colspan=\"2\">SQL distinct: <input type=\"checkbox\" name=\"sqlfrom\" value=\"true\" " + checked + "></td><td>" + SXUtil.toHtml(isdistinctErr) + "</td></tr>");
+			if ("true".equals(markedForDelete))  checked = "checked"; else checked = "";
+			sb.append("<tr><td colspan=\"2\">Markerad för borttagning: <input type=\"checkbox\" name=\"markedfordelete\" value=\"true\" " + checked + "></td><td></td></tr>");
 			sb.append("<tr><td><input type=\"submit\" name=\"submit\" value=\"OK\"></td></tr>");
 			sb.append("</table></form>");
 			return sb.toString();
@@ -532,6 +556,7 @@ public class RappEdit {
 		public String hidden = null;
 		public String groupbyheadertext = null;
 		public String groupbyfootertext = null;
+		public String markedForDelete = null;
 		
 		public String sortOrderErr = null;	
 		public String sqlLabelErr = null;
@@ -599,6 +624,9 @@ public class RappEdit {
 					ret = false;
 				}
 			}
+			if (markedForDelete == null) {
+				markedForDelete = "false";
+			} else if (!"true".equals(markedForDelete)) { markedForDelete = "false"; }
 			return ret;
 		}
 		
@@ -612,6 +640,7 @@ public class RappEdit {
 			hidden = request.getParameter("hidden");
 			groupbyheadertext = request.getParameter("groupbyheadertext");
 			groupbyfootertext = request.getParameter("groupbyfootertext");
+			markedForDelete = request.getParameter("markedfordelete");
 		}
 
 		
@@ -623,16 +652,18 @@ public class RappEdit {
 			sb.append("<input type=\"hidden\" name=\"rappsession\" value=\"" + rappSession + "\">");
 			sb.append("<input type=\"hidden\" name=\"pos\" value=\"" + pos + "\">");
 			sb.append("<table>");
-			sb.append("<tr><td>Sorteringsordning:</td><td><input type=\"text\" name=\"sortorder\" value=\"" + sortOrder + "\"></td><td>" + sortOrderErr + "</td></tr>");
-			sb.append("<tr><td>SQL Namn:</td><td><input type=\"text\" name=\"sqllabel\" value=\"" + sqlLabel + "\"></td><td>" + sqlLabelErr + "</td></tr>");
-			sb.append("<tr><td>Kolumnrubrik:</td><td><input type=\"text\" name=\"label\" value=\"" + label + "\"></td><td>" + labelErr + "</td></tr>");
-			sb.append("<tr><td>Antal decimaler:</td><td><input type=\"text\" name=\"decimaler\" value=\"" + decimaler + "\"></td><td>" + decimalerErr + "</td></tr>");
+			sb.append("<tr><td>Sorteringsordning:</td><td><input type=\"text\" name=\"sortorder\" value=\"" + SXUtil.toHtml(sortOrder) + "\"></td><td>" + SXUtil.toHtml(sortOrderErr) + "</td></tr>");
+			sb.append("<tr><td>SQL Namn:</td><td><input type=\"text\" name=\"sqllabel\" value=\"" + SXUtil.toHtml(sqlLabel) + "\"></td><td>" + SXUtil.toHtml(sqlLabelErr) + "</td></tr>");
+			sb.append("<tr><td>Kolumnrubrik:</td><td><input type=\"text\" name=\"label\" value=\"" + SXUtil.toHtml(label) + "\"></td><td>" + SXUtil.toHtml(labelErr) + "</td></tr>");
+			sb.append("<tr><td>Antal decimaler:</td><td><input type=\"text\" name=\"decimaler\" value=\"" + SXUtil.toHtml(decimaler) + "\"></td><td>" + SXUtil.toHtml(decimalerErr) + "</td></tr>");
 			if ("true".equals(groupby))  checked = "checked"; else checked = "";
-			sb.append("<tr><td colspan=\"2\">SQL distinct: <input type=\"checkbox\" name=\"groupby\" value=\"true\" " + checked + "></td><td>" + groupbyErr + "</td></tr>");
+			sb.append("<tr><td colspan=\"2\">SQL distinct: <input type=\"checkbox\" name=\"groupby\" value=\"true\" " + checked + "></td><td>" + SXUtil.toHtml(groupbyErr) + "</td></tr>");
 			if ("true".equals(hidden))  checked = "checked"; else checked = "";
-			sb.append("<tr><td colspan=\"2\">SQL distinct: <input type=\"checkbox\" name=\"hidden\" value=\"true\" " + hidden + "></td><td>" + hiddenErr + "</td></tr>");
-			sb.append("<tr><td>Grupphuvudtext:</td><td><input type=\"text\" name=\"groupbyheadertext\" value=\"" + groupbyheadertext + "\"></td><td>" + groupbyheadertextErr + "</td></tr>");
-			sb.append("<tr><td>Gruppfottext:</td><td><input type=\"text\" name=\"groupbyfootertext\" value=\"" + groupbyfootertext + "\"></td><td>" + groupbyfootertext + "</td></tr>");
+			sb.append("<tr><td colspan=\"2\">SQL distinct: <input type=\"checkbox\" name=\"hidden\" value=\"true\" " + hidden + "></td><td>" + SXUtil.toHtml(hiddenErr) + "</td></tr>");
+			sb.append("<tr><td>Grupphuvudtext:</td><td><input type=\"text\" name=\"groupbyheadertext\" value=\"" + SXUtil.toHtml(groupbyheadertext) + "\"></td><td>" + SXUtil.toHtml(groupbyheadertextErr) + "</td></tr>");
+			sb.append("<tr><td>Gruppfottext:</td><td><input type=\"text\" name=\"groupbyfootertext\" value=\"" + SXUtil.toHtml(groupbyfootertext) + "\"></td><td>" + SXUtil.toHtml(groupbyfootertext) + "</td></tr>");
+			if ("true".equals(markedForDelete))  checked = "checked"; else checked = "";
+			sb.append("<tr><td colspan=\"2\">Markerad för borttagning: <input type=\"checkbox\" name=\"markedfordelete\" value=\"true\" " + checked + "></td><td></td></tr>");
 			sb.append("<tr><td><input type=\"submit\" name=\"submit\" value=\"OK\"></td></tr>");
 			sb.append("</table></form>");
 
@@ -650,6 +681,7 @@ public class RappEdit {
 		public String label = null;
 		public String hidden = null;
 		public String defaultvalue = null;
+		public String markedForDelete = null;
 
 		public String whereposErr = null;	
 		public String javatypeErr = null;
@@ -708,6 +740,10 @@ public class RappEdit {
 					ret = false;
 				}
 			}
+			if (markedForDelete == null) {
+				markedForDelete = "false";
+			} else if (!"true".equals(markedForDelete)) { markedForDelete = "false"; }
+
 			return ret;
 		}
 		
@@ -718,6 +754,7 @@ public class RappEdit {
 			label = request.getParameter("label");
 			hidden = request.getParameter("hidden");
 			defaultvalue = request.getParameter("defaultvalue");
+			markedForDelete = request.getParameter("markedfordelete");			
 		}
 
 		
@@ -729,8 +766,8 @@ public class RappEdit {
 			sb.append("<input type=\"hidden\" name=\"rappsession\" value=\"" + rappSession + "\">");
 			sb.append("<input type=\"hidden\" name=\"pos\" value=\"" + pos + "\">");
 			sb.append("<table>");
-			sb.append("<tr><td>Position i SQL-filtret:</td><td><input type=\"text\" name=\"wherepos\" value=\"" + wherepos + "\"></td><td>" + whereposErr + "</td></tr>");
-			sb.append("<tr><td>Beskrivning:</td><td><input type=\"text\" name=\"label\" value=\"" + label + "\"></td><td>" + labelErr + "</td></tr>");
+			sb.append("<tr><td>Position i SQL-filtret:</td><td><input type=\"text\" name=\"wherepos\" value=\"" + SXUtil.toHtml(wherepos) + "\"></td><td>" + SXUtil.toHtml(whereposErr) + "</td></tr>");
+			sb.append("<tr><td>Beskrivning:</td><td><input type=\"text\" name=\"label\" value=\"" + SXUtil.toHtml(label) + "\"></td><td>" + SXUtil.toHtml(labelErr) + "</td></tr>");
 			sb.append("<tr><td>JavaType:</td><td>");
 				sb.append("<select name=\"javatype\">");
 				sb.append("<option value=\"String\">String (Text)</option>");
@@ -742,10 +779,12 @@ public class RappEdit {
 				sb.append("<option value=\"Time\">Tid</option>");
 				sb.append("<option value=\"DateTime\">DateTime (Kombinerat datum+tid)</option>");
 				sb.append("</select>");
-				sb.append("</td><td>" + javatypeErr + "</td></tr>");
-			sb.append("<tr><td>Standardvärde:</td><td><input type=\"text\" name=\"defaultvalue\" value=\"" + defaultvalue + "\"></td><td>" + defaultvalueErr + "</td></tr>");
+				sb.append("</td><td>" + SXUtil.toHtml(javatypeErr) + "</td></tr>");
+			sb.append("<tr><td>Standardvärde:</td><td><input type=\"text\" name=\"defaultvalue\" value=\"" + SXUtil.toHtml(defaultvalue) + "\"></td><td>" + SXUtil.toHtml(defaultvalueErr) + "</td></tr>");
 			if ("true".equals(hidden))  checked = "checked"; else checked = "";
-			sb.append("<tr><td colspan=\"2\">Hidden: <input type=\"checkbox\" name=\"hidden\" value=\"true\" " + hidden + "></td><td>" + hiddenErr + "</td></tr>");
+			sb.append("<tr><td colspan=\"2\">Hidden: <input type=\"checkbox\" name=\"hidden\" value=\"true\" " + checked + "></td><td>" + SXUtil.toHtml(hiddenErr) + "</td></tr>");
+			if ("true".equals(markedForDelete))  checked = "checked"; else checked = "";
+			sb.append("<tr><td colspan=\"2\">Markerad för borttagning: <input type=\"checkbox\" name=\"markedfordelete\" value=\"true\" " + checked + "></td><td></td></tr>");
 			sb.append("<tr><td><input type=\"submit\" name=\"submit\" value=\"OK\"></td></tr>");
 			sb.append("</table></form>");
 
@@ -764,6 +803,7 @@ public class RappEdit {
 		public String resetcolumn = null;
 		public String sumtype = null;
 		public String sumtext = null;
+		public String markedForDelete = null;
 
 		public String sumcolumnErr = null;
 		public String resetcolumnErr = null;
@@ -816,6 +856,9 @@ public class RappEdit {
 				sumtypeErr = "Måste vara något av: Sum, Medel, Min, Max, Antal";
 				ret = false;
 			}
+			if (markedForDelete == null) {
+				markedForDelete = "false";
+			} else if (!"true".equals(markedForDelete)) { markedForDelete = "false"; }
 			return ret;
 		}
 		
@@ -825,6 +868,7 @@ public class RappEdit {
 			sumtype = request.getParameter("sumtype");
 			resetcolumn = request.getParameter("resetcolumn");
 			sumtext = request.getParameter("sumtext");
+			markedForDelete = request.getParameter("markedfordelete");			
 		}
 
 		
@@ -836,8 +880,8 @@ public class RappEdit {
 			sb.append("<input type=\"hidden\" name=\"rappsession\" value=\"" + rappSession + "\">");
 			sb.append("<input type=\"hidden\" name=\"pos\" value=\"" + pos + "\">");
 			sb.append("<table>");
-			sb.append("<tr><td>Kolumnnr som ska summeras:</td><td><input type=\"text\" name=\"sumcolumn\" value=\"" + sumcolumn + "\"></td><td>" + sumcolumnErr + "</td></tr>");
-			sb.append("<tr><td>Kolumn för nollställning (vanligen en grupperad kolumn):</td><td><input type=\"text\" name=\"resetcolumn\" value=\"" + resetcolumn + "\"></td><td>" + resetcolumnErr + "</td></tr>");
+			sb.append("<tr><td>Kolumnnr som ska summeras:</td><td><input type=\"text\" name=\"sumcolumn\" value=\"" + SXUtil.toHtml(sumcolumn) + "\"></td><td>" + SXUtil.toHtml(sumcolumnErr) + "</td></tr>");
+			sb.append("<tr><td>Kolumn för nollställning (vanligen en grupperad kolumn):</td><td><input type=\"text\" name=\"resetcolumn\" value=\"" + SXUtil.toHtml(resetcolumn) + "\"></td><td>" + SXUtil.toHtml(resetcolumnErr) + "</td></tr>");
 			sb.append("<tr><td>Summatyp:</td><td>");
 				sb.append("<select name=\"sumtype\">");
 				sb.append("<option value=\"Sum\">Summa</option>");
@@ -846,8 +890,10 @@ public class RappEdit {
 				sb.append("<option value=\"Medel\">Medelvärde</option>");
 				sb.append("<option value=\"Antal\">Antal</option>");
 				sb.append("</select>");
-				sb.append("</td><td>" + sumtypeErr + "</td></tr>");
-			sb.append("<tr><td>Text att visa vid summan:</td><td><input type=\"text\" name=\"sumtext\" value=\"" + sumtext + "\"></td><td>" + sumtextErr + "</td></tr>");
+				sb.append("</td><td>" + SXUtil.toHtml(sumtypeErr) + "</td></tr>");
+			sb.append("<tr><td>Text att visa vid summan:</td><td><input type=\"text\" name=\"sumtext\" value=\"" + SXUtil.toHtml(sumtext) + "\"></td><td>" + SXUtil.toHtml(sumtextErr) + "</td></tr>");
+			if ("true".equals(markedForDelete))  checked = "checked"; else checked = "";
+			sb.append("<tr><td colspan=\"2\">Markerad för borttagning: <input type=\"checkbox\" name=\"markedfordelete\" value=\"true\" " + checked + "></td><td></td></tr>");
 			sb.append("<tr><td><input type=\"submit\" name=\"submit\" value=\"OK\"></td></tr>");
 			sb.append("</table></form>");
 
@@ -867,8 +913,9 @@ public class RappEdit {
 		private int rappSession;
 		public RappHuvud(int rappSession) {
 			this.rappSession = rappSession;
+			this.rappHuvudFormData  = new RappHuvudFormData(rappSession); 
 		}
-		public RappHuvudFormData rappHuvudFormData  = new RappHuvudFormData(rappSession); 
+		public RappHuvudFormData rappHuvudFormData;
 		public String behorighet = null;
 		public String kategori = null;
 		public String undergrupp = null;
@@ -877,6 +924,8 @@ public class RappEdit {
 		public String sqlfrom = null;
 		public boolean isdistinct = false;
 		public java.sql.Timestamp crtime = null;
+		public boolean markedForDelete = false;
+		
 		public int getIsdistinctToInt() { if (isdistinct) return 1; else return 0; }
 		public void toFormData() {
 			rappHuvudFormData.resetErr();
@@ -887,6 +936,7 @@ public class RappEdit {
 			rappHuvudFormData.reportrubrik = reportrubrik;
 			rappHuvudFormData.sqlfrom = sqlfrom;
 			rappHuvudFormData.undergrupp = undergrupp;
+			if (markedForDelete) rappHuvudFormData.markedForDelete = "true"; else rappHuvudFormData.markedForDelete = "false";
 		}
 	}
 	
@@ -898,8 +948,9 @@ public class RappEdit {
 		private int rappSession;
 		public RappColumn(int rappSession) {
 			this.rappSession = rappSession;
+			this.rappColumnFormData = new RappColumnFormData(rappSession);
 		}
-		public RappColumnFormData rappColumnFormData = new RappColumnFormData(rappSession);
+		public RappColumnFormData rappColumnFormData;
 		public Integer sortOrder = null;	//Anger vilken ordning colimnerna önskas. Sparas inte i databasen, utan endast för internt ändamål
 		public String sqlLabel = null;
 		public String label = null;
@@ -908,6 +959,9 @@ public class RappEdit {
 		public boolean hidden = false;
 		public String groupbyheadertext = null;
 		public String groupbyfootertext = null;
+		public boolean markedForDelete = false;
+		
+		
 		public int getGroupbyToInt() { if (groupby) return 1; else return 0; }
 		public int getHiddenToInt() { if (hidden) return 1; else return 0; }
 		public void toFormData() {
@@ -920,6 +974,7 @@ public class RappEdit {
 			if (hidden) rappColumnFormData.hidden = "true"; else rappColumnFormData.hidden = "false";
 			rappColumnFormData.groupbyheadertext = groupbyheadertext;
 			rappColumnFormData.groupbyfootertext = groupbyfootertext;
+			if (markedForDelete) rappColumnFormData.markedForDelete = "true"; else rappColumnFormData.markedForDelete = "false";
 		}
 	}
 	
@@ -927,14 +982,17 @@ public class RappEdit {
 		private int rappSession;
 		public RappFilter(int rappSession) {
 			this.rappSession = rappSession;
+			rappFilterFormData = new RappFilterFormData(rappSession);
 		}
-		public RappFilterFormData rappFilterFormData = new RappFilterFormData(rappSession);
+		public RappFilterFormData rappFilterFormData;
 		public Integer wherepos = null;
 		public String javatype = null;
 		public String name = null;
 		public String label = null;
 		public boolean hidden = false;
 		public String defaultvalue = null;
+		public boolean markedForDelete = false;
+
 		public int getHiddenToInt() { if (hidden) return 1; else return 0; }
 
 		public void toFormData() {
@@ -944,6 +1002,7 @@ public class RappEdit {
 			rappFilterFormData.label = label;
 			if (hidden) rappFilterFormData.hidden="true"; else rappFilterFormData.hidden = "false";
 			rappFilterFormData.defaultvalue = defaultvalue;
+			if (markedForDelete) rappFilterFormData.markedForDelete = "true"; else rappFilterFormData.markedForDelete = "false";
 			
 		}
 	}
@@ -953,18 +1012,22 @@ public class RappEdit {
 		private int rappSession;
 		public RappSum(int rappSession) {
 			this.rappSession = rappSession;
+			rappSumFormData = new RappSumFormData(rappSession);
 		}
-		public RappSumFormData rappSumFormData = new RappSumFormData(rappSession);
+		public RappSumFormData rappSumFormData;
 		public Integer sumcolumn = null;
 		public Integer resetcolumn = null;
 		public String sumtype = null;
 		public String sumtext = null;
+		public boolean markedForDelete = false;
+
 		public void toFormData() {
 			rappSumFormData.resetErr();
 			if (sumcolumn != null) rappSumFormData.sumcolumn = sumcolumn.toString(); else rappSumFormData.sumcolumn = null;
 			if (resetcolumn != null) rappSumFormData.resetcolumn = resetcolumn.toString(); else rappSumFormData.resetcolumn = null;
 			rappSumFormData.sumtype = sumtype;
 			rappSumFormData.sumtext = sumtext;
+			if (markedForDelete) rappSumFormData.markedForDelete = "true"; else rappSumFormData.markedForDelete = "false";
 			
 		}
 	}

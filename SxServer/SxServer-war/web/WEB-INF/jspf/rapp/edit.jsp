@@ -17,11 +17,22 @@ RappEdit.RappColumn rc;
 <div <%= divInfo %>>
 <h1>Ändra Rapport</h1>
 
-<div id="rapphuvud">
-<%= r.editHuvud() %>
+<% if(r.getIsChanged()) out.print("Osparade ändringar finns! "); %>
 <a href="?id=persist&rappsession=<%= rappSession %>">Spara</a>
-</div>
 
+<br/>
+<br/>
+<div id="rapphuvud">
+<table>
+<tr><td>Kategori:</td><td><%= SXUtil.toHtml(r.getHuvud().kategori) %></td></tr>
+<tr><td>Undergrupp:</td><td><%= SXUtil.toHtml(r.getHuvud().undergrupp) %></td></tr>
+<tr><td>Kortbeskrivning:</td><td><%= SXUtil.toHtml(r.getHuvud().kortbeskrivning) %></td></tr>
+<tr><td>SQL from-sats:</td><td><%= SXUtil.toHtml(r.getHuvud().sqlfrom) %></td></tr>
+<tr><td colspan="2"><td><% if(r.getHuvud().markedForDelete) out.print("Kommer att raderas"); %></td></td>
+</table>
+<a href="?id=edithuvud&rappsession=<%= rappSession %>">Ändra</a>
+</div>
+<br/>
 
 <div id="rappcolumn">
 <table><tr><th>Sortering</th><th>Kolumnrubrik</th><th>Sql-namn</th></tr>
@@ -29,7 +40,7 @@ RappEdit.RappColumn rc;
 for (cn=0; cn<r.getArrColumn().size(); cn++) {
 rc = r.getArrColumn().get(cn);
 %>
-<tr><td><%= rc.sortOrder %></td><td><%= SXUtil.toHtml(rc.label) %></td><td><%= SXUtil.toHtml(rc.sqlLabel) %></td><td><a href="?id=editcolumn&rappsession=<%= rappSession %>&pos=<%= cn %>">Ändra</a></td></tr>
+<tr><td><%= rc.sortOrder %></td><td><%= SXUtil.toHtml(rc.label) %></td><td><%= SXUtil.toHtml(rc.sqlLabel) %></td><td><a href="?id=editcolumn&rappsession=<%= rappSession %>&pos=<%= cn %>">Ändra</a></td><td><% if(rc.markedForDelete) out.print("Ja"); %></td></tr>
 <%
 }
 	
@@ -37,6 +48,7 @@ rc = r.getArrColumn().get(cn);
 </table>
 <a href="?id=newcolumn&rappsession=<%= rappSession %>">Ny kolumn</a>
 </div>
+<br/>
 
 
 
@@ -47,7 +59,7 @@ RappEdit.RappFilter rf;
 for (cn=0; cn<r.getArrFilter().size(); cn++) {
 rf = r.getArrFilter().get(cn);
 %>
-<tr><td><%= rf.wherepos %></td><td><%= SXUtil.toHtml(rf.label) %></td><td><%= SXUtil.toHtml(rf.javatype) %></td><td><a href="?id=editfilter&rappsession=<%= rappSession %>&pos=<%= cn %>">Ändra</a></td></tr>
+<tr><td><%= rf.wherepos %></td><td><%= SXUtil.toHtml(rf.label) %></td><td><%= SXUtil.toHtml(rf.javatype) %></td><td><a href="?id=editfilter&rappsession=<%= rappSession %>&pos=<%= cn %>">Ändra</a></td><td><% if(rf.markedForDelete) out.print("Ja"); %></td></tr>
 <%
 }	
 %>
@@ -56,14 +68,15 @@ rf = r.getArrFilter().get(cn);
 </div>
 
 
+<br/>
 <div id="rappsum">
-<table><tr><th>Summeringskolumn</th><th>Nollställningskolumn</th><th>Typ</th></tr>
+	<table><tr><th>Summeringskolumn</th><th>Nollställningskolumn</th><th>Typ</th><th>Tag bort</th></tr>
 <%
 RappEdit.RappSum rs;
 for (cn=0; cn<r.getArrSum().size(); cn++) {
 rs = r.getArrSum().get(cn);
 %>
-<tr><td><%= rs.sumcolumn %></td><td><%= rs.resetcolumn %></td><td><%= SXUtil.toHtml(rs.sumtype) %></td><td><a href="?id=editsum&rappsession=<%= rappSession %>&pos=<%= cn %>">Ändra</a></td></tr>
+<tr><td><%= rs.sumcolumn %></td><td><%= rs.resetcolumn %></td><td><%= SXUtil.toHtml(rs.sumtype) %></td><td><a href="?id=editsum&rappsession=<%= rappSession %>&pos=<%= cn %>">Ändra</a></td><td><% if(rs.markedForDelete) out.print("Ja"); %></td></tr>
 <%
 }	
 %>

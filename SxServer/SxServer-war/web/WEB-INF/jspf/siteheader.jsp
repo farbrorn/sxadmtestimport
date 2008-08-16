@@ -8,7 +8,7 @@ SXSession sxSession = WebUtil.getSXSession(session);
                "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 	<head>
-		<meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
 		<title>Säljex AB</title>
 		<link href="style.css" type="text/css" rel="stylesheet" />
 		<meta content="Säljex AB" name="description" />
