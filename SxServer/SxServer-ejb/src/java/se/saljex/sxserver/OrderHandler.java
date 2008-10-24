@@ -132,7 +132,7 @@ public class OrderHandler {
 		try {	// Fångar null-pointer ifall något kampanjdatum är felaktigt
 
 			//Skapa ett datum i SQL.Date format
-			Calendar idag = SXUtil.getTodayDate();  // Returns a calendar with time set  to 0
+			Calendar idag = SXUtil.getTodaySQLDate();  // Returns a calendar with time set  to 0
 			// Skapa calendarobjekt med kampanjperioden
 			Calendar kampfrdat = Calendar.getInstance();
 			kampfrdat.setTime(art.getKampfrdat());

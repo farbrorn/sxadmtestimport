@@ -47,14 +47,14 @@ public class WebArtikelUpdater {
 			p.setDouble(4, art.getUtpris());
 			p.setDouble(5, art.getStafPris1());
 			p.setDouble(6, art.getStafPris2());
-			p.setDate(7, SXUtil.getSqlDate(art.getStafPris1Dat()));
-			p.setDate(8, SXUtil.getSqlDate(art.getStafPris2Dat()));
+			p.setDate(7, SXUtil.getSQLDate(art.getStafPris1Dat()));
+			p.setDate(8, SXUtil.getSQLDate(art.getStafPris2Dat()));
 			p.setDouble(9, art.getStafAntal1());
 			p.setDouble(10, art.getStafAntal2());
 			p.setString(11, art.getBestnr());
 			p.setString(12, art.getRabkod());
 			p.setString(13, art.getKod1());
-			p.setDate(14, SXUtil.getSqlDate(art.getPrisdatum()));
+			p.setDate(14, SXUtil.getSQLDate(art.getPrisdatum()));
 			p.setString(15, art.getRefnr());
 			p.setDouble(16, art.getVikt());
 			p.setDouble(17, art.getVolym());
@@ -64,7 +64,7 @@ public class WebArtikelUpdater {
 			p.setString(21, art.getEnummer());
 			p.setShort(22, art.getFraktvillkor());
 			p.setInt(23, art.getPrisgiltighetstid());
-			p.setDate(24, SXUtil.getSqlDate(art.getUtgattdatum()));
+			p.setDate(24, SXUtil.getSQLDate(art.getUtgattdatum()));
 			p.setString(25, art.getKatnamn());
 			p.setString(26, art.getBildartnr());
 			if (lag != null) {

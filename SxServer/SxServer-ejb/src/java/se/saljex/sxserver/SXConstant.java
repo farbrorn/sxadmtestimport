@@ -31,6 +31,8 @@ public class SXConstant {
 	public static final String BEST_STATUS_SKICKAD = "Skickad";
 
 	public static final  String BESTHAND_SKAPAD = "Skapad";
+	public static final  String BESTHAND_MOTTAGEN = "Mottagen";
+	public static final  String BESTHAND_LEVERANSBESKED = "Levbesked";
 
 	
 	public static final short		KAMPBIT_ELKUND	= 1;
