@@ -5,15 +5,16 @@
 
 package se.saljex.sxserver.web;
 
+import se.saljex.sxserver.SXEntityNotFoundException;
 import java.io.*;
 import java.net.*;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Set;
 import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.servlet.*;
@@ -46,18 +47,16 @@ public class inkop extends HttpServlet {
 	private SXSession sxSession;
 	private	Integer bnr = null;
 	private	Integer skd = null;
-	
-	private PageListBest1 plBest1 = null;
-	private PageListBest2 plBest2 = null;
+	private BestForm bestForm = null;
 
 	
 	protected void processRequest(HttpServletRequest req, HttpServletResponse res)	throws ServletException, IOException {
-				
-		try {	con = sxadm.getConnection(); } catch (SQLException e) { SXUtil.log(e.toString());}
-		session = request.getSession();
-		sxSession = WebUtil.getSXSession(session);
 		this.request = req;
 		this.response = res;
+				
+		try {	con = sxadm.getConnection(); } catch (SQLException e) { SXUtil.log(e.toString());}
+		session = req.getSession();
+		sxSession = WebUtil.getSXSession(session);
 		this.out = response.getWriter();
 		
 		//request.setCharacterEncoding("UTF-8");
@@ -70,35 +69,35 @@ public class inkop extends HttpServlet {
 		try { skd = Integer.parseInt(request.getParameter("skd")); } catch (Exception e) {}
 		
 		if ((bnr==null || skd==null) && sxSession.getInkopInloggatBestNr()==null) { id = "1"; }
-		
+
 		
 		try {
-			if (sxSession.getInkopInloggatBestNr() == null) { // Vi måste logga in, och ignorerar alla parametrar utom inloggning
-				printHeader();
-				if (login()) { printBest(); } else { printLogin(); }
-				printFooter();
-			} else if (get != null) {			//Vi har en get-request som bara skickar en del av sidan
-				if (get.equals("")) {
-				} else {
-					out.println("Inga data tillgängliga!");
-				}
-			} else {			// Om vi inte har någon annan request så antar vi en id-request som ritar en hel sida
-				printHeader();
+			if (!login()) { id = "0"; }
+			printHeader();
 
-				if (id.equals("1")) {
-					printBest();
-				} else if (id.equals("2")) {
-					updateForm();
-				} else {	
-					out.println("Felaktigt id");
-				}
-
-				printFooter();
+			if (id.equals("0")) {
+				printLogin();
+/*	PageListBest1 p = new PageListBest1(sxadm);
+	p.getPage(1);
+	while (p.next()) {
+		out.print("<br/>" + p.getBestnr() + "-" + p.getSakerhetskod() + "<br/>");
+	} 
+	p.close();
+	*/
+			} else if (id.equals("1")) {
+				printBest();
+			} else if (id.equals("2")) {
+				updateForm();
+			} else {	
+				out.println("Felaktigt id");
 			}
+
+			printFooter();
 			
 		} 
-		catch (SQLException se) { out.print("<b>Ett oväntat undantagsfel uppstod - fel vid kommunikation med databasen.</b>"); SXUtil.log(se.toString());}
+		catch (SQLException se) { out.print("<b>Ett oväntat undantagsfel uppstod - fel vid kommunikation med databasen.</b>"); SXUtil.log(se.toString()); se.printStackTrace();}
 		finally { 
+			try { bestForm.be1.close(); } catch (Exception e) {}
 			out.close();
 			try {con.close();} catch (SQLException e ){}
 		}
@@ -107,30 +106,84 @@ public class inkop extends HttpServlet {
 
 // Logga in och läs in pagelisterna
 private boolean login() throws SQLException {
-	boolean ret = false;
-	if (skd != null && bnr != null)  {
-		plBest1 = new PageListBest1(sxadm, bnr, skd);
-		if (plBest1.next()) { ret = true; }
-		plBest1.getPage(1);					// Återställ så att vi får en nyinitierad pagelist att skicka med anrop, och direkt kan köra i while(pl.next())
+	try {
+		if (skd != null && bnr != null)  {
+			bestForm = new BestForm(sxadm, bnr, skd);
+			this.setBestMottagen();
+			
+			sxSession.setInkopInloggatBestNr(bnr);
+		} else {
+			if (sxSession.getInkopInloggatBestNr() == null) return false;
+			bestForm = new BestForm(sxadm, sxSession.getInkopInloggatBestNr());
+		}
+	} catch (SXEntityNotFoundException e) {
+		sxSession.setInkopInloggatBestNr(null);
+		return false;
 	}
-	if (ret) {
-		sxSession.setInkopInloggatBestNr(bnr);
-		plBest2 = new PageListBest2(sxadm, bnr);
-	}
-	return ret;
+	
+	return true;
 }
 
-private void updateForm() throws SQLException{
+
+
+private void updateForm() throws ServletException, IOException, SQLException{
+	bestForm.readForm(request);		// Läs in och validera
+	if (bestForm.isParseError()) { 
+		printBest(); 
+	} else {
+		try {
+			PreparedStatement s;
+
+			con.setAutoCommit(false);
+			s = con.prepareStatement("update best1 set status=?, bekrdat=? where bestnr = " + bnr);
+			s.setString(1, SXConstant.BEST_STATUS_MOTTAGEN);
+			try {
+				s.setDate(2, SXUtil.getSQLDate(SXUtil.parseDateStringToDate(bestForm.getFormBekrdat())));
+			} catch (java.text.ParseException e) {
+				s.setDate(2, null);			
+			}
+			s.executeUpdate();
+
+			s = con.prepareStatement("update best2 set bekrdat=? where bestnr = " + bnr + " and rad=?");
+			
+			for (BestFormRad b : bestForm.rader) {
+				s.setInt(2, b.rad);
+				try {
+					s.setDate(1, SXUtil.getSQLDate(SXUtil.parseDateStringToDate(b.formBekrdat)));
+				} catch (java.text.ParseException e) {
+					s.setDate(1, null);			
+				}
+				s.executeUpdate();
+			}
+
+			s = con.prepareStatement("insert into besthand (bestnr, datum, tid, anvandare, handelse) values (?,?,?,?,?)");
+			java.util.Date d = new java.util.Date();
+			s.setInt(1, bnr);
+			s.setString(4, SXUtil.getSXReg(con, SXConstant.SXREG_SERVERANVANDARE, SXConstant.SXREG_SERVERANVANDARE_DEFAULT));
+			s.setString(5, SXConstant.BESTHAND_LEVERANSBESKED);
+			int cn = 0;
+			do {
+				s.setDate(2, SXUtil.getSQLDate(d));
+				s.setTime(3, SXUtil.getSQLTime(d));
+				cn++;
+				if (cn > 10){ throw new SQLException("Creates duplicate key in besthand"); }  // Avbryt med en Exception om vi har försökt för många gånger
+				d = new java.util.Date(d.getTime()+1000);	// Öka med 1 s för att vara förbered ifall dubbel key skapas
+			} while (s.executeUpdate() < 1);  // Loopa ända tills det är sparat
+
+			con.commit();
+			bestForm.setSavedOK();
+			printBest();
+		} catch (SQLException e) {
+			bestForm.setSaveError();
+			throw(e);
+		}
+	}
+}
+private void setBestMottagen() throws SQLException{
 	PreparedStatement s;
-	request.getParameter("be1bekrdat");
-//	request.getp
-	
-	con.setAutoCommit(false);
-	s = con.prepareStatement("update best1 set status='"+SXConstant.BEST_STATUS_MOTTAGEN+"', bekrdat=? where bestnr = " + bnr);
-	s = con.prepareStatement("update best2 set bekrdat=? where bestnr = " + bnr);
-	s = con.prepareStatement("insert into besthand () values ()");
-	con.commit();
-	con.setAutoCommit(true);
+	s = con.prepareStatement("update best1 set status=? where bestnr = " + bnr);
+	s.setString(1, SXConstant.BEST_STATUS_MOTTAGEN);
+	if (s.executeUpdate() < 1) { throw new SQLException("Hittar inte beställning " + bnr + " vid update status"); }
 }
 
 
@@ -139,8 +192,7 @@ private void printLogin() throws ServletException, IOException {
 }
 
 private void printBest() throws ServletException, IOException {
-	request.setAttribute("pagelistbest1", plBest1);
-	request.setAttribute("pagelistbest2", plBest2);
+	request.setAttribute("bestform", bestForm);
 	request.getRequestDispatcher("/WEB-INF/jspf/inkop/bestform.jsp").include(request, response);
 }
 
@@ -149,10 +201,11 @@ private void printHeader()  throws ServletException, IOException{
 				printTopBar("id=\"top\"");
 				printLeftSideBar("id=\"leftbar\"");
 				out.println("<div id=\"body\">");	
+				out.println("<div id=\"midbar\">");
 }
 
 private void printFooter()  throws ServletException, IOException {
-				out.println("</div>");
+				out.println("</div></div>");
 				request.getRequestDispatcher("/WEB-INF/jspf/sitefooter.jsp").include(request, response);	
 }
 
@@ -167,56 +220,113 @@ private void printFooter()  throws ServletException, IOException {
 		request.getRequestDispatcher("WEB-INF/jspf/inkop/topbar.jsp").include(request, response);		
 	}
 
-	
-public class InkopBestFormData {
-	private ArrayList<InkopBest2FormData> rader = new ArrayList();
-	private InkopBest2FormData be2 = null;
-	private PageListBest1 be1 = null;
-	private Iterator i = null;
-	
-	private String formBekrdat = null;
-	private String formErrBekrdat = null;
-
-	public PageListBest1 getBe1() {	return be1;	 }
-	public void setBe1(PageListBest1 be1) {	this.be1 = be1;	 }
-
-	public inkop.InkopBest2FormData getBe2() {	return be2;	 }
-	public void setBe2(inkop.InkopBest2FormData be2) {	this.be2 = be2;	 }
-
-	public String getBe1FormBekrdat() {	return formBekrdat;	 }
-	public void setBe1FormBekrdat(String formBekrdat) {	this.formBekrdat = formBekrdat;	 }
-
-	public String getBe1FormErrBekrdat() {	return formErrBekrdat;	 }
-	public void setBe1FormErrBekrdat(String formErrBekrdat) {	this.formErrBekrdat = formErrBekrdat;	 }
-
-	public int getBe2Rad() { return be2.rad; }
-	public String getBe2ArtnrHtmlStr() { return SXUtil.toHtml(be2.artnr); }
-	public String getBe2ArtnamnHtmlStr() { return SXUtil.toHtml(be2.artnamn); }
-	public Double getBe2Best() { if (be2.best==null) return 0.0; else return be2.best; }
-	public Double getBe2Pris() { if (be2.pris==null) return 0.0; else return be2.pris; }
-	public Double getBe2Rab() { if (be2.rab==null) return 0.0; else return be2.rab; }
-	public String getBe2Enh() { return SXUtil.toHtml(be2.enh); }
-	public String getBe2BekrdatStr() { return SXUtil.getFormatDate(be2.bekrdat); }
-	
-	public String getBe2FormBekrdatHtmlStr() { return SXUtil.toHtml(be2.formBekrdat); }
-	public String getBe2FormErrBekrdatHtmlStr() { return SXUtil.toHtml(be2.formErrBekrdat); }
-	
-	public String getBe2FormBartnrHtmlStr() { return SXUtil.toHtml(be2.formBartnr); }
-	public String getBe2FormErrBartnrHtmlStr() { return SXUtil.toHtml(be2.formErrBartnr); }
 
 	
-	public boolean nextRad() {
-		boolean ret = false;
-		if (i==null) i = rader.iterator();
-		if (i.hasNext()) {
-			ret = true;
-			be2 = (InkopBest2FormData)i.next();
-		} else { be2 = null; }
-		return ret;
+	public class BestForm {
+		private static final int FORM_PARSE_NOT_PARSED = 0;
+		private static final int FORM_PARSE_ERROR = 1;
+		private static final int FORM_PARSE_OK = 2;
+		private static final int FORM_SAVE_NULL = 0;
+		private static final int FORM_SAVE_ERROR = 1;
+		private static final int FORM_SAVE_OK = 2;
+		private int formParseStatus = FORM_PARSE_NOT_PARSED;
+		private int formSaveStatus = FORM_SAVE_NULL;
+		private String formParseText = null;
+		private String formSaveText = null;
+		private boolean mottagen = false;
+		
+		public PageListBest1 be1 = null;
+		private PageListBest2 be2 = null;
+		private String formBekrdat = "";
+		private String formBekrdatErr = "";
+		public ArrayList<BestFormRad> rader = new ArrayList();
+		
+		public BestForm(DataSource ds, Integer bnr) throws SQLException, SXEntityNotFoundException {
+			be1 = new PageListBest1(ds, bnr);
+			loadBest(ds, bnr);
+		}
+		public BestForm(DataSource ds, Integer bnr, Integer skd) throws SQLException, SXEntityNotFoundException	{
+			be1 = new PageListBest1(ds, bnr, skd);
+			loadBest(ds, bnr);
+		}
+		private void loadBest(DataSource ds, Integer bnr) throws SQLException, SXEntityNotFoundException {
+			BestFormRad b;
+			be1.getPage(1);
+			if (be1.next()) { //Vi har en träff,
+				this.formBekrdat = SXUtil.getFormatDate(be1.getBekrdat());
+				be2 = new PageListBest2(ds,bnr); 
+				be2.getPage(0);
+				if (be1.getStatus().equals(SXConstant.BEST_STATUS_MOTTAGEN)) mottagen = true;
+				while (be2.next()) {		//Läs in rader från best2
+					b = new BestFormRad();
+					b.rad = be2.getRad();
+					b.artnr = be2.getArtnr();
+					b.bartnr = be2.getBartnr();
+					b.artnamn = be2.getArtnamn();
+					b.best = be2.getBest();
+					b.pris = be2.getPris();
+					b.rab = be2.getRab();
+					b.enh = be2.getEnh();
+					b.bekrdat = be2.getBekrdat();
+					rader.add(b);	
+					b.formBekrdat = SXUtil.getFormatDate(be2.getBekrdat());
+				}
+				be2.close();
+				be2 = null;
+			} else { be1.close(); be1 = null; throw new SXEntityNotFoundException();}
+		}
+
+		public String getParseText()	{	return this.formParseText; }
+		public String getSaveText()	{	return this.formSaveText; }
+		public void setParseError(String s)	{	this.formParseText = s; this.formParseStatus = this.FORM_PARSE_ERROR;}
+		public void setParseError()	{ setParseError(null);	}
+		public void setParsedOK(String s)	{	this.formParseText = s; this.formParseStatus = this.FORM_PARSE_OK;}
+		public void setParsedOK()	{ setParsedOK(null);	}
+		public void setSaveError(String s)	{	this.formSaveText = s; this.formSaveStatus = this.FORM_SAVE_ERROR;}
+		public void setSaveError()	{ setSaveError(null);	}
+		public void setSavedOK(String s)	{	this.formParseText = s; this.formSaveStatus = this.FORM_SAVE_OK;}
+		public void setSavedOK()	{ setSavedOK(null);	}
+
+		public boolean isParsed() { return this.formParseStatus != this.FORM_PARSE_NOT_PARSED; }
+		public boolean isParseError() { return this.formParseStatus == this.FORM_PARSE_ERROR; }
+		public boolean isParseOK() { return this.formParseStatus == this.FORM_PARSE_OK; }
+
+		public boolean isSaveTried() { return this.formSaveStatus != this.FORM_SAVE_NULL; }
+		public boolean isSaveError() { return this.formSaveStatus == this.FORM_SAVE_ERROR; }
+		public boolean isSavedOK() { return this.formSaveStatus == this.FORM_SAVE_OK; }
+		public boolean isMottagen() { return mottagen; }
+		public void setMottagen(boolean m) { mottagen = m;  }
+		
+		public String getNameBekrdat() {			return "be1bekrdat";		}
+		public String getFormBekrdat() {			return this.formBekrdat;		}
+		public String getFormBekrdatErr() {		return this.formBekrdatErr;		}
+		
+		public void readForm(HttpServletRequest req) {
+			this.setParsedOK();		// Initiera f;rst parsedOK f;r att sedan s'tta error om fel uppst[r
+			this.formBekrdat = SXUtil.toStr(req.getParameter(this.getNameBekrdat()));
+			try {
+				if (!this.formBekrdat.isEmpty()) this.formBekrdat = SXUtil.parseDateStringToString(this.formBekrdat);
+			} catch (ParseException e) {
+				this.setParseError();
+				this.formBekrdatErr = "*";				//Felaktigt datum
+			}
+			
+			for (BestFormRad b : rader) {
+				b.formBartnr = SXUtil.toStr(req.getParameter(b.getNameBartnr())).trim();			// Få en sträng även om värdet är null
+				b.formBekrdat = SXUtil.toStr(req.getParameter(b.getNameBekrdat()));
+				try {
+					if (!b.formBekrdat.isEmpty()) b.formBekrdat = SXUtil.parseDateStringToString(b.formBekrdat);
+				} catch (ParseException e) {
+					this.setParseError();
+					b.formBekrdatErr = "*";				//Felaktigt datum
+				}
+			}
+		}
 	}
-	  }
 
-public class InkopBest2FormData {
+	
+	
+public class BestFormRad {
 	public int rad = 0;
 	public String artnr = null;
 	public String bartnr = null;
@@ -228,11 +338,19 @@ public class InkopBest2FormData {
 	public java.util.Date bekrdat = null;
 	
 	public String formBekrdat = null;
-	public String formErrBekrdat = null;
+	public String formBekrdatErr = null;
 	
 	public String formBartnr = null;
-	public String formErrBartnr = null;
+	public String formBartnrErr = null;
+	
+	public String getNameBekrdat() {						// Returnerar name att använda vid html form input
+		return "be2bekrdat[" + rad + "}";
+	}
+	public String getNameBartnr() {						// Returnerar name att använda vid html form input
+		return "be2bartnr[" + rad + "}";
+	}
 }
+	
 	
 	
 	// <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

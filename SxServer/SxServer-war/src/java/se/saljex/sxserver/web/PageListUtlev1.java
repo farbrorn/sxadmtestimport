@@ -65,16 +65,16 @@ private String orderByStr;
 		if (fr == null) {
 			fr = getMaxDatum();
 			if (fr == null) {
-				cal = SXUtil.getTodayDate();
+				cal = SXUtil.getTodaySQLDate();
 			} else { 
-				cal = SXUtil.getSqlCalendarFromDate(fr); 
+				cal = SXUtil.getSQLCalendarDateFromDate(fr); 
 			}
 			cal.add(Calendar.YEAR, -1);
 			fr = cal.getTime();
 		}
 		
 		if (ti == null) {
-			cal = SXUtil.getTodayDate();
+			cal = SXUtil.getTodaySQLDate();
 			ti = cal.getTime(); 
 		}
 		this.frdat = fr;

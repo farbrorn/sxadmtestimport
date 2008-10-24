@@ -6,67 +6,134 @@
 <%@ page import="se.saljex.sxserver.*" %>
 <%@ page import="se.saljex.sxserver.web.*" %>
 <%@ page import="java.util.List" %>
-
 <% 
 SXSession sxSession = WebUtil.getSXSession(session);
 
-PageListBest1 be1 = (PageListBest1)request.getAttribute("pagelistbest1");
-PageListBest2 be2 = (PageListBest2)request.getAttribute("pagelistbest2");
-
-String divInfo = (String)request.getAttribute("divinfo");
-if (divInfo == null) divInfo = "";
-be1.next();
+se.saljex.sxserver.web.inkop.BestForm b = (se.saljex.sxserver.web.inkop.BestForm)request.getAttribute("bestform");
+String errstr;
+String errinfo;
 %>
-<div <%= divInfo %>>
+<div>
+	<form action="?id=2" method="post">
+<h1></h1>
+<% if (b.isParseError()) { %>
+<div id="errortext">Fel i formuläret. Var vänlig korrigera markerade fält.<br/>Error in form. Please correct marked fields
+<%= SXUtil.toHtml(b.getParseText()) %>
+</div>
+<% } %>
 
-<h1>Beställning</h1>
-<form action="?id=2" method="post">
-<table>
+<% if (b.isSaveError()) { %>
+<div id="errortext">Oväntat fel vid bearbetning av data. Var vänlig försök igen.<br/>Error processing data. Please retry.
+<%= SXUtil.toHtml(b.getSaveText()) %>
+</div>
+<% } %>
+
+<div id="infotext">
+<% if (b.isSavedOK()) { %>
+Sparad OK!<br/>Saved OK!<p/>
+<% } %>
+<% if (b.isMottagen()) { %> 
+Beställningen är kvitterad. Vi uppskattar om Ni har möjlighet att ange leveransdatum i rutan nedan. Om någon artikelrad har avvikande leveransdatum kan det anges för varje rad.<p/>
+Receiption of order is confirmed. We would appreciate it if you also confirm date of delivery in the input field below. If one or more lines have a different delivery dates, dates can be given for each line.<p/>
+<table width="100%">
+	<tr>
+	<td class="tddocheadrubrik" colspan="2">Leveransdatum. Anges i formen åååå-mm-dd.<br/>Date of delivery. Please enter as yyyy-mm-dd.</td>
+	 <% if (SXUtil.toStr(b.getFormBekrdatErr()).isEmpty()) { errstr=""; errinfo=""; } else {errstr="error"; errinfo=SXUtil.toHtml(b.getFormBekrdatErr());} %>
+	<td class="tds30"><input class="tdinput<%= errstr %>" type="text" size="10" name="<%= b.getNameBekrdat() %>" value="<%= SXUtil.toHtml(b.getFormBekrdat()) %>">
+		<%= errinfo %>
+	</td>
+	<td><input type="submit" name="skicka" value="Sänd bekräftelse"></td>
+ </tr>
+</table>
+<% } else { %>
+Beställningen är inte kvitterad av mottagaren.<p/>
+Order is not confirmed by receiver.
+<% }%>	 
+</div>
+
+<table id="dochead">
+<tr><th colspan="4">Inköpsorder</th></tr>
 <tr>
-	<td>Beställningsnummer</td><td><%= be1.getBestnr() %></td>
-	<td>Datum</td><td><%= be1.getDatum() %></td>
+	<td class="tddocheadrubrik">Beställningsnummer</td>
+	<td class="tds30"><%= b.be1.getBestnr() %></td>
+	<td class="tddocheadrubrik">Datum</td>
+	<td class="tddatum"><%= b.be1.getDatum() %></td>
 </tr>
 <tr>
-	<td>Vår referens</td><td><%= be1.getVarRef() %></td>
-	<td>Er referens</td><td><%= be1.getErRef() %></td>
+	<td class="tddocheadrubrik">Vår referens</td>
+	<td class="tds30"><%= SXUtil.toHtml(b.be1.getVarRef()) %></td>
+	<td class="tddocheadrubrik">Er referens</td>
+	<td class="tds30"><%= SXUtil.toHtml(b.be1.getErRef()) %></td>
 </tr>
 <tr>
-	<td>Leveransadress</td><td><%= be1.getLevadr0() %></td>
-	<td></td><td><%= be1 %></td>
+	<td class="tddocheadrubrik">Leveransadress</td>
+	<td class="tds30"><%= SXUtil.toHtml(b.be1.getLevadr0()) %></td>
+	<td class="tddocheadrubrik"></td>
+	<td class="tds30"><%  %></td>
 </tr>
 <tr>
-	<td>&nbsp;</td><td><%= be1.getLevadr1() %><br/></td>
-	<td></td><td><%= be1 %></td>
+	<td class="tddocheadrubrik">&nbsp;</td>
+	<td class="tds30"><%= SXUtil.toHtml(b.be1.getLevadr1()) %><br/></td>
+	<td class="tddocheadrubrik"></td>
+	<td class="tds30"><%  %></td>
 </tr>
 <tr>
-	<td>&nbsp;</td><td><%= be1.getLevadr2() %></td>
-	<td></td><td><%= be1 %></td>
+	<td>&nbsp;</td>
+	<td class="tds30"><%= SXUtil.toHtml(b.be1.getLevadr2()) %></td>
+	<td></td>
+	<td class="tds30"><%  %></td>
 </tr>
 <tr>
-	<td>&nbsp;</td><td><%= be1.getLevadr3() %></td>
-	<td></td><td><%= be1 %></td>
+	<td>&nbsp;</td>
+	<td class="tds30"><%= SXUtil.toHtml(b.be1.getLevadr3()) %></td>
+	<td></td>
+	<td class="tds30"><% %></td>
 </tr>
 <tr>
-	<td>Leveransdatum</td><td><%= be1.getLeverans() %></td>
-	<td>Märke</td><td><%= be1.getMarke() %></td>
+	<td class="tddocheadrubrik">Leveransdatum</td>
+	<td class="tds30"><%= SXUtil.toHtml(b.be1.getLeverans()) %></td>
+	<td class="tddocheadrubrik">Märke</td>
+	<td class="tds30"><%= SXUtil.toHtml(b.be1.getMarke()) %></td>
 </tr>
 <tr>
-	<td>Meddelande</td><td colspan="3"><%= be1.getMeddelande() %></td>
+	<td class="tddocheadrubrik">Märke</td>
+	<td colspan="3"><%= SXUtil.toHtml(b.be1.getMarke()) %></td>
+</tr>
+<tr>
+	<td class="tddocheadrubrik">Meddelande</td>
+	<td colspan="3"><%= SXUtil.toHtml(b.be1.getMeddelande()) %></td>
+</tr>
+<tr>
 </tr>
 </table>
-<table>
-<% while (be2.next()) {%>
+
+<table id="doc">
 <tr>
-	<td><%= SXUtil.toHtml(be2.getArtnr()) %></td>
-	<td><%= SXUtil.toHtml(be2.getBartnr()) %></td>
-	<td><%= SXUtil.toHtml(be2.getArtnamn()) %></td>
-	<td><%= be2.getBest() %></td>
-	<td><%= SXUtil.toHtml(be2.getEnh()) %></td>
-	<td><%= SXUtil.getFormatNumber(be2.getPris()) %></td>
-	<td><%= SXUtil.getFormatNumber(be2.getRab()) %></td>
-	<td><input type="text" name="be2bekrdat<%= be2.getRad() %>" value="<%= SXUtil.getFormatDate(be2.getBekrdat()) %>"></td>
-</tr>	
-<% }{%>
+<th class="tds15">Art.nr.</th>
+<th class="tds15">Ert art.nr</th>
+<th class="tds30">Benämning</th>
+<th class="tdn12">Antal</th>
+<th class="tds3">Enh</th>
+<th class="tdn12">Pris</th>
+<th class="tdn4">Rab</th>
+<th class="tds10">Leveransdatum</th>
+<th></th>
+</tr>
+<% for (se.saljex.sxserver.web.inkop.BestFormRad r : b.rader) {%>
+	 <% if (SXUtil.toStr(r.formBekrdatErr).isEmpty()) { errstr=""; errinfo=""; } else {errstr="error"; errinfo=SXUtil.toHtml(r.formBekrdatErr);} %>
+<tr>
+	<td class="tds15"><%= SXUtil.toHtml(r.artnr) %></td>
+	<td class="tds15"><%= SXUtil.toHtml(r.bartnr) %></td>
+	<td class="tds30"><%= SXUtil.toHtml(r.artnamn) %></td>
+	<td class="tdn12"><%= r.best %></td>
+	<td class="tds3"><%= SXUtil.toHtml(r.enh) %></td>
+	<td class="tdn12"><%= SXUtil.getFormatNumber(r.pris) %></td>
+	<td class="tdb4"><%= SXUtil.getFormatNumber(r.rab) %></td>
+	<td class="tds10"><input class="tdinput<%= errstr %>" type="text" size="10" name="<%= r.getNameBekrdat() %>" value="<%= SXUtil.toHtml(r.formBekrdat)%>">
+		<%= errinfo %>
+	 </td>
+</tr>
+<% }%>   
 </table>
 </form>
 </div>

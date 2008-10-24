@@ -36,7 +36,7 @@ private String orderByStr;
 	
 	@Override 
 	public void getPage(int page) {
-		String selectStr = "select bestnr, rad, enh, artnr, artnamn, bartnr, best, pris, rab, bekrdat, stjid from best1";
+		String selectStr = "select bestnr, rad, enh, artnr, artnamn, bartnr, best, pris, rab, bekrdat, stjid from best2";
 		try {
 			if (this.bestnrFilter!=null) {
 				super.initSql(selectStr + " where bestnr = ? order by " + orderByStr); 

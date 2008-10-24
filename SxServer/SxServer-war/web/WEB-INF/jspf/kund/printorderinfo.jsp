@@ -28,7 +28,7 @@ if (divInfo == null) divInfo = "";
 <%
 if (o1 == null) { out.println("Inga data"); } else { %>
 <table id="dochead">
-<tr><th colspan="5">Orderinfo</th></tr
+<tr><th colspan="5">Orderinfo</th></tr>
 <tr>
 <td class="tddocheadrubrik">Ordernr</td>
 <td class="tds30"><%= o1.getOrdernr() %></td>
