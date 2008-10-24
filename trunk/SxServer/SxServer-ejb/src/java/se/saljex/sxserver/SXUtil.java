@@ -4,10 +4,15 @@
  */
 
 package se.saljex.sxserver;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.Calendar;
 import java.text.SimpleDateFormat;
 import java.text.DecimalFormat;
+import java.text.ParseException;
 import java.util.logging.Logger;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
@@ -36,32 +41,79 @@ public class SXUtil {
 		return result;
 	}
 
+
 	
+	// Returnerar datumsträngfrån några olika format till yyy-mm-dd
+	public static String parseDateStringToString(String d) throws ParseException{
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		return sdf.format(parseDateStringToDate(d));	
+	}
+
 	
-	
-	public static Calendar getTodayDate()  {
-		// Returns todys date as a Calendar and WITH TIME PART SET TO 0
-		return getSqlCalendarFromDate(new Date());
+	// Returnerar datumsträngfrån några olika format till Date
+	public static java.util.Date parseDateStringToDate(String d) throws ParseException{
+		if (d==null) d = "";
+		d = d.trim();
+		String tempDat = "";
+		if (d.length() == 10) { //yyyy-mm-dd
+			tempDat = d;
+		} else if (d.length() == 8) {
+			tempDat = d.substring(0, 4) + "-" + d.substring(4, 6) + "-" + d.substring(6, 8);
+		} else if (d.length() == 6) {
+			tempDat = "20" + d.substring(0, 2) + "-" + d.substring(2, 4) + "-" + d.substring(4, 6);					
+		}
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		Date testDate = sdf.parse(tempDat);
+		if (sdf.format(testDate).equals(tempDat)) {		// sdf parsar dagar och månader större än tillåtna  (mån 13 = mån 1 nästa år) Vi jämför om återparsat datum stämmer överens
+			d = sdf.format(testDate);
+		} else {
+			throw new java.text.ParseException(d, 0);
+		}		
+		return testDate;
 	}
 	
-	public static Calendar getSqlCalendarFromDate(Date d) {
+	
+	public static Calendar getTodaySQLDate()  {
+		// Returns todys date as a Calendar and WITH TIME PART SET TO 0
+		return getSQLCalendarDateFromDate(new Date());
+	}
+	
+	public static Calendar getSQLCalendarDateFromDate(Date d) {
 		if (d == null) return null;
 		Calendar idag = Calendar.getInstance();
 		idag.setTime(d);
-		idag.set( idag.HOUR_OF_DAY, 0 );
-		idag.set( idag.MINUTE, 0 );
-		idag.set( idag.SECOND, 0 );
-		idag.set( idag.MILLISECOND, 0 );
+		idag.set( Calendar.HOUR_OF_DAY, 0 );
+		idag.set( Calendar.MINUTE, 0 );
+		idag.set( Calendar.SECOND, 0 );
+		idag.set( Calendar.MILLISECOND, 0 );
 		return idag;		
 	}
-	public static java.sql.Date getSqlDate(java.util.Date d) {
+	public static java.sql.Date getSQLDate(java.util.Date d) {
 		if (d == null) return null;
-		return new java.sql.Date(getSqlCalendarFromDate(d).getTimeInMillis()); 
+		return new java.sql.Date(getSQLCalendarDateFromDate(d).getTimeInMillis()); 
 	}
+	public static java.sql.Date getSQLDate() {
+		return getSQLDate(new java.util.Date());
+	}
+	
 	public static String getSXReg(EntityManager em, String id)  {
 		return getSXReg(em,id,"");
 	}
 
+	public static java.sql.Time getSQLTime(java.util.Date d) {
+	// returns date as a sql time with date part set to 0
+		if (d == null) return null;
+		Calendar idag = Calendar.getInstance();
+		idag.setTime(d);
+		idag.set( Calendar.YEAR, 1970 );		// sätt detta darum enligt java dokumentationen
+		idag.set( Calendar.MONTH, 1 );
+		idag.set( Calendar.DAY_OF_MONTH, 1 ); 
+		return new java.sql.Time(idag.getTimeInMillis());			
+	}
+	public static java.sql.Time getSQLTime() {
+		return getSQLTime(new java.util.Date());
+	}
+	
 	public static String getSXReg(EntityManager em, String id, String defaultVarde)  {
 		// Hitta med default värde
 		String ret ;
@@ -80,6 +132,15 @@ public class SXUtil {
 		} else { ret = sxr.getVarde(); }
 		
 		return ret;
+	}
+	public static String getSXReg(Connection con, String id, String defaultVarde) throws SQLException {
+		// Hitta med default värde
+		String ret;
+		PreparedStatement s = con.prepareStatement("select varde from sxreg where id=?");
+		s.setString(1, id);
+		ResultSet r = s.executeQuery(); 
+		if (r.next()) return r.getString(1);
+		else return defaultVarde;
 	}
 
 	public static TableFuppg getFuppg(EntityManager em) {
