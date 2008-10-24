@@ -47,7 +47,7 @@ private String orderByStr;
 	
 	@Override 
 	public void getPage(int page) {
-		String selectStr = "select bestnr, datum, levnr, levadr0, levadr1, levadr2, levadr3, var_ref, er_ref, leverans, marke, bekrdat, status, meddelande from best1";
+		String selectStr = "select bestnr, datum, levnr, levadr0, levadr1, levadr2, levadr3, var_ref, er_ref, leverans, marke, bekrdat, status, meddelande, sakerhetskod from best1";
 		try {
 			if (this.sakerhetskodFilter!=null) {
 				super.initSql(selectStr + " where bestnr = ? and sakerhetskod = ? order by " + orderByStr); 
@@ -80,4 +80,5 @@ private String orderByStr;
 	public Date getBekrdat()	{ return (java.util.Date)super.getColumn(12);	}
 	public String getStatus()	{ return (String)super.getColumn(13);	}
 	public String getMeddelande()	{ return (String)super.getColumn(14);	}
+	public Integer getSakerhetskod()	{ return (Integer)super.getColumn(15);	}
 }

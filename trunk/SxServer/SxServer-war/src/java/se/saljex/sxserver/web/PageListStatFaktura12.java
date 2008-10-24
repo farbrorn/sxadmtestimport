@@ -50,13 +50,13 @@ private String artnr;
 	public void setPeriod(Date fr, Date ti) {
 		Calendar cal;
 		if (fr == null) {
-			cal = SXUtil.getTodayDate();
+			cal = SXUtil.getTodaySQLDate();
 			cal.add(Calendar.YEAR, -1);
 			fr = cal.getTime();
 		}
 		
 		if (ti == null) {
-			cal = SXUtil.getTodayDate();
+			cal = SXUtil.getTodaySQLDate();
 			ti = cal.getTime(); 
 		}
 		this.frdat = fr;
