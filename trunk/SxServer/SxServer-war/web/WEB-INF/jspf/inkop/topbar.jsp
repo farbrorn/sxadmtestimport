@@ -6,11 +6,4 @@
 <%@ page import="se.saljex.sxserver.*" %>
 <%@ page import="se.saljex.sxserver.web.*" %>
 
-<% 
-String divInfo = (String)request.getAttribute("divinfo");
-if (divInfo == null) divInfo = "";
-%>
-<div <%= divInfo %>>
-
 Säljex Inköp
-</div>
