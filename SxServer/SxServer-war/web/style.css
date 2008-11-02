@@ -226,6 +226,7 @@ table#doc td {
 }
 
 .tdinput {
+border: blue 1px solid;
 }
 .tdinputerror {
 border: red 2px solid;

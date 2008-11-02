@@ -11,10 +11,10 @@ import java.net.*;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.servlet.*;
@@ -43,21 +43,24 @@ public class inkop extends HttpServlet {
 	private HttpServletRequest request;
 	private HttpServletResponse response;
 	private PrintWriter out;
+	private ServletOutputStream outStream;
 	private HttpSession session;
 	private SXSession sxSession;
 	private	Integer bnr = null;
 	private	Integer skd = null;
 	private BestForm bestForm = null;
 
+	private LoginForm loginForm = null;
 	
+	private boolean siteHeaderPrinted = false;
+	private boolean bodyHeaderPrinted = false;
+	private boolean midbarHeaderPrinted = false;
+
 	protected void processRequest(HttpServletRequest req, HttpServletResponse res)	throws ServletException, IOException {
 		this.request = req;
 		this.response = res;
-				
-		try {	con = sxadm.getConnection(); } catch (SQLException e) { SXUtil.log(e.toString());}
 		session = req.getSession();
 		sxSession = WebUtil.getSXSession(session);
-		this.out = response.getWriter();
 		
 		//request.setCharacterEncoding("UTF-8");
 		//response.setContentType("text/html;charset=UTF-8");
@@ -68,14 +71,60 @@ public class inkop extends HttpServlet {
 		try { bnr = Integer.parseInt(request.getParameter("bnr")); } catch (Exception e) {}
 		try { skd = Integer.parseInt(request.getParameter("skd")); } catch (Exception e) {}
 		
-		if ((bnr==null || skd==null) && sxSession.getInkopInloggatBestNr()==null) { id = "1"; }
-
+		try {	con = sxadm.getConnection(); } catch (SQLException e) { SXUtil.log(e.toString());}
+		loginForm = new LoginForm();
+		loginForm.setBnr(request.getParameter("bnr"));
 		
 		try {
-			if (!login()) { id = "0"; }
-			printHeader();
+			if (get != null) {
+				handleGet(get);
+			} else {
+				handleId(id);
+			}
+		} catch (com.lowagie.text.DocumentException ep) { 
+			SXUtil.log(ep.toString()); ep.printStackTrace();
+			throw new ServletException("<b>Ett oväntat undantagsfel uppstod - fel vid skapande av pdf</b>"); 
+		} catch (SQLException se) { 
+			SXUtil.log(se.toString()); se.printStackTrace();
+			throw new ServletException("<b>Ett oväntat undantagsfel uppstod - fel vid kommunikation med databasen.</b>"); 
+		} catch (IOException ie) { 
+			SXUtil.log(ie.toString()); ie.printStackTrace();
+			throw new ServletException("<b>Ett oväntat undantagsfel uppstod - IOException.</b>"); 
+		} finally {
+			loginForm = null;
+			try { bestForm.be1.close(); } catch (Exception e) {}
+			try { out.close();	 } catch (Exception e) {}
+			try { outStream.close();	 } catch (Exception e) {}			
+			try { con.close();} catch (SQLException e ){}			
+		}
+	}	
+		
+	private void handleGet(String get) throws IOException, ServletException, SQLException, com.lowagie.text.DocumentException {	
+			if ("pdf".equals(get)) {
+				outStream = response.getOutputStream();
+				
+				if (!login()) { throw  new ServletException("Inte inloggad" ); }
+				bnr = sxSession.getInkopInloggatBestNr();		///// Göres om!! ***********************************
+				
+				ByteArrayOutputStream bs = LocalWebSupportBean.getPdfBest(bnr);
+				response.setHeader("Expires", "0");
+				response.setHeader("Cache-Control", "must-revalidate, post-check=0, pre-check=0");
+				response.setHeader("Pragma", "public");
+				response.setContentType("application/pdf");
+				response.setContentLength(bs.size()); 
+				bs.writeTo(outStream);
+				outStream.flush();
+			} 
+	}
+				
 
-			if (id.equals("0")) {
+	private void handleId(String id) throws IOException, ServletException, SQLException{	
+			this.out = response.getWriter();
+			printSiteHeader();
+			printTopBar();
+
+			if (id.equals("0") || id.equals("logout")) {
+				sxSession.setInkopInloggatBestNr(bnr);
 				printLogin();
 /*	PageListBest1 p = new PageListBest1(sxadm);
 	p.getPage(1);
@@ -83,25 +132,33 @@ public class inkop extends HttpServlet {
 		out.print("<br/>" + p.getBestnr() + "-" + p.getSakerhetskod() + "<br/>");
 	} 
 	p.close();
-	*/
+*/
 			} else if (id.equals("1")) {
-				printBest();
+				if (!login()) {
+					printLogin();				
+				} else {
+					printLeftSideBar();
+					printBodyHeader();
+					printMidbarHeader();
+					printBest();
+				}
 			} else if (id.equals("2")) {
-				updateForm();
+				if (!login()) {
+					printLogin();				
+				} else {
+					printLeftSideBar();
+					printBodyHeader();
+					printMidbarHeader();
+					updateForm();
+				}
 			} else {	
+				printBodyHeader();
+				printMidbarHeader();
 				out.println("Felaktigt id");
 			}
 
 			printFooter();
-			
-		} 
-		catch (SQLException se) { out.print("<b>Ett oväntat undantagsfel uppstod - fel vid kommunikation med databasen.</b>"); SXUtil.log(se.toString()); se.printStackTrace();}
-		finally { 
-			try { bestForm.be1.close(); } catch (Exception e) {}
-			out.close();
-			try {con.close();} catch (SQLException e ){}
-		}
- } 
+	} 
 
 
 // Logga in och läs in pagelisterna
@@ -118,15 +175,20 @@ private boolean login() throws SQLException {
 		}
 	} catch (SXEntityNotFoundException e) {
 		sxSession.setInkopInloggatBestNr(null);
+		loginForm.setLoginError(true);
+		return false;
+	} catch (SXSecurityException e) {
+		sxSession.setInkopInloggatBestNr(null);
+		loginForm.setSecurityError(true);
 		return false;
 	}
-	
 	return true;
 }
 
 
 
 private void updateForm() throws ServletException, IOException, SQLException{
+	boolean levDatumAngivet = false;
 	bestForm.readForm(request);		// Läs in och validera
 	if (bestForm.isParseError()) { 
 		printBest(); 
@@ -139,8 +201,9 @@ private void updateForm() throws ServletException, IOException, SQLException{
 			s.setString(1, SXConstant.BEST_STATUS_MOTTAGEN);
 			try {
 				s.setDate(2, SXUtil.getSQLDate(SXUtil.parseDateStringToDate(bestForm.getFormBekrdat())));
+				levDatumAngivet = true;
 			} catch (java.text.ParseException e) {
-				s.setDate(2, null);			
+				s.setDate(2, null);		
 			}
 			s.executeUpdate();
 
@@ -150,28 +213,21 @@ private void updateForm() throws ServletException, IOException, SQLException{
 				s.setInt(2, b.rad);
 				try {
 					s.setDate(1, SXUtil.getSQLDate(SXUtil.parseDateStringToDate(b.formBekrdat)));
+					levDatumAngivet = true;
 				} catch (java.text.ParseException e) {
 					s.setDate(1, null);			
 				}
 				s.executeUpdate();
 			}
 
-			s = con.prepareStatement("insert into besthand (bestnr, datum, tid, anvandare, handelse) values (?,?,?,?,?)");
-			java.util.Date d = new java.util.Date();
-			s.setInt(1, bnr);
-			s.setString(4, SXUtil.getSXReg(con, SXConstant.SXREG_SERVERANVANDARE, SXConstant.SXREG_SERVERANVANDARE_DEFAULT));
-			s.setString(5, SXConstant.BESTHAND_LEVERANSBESKED);
-			int cn = 0;
-			do {
-				s.setDate(2, SXUtil.getSQLDate(d));
-				s.setTime(3, SXUtil.getSQLTime(d));
-				cn++;
-				if (cn > 10){ throw new SQLException("Creates duplicate key in besthand"); }  // Avbryt med en Exception om vi har försökt för många gånger
-				d = new java.util.Date(d.getTime()+1000);	// Öka med 1 s för att vara förbered ifall dubbel key skapas
-			} while (s.executeUpdate() < 1);  // Loopa ända tills det är sparat
-
+			
+			insertBesthand(SXConstant.BESTHAND_LEVERANSBESKED);
 			con.commit();
 			bestForm.setSavedOK();
+			
+			bestForm.setLevDatumBekraftat(levDatumAngivet);
+			
+			
 			printBest();
 		} catch (SQLException e) {
 			bestForm.setSaveError();
@@ -179,6 +235,24 @@ private void updateForm() throws ServletException, IOException, SQLException{
 		}
 	}
 }
+
+private void insertBesthand(String handelse) throws SQLException {
+	PreparedStatement s = con.prepareStatement("insert into besthand (bestnr, datum, tid, anvandare, handelse) values (?,?,?,?,?)");
+	java.util.Date d = new java.util.Date();
+	s.setInt(1, bnr);
+	s.setString(4, SXUtil.getSXReg(con, SXConstant.SXREG_SERVERANVANDARE, SXConstant.SXREG_SERVERANVANDARE_DEFAULT));
+	s.setString(5, handelse);
+	int cn = 0;
+	do {
+		s.setDate(2, SXUtil.getSQLDate(d));
+		s.setTime(3, SXUtil.getSQLTime(d));
+		cn++;
+		if (cn > 10){ throw new SQLException("Creates duplicate key in besthand"); }  // Avbryt med en Exception om vi har försökt för många gånger
+		d = new java.util.Date(d.getTime()+1000);	// Öka med 1 s för att vara förbered ifall dubbel key skapas
+	} while (s.executeUpdate() < 1);  // Loopa ända tills det är sparat
+	
+}
+
 private void setBestMottagen() throws SQLException{
 	PreparedStatement s;
 	s = con.prepareStatement("update best1 set status=? where bestnr = " + bnr);
@@ -188,6 +262,9 @@ private void setBestMottagen() throws SQLException{
 
 
 private void printLogin() throws ServletException, IOException {
+	printBodyHeader();
+	printMidbarHeader();
+	request.setAttribute("loginform", loginForm);
 	request.getRequestDispatcher("/WEB-INF/jspf/inkop/login.jsp").include(request, response);
 }
 
@@ -196,28 +273,37 @@ private void printBest() throws ServletException, IOException {
 	request.getRequestDispatcher("/WEB-INF/jspf/inkop/bestform.jsp").include(request, response);
 }
 
-private void printHeader()  throws ServletException, IOException{
+private void printSiteHeader()  throws ServletException, IOException{
 				request.getRequestDispatcher("/WEB-INF/jspf/siteheader.jsp").include(request, response);
-				printTopBar("id=\"top\"");
-				printLeftSideBar("id=\"leftbar\"");
-				out.println("<div id=\"body\">");	
-				out.println("<div id=\"midbar\">");
+				siteHeaderPrinted = true;
 }
+private void printBodyHeader()  throws ServletException, IOException{
+				out.println("<div id=\"body\">");	
+				bodyHeaderPrinted = true;
+}
+private void printMidbarHeader()  throws ServletException, IOException{
+				out.println("<div id=\"midbar\">");
+				midbarHeaderPrinted = true;
+}
+
 
 private void printFooter()  throws ServletException, IOException {
-				out.println("</div></div>");
-				request.getRequestDispatcher("/WEB-INF/jspf/sitefooter.jsp").include(request, response);	
+				if (midbarHeaderPrinted) out.println("</div>"); 
+				if (bodyHeaderPrinted) out.println("</div>"); 
+				if (siteHeaderPrinted) request.getRequestDispatcher("/WEB-INF/jspf/sitefooter.jsp").include(request, response);	
 }
 
 
-	private void printLeftSideBar(String divInfo) throws ServletException, IOException{
-		request.setAttribute("divinfo", divInfo);
+	private void printLeftSideBar() throws ServletException, IOException{
+		out.print("<div id=\"leftbar\">");
 		request.getRequestDispatcher("WEB-INF/jspf/inkop/leftsidebar.jsp").include(request, response);		
+		out.print("</div>");
 	}
 
-	private void printTopBar(String divInfo) throws ServletException, IOException{
-		request.setAttribute("divinfo", divInfo);
+	private void printTopBar() throws ServletException, IOException{
+		out.print("<div id=\"top\">");
 		request.getRequestDispatcher("WEB-INF/jspf/inkop/topbar.jsp").include(request, response);		
+		out.print("</div>");
 	}
 
 
@@ -234,6 +320,7 @@ private void printFooter()  throws ServletException, IOException {
 		private String formParseText = null;
 		private String formSaveText = null;
 		private boolean mottagen = false;
+		private boolean levDatumBekraftat = false;
 		
 		public PageListBest1 be1 = null;
 		private PageListBest2 be2 = null;
@@ -245,35 +332,85 @@ private void printFooter()  throws ServletException, IOException {
 			be1 = new PageListBest1(ds, bnr);
 			loadBest(ds, bnr);
 		}
-		public BestForm(DataSource ds, Integer bnr, Integer skd) throws SQLException, SXEntityNotFoundException	{
+		public BestForm(DataSource ds, Integer bnr, Integer skd) throws SQLException, SXEntityNotFoundException, SXSecurityException	{
+			int antalFelinloggningar;
 			be1 = new PageListBest1(ds, bnr, skd);
-			loadBest(ds, bnr);
+			try { 
+				loadBest(ds, bnr);
+				antalFelinloggningar = SXUtil.noNull(be1.getAntalfelinloggningar());
+			
+				if (antalFelinloggningar > 5) {
+					// För många felinloggningar, rensa skiten
+					rader = null;
+					throw new SXSecurityException("Login failed - Too many incorrect logins.");
+				}
+			} catch (SXEntityNotFoundException e) {	
+				// Antingen finns inte beställningen, eller så är fel kod inslagen
+				// Vi provar genom att göra en ny pagelist be1 utan säkerhetskod
+				try { be1.close(); } catch (Exception e2) {}
+				be1 = new PageListBest1(ds, bnr);
+				if (be1.next()) {
+					// Beställningsnumret fanns, då vet vi att fel kod var angiven
+					antalFelinloggningar = SXUtil.noNull(be1.getAntalfelinloggningar());
+					antalFelinloggningar++;
+					ds.getConnection().prepareStatement("update best1 set antalfelinloggningar = " + antalFelinloggningar + " where bestnr = " + bnr).executeUpdate();
+					insertBesthand(SXConstant.BESTHAND_FELINLOGGNING);
+				}
+				try { be1.close(); } catch (Exception e2) {}
+				be1 = null;
+				throw(e);
+			}
 		}
+		
 		private void loadBest(DataSource ds, Integer bnr) throws SQLException, SXEntityNotFoundException {
 			BestFormRad b;
 			be1.getPage(1);
 			if (be1.next()) { //Vi har en träff,
 				this.formBekrdat = SXUtil.getFormatDate(be1.getBekrdat());
 				be2 = new PageListBest2(ds,bnr); 
-				be2.getPage(0);
-				if (be1.getStatus().equals(SXConstant.BEST_STATUS_MOTTAGEN)) mottagen = true;
-				while (be2.next()) {		//Läs in rader från best2
-					b = new BestFormRad();
-					b.rad = be2.getRad();
-					b.artnr = be2.getArtnr();
-					b.bartnr = be2.getBartnr();
-					b.artnamn = be2.getArtnamn();
-					b.best = be2.getBest();
-					b.pris = be2.getPris();
-					b.rab = be2.getRab();
-					b.enh = be2.getEnh();
-					b.bekrdat = be2.getBekrdat();
-					rader.add(b);	
-					b.formBekrdat = SXUtil.getFormatDate(be2.getBekrdat());
+				try {
+					be2.getPage(0);
+					if (SXConstant.BEST_STATUS_MOTTAGEN.equals(be1.getStatus())) mottagen = true;
+					if (be1.getBekrdat() != null) levDatumBekraftat = true;
+					while (be2.next()) {		//Läs in rader från best2
+						if (be2.getBekrdat()!= null) { levDatumBekraftat = true; }
+						b = new BestFormRad();
+						b.rad = be2.getRad();
+						b.artnr = be2.getArtnr();
+						b.bartnr = be2.getBartnr();
+						b.artnamn = be2.getArtnamn();
+						b.best = be2.getBest();
+						b.pris = be2.getPris();
+						b.rab = be2.getRab();
+						b.enh = be2.getEnh();
+						b.bekrdat = be2.getBekrdat();
+						rader.add(b);	
+						b.formBekrdat = SXUtil.getFormatDate(be2.getBekrdat());
+						if (be2.getBekrdat() != null) levDatumBekraftat = true;
+						try {
+							Connection con = ds.getConnection();
+							PreparedStatement stmt = con.prepareStatement("select b.namn, c.tel, c.email from stjarnrad a left outer join saljare b on (b.forkortning = a.anvandare) left outer join lagerid c on (c.lagernr = b.lagernr) where a.stjid = " + be2.getStjid());
+							ResultSet res = stmt.executeQuery();
+							if (res.next()) {
+								b.stjSaljare = res.getString(1);
+								b.stjSaljareTel = res.getString(2);
+								b.stjSaljareEpost = res.getString(3);
+							}
+						} finally {
+							try { con.close(); } catch (Exception e) {}
+						}
+						
+					}
 				}
-				be2.close();
-				be2 = null;
-			} else { be1.close(); be1 = null; throw new SXEntityNotFoundException();}
+				finally {
+					be2.close();
+					be2 = null;
+				}
+			} else { 				
+				try { be1.close(); } catch (Exception e2) {}
+				be1 = null; 
+				throw new SXEntityNotFoundException();
+			}
 		}
 
 		public String getParseText()	{	return this.formParseText; }
@@ -295,6 +432,8 @@ private void printFooter()  throws ServletException, IOException {
 		public boolean isSaveError() { return this.formSaveStatus == this.FORM_SAVE_ERROR; }
 		public boolean isSavedOK() { return this.formSaveStatus == this.FORM_SAVE_OK; }
 		public boolean isMottagen() { return mottagen; }
+		public boolean isLevDatumBekraftat() { return levDatumBekraftat; }
+		public void setLevDatumBekraftat(boolean l) { levDatumBekraftat = l; }
 		public void setMottagen(boolean m) { mottagen = m;  }
 		
 		public String getNameBekrdat() {			return "be1bekrdat";		}
@@ -305,7 +444,9 @@ private void printFooter()  throws ServletException, IOException {
 			this.setParsedOK();		// Initiera f;rst parsedOK f;r att sedan s'tta error om fel uppst[r
 			this.formBekrdat = SXUtil.toStr(req.getParameter(this.getNameBekrdat()));
 			try {
-				if (!this.formBekrdat.isEmpty()) this.formBekrdat = SXUtil.parseDateStringToString(this.formBekrdat);
+				if (!this.formBekrdat.isEmpty()) {
+					this.formBekrdat = SXUtil.parseDateStringToString(this.formBekrdat);
+				}
 			} catch (ParseException e) {
 				this.setParseError();
 				this.formBekrdatErr = "*";				//Felaktigt datum
@@ -343,6 +484,10 @@ public class BestFormRad {
 	public String formBartnr = null;
 	public String formBartnrErr = null;
 	
+	public String stjSaljare = null;
+	public String stjSaljareTel = null;
+	public String stjSaljareEpost = null;
+	
 	public String getNameBekrdat() {						// Returnerar name att använda vid html form input
 		return "be2bekrdat[" + rad + "}";
 	}
@@ -351,7 +496,20 @@ public class BestFormRad {
 	}
 }
 	
+public class LoginForm	 {
+	private String bnr = null;
+	private boolean loginError = false;
+	private boolean securityError = false;
+
+	public boolean isLoginError() {		return loginError;			 }
+	public void setLoginError(boolean loginError) {		this.loginError = loginError;			 }
+	public boolean isSecurityError() {		return securityError;			 }
+	public void setSecurityError(boolean securityError) {		this.securityError = securityError;		 }
 	
+	public String getBnr() {			return bnr;			 }
+	public void setBnr(String bnr) {	this.bnr = bnr; }
+	
+}
 	
 	// <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /** 
