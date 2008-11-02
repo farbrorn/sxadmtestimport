@@ -5,6 +5,9 @@
 
 package se.saljex.sxserver;
 
+import com.lowagie.text.DocumentException;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.List;
 import javax.annotation.Resource;
 import javax.ejb.EJBContext;
@@ -92,6 +95,18 @@ public class LocalWebSupportBean implements LocalWebSupportLocal {
 		  List l = q.getResultList();
 		  return l;
 	  }
+
+	public ByteArrayOutputStream getPdfFaktura(Integer nr) throws com.lowagie.text.DocumentException, java.io.IOException {
+		if (nr == null) return null;
+		PdfFaktura pdf = new PdfFaktura(em);
+		return pdf.getPDF(nr);
+	}
+
+	public ByteArrayOutputStream getPdfBest(Integer nr) throws com.lowagie.text.DocumentException, java.io.IOException {
+		if (nr == null) return null;
+		PdfBest pdf = new PdfBest(em);
+		return pdf.getPDF(nr);
+	}
 
     
 	  

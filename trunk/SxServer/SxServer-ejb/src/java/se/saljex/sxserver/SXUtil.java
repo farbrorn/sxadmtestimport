@@ -213,6 +213,13 @@ public class SXUtil {
        return calendar.getTime();
     }
 
+	 public static Integer noNull(Integer a) {
+		 if (a==null) return 0; else return a;
+	 }
+	 public static Double noNull(Double a) {
+		 if (a==null) return 0.0; else return a;
+	 }
+	 
 	 public static String toStr(String s) {
 		 if (s == null) return ""; else return s;
 	 }	 
