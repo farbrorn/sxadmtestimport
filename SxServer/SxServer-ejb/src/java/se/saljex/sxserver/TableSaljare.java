@@ -11,6 +11,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.NamedQueries;
+
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -21,7 +23,7 @@ import javax.persistence.TemporalType;
  */
 @Entity
 @Table(name = "SALJARE")
-@NamedQueries({})
+@NamedQueries({@NamedQuery(name = "TableSaljare.findByForkortning", query = "SELECT b FROM TableSaljare b WHERE b.forkortning = :forkortning order by b.namn")})
 public class TableSaljare implements Serializable {
 	  private static final long serialVersionUID = 1L;
 	  @Column(name = "NAMN", nullable = false)

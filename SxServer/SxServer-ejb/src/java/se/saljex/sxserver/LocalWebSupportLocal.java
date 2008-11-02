@@ -5,6 +5,7 @@
 
 package se.saljex.sxserver;
 
+import java.io.ByteArrayOutputStream;
 import java.util.List;
 import javax.ejb.Local;
 
@@ -30,5 +31,8 @@ public interface LocalWebSupportLocal {
 	  TableOrder1 getTableOrder1(int ordernr);
 
 	  List<TableRorder> getListTableRorder(String kundnr);
+
+	  ByteArrayOutputStream getPdfFaktura(Integer nr) throws com.lowagie.text.DocumentException, java.io.IOException;
+	  ByteArrayOutputStream getPdfBest(Integer nr) throws com.lowagie.text.DocumentException, java.io.IOException;
 
 }

@@ -33,6 +33,7 @@ public class SXConstant {
 	public static final  String BESTHAND_SKAPAD = "Skapad";
 	public static final  String BESTHAND_MOTTAGEN = "Mottagen";
 	public static final  String BESTHAND_LEVERANSBESKED = "Levbesked";
+	public static final  String BESTHAND_FELINLOGGNING = "Fel inloggning";
 
 	
 	public static final short		KAMPBIT_ELKUND	= 1;
