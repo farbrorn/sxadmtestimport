@@ -35,12 +35,21 @@ public class LocalWebSupportBean implements LocalWebSupportLocal {
 	@PersistenceContext private EntityManager em;
 
 	  public TableKund getTableKund(String kundnr) {
-			 return em.find(TableKund.class, kundnr);
+			 if (kundnr != null) return em.find(TableKund.class, kundnr); else return null;
 	  }
 
 	  public TableFaktura1 getTableFaktura1(int faktnr) {
 			return em.find(TableFaktura1.class, faktnr);
 	  }
+
+	public TableKundkontakt getTableKundkontakt(Integer kontaktid) {
+		if (kontaktid != null) return em.find(TableKundkontakt.class, kontaktid); else return null;
+	}
+
+	public TableKundlogin getTableKundlogin(String loginnamn) {
+		if (loginnamn != null) return em.find(TableKundlogin.class, loginnamn); else return null;
+	}
+
 
 	  public List<TableFaktura2> getListTableFaktura2(int faktnr) {
 		  Query q = em.createNamedQuery("TableFaktura2.findByFaktnr");
@@ -101,12 +110,23 @@ public class LocalWebSupportBean implements LocalWebSupportLocal {
 		PdfFaktura pdf = new PdfFaktura(em);
 		return pdf.getPDF(nr);
 	}
+	public ByteArrayOutputStream getPdfFaktura(Integer nr, String kundnr) throws DocumentException, IOException {
+		if (nr == null || kundnr == null) return null;
+		TableFaktura1 fa1 = em.find(TableFaktura1.class, nr);
+		if (fa1.getKundnr().equals(kundnr)) {
+			return getPdfFaktura(nr);
+		} else {
+			return null;
+		}
+	}
 
 	public ByteArrayOutputStream getPdfBest(Integer nr) throws com.lowagie.text.DocumentException, java.io.IOException {
 		if (nr == null) return null;
 		PdfBest pdf = new PdfBest(em);
 		return pdf.getPDF(nr);
 	}
+
+
 
     
 	  

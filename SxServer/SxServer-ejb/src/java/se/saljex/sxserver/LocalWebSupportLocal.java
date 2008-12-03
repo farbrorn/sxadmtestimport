@@ -5,7 +5,9 @@
 
 package se.saljex.sxserver;
 
+import com.lowagie.text.DocumentException;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.List;
 import javax.ejb.Local;
 
@@ -34,5 +36,11 @@ public interface LocalWebSupportLocal {
 
 	  ByteArrayOutputStream getPdfFaktura(Integer nr) throws com.lowagie.text.DocumentException, java.io.IOException;
 	  ByteArrayOutputStream getPdfBest(Integer nr) throws com.lowagie.text.DocumentException, java.io.IOException;
+
+	  ByteArrayOutputStream getPdfFaktura(Integer nr, String kundnr) throws DocumentException, IOException;
+
+	TableKundkontakt getTableKundkontakt(Integer kontaktid);
+
+	TableKundlogin getTableKundlogin(String loginnamn);
 
 }
