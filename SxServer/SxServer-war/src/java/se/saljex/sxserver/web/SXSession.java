@@ -16,13 +16,21 @@ public class SXSession {
 	
 	
 	private boolean inloggad = false;
-	private String anvandare = null;
+
+	private String intraAnvandare = null;
 	private String intraAnvandareKort = null;
-	private String kundnr = null;
+
 	private String levnr = null;
-	private String kundnamn = null;
 	private String levnamn = null;
+
+	private String kundnr = null;
+	private String kundnamn = null;
+	private String kundKontaktNamn = null;
+	private Integer kundKontaktId = null;
+	private String kundLoginNamn = null;
+
 	private Integer inkopInloggatBestNr = null;
+
 	private boolean superuser = false;
 	private boolean adminuser = false;
 	private boolean intrauser = false;
@@ -33,7 +41,7 @@ public class SXSession {
 	
 	public boolean checkBehorighetKund() {
 		if (inloggad) {
-			if (kundnr != null) return true;
+			if (kundLoginNamn != null) return true;
 			if (superuser || adminuser || intrauser) return true;
 		}
 		return false;
@@ -62,16 +70,16 @@ public class SXSession {
 		this.inloggad = inloggad;
 	}
 	
-	public String getAnvandare() {
-		return anvandare;
+	public String getIntraAnvandare() {
+		return intraAnvandare;
 	}
 
 	public String getIntraAnvandareKort() {
 		return intraAnvandareKort;
 	}
 	
-	public void setAnvandare(String anvandare) {
-		this.anvandare = anvandare;
+	public void setIntraAnvandare(String anvandare) {
+		this.intraAnvandare = anvandare;
 	}
 
 	public void setIntraAnvandareKort(String intraAnvandareKort) {
@@ -84,6 +92,30 @@ public class SXSession {
 	
 	public void setKundnr(String kundnr) {
 		this.kundnr = kundnr;
+	}
+
+	public Integer getKundKontaktId() {
+		return kundKontaktId;
+	}
+
+	public void setKundKontaktId(Integer kundKontaktId) {
+		this.kundKontaktId = kundKontaktId;
+	}
+
+	public String getKundKontaktNamn() {
+		return kundKontaktNamn;
+	}
+
+	public void setKundKontaktNamn(String kundKontaktNamn) {
+		this.kundKontaktNamn = kundKontaktNamn;
+	}
+
+	public String getKundLoginNamn() {
+		return kundLoginNamn;
+	}
+
+	public void setKundLoginNamn(String kundLoginNamn) {
+		this.kundLoginNamn = kundLoginNamn;
 	}
 
 	public String getLevnr() {

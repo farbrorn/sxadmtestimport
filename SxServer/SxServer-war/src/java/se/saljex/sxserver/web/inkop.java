@@ -13,6 +13,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.ParseException;
 import java.util.ArrayList;
 import javax.annotation.Resource;
@@ -71,7 +72,13 @@ public class inkop extends HttpServlet {
 		try { bnr = Integer.parseInt(request.getParameter("bnr")); } catch (Exception e) {}
 		try { skd = Integer.parseInt(request.getParameter("skd")); } catch (Exception e) {}
 		
-		try {	con = sxadm.getConnection(); } catch (SQLException e) { SXUtil.log(e.toString());}
+		try {	
+			con = sxadm.getConnection(); 
+		} catch (SQLException se) { 
+			SXUtil.log(se.toString()); se.printStackTrace();
+			throw new ServletException("Fel vid kommunikation med databasen."); 
+		}
+		
 		loginForm = new LoginForm();
 		loginForm.setBnr(request.getParameter("bnr"));
 		
@@ -83,19 +90,17 @@ public class inkop extends HttpServlet {
 			}
 		} catch (com.lowagie.text.DocumentException ep) { 
 			SXUtil.log(ep.toString()); ep.printStackTrace();
-			throw new ServletException("<b>Ett oväntat undantagsfel uppstod - fel vid skapande av pdf</b>"); 
+			throw new ServletException("Fel vid skapande av pdf"); 
 		} catch (SQLException se) { 
-			SXUtil.log(se.toString()); se.printStackTrace();
-			throw new ServletException("<b>Ett oväntat undantagsfel uppstod - fel vid kommunikation med databasen.</b>"); 
 		} catch (IOException ie) { 
 			SXUtil.log(ie.toString()); ie.printStackTrace();
-			throw new ServletException("<b>Ett oväntat undantagsfel uppstod - IOException.</b>"); 
+			throw new ServletException("IOException."); 
 		} finally {
 			loginForm = null;
 			try { bestForm.be1.close(); } catch (Exception e) {}
 			try { out.close();	 } catch (Exception e) {}
 			try { outStream.close();	 } catch (Exception e) {}			
-			try { con.close();} catch (SQLException e ){}			
+			try { con.close();} catch (SQLException e ){}	
 		}
 	}	
 		
@@ -106,17 +111,10 @@ public class inkop extends HttpServlet {
 				if (!login()) { throw  new ServletException("Inte inloggad" ); }
 				bnr = sxSession.getInkopInloggatBestNr();		///// Göres om!! ***********************************
 				
-				ByteArrayOutputStream bs = LocalWebSupportBean.getPdfBest(bnr);
-				response.setHeader("Expires", "0");
-				response.setHeader("Cache-Control", "must-revalidate, post-check=0, pre-check=0");
-				response.setHeader("Pragma", "public");
-				response.setContentType("application/pdf");
-				response.setContentLength(bs.size()); 
-				bs.writeTo(outStream);
-				outStream.flush();
+				WebUtil.sendPdf(LocalWebSupportBean.getPdfBest(bnr), outStream, response);
+					
 			} 
 	}
-				
 
 	private void handleId(String id) throws IOException, ServletException, SQLException{	
 			this.out = response.getWriter();
@@ -126,13 +124,13 @@ public class inkop extends HttpServlet {
 			if (id.equals("0") || id.equals("logout")) {
 				sxSession.setInkopInloggatBestNr(bnr);
 				printLogin();
-/*	PageListBest1 p = new PageListBest1(sxadm);
+	PageListBest1 p = new PageListBest1(con);
 	p.getPage(1);
 	while (p.next()) {
-		out.print("<br/>" + p.getBestnr() + "-" + p.getSakerhetskod() + "<br/>");
+		out.print("<br/><a href=\"?bnr="+ p.getBestnr() +"&skd="+p.getSakerhetskod()+"\">" + p.getBestnr() + "-" + p.getSakerhetskod() + "</a>");
 	} 
-	p.close();
-*/
+//	p.close();
+
 			} else if (id.equals("1")) {
 				if (!login()) {
 					printLogin();				
@@ -165,13 +163,13 @@ public class inkop extends HttpServlet {
 private boolean login() throws SQLException {
 	try {
 		if (skd != null && bnr != null)  {
-			bestForm = new BestForm(sxadm, bnr, skd);
+			bestForm = new BestForm(con, bnr, skd);
 			this.setBestMottagen();
 			
 			sxSession.setInkopInloggatBestNr(bnr);
 		} else {
 			if (sxSession.getInkopInloggatBestNr() == null) return false;
-			bestForm = new BestForm(sxadm, sxSession.getInkopInloggatBestNr());
+			bestForm = new BestForm(con, sxSession.getInkopInloggatBestNr());
 		}
 	} catch (SXEntityNotFoundException e) {
 		sxSession.setInkopInloggatBestNr(null);
@@ -254,10 +252,21 @@ private void insertBesthand(String handelse) throws SQLException {
 }
 
 private void setBestMottagen() throws SQLException{
-	PreparedStatement s;
-	s = con.prepareStatement("update best1 set status=? where bestnr = " + bnr);
-	s.setString(1, SXConstant.BEST_STATUS_MOTTAGEN);
-	if (s.executeUpdate() < 1) { throw new SQLException("Hittar inte beställning " + bnr + " vid update status"); }
+	con.setAutoCommit(false);
+	try {
+		PreparedStatement s;
+		s = con.prepareStatement("update best1 set status=? where bestnr = " + bnr);
+		s.setString(1, SXConstant.BEST_STATUS_MOTTAGEN);
+		if (s.executeUpdate() < 1) { throw new SQLException("Hittar inte beställning " + bnr + " vid update status"); }
+		insertBesthand(SXConstant.BEST_STATUS_MOTTAGEN);
+		con.commit();
+	} catch (Exception e) { 
+		con.rollback();
+		throw new SQLException(e.toString());
+	} finally {
+		con.setAutoCommit(true);
+	}
+	
 }
 
 
@@ -328,15 +337,15 @@ private void printFooter()  throws ServletException, IOException {
 		private String formBekrdatErr = "";
 		public ArrayList<BestFormRad> rader = new ArrayList();
 		
-		public BestForm(DataSource ds, Integer bnr) throws SQLException, SXEntityNotFoundException {
-			be1 = new PageListBest1(ds, bnr);
-			loadBest(ds, bnr);
+		public BestForm(Connection con, Integer bnr) throws SQLException, SXEntityNotFoundException {
+			be1 = new PageListBest1(con, bnr);
+			loadBest(con, bnr);
 		}
-		public BestForm(DataSource ds, Integer bnr, Integer skd) throws SQLException, SXEntityNotFoundException, SXSecurityException	{
+		public BestForm(Connection con, Integer bnr, Integer skd) throws SQLException, SXEntityNotFoundException, SXSecurityException	{
 			int antalFelinloggningar;
-			be1 = new PageListBest1(ds, bnr, skd);
+			be1 = new PageListBest1(con, bnr, skd);
 			try { 
-				loadBest(ds, bnr);
+				loadBest(con, bnr);
 				antalFelinloggningar = SXUtil.noNull(be1.getAntalfelinloggningar());
 			
 				if (antalFelinloggningar > 5) {
@@ -348,12 +357,12 @@ private void printFooter()  throws ServletException, IOException {
 				// Antingen finns inte beställningen, eller så är fel kod inslagen
 				// Vi provar genom att göra en ny pagelist be1 utan säkerhetskod
 				try { be1.close(); } catch (Exception e2) {}
-				be1 = new PageListBest1(ds, bnr);
+				be1 = new PageListBest1(con, bnr);
 				if (be1.next()) {
 					// Beställningsnumret fanns, då vet vi att fel kod var angiven
 					antalFelinloggningar = SXUtil.noNull(be1.getAntalfelinloggningar());
 					antalFelinloggningar++;
-					ds.getConnection().prepareStatement("update best1 set antalfelinloggningar = " + antalFelinloggningar + " where bestnr = " + bnr).executeUpdate();
+					con.prepareStatement("update best1 set antalfelinloggningar = " + antalFelinloggningar + " where bestnr = " + bnr).executeUpdate();
 					insertBesthand(SXConstant.BESTHAND_FELINLOGGNING);
 				}
 				try { be1.close(); } catch (Exception e2) {}
@@ -362,12 +371,12 @@ private void printFooter()  throws ServletException, IOException {
 			}
 		}
 		
-		private void loadBest(DataSource ds, Integer bnr) throws SQLException, SXEntityNotFoundException {
+		private void loadBest(Connection con, Integer bnr) throws SQLException, SXEntityNotFoundException {
 			BestFormRad b;
 			be1.getPage(1);
 			if (be1.next()) { //Vi har en träff,
 				this.formBekrdat = SXUtil.getFormatDate(be1.getBekrdat());
-				be2 = new PageListBest2(ds,bnr); 
+				be2 = new PageListBest2(con,bnr); 
 				try {
 					be2.getPage(0);
 					if (SXConstant.BEST_STATUS_MOTTAGEN.equals(be1.getStatus())) mottagen = true;
@@ -387,9 +396,9 @@ private void printFooter()  throws ServletException, IOException {
 						rader.add(b);	
 						b.formBekrdat = SXUtil.getFormatDate(be2.getBekrdat());
 						if (be2.getBekrdat() != null) levDatumBekraftat = true;
+						PreparedStatement stmt = null;
 						try {
-							Connection con = ds.getConnection();
-							PreparedStatement stmt = con.prepareStatement("select b.namn, c.tel, c.email from stjarnrad a left outer join saljare b on (b.forkortning = a.anvandare) left outer join lagerid c on (c.lagernr = b.lagernr) where a.stjid = " + be2.getStjid());
+							stmt = con.prepareStatement("select b.namn, c.tel, c.email from stjarnrad a left outer join saljare b on (b.forkortning = a.anvandare) left outer join lagerid c on (c.lagernr = b.lagernr) where a.stjid = " + be2.getStjid());
 							ResultSet res = stmt.executeQuery();
 							if (res.next()) {
 								b.stjSaljare = res.getString(1);
@@ -397,7 +406,7 @@ private void printFooter()  throws ServletException, IOException {
 								b.stjSaljareEpost = res.getString(3);
 							}
 						} finally {
-							try { con.close(); } catch (Exception e) {}
+							try { stmt.close(); } catch (Exception e) {}
 						}
 						
 					}

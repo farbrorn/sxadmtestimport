@@ -5,9 +5,9 @@
 
 package se.saljex.sxserver.web;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Date;
-import javax.sql.DataSource;
 import se.saljex.sxserver.SXUtil;
 
 /**
@@ -18,8 +18,8 @@ public class PageListBetjour extends PageList {
 private String kundnr;
 private Date tidat;
 
-	public PageListBetjour(DataSource ds, String kundnr) throws SQLException{
-		super(ds);
+	public PageListBetjour(Connection con, String kundnr) throws SQLException{
+		super(con);
 		super.setPageSize(40);
 		this.kundnr = kundnr;
 		setTidat((Date)null);
@@ -61,17 +61,9 @@ private Date tidat;
 		} catch (SQLException sqe) { SXUtil.log("Exception i getPage" + sqe.toString()); }
 	}	
 
-	public Integer getFaktnr() {
-		return (Integer)super.getColumn(1);
-	}
-	public Date getBetdat() {
-		return (java.util.Date)super.getColumn(2);
-	}
-	public String getBetsatt() {
-		return (String)super.getColumn(3);
-	}
-	public Double getBet() {
-		return (Double)super.getColumn(4);
-	}
+	public Integer getFaktnr() {	return super.getIntColumn(1);	}
+	public Date getBetdat() {		return (java.util.Date)super.getDateColumn(2);	}
+	public String getBetsatt() {	return super.getStringColumn(3);	}
+	public Double getBet() {		return super.getDoubleColumn(4);	}
 	
 }

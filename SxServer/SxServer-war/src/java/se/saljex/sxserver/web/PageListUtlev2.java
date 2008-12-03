@@ -5,8 +5,8 @@
 
 package se.saljex.sxserver.web;
 
+import java.sql.Connection;
 import java.sql.SQLException;
-import javax.sql.DataSource;
 import se.saljex.sxserver.SXUtil;
 
 /**
@@ -17,8 +17,8 @@ public class PageListUtlev2 extends PageList {
 private int ordernr;
 private String kundnr;
 
-	public PageListUtlev2(DataSource ds, String kundnr, int ordernr) throws SQLException{
-		super(ds);
+	public PageListUtlev2(Connection con, String kundnr, int ordernr) throws SQLException{
+		super(con);
 		super.setPageSize(0);
 		this.ordernr = ordernr;
 		this.kundnr = kundnr;
@@ -36,32 +36,14 @@ private String kundnr;
 		} catch (SQLException sqe) { SXUtil.log("Exception i getPage" + sqe.toString()); }
 	}	
 
-	public Integer getFaktnr() {
-		return (Integer)super.getColumn(1);
-	}
-	public java.util.Date getFa1Datum() {
-		return (java.util.Date)super.getColumn(2);
-	}
-	public String getArtnr() {
-		return (String)super.getColumn(3);
-	}
-	public String getNamn() {
-		return (String)super.getColumn(4);
-	}
-	public Double getLev() {
-		return (Double)super.getColumn(5);
-	}
-	public String getEnh() {
-		return (String)super.getColumn(6);
-	}
-	public Double getPris() {
-		return (Double)super.getColumn(7);
-	}
-	public Double getRab() {
-		return (Double)super.getColumn(8);
-	}
-	public Double getSumma() {
-		return (Double)super.getColumn(9);
-	}
+	public Integer getFaktnr() {				return super.getIntColumn(1);	}
+	public java.util.Date getFa1Datum() {	return super.getDateColumn(2);	}
+	public String getArtnr() {		return super.getStringColumn(3);	}
+	public String getNamn() {		return super.getStringColumn(4);	}
+	public Double getLev() {		return super.getDoubleColumn(5);	}
+	public String getEnh() {		return super.getStringColumn(6);	}
+	public Double getPris() {		return super.getDoubleColumn(7);	}
+	public Double getRab() {		return super.getDoubleColumn(8);	}
+	public Double getSumma() {		return super.getDoubleColumn(9);	}
 	
 }

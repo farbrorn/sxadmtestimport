@@ -5,11 +5,11 @@
 
 package se.saljex.sxserver.web;
 
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import javax.servlet.http.HttpServletRequest;
-import javax.sql.DataSource;
 import se.saljex.sxserver.SXUtil;
 
 /**
@@ -21,8 +21,8 @@ public class RappHTML extends RappHandler {
 	private HttpServletRequest request;
 	private int antalColumns;		//Antal columner som finns i tabellen
 	
-	public RappHTML(DataSource ds, HttpServletRequest request) throws SQLException {
-		super(ds);
+	public RappHTML(Connection con, HttpServletRequest request) throws SQLException {
+		super(con);
 		this.request = request;
 	}
 	

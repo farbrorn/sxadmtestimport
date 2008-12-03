@@ -3,6 +3,14 @@
 
 <% 
 SXSession sxSession = WebUtil.getSXSession(session);
+String anv = "";
+if (sxSession.getKundLoginNamn() != null) {
+	anv = sxSession.getKundKontaktNamn() + ", " + sxSession.getKundnamn();
+} else if (sxSession.getLevnr() != null) {
+	anv = sxSession.getLevnamn();
+} else if (sxSession.getIntraAnvandare() != null) {
+	anv = sxSession.getIntraAnvandare();
+}
 %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
                "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -20,17 +28,19 @@ SXSession sxSession = WebUtil.getSXSession(session);
 	<body>
 		<div id="container">
 			 <div id="siteheader">
-				  <ul><li>
-				  <a href="/">Säljex AB</a>
-				</li><li>
-					<% 
+				<ul>
+				 <li><a href="/">Säljex AB</a></li>
+				 <li>
+					<%
 					if (sxSession.getInloggad()) {
-					 %> Inloggad som: <span id="siteanvandare"><%= sxSession.getAnvandare() %></span><span id="sitekundnamn"><%= sxSession.getKundnamn() %></span> <%
-					} else {
-					  %> <a href="login">Logga in</a> <%
-					} 
+					 %> <a href="login?action=logout">Logga ut</a>&nbsp;<span id="siteanvandare">Inloggad som: <%= anv %></span> <%
+					}
 					%>
-				 </li><li>Kund</li><li>lev</li><li>internt</li>
+
+				 </li>
+				 <li><a href="kund">Kund</a></li>
+				 <li>Leverantör</li>
+				 <li><a href="intra">Internt</a></li>
 			  </ul>
-				  
+				
 			 </div>

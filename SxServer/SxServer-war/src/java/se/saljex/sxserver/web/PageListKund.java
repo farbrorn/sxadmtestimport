@@ -5,8 +5,8 @@
 
 package se.saljex.sxserver.web;
 
+import java.sql.Connection;
 import java.sql.SQLException;
-import javax.sql.DataSource;
 import se.saljex.sxserver.SXUtil;
 
 /**
@@ -16,8 +16,8 @@ import se.saljex.sxserver.SXUtil;
 public class PageListKund extends PageList{
 private String sokStr;
 
-	public PageListKund(DataSource ds, String sokStr) throws SQLException{
-		super(ds);
+	public PageListKund(Connection con, String sokStr) throws SQLException{
+		super(con);
 		super.setPageSize(40);
 		this.sokStr = sokStr;
 	}
@@ -45,32 +45,14 @@ private String sokStr;
 		} catch (SQLException sqe) { SXUtil.log("Exception i getPage" + sqe.toString()); }
 	}	
 
-	public String getNummer() {
-		return (String)super.getColumn(1);
-	}
-	public String getNamn() {
-		return (String)super.getColumn(2);
-	}
-	public String getAdr1() {
-		return (String)super.getColumn(3);
-	}
-	public String getAdr2() {
-		return (String)super.getColumn(4);
-	}
-	public String getAdr3() {
-		return (String)super.getColumn(5);
-	}
-	public String getTel() {
-		return (String)super.getColumn(6);
-	}
-	public String getBiltel() {
-		return (String)super.getColumn(7);
-	}
-	public String getEmail() {
-		return (String)super.getColumn(8);
-	}
-	public String getRef() {
-		return (String)super.getColumn(9);
-	}
+	public String getNummer() {	return super.getStringColumn(1);	}
+	public String getNamn() {		return super.getStringColumn(2);	}
+	public String getAdr1() {		return super.getStringColumn(3);	}
+	public String getAdr2() {		return super.getStringColumn(4);	}
+	public String getAdr3() {		return super.getStringColumn(5);	}
+	public String getTel() {		return super.getStringColumn(6);	}
+	public String getBiltel() {	return super.getStringColumn(7);	}
+	public String getEmail() {		return super.getStringColumn(8);	}
+	public String getRef() {		return super.getStringColumn(9);	}
 	
 }

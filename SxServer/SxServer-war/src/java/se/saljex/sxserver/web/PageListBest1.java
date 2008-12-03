@@ -5,6 +5,8 @@
 
 package se.saljex.sxserver.web;
 
+import com.sun.crypto.provider.RSACipher;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Date;
 import javax.sql.DataSource;
@@ -20,22 +22,22 @@ private Integer bestnrFilter = null;
 private Integer sakerhetskodFilter = null;
 private String orderByStr;
 
-	public PageListBest1(DataSource ds) throws SQLException{
-		super(ds);
+	public PageListBest1(Connection con) throws SQLException{
+		super(con);
 		super.setPageSize(0);
 		setOrderByBestnr();
 	}
 	
-	public PageListBest1(DataSource ds, String levnr) throws SQLException{
-		this(ds);
+	public PageListBest1(Connection con, String levnr) throws SQLException{
+		this(con);
 		this.levnrFilter = levnr;
 	}
-	public PageListBest1(DataSource ds, Integer bestnr) throws SQLException{
-		this(ds);
+	public PageListBest1(Connection con, Integer bestnr) throws SQLException{
+		this(con);
 		this.bestnrFilter = bestnr;
 	}
-	public PageListBest1(DataSource ds, Integer bestnr, Integer sakerhetskod) throws SQLException{
-		this(ds);
+	public PageListBest1(Connection con, Integer bestnr, Integer sakerhetskod) throws SQLException{
+		this(con);
 		this.bestnrFilter = bestnr;
 		this.sakerhetskodFilter = sakerhetskod;
 	}
@@ -66,20 +68,20 @@ private String orderByStr;
 		} catch (SQLException sqe) { SXUtil.log("Exception i getPage" + sqe.toString()); }
 	}	
 
-	public Integer getBestnr() { return (Integer)super.getColumn(1);	}
-	public Date getDatum()		{ return (java.util.Date)super.getColumn(2);	}
-	public String getLevnr()	{ return (String)super.getColumn(3);	}
-	public String getLevadr0() { return (String)super.getColumn(4);	}
-	public String getLevadr1() { return (String)super.getColumn(5);	}
-	public String getLevadr2() { return (String)super.getColumn(6);	}
-	public String getLevadr3() { return (String)super.getColumn(7);	}
-	public String getVarRef()	{ return (String)super.getColumn(8);	}
-	public String getErRef()	{ return (String)super.getColumn(9);	}
-	public String getLeverans(){ return (String)super.getColumn(10);	}
-	public String getMarke()	{ return (String)super.getColumn(11);	}
-	public Date getBekrdat()	{ return (java.util.Date)super.getColumn(12);	}
-	public String getStatus()	{ return (String)super.getColumn(13);	}
-	public String getMeddelande()	{ return (String)super.getColumn(14);	}
-	public Integer getSakerhetskod()	{ return (Integer)super.getColumn(15);	}
-	public Integer getAntalfelinloggningar()	{ return (Integer)super.getColumn(16);	}
+	public Integer getBestnr() { return super.getIntColumn(1);	}
+	public Date getDatum()		{ return super.getDateColumn(2);	}
+	public String getLevnr()	{ return super.getStringColumn(3);	}
+	public String getLevadr0() { return super.getStringColumn(4);	}
+	public String getLevadr1() { return super.getStringColumn(5);	}
+	public String getLevadr2() { return super.getStringColumn(6);	}
+	public String getLevadr3() { return super.getStringColumn(7);	}
+	public String getVarRef()	{ return super.getStringColumn(8);	}
+	public String getErRef()	{ return super.getStringColumn(9);	}
+	public String getLeverans(){ return super.getStringColumn(10);	}
+	public String getMarke()	{ return super.getStringColumn(11);	}
+	public Date getBekrdat()	{ return super.getDateColumn(12);	}
+	public String getStatus()	{ return super.getStringColumn(13);	}
+	public String getMeddelande()	{ return super.getStringColumn(14);	}
+	public Integer getSakerhetskod()	{ return super.getIntColumn(15);	}
+	public Integer getAntalfelinloggningar()	{ return super.getIntColumn(16);	}
 }

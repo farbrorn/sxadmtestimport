@@ -71,27 +71,27 @@ public class rapp extends HttpServlet {
 		catch (IndexOutOfBoundsException e) { out.println("Felaktig rappsession. Möjligen har sessionen utgått pga timeout."); return; }
 
 		
-		// Två rader som fixaar automatisk inloggning för test
-		if (!sxSession.getInloggad()) {
-			sxSession.setInloggad(true);
-			sxSession.setKundnr("0555");
-			sxSession.setKundnamn("Grums rör");
-			sxSession.setAnvandare("Lokalnvändare");
-			sxSession.setIntrauser(true);
-			sxSession.setIntraAnvandareKort("UB");
-		}
-		
-		if (!sxSession.getInloggad()) {
-			response.setStatus(response.SC_MOVED_TEMPORARILY);
-			response.setHeader("Location", "login?refpage=rapp");
-			return;
-		} 
-		if (!sxSession.checkIntraBehorighetRapp()) {
-			out.println("Ingen behörighet");
-			return;
-		}
-		
 		try {
+			// Två rader som fixaar automatisk inloggning för test
+			if (!sxSession.getInloggad()) {
+				sxSession.setInloggad(true);
+				sxSession.setKundnr("0555");
+				sxSession.setKundnamn("Grums rör");
+				sxSession.setIntraAnvandare("Lokalnvändare");
+				sxSession.setIntrauser(true);
+				sxSession.setIntraAnvandareKort("UB");
+			}
+
+			if (!sxSession.getInloggad()) {
+				response.setStatus(response.SC_MOVED_TEMPORARILY);
+				response.setHeader("Location", "login?refpage=rapp");
+				return;
+			} 
+			if (!sxSession.checkIntraBehorighetRapp()) {
+				out.println("Ingen behörighet");
+				return;
+			}
+		
 			if (get != null) {			//Vi har en get-request som bara skickar en del av sidan
 				if (get.equals("viewrapp")) {
 					printRapp("", sxSession.getIntraAnvandareKort(), rappId);
@@ -231,8 +231,8 @@ public class rapp extends HttpServlet {
 				printFooter();
 			}
 		} finally { 
-			out.close();
-			try {con.close();} catch (SQLException e ){}
+			try { out.close(); } catch (Exception e ){} 
+			try {con.close();} catch (Exception e ){}
 		}
  } 
 
@@ -251,7 +251,7 @@ private void printFooter()  throws ServletException, IOException {
 private void printRappInput(String divInfo, String anvandareKort, int rappId) throws ServletException, IOException{
 		if (anvandareKort != null) {
 			try {
-				RappHTML rh = new RappHTML(sxadm, request);
+				RappHTML rh = new RappHTML(con, request);
 				out.println(rh.printHTMLInputForm(rappId));
 			} catch (SQLException e) { SXUtil.log("Undantag vid rapport:" + e.toString()); out.println("Undantag vid rapport: " + e.toString()); }
 		}
@@ -260,7 +260,7 @@ private void printRapp(String divInfo, String anvandareKort, int rappId) throws 
 		request.getRequestDispatcher("/WEB-INF/jspf/rapp/rappheadervisa.jsp").include(request, response);
 		if (anvandareKort != null) {
 			try {
-				RappHTML rh = new RappHTML(sxadm, request);
+				RappHTML rh = new RappHTML(con, request);
 				rh.prepareFromSQLRepository(rappId);
 				out.println(rh.print());
 			} catch (SQLException e) { SXUtil.log("Undantag vid rapport:" + e.toString()); response.getWriter().println("Undantag vid rapport: " + e.toString()); }
@@ -270,7 +270,7 @@ private void printRapp(String divInfo, String anvandareKort, int rappId) throws 
 
 	private void printRappHuvudList(String divInfo) throws ServletException, IOException{
 		try {
-			RappHTML r = new RappHTML(sxadm, request);
+			RappHTML r = new RappHTML(con, request);
 			ArrayList<RappHTML.RappHuvudList> rl = r.getRappHuvudList();
 			request.setAttribute("divinfo", divInfo);
 			request.setAttribute("rapphuvudlist", rl);

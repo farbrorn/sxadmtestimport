@@ -9,7 +9,9 @@
 LoginFormData f = (LoginFormData)request.getAttribute("loginformdata");
 if (f == null) { f = new LoginFormData(); }
 String refPage = request.getParameter("refpage");
-if (refPage == null) { refPage = ""; } else { refPage = "?refpage=" + refPage; }
+if (refPage == null) { refPage = "kund"; }
+String loginType = request.getParameter("logintype");
+if (loginType == null) { loginType = "kund"; }
 			  
 SXSession sxSession = WebUtil.getSXSession(session);
 request.getRequestDispatcher("/WEB-INF/jspf/siteheader.jsp").include(request, response);
@@ -17,10 +19,12 @@ request.getRequestDispatcher("/WEB-INF/jspf/siteheader.jsp").include(request, re
 	<div id="body">
 	  <div id="midbar">
 		<h2>Logga in</h2>
-		<form name="loginfr" action="login<%= refPage %>" method="POST">
-			Kundnr: <input type="text" name="kundnr" value="<%= f.kundnr %>" size="20" />
-			<div id="errtext"><%= f.kundnrErr %></div>
-			<input type="submit" value="Login" name="loginbt" />
+		<form name="loginfr" action="login?refPage=<%= refPage %>&logintype=<%= loginType %>" method="POST">
+			<table>
+				<tr><td>Användare</td><td><input type="text" name="anvandare" value="<%= f.anvandare %>" size="20" /></td><td><span id="errtext"><%= f.anvandareErr %></span></td></tr>
+				<tr><td>Lösen</td><td><input type="text" name="losen" value="" size="20" /></td><td></td></tr>
+				<tr><td colspan="3"><input type="submit" value="Login" name="loginbt" /></td></tr>
+			</table>
 		</form>
 	 </div>
   </div>
