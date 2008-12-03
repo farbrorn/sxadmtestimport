@@ -5,6 +5,7 @@
 
 package se.saljex.sxserver.web;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Date;
 import javax.sql.DataSource;
@@ -18,14 +19,14 @@ public class PageListBest2 extends PageList {
 private Integer bestnrFilter = null;
 private String orderByStr;
 
-	public PageListBest2(DataSource ds) throws SQLException{
-		super(ds);
+	public PageListBest2(Connection con) throws SQLException{
+		super(con);
 		super.setPageSize(0);
 		setOrderByBestnr();
 	}
 	
-	public PageListBest2(DataSource ds, Integer bestnr) throws SQLException{
-		this(ds);
+	public PageListBest2(Connection con, Integer bestnr) throws SQLException{
+		this(con);
 		this.bestnrFilter = bestnr;
 	}
 	
@@ -48,15 +49,15 @@ private String orderByStr;
 		} catch (SQLException sqe) { SXUtil.log("Exception i getPage" + sqe.toString()); }
 	}	
 
-	public Integer getBestnr() { return (Integer)super.getColumn(1);	}
-	public Integer getRad()		{ return (Integer)super.getColumn(2);	}
-	public String getEnh()		{ return (String)super.getColumn(3);	}
-	public String getArtnr()	{ return (String)super.getColumn(4);	}
-	public String getArtnamn() { return (String)super.getColumn(5);	}
-	public String getBartnr() { return (String)super.getColumn(6);	}
-	public Double getBest()		{ return (Double)super.getColumn(7);	}
-	public Double getPris()		{ return (Double)super.getColumn(8);	}
-	public Double getRab()		{ return (Double)super.getColumn(9);	}
-	public Date getBekrdat()	{ return (java.util.Date)super.getColumn(10);	}
-	public Integer getStjid()		{ return (Integer)super.getColumn(11);	}	
+	public Integer getBestnr() { return super.getIntColumn(1);	}
+	public Integer getRad()		{ return super.getIntColumn(2);	}
+	public String getEnh()		{ return super.getStringColumn(3);	}
+	public String getArtnr()	{ return super.getStringColumn(4);	}
+	public String getArtnamn() { return super.getStringColumn(5);	}
+	public String getBartnr() { return super.getStringColumn(6);	}
+	public Double getBest()		{ return super.getDoubleColumn(7);	}
+	public Double getPris()		{ return super.getDoubleColumn(8);	}
+	public Double getRab()		{ return super.getDoubleColumn(9);	}
+	public Date getBekrdat()	{ return super.getDateColumn(10);	}
+	public Integer getStjid()		{ return super.getIntColumn(11);	}	
 }

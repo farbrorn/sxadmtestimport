@@ -49,64 +49,67 @@ public class RappEdit {
 		Statement s;
 		ResultSet rs;
 		s = con.createStatement();
-		
-		rs = s.executeQuery("select behorighet, kategori, undergrupp,kortbeskrivning, reportrubrik, sqlfrom, isdistinct, crtime from rapphuvud where rappid = " + rappId);
-		if (rs.next()) {
-			huvud.behorighet = rs.getString(1);
-			huvud.kategori = rs.getString(2);
-			huvud.undergrupp = rs.getString(3);
-			huvud.kortbeskrivning = rs.getString(4);
-			huvud.reportrubrik = rs.getString(5);
-			huvud.sqlfrom = rs.getString(6);
-			huvud.isdistinct = rs.getInt(7) != 0;
-			huvud.crtime = rs.getTimestamp(8);
-			huvud.toFormData();
-			
-			rs = s.executeQuery("select col, sqllabel, label, groupby, decimaler, hidden, groupbyheadertext, groupbyfootertext from rappcolumns where rappid = " + rappId + " order by col");
-			while(rs.next()) {
-				RappColumn c = new RappColumn(rappSession);
-				c.sortOrder = rs.getInt(1);
-				c.sqlLabel = rs.getString(2);
-				c.label = rs.getString(3);
-				c.groupby = rs.getInt(4) != 0;
-				c.decimaler = rs.getInt(5);
-				c.hidden = rs.getInt(6) != 0;
-				c.groupbyheadertext = rs.getString(7);
-				c.groupbyfootertext = rs.getString(8);
-				c.toFormData();
-				arrColumn.add(c);
-			}
-			
-			rs = s.executeQuery("select wherepos, javatype, name, label, hidden, defaultvalue from rappprops where type = 'Filter' and rappid = " + rappId + " order by wherepos");
-			while(rs.next()) {
-				RappFilter f = new RappFilter(rappSession);
-				f.wherepos = rs.getInt(1);
-				f.javatype = rs.getString(2);
-				f.name = rs.getString(3);
-				f.label = rs.getString(4);
-				f.hidden = rs.getInt(5) != 0;
-				f.defaultvalue = rs.getString(6);
-				f.toFormData();
-				arrFilter.add(f);
-			}
 
-			rs = s.executeQuery("select sumcolumn, resetcolumn, sumtype, sumtext from rappprops where type = 'Sum' and rappid = " + rappId + " order by rad");
-			while(rs.next()) {
-				RappSum sum = new RappSum(rappSession);
-				sum.sumcolumn = rs.getInt(1);
-				sum.resetcolumn = rs.getInt(2);
-				sum.sumtype = rs.getString(3);
-				sum.sumtext = rs.getString(4);
-				sum.toFormData();
-				arrSum.add(sum);
+		try {
+			rs = s.executeQuery("select behorighet, kategori, undergrupp,kortbeskrivning, reportrubrik, sqlfrom, isdistinct, crtime from rapphuvud where rappid = " + rappId);
+			if (rs.next()) {
+				huvud.behorighet = rs.getString(1);
+				huvud.kategori = rs.getString(2);
+				huvud.undergrupp = rs.getString(3);
+				huvud.kortbeskrivning = rs.getString(4);
+				huvud.reportrubrik = rs.getString(5);
+				huvud.sqlfrom = rs.getString(6);
+				huvud.isdistinct = rs.getInt(7) != 0;
+				huvud.crtime = rs.getTimestamp(8);
+				huvud.toFormData();
+
+				rs = s.executeQuery("select col, sqllabel, label, groupby, decimaler, hidden, groupbyheadertext, groupbyfootertext from rappcolumns where rappid = " + rappId + " order by col");
+				while(rs.next()) {
+					RappColumn c = new RappColumn(rappSession);
+					c.sortOrder = rs.getInt(1);
+					c.sqlLabel = rs.getString(2);
+					c.label = rs.getString(3);
+					c.groupby = rs.getInt(4) != 0;
+					c.decimaler = rs.getInt(5);
+					c.hidden = rs.getInt(6) != 0;
+					c.groupbyheadertext = rs.getString(7);
+					c.groupbyfootertext = rs.getString(8);
+					c.toFormData();
+					arrColumn.add(c);
+				}
+
+				rs = s.executeQuery("select wherepos, javatype, name, label, hidden, defaultvalue from rappprops where type = 'Filter' and rappid = " + rappId + " order by wherepos");
+				while(rs.next()) {
+					RappFilter f = new RappFilter(rappSession);
+					f.wherepos = rs.getInt(1);
+					f.javatype = rs.getString(2);
+					f.name = rs.getString(3);
+					f.label = rs.getString(4);
+					f.hidden = rs.getInt(5) != 0;
+					f.defaultvalue = rs.getString(6);
+					f.toFormData();
+					arrFilter.add(f);
+				}
+
+				rs = s.executeQuery("select sumcolumn, resetcolumn, sumtype, sumtext from rappprops where type = 'Sum' and rappid = " + rappId + " order by rad");
+				while(rs.next()) {
+					RappSum sum = new RappSum(rappSession);
+					sum.sumcolumn = rs.getInt(1);
+					sum.resetcolumn = rs.getInt(2);
+					sum.sumtype = rs.getString(3);
+					sum.sumtext = rs.getString(4);
+					sum.toFormData();
+					arrSum.add(sum);
+				}
+				isChanged = false;
+
+			} else {
+				//lastMessage = "Hittar inte rapportid " + rappId;
+				throw new RappException("Felaktigt rappId: " + rappId);
 			}
-			isChanged = false;
-		
-		} else {
-			//lastMessage = "Hittar inte rapportid " + rappId;
-			throw new RappException("Felaktigt rappId: " + rappId);
+		} finally {
+			try { s.close(); } catch (Exception e) {}
 		}
-		s.close();
 	}
 	
 	public void persist(Connection con) throws SQLException,RappException {

@@ -5,12 +5,12 @@
 
 package se.saljex.sxserver.web;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.Date;
-import javax.sql.DataSource;
 import se.saljex.sxserver.SXUtil;
 
 /**
@@ -25,8 +25,8 @@ private Date frdat;
 private Date tidat;
 private String orderByStr;
 
-	public PageListUtlev1(DataSource ds, String kundnr) throws SQLException{
-		super(ds);
+	public PageListUtlev1(Connection con, String kundnr) throws SQLException{
+		super(con);
 		super.setPageSize(40);
 		this.kundnr = kundnr;
 		setOrderByOrdernr();
@@ -127,13 +127,7 @@ private String orderByStr;
 		} catch (SQLException sqe) { SXUtil.log("Exception i getPage" + sqe.toString()); }
 	}	
 
-	public Integer getOrdernr() {
-		return (Integer)super.getColumn(1);
-	}
-	public Date getDatum() {
-		return (java.util.Date)super.getColumn(2);
-	}
-	public String getMarke() {
-		return (String)super.getColumn(3);
-	}
+	public Integer getOrdernr() {	return super.getIntColumn(1);	}
+	public Date getDatum() {		return super.getDateColumn(2);	}
+	public String getMarke() {		return super.getStringColumn(3);	}
 }

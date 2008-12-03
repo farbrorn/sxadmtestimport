@@ -33,7 +33,7 @@ public class status extends HttpServlet {
         try {
 			out.println(SxServerMainBean.getHTMLStatus());
 			
-            /* TODO output your page here
+            /* output your page here
             out.println("<html>");
             out.println("<head>");
             out.println("<title>Servlet status</title>");  

@@ -8,8 +8,8 @@ package se.saljex.sxserver.web;
 import java.io.*;
 import java.net.*;
 
+import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.servlet.*;
@@ -34,10 +34,12 @@ public class intra extends HttpServlet {
 	@Resource(name = "sxadm")
 	private DataSource sxadm;
 	
+	private Connection con;
 	
 	protected void processRequest(HttpServletRequest request, HttpServletResponse response)	throws ServletException, IOException {
-		request.setCharacterEncoding("UTF-8");
-		response.setContentType("text/html;charset=UTF-8");
+		try {	con = sxadm.getConnection(); } catch (SQLException e) { SXUtil.log(e.toString());}
+		//request.setCharacterEncoding("UTF-8");
+		//response.setContentType("text/html;charset=UTF-8");
 		PrintWriter out = response.getWriter();
 		String get = request.getParameter("get");
 		String id = request.getParameter("id");
@@ -47,27 +49,27 @@ public class intra extends HttpServlet {
 		
 		HttpSession session = request.getSession();
 		SXSession sxSession = WebUtil.getSXSession(session);
-		
-		// Två rader som fixaar automatisk inloggning för test
-		if (!sxSession.getInloggad()) {
-			sxSession.setInloggad(true);
-			sxSession.setKundnr("0555");
-			sxSession.setKundnamn("Grums rör");
-			sxSession.setIntraAnvandareKort("UB");
-			sxSession.setIntrauser(true);
-		}
-		
-		if (!sxSession.getInloggad()) {
-			response.setStatus(response.SC_MOVED_TEMPORARILY);
-			response.setHeader("Location", "login?refpage=intra");
-			return;
-		} 
-		if (!sxSession.isIntrauser()) {
-			out.println("Ingen behörighet");
-			return;
-		}
-		
+
 		try {
+			// Två rader som fixaar automatisk inloggning för test
+/*			if (!sxSession.getInloggad()) {
+				sxSession.setInloggad(true);
+				sxSession.setKundnr("0555");
+				sxSession.setKundnamn("Grums rör");
+				sxSession.setIntraAnvandareKort("UB");
+				sxSession.setIntrauser(true);
+			}
+*/
+			if (!sxSession.getInloggad()) {
+				response.setStatus(response.SC_MOVED_TEMPORARILY);
+				response.setHeader("Location", "login?refpage=intra&logintype=intra");
+				return;
+			} 
+			if (!sxSession.isIntrauser()) {
+				out.println("Ingen behörighet");
+				return;
+			}
+
 			if (get != null) {			//Vi har en get-request som bara skickar en del av sidan
 				if (get.equals("faktura")) {
 				} else if (get.equals("order")) {
@@ -92,13 +94,14 @@ public class intra extends HttpServlet {
 				request.getRequestDispatcher("/WEB-INF/jspf/sitefooter.jsp").include(request, response);
 			}
 		} finally { 
-			out.close();
+			try { out.close();	 } catch (Exception e) {}
+			try { con.close();} catch (SQLException e ){}			
 		}
  } 
 
 	private void printKalender(HttpServletRequest request, HttpServletResponse response, String divInfo) throws ServletException, IOException{
 		try {
-			PageListKalender pl = new PageListKalender(sxadm); 
+			PageListKalender pl = new PageListKalender(con); 
 			pl.getPage(1);
 			request.setAttribute("pagelistkalender", pl);
 		} catch (SQLException e) { SXUtil.log("Undantag vid printKalender: " + e.toString()); }
@@ -107,7 +110,7 @@ public class intra extends HttpServlet {
 	}
 	private void printRappTest(HttpServletRequest request, HttpServletResponse response, String divInfo) throws ServletException, IOException{
 		try {
-			RappHTML r = new RappHTML(sxadm, request);
+			RappHTML r = new RappHTML(con, request);
 			response.getWriter().println(r.print());
 		} catch (SQLException e) { SXUtil.log("Undantag vid rapp: " + e.toString()); response.getWriter().println(e.toString());}
 	}

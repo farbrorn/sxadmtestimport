@@ -5,7 +5,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import javax.sql.DataSource;
 import se.saljex.sxserver.SXUtil;
 
 /**
@@ -21,14 +20,13 @@ protected PreparedStatement query;
 private int currentPage;
 private boolean hasMoreRows = true;
 
-	public PageList(DataSource ds) throws SQLException{
-		this.con = ds.getConnection();
+	public PageList(Connection con) throws SQLException{
+		this.con = con;
 	}
 		
 	
 	public void close() throws SQLException{
-		if (rs!=null) rs.close();
-		if (con!=null) con.close();
+		if (query!=null) query.close(); 
 	}
 
 
@@ -61,7 +59,7 @@ private boolean hasMoreRows = true;
 	}
 	
 	public void initSql(String sql) throws SQLException {
-		query =  con.prepareStatement(sql);
+		query =  con.prepareStatement(sql); 
 	}
 	
 	
@@ -97,10 +95,45 @@ private boolean hasMoreRows = true;
 		return ret;
 	}
 	
-	public Object getColumn(int id) {
-		Object ret = null;
+	public Integer getIntColumn(int id) {
+		Integer ret = null;
 		try {
-			ret = rs.getObject(id);
+			ret = rs.getInt(id);
+		} catch (SQLException sqe) {}
+		return ret;
+	}
+	public Double getDoubleColumn(int id) {
+		Double ret = null;
+		try {
+			ret = rs.getDouble(id);
+		} catch (SQLException sqe) {}
+		return ret;
+	}
+	public String getStringColumn(int id) {
+		String ret = null;
+		try {
+			ret = rs.getString(id);
+		} catch (SQLException sqe) {}
+		return ret;
+	}
+	public java.sql.Date getDateColumn(int id) {
+		java.sql.Date ret = null;
+		try {
+			ret = rs.getDate(id); 
+		} catch (SQLException sqe) {}
+		return ret;
+	}
+	public java.sql.Time getTimeColumn(int id) {
+		java.sql.Time ret = null;
+		try {
+			ret = rs.getTime(id);
+		} catch (SQLException sqe) {}
+		return ret;
+	}
+	public java.sql.Timestamp getTimestampColumn(int id) {
+		java.sql.Timestamp ret = null;
+		try {
+			ret = rs.getTimestamp(id);
 		} catch (SQLException sqe) {}
 		return ret;
 	}

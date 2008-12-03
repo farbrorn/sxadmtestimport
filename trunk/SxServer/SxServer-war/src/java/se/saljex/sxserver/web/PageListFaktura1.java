@@ -5,10 +5,9 @@
 
 package se.saljex.sxserver.web;
 
+import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Calendar;
 import java.util.Date;
-import javax.sql.DataSource;
 import se.saljex.sxserver.SXUtil;
 
 /**
@@ -19,8 +18,8 @@ public class PageListFaktura1 extends PageList {
 private String kundnr;
 private Date tidat;
 
-	public PageListFaktura1(DataSource ds, String kundnr) throws SQLException{
-		super(ds);
+	public PageListFaktura1(Connection con, String kundnr) throws SQLException{
+		super(con);
 		super.setPageSize(40);
 		this.kundnr = kundnr;
 		setTidat((Date)null);
@@ -57,23 +56,11 @@ private Date tidat;
 		} catch (SQLException sqe) { SXUtil.log("Exception i getPage" + sqe.toString()); }
 	}	
 
-	public Integer getFaktnr() {
-		return (Integer)super.getColumn(1);
-	}
-	public Date getDatum() {
-		return (java.util.Date)super.getColumn(2);
-	}
-	public String getNamn() {
-		return (String)super.getColumn(3);
-	}
-	public Double getAttbetala() {
-		return (Double)super.getColumn(4);
-	}
-	public Integer getOrdernr() {
-		return (Integer)super.getColumn(5);
-	}
-	public String getMarke() {
-		return (String)super.getColumn(6);
-	}
+	public Integer getFaktnr() {		return super.getIntColumn(1);	}
+	public Date getDatum() {		return super.getDateColumn(2);	}
+	public String getNamn() {		return super.getStringColumn(3);	}
+	public Double getAttbetala() {return super.getDoubleColumn(4);	}
+	public Integer getOrdernr() {	return super.getIntColumn(5);	}
+	public String getMarke() {		return super.getStringColumn(6);	}
 	
 }

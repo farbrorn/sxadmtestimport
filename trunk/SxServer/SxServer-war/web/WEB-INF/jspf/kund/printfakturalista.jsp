@@ -27,6 +27,7 @@ if (pl == null) { out.println("Inga data"); } else { %>
 <table id="doclist">
 	<tr>
 		<th class="tdknapp">Fakturanr</th>
+		<th class="tdknapp">Pdf</th>
 		<th class="tdn12">Fakturanr</th>
 		<th class="tddatum">Datum</th>
 		<th class="tdn16">Belopp</th>
@@ -50,6 +51,7 @@ if (pl.next()) {
 		
 %>
 <td class="tdknapp"><a href="JavaScript:showfaktura(<%= radcn %>,<%= pl.getFaktnr() %>)" name="a<%= radcn %>">Visa</a></td>
+<td class="tdknapp"><a href="?get=pdffaktura&faktnr=<%= pl.getFaktnr() %>" target="_blank">Pdf</a></td>
 <td class="tdn12"><%= pl.getFaktnr() %></td>
 <td class="tddatum"><%= SXUtil.getFormatDate(pl.getDatum()) %></td>
 <td class="tdn16"><%= pl.getAttbetala() %></td>

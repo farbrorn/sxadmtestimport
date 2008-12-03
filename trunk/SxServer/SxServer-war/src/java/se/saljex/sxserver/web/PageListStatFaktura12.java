@@ -1,11 +1,11 @@
 
 package se.saljex.sxserver.web;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.Date;
-import javax.sql.DataSource;
 import se.saljex.sxserver.SXUtil;
 
 /**
@@ -19,8 +19,8 @@ private Date frdat;
 private Date tidat;
 private String artnr;
 
-	public PageListStatFaktura12(DataSource ds, String kundnr, String artnr) throws SQLException{
-		super(ds);
+	public PageListStatFaktura12(Connection con, String kundnr, String artnr) throws SQLException{
+		super(con);
 		super.setPageSize(0);
 		this.kundnr = kundnr;
 		this.artnr = artnr;
@@ -82,29 +82,13 @@ private String artnr;
 	}
 	
 
-	public Integer getFaktnr() {
-		return (Integer)super.getColumn(1);
-	}
-	public java.util.Date getDatum() {
-		return (java.util.Date)super.getColumn(2);
-	}
-	
-	public Double getLev() {
-		return (Double)super.getColumn(3);
-	}
-	public String getEnh() {
-		return (String)super.getColumn(4);
-	}
-
-	public Double getPris() {
-		return (Double)super.getColumn(5);
-	}
-	public Double getRab() {
-		return (Double)super.getColumn(6);
-	}
-	public Double getSumma() {
-		return (Double)super.getColumn(7);
-	}
+	public Integer getFaktnr() {		return super.getIntColumn(1);	}
+	public java.util.Date getDatum() {return super.getDateColumn(2);	}
+	public Double getLev() {			return super.getDoubleColumn(3);	}
+	public String getEnh() {			return super.getStringColumn(4);	}
+	public Double getPris() {			return super.getDoubleColumn(5);	}
+	public Double getRab() {			return super.getDoubleColumn(6);	}
+	public Double getSumma() {			return super.getDoubleColumn(7);	}
 
 	
 }

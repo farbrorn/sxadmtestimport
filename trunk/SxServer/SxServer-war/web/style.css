@@ -73,7 +73,7 @@ img {
 }
 
 #siteheader {
-	height: 32px;
+	height: 40px;
 	background: #00efef;
 	border-bottom: 2px solid #dfdfdf;
 	text-align: center;
@@ -82,7 +82,7 @@ img {
 }
 
 #top {
-	height: 32px;
+	height: 34px;
 	background: #efefef;
 	border-bottom: 2px solid #dfdfdf;
 	padding: 0px 15px 0px 15px;
@@ -306,6 +306,10 @@ border: red 2px solid;
 	list-style-position: outside;
 }
 
+#siteanvandare {
+	font-weight: normal;
+	font-size:  8px;
+}
 
 #siteheader ul a {
 	display: block;

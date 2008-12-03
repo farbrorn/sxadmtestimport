@@ -5,9 +5,9 @@
 
 package se.saljex.sxserver.web;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Date;
-import javax.sql.DataSource;
 import se.saljex.sxserver.SXUtil;
 
 /**
@@ -16,8 +16,8 @@ import se.saljex.sxserver.SXUtil;
  */
 public class PageListKalender extends PageList {
 
-	public PageListKalender(DataSource ds) throws SQLException{
-		super(ds);
+	public PageListKalender(Connection con) throws SQLException{
+		super(con);
 		super.setPageSize(0);
 	}
 	
@@ -30,14 +30,8 @@ public class PageListKalender extends PageList {
 		} catch (SQLException sqe) { SXUtil.log("Exception i getPage" + sqe.toString()); }
 	}	
 
-	public Date getF_Dat() {
-		return (java.util.Date)super.getColumn(1);
-	}
-	public Date getF_Tid() {
-		return (java.util.Date)super.getColumn(2);
-	}
-	public String getKmemo() {
-		return (String)super.getColumn(3);
-	}
+	public Date getF_Dat() {		return super.getDateColumn(1);	}
+	public Date getF_Tid() {		return super.getDateColumn(2);	}
+	public String getKmemo() {		return super.getStringColumn(3);	}
 	
 }

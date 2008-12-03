@@ -10,6 +10,6 @@ package se.saljex.sxserver.web;
  * @author ulf
  */
 public class LoginFormData {
-	public String kundnr = "";
-	public String kundnrErr = "";
+	public String anvandare = "";
+	public String anvandareErr = "";
 }

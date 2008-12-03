@@ -41,10 +41,10 @@ public class RappHandler {
 		
 		private boolean firstRow = true;
 		
-	public RappHandler(DataSource ds) throws SQLException{
-		this.con = ds.getConnection();
+	public RappHandler(Connection con) throws SQLException{
+		this.con = con;
 	}
-
+	
 	public void prepareFromSQLRepository(int rappId) throws SQLException {
 		/*
 		 
@@ -91,61 +91,63 @@ create table rappcolumns (
 		 
 		 
 		 * */
-		
-		StringBuilder sb = new StringBuilder();
-		Statement s1;
-		ResultSet rs1;
-		s1 = con.createStatement();
-		
-		rs1 =  s1.executeQuery("select reportrubrik, sqlfrom, isdistinct from rapphuvud where rappid = " + rappId);
-		if (!rs1.next()) throw new SQLException("Rappid " + rappId + " finns inte.");
-		this.setReportRubrik(rs1.getString(1));
-		String sqlFrom = rs1.getString(2);
-		sb.append("select");
-		if (rs1.getInt(3) != 0) sb.append(" distinct");
-		
-		
-		ArrayList<RappColumn> tempCol= new ArrayList(); 
-		rs1 = s1.executeQuery("select col, sqllabel, label, groupby, decimaler, hidden, groupbyheadertext, groupbyfootertext from rappcolumns where rappid = " + rappId + " order by col");
-		boolean first = true;
-		int cn = 0;
-		while(rs1.next()) {
-			cn++;
-			// Skapa temporär columnstruktur eftersom den riktiga skapåas i prepareQuery - vi får sedan läsa in värdena dit
-			tempCol.add(new RappColumn(cn, rs1.getString(3), rs1.getInt(4), rs1.getInt(5), rs1.getInt(6), rs1.getString(7), rs1.getString(8)));
-			if (!first) {
-				sb.append(" ,");
-			} else {
-				first = false;
+		Statement s1 = con.createStatement();
+		try {
+			StringBuilder sb = new StringBuilder();
+			ResultSet rs1;
+
+			rs1 =  s1.executeQuery("select reportrubrik, sqlfrom, isdistinct from rapphuvud where rappid = " + rappId);
+			if (!rs1.next()) throw new SQLException("Rappid " + rappId + " finns inte.");
+			this.setReportRubrik(rs1.getString(1));
+			String sqlFrom = rs1.getString(2);
+			sb.append("select");
+			if (rs1.getInt(3) != 0) sb.append(" distinct");
+
+
+			ArrayList<RappColumn> tempCol= new ArrayList(); 
+			rs1 = s1.executeQuery("select col, sqllabel, label, groupby, decimaler, hidden, groupbyheadertext, groupbyfootertext from rappcolumns where rappid = " + rappId + " order by col");
+			boolean first = true;
+			int cn = 0;
+			while(rs1.next()) {
+				cn++;
+				// Skapa temporär columnstruktur eftersom den riktiga skapåas i prepareQuery - vi får sedan läsa in värdena dit
+				tempCol.add(new RappColumn(cn, rs1.getString(3), rs1.getInt(4), rs1.getInt(5), rs1.getInt(6), rs1.getString(7), rs1.getString(8)));
+				if (!first) {
+					sb.append(" ,");
+				} else {
+					first = false;
+				}
+				sb.append(" ");
+				sb.append(rs1.getString(2));
 			}
-			sb.append(" ");
-			sb.append(rs1.getString(2));
-		}
-		sb.append(" from ");
-		sb.append(sqlFrom);
-		// Ta fram filtren
-		rs1 = s1.executeQuery("select type, sumcolumn, resetcolumn, sumtype, sumtext, wherepos, javatype, name, label, hidden, defaultvalue from rappprops where rappid = " + rappId + " order by wherepos");
-		while(rs1.next()) {
-			if ("Filter".equals(rs1.getString(1))) {
-				this.addSqlFilterField(rs1.getInt(6), rs1.getString(7), rs1.getString(8), rs1.getString(9), rs1.getInt(10) != 0, stringToJavaTypeObject(rs1.getString(7),rs1.getString(11)), stringToJavaTypeObject(rs1.getString(7),getFilterValue(rs1.getString(8))));
+			sb.append(" from ");
+			sb.append(sqlFrom);
+			// Ta fram filtren
+			rs1 = s1.executeQuery("select type, sumcolumn, resetcolumn, sumtype, sumtext, wherepos, javatype, name, label, hidden, defaultvalue from rappprops where rappid = " + rappId + " order by wherepos");
+			while(rs1.next()) {
+				if ("Filter".equals(rs1.getString(1))) {
+					this.addSqlFilterField(rs1.getInt(6), rs1.getString(7), rs1.getString(8), rs1.getString(9), rs1.getInt(10) != 0, stringToJavaTypeObject(rs1.getString(7),rs1.getString(11)), stringToJavaTypeObject(rs1.getString(7),getFilterValue(rs1.getString(8))));
+				}
 			}
-		}
-		prepareQuery(sb.toString());
-		// Nu är den riktiga arrayen skapad, och vi läser in de temporära datan i den
-		for (RappColumn r : tempCol) {
-			this.colArr[r.getPos()].setDecimaler(r.getDecimaler());
-			this.colArr[r.getPos()].setGroupBy(r.isGroupBy());
-			this.colArr[r.getPos()].setGroupByFooterText(r.getGroupByFooterTextString());
-			this.colArr[r.getPos()].setGroupByHeaderText(r.getGroupByHeaderTextString());
-			this.colArr[r.getPos()].setHidden(r.isHidden());
-			this.colArr[r.getPos()].setLabel(r.getLabel());
-		}
-		// Ta fram summorna
-		rs1 = s1.executeQuery("select type, sumcolumn, resetcolumn, sumtype, sumtext, wherepos, javatype, name, label, hidden, defaultvalue from rappprops where rappid = " + rappId + " order by wherepos");
-		while(rs1.next()) {
-			if ("Sum".equals(rs1.getString(1))) {
-				this.addSum(rs1.getInt(2), rs1.getInt(3), rs1.getString(4), rs1.getString(5));
+			prepareQuery(sb.toString());
+			// Nu är den riktiga arrayen skapad, och vi läser in de temporära datan i den
+			for (RappColumn r : tempCol) {
+				this.colArr[r.getPos()].setDecimaler(r.getDecimaler());
+				this.colArr[r.getPos()].setGroupBy(r.isGroupBy());
+				this.colArr[r.getPos()].setGroupByFooterText(r.getGroupByFooterTextString());
+				this.colArr[r.getPos()].setGroupByHeaderText(r.getGroupByHeaderTextString());
+				this.colArr[r.getPos()].setHidden(r.isHidden());
+				this.colArr[r.getPos()].setLabel(r.getLabel());
 			}
+			// Ta fram summorna
+			rs1 = s1.executeQuery("select type, sumcolumn, resetcolumn, sumtype, sumtext, wherepos, javatype, name, label, hidden, defaultvalue from rappprops where rappid = " + rappId + " order by wherepos");
+			while(rs1.next()) {
+				if ("Sum".equals(rs1.getString(1))) {
+					this.addSum(rs1.getInt(2), rs1.getInt(3), rs1.getString(4), rs1.getString(5));
+				}
+			}
+		} finally {
+			try { s1.close(); } catch (Exception e) {}
 		}
 	}
 	
