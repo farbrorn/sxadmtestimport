@@ -148,7 +148,7 @@ public class SimpleOrderHandler  {
 		sor1.setKtid(ktid);
 	}
 	
-	public ArrayList<Integer> saveAsOrder() {
+	public ArrayList<Integer> saveAsOrder() throws KreditSparrException {
 		BestHandler bes;
 		ArrayList<Integer> ordList = new ArrayList();
 		int bestnr;
@@ -162,7 +162,9 @@ public class SimpleOrderHandler  {
 		//Nu fortsätter vi med att skanna igenom ordern och delqa den ifall det finns direkleveransartiklar
 		//samt lägger till ev. fraktkostnad på varje delorder.
 		
-		
+		if (!mainOrh.checkKreditvardighet()) {
+			throw new KreditSparrException();
+		}
 		
 		OrderHandler delOrh;
 		while ( (delOrh = getNextSplitOrder(mainOrh)) != null) {

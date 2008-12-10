@@ -4,7 +4,6 @@
  */
 
 package se.saljex.sxserver;
-import java.sql.SQLException;
 import javax.mail.Session;
 import javax.mail.internet.InternetAddress;
 import com.lowagie.text.DocumentException;
@@ -13,8 +12,6 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
 import javax.naming.NamingException;
 import javax.mail.MessagingException;
 import javax.persistence.EntityManager;
@@ -126,19 +123,55 @@ public class JobbHandler {
 	private void sendFakturaEpost(int faktnr, String epost) throws DocumentException, IOException, NamingException, MessagingException
 	{
 		PdfFaktura sx;
-        sx = new PdfFaktura(em);
-		String bodyHtml = SXUtil.getSXReg(em,"SxServMailFakturaBodyPrefix") + SXUtil.getSXReg(em,"SxServMailFakturaBodySuffix");
+      sx = new PdfFaktura(em);
+		String bodyHtml = SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVMAILFAKTURABODYPREFIX, SXConstant.SXREG_SXSERVMAILFAKTURABODYSUFFIX_DEFAULT)
+								+ SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVMAILFAKTURABODYSUFFIX, SXConstant.SXREG_SXSERVMAILFAKTURABODYSUFFIX_DEFAULT);
 		
-		SendMail m = new SendMail(mailsxmail, SXUtil.getSXReg(em,"SxServSMTPUser"), SXUtil.getSXReg(em,"SxServSMTPPassword"));
-		m.sendMailTextHtmlPdf(new InternetAddress(SXUtil.getSXReg(em,"SxServMailFakturaFromAddress"),SXUtil.getSXReg(em,"SxServMailFakturaFromName")),
-							epost, SXUtil.getSXReg(em,"SxServMailFakturaSubjectPrefix")
-							+ " " + faktnr + " " + SXUtil.getSXReg(em,"SxServMailFakturaSubjectSuffix")
-							, bodyHtml
-							, bodyHtml, sx.getPDF(faktnr), "faktura" + faktnr + ".pdf") ; 
+		SendMail m = new SendMail(mailsxmail, SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPUSER), SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPPASSWORD));
+		m.sendMailTextHtmlPdf(
+							new InternetAddress(SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVMAILFAKTURAFROMADRESS, SXConstant.SXREG_SXSERVMAILFAKTURAFROMADRESS_DEFAULT),
+								SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVMAILFAKTURAFROMNAME, SXConstant.SXREG_SXSERVMAILFAKTURAFROMNAME_DEFAULT)),
+							epost, 
+							SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVMAILFAKTURASUBJEKTPREFIX, SXConstant.SXREG_SXSERVMAILFAKTURASUBJEKTPREFIX_DEFAULT)
+								+ " " + faktnr + " "
+								+ SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVMAILFAKTURASUBJEKTSUFFIX, SXConstant.SXREG_SXSERVMAILFAKTURASUBJEKTSUFFIX_DEFAULT),
+							bodyHtml,
+							bodyHtml, 
+							sx.getPDF(faktnr),
+							"faktura" + faktnr + ".pdf") ;
 		sx = null;
 	}
+
 	
+	public void handleSandOffertEpost(TableSxservjobb t) throws  DocumentException, IOException, NamingException, MessagingException {
+		if (markBearbetar(t.getJobbid(), t.getBearbetar()) > 0) {	// Ingen annan har låst denna för bearbetning
+			sendFakturaEpost(t.getExternidint(), t.getEpost());
+			SXUtil.log("Offert " + t.getExternidint() +  " skickad e-post");
+			markSlutfort(t.getJobbid());
+		}
+	}
 	
+	private void sendOffertEpost(int offertnr, String epost) throws DocumentException, IOException, NamingException, MessagingException
+	{
+		PdfOffert sx;
+      sx = new PdfOffert(em);
+		String bodyHtml = SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVMAILOFFERTBODYPREFIX, SXConstant.SXREG_SXSERVMAILOFFERTBODYSUFFIX_DEFAULT)
+								+ SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVMAILOFFERTBODYSUFFIX, SXConstant.SXREG_SXSERVMAILOFFERTBODYSUFFIX_DEFAULT);
+
+		SendMail m = new SendMail(mailsxmail, SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPUSER), SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPPASSWORD));
+		m.sendMailTextHtmlPdf(
+							new InternetAddress(SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVMAILOFFERTFROMADRESS, SXConstant.SXREG_SXSERVMAILOFFERTFROMADRESS_DEFAULT),
+								SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVMAILOFFERTFROMNAME, SXConstant.SXREG_SXSERVMAILOFFERTFROMNAME_DEFAULT)),
+							epost, 
+							SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVMAILOFFERTSUBJEKTPREFIX, SXConstant.SXREG_SXSERVMAILOFFERTSUBJEKTPREFIX_DEFAULT)
+								+ " " + offertnr + " "
+								+ SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVMAILOFFERTSUBJEKTSUFFIX, SXConstant.SXREG_SXSERVMAILOFFERTSUBJEKTSUFFIX_DEFAULT),
+							bodyHtml,
+							bodyHtml,
+							sx.getPDF(offertnr),
+							"offert" + offertnr + ".pdf") ;
+		sx = null;
+	}
 	
 	
 	
