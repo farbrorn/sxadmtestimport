@@ -2,14 +2,12 @@ package se.saljex.sxserver;
 
 import java.sql.SQLException;
 import javax.ejb.Stateless;
-import javax.annotation.Resource;
 import javax.annotation.PostConstruct;
 import javax.ejb.Timeout;
 import javax.ejb.Timer;
 import javax.ejb.TimerService;
 
 import com.lowagie.text.*;//.text.Document;
-import com.lowagie.text.pdf.*;
 import javax.servlet.http.*;
 import java.io.*;
 import java.sql.Connection;
@@ -58,7 +56,6 @@ import javax.sql.DataSource;
 
 @Stateless
 public class SxServerMainBean implements SxServerMainLocal {
-	String anvandare = "00";	//Användanamnet för sxserv
 	@Resource(name = "saljexse")
 	private DataSource saljexse;
 	@Resource(name = "sxadm")
@@ -100,42 +97,72 @@ public class SxServerMainBean implements SxServerMainLocal {
 	}
 
 	private void handleKvartTimer() {
-		
+		try {
+			checkWorder();
+		}finally {
+			startKvartTimer();
+		}
 	}
 	
 	private void handleTimTimer() {
+		try {
+		}finally {
+			startTimTimer();
+		}
 		
 	}
 	
 	private void handleDygnsTimer() {
 		//Uppdatera priser mm på nätet
+		Connection con = null;
+		Connection conSe = null;
 		try {
-			WebArtikelUpdater w = new WebArtikelUpdater(em, saljexse.getConnection());
-			w.updateWArt();
-		} catch (SQLException e) { SXUtil.log("Undantag i handleDygnsTimer vid WebArtikelUpdater: " + e.toString()); }		
-		
-		// Räkna om alla lagervärden
-		try {
-			LagerCheck lagerCheck = new LagerCheck(sxadm);
-			lagerCheck.run();
-		} catch (SQLException e) { SXUtil.log("Undantag i handleDygnsTimer vid LagerCheck: " + e.toString()); }		
-		
+			con = sxadm.getConnection();
+			conSe = saljexse.getConnection();
+			try {
+				WebArtikelUpdater w = new WebArtikelUpdater(em, conSe);
+				w.updateWArt();
+			} catch (SQLException e) { SXUtil.log("Undantag i handleDygnsTimer vid WebArtikelUpdater: " + e.toString()); }
+
+			// Räkna om alla lagervärden
+			try {
+				LagerCheck lagerCheck = new LagerCheck(con);
+				lagerCheck.run();
+			} catch (SQLException e) { SXUtil.log("Undantag i handleDygnsTimer vid LagerCheck: " + e.toString()); }
+		} catch (SQLException e) {
+			SXUtil.log("Undantag i handleDygnsTimer: " + e.toString());
+		} finally {
+			try { con.close(); } catch (Exception e) {}
+			try { conSe.close(); } catch (Exception e) {}
+			startDygnsTimer();
+		}
 	}
 	
 	private void handleVeckoTimer() {
 		// Uppdatera trädstrukturen
+		Connection con = null;
+		Connection conSe = null;
 		try {
-			WebArtikelUpdater w = new WebArtikelUpdater(em, saljexse.getConnection());
-			w.updateWArtGrp();
-			w.updateWArtGrp();
-			w.updateWArtKlase();
-			w.updateWArtKlaseLank();
-		} catch (SQLException e) { SXUtil.log("Undantag i handleVeckoTimer vid WebArtikelUpdater: " + e.toString()); }
+			con = sxadm.getConnection();
+			conSe = saljexse.getConnection();
+			try {
+				WebArtikelUpdater w = new WebArtikelUpdater(em, conSe);
+				w.updateWArtGrp();
+				w.updateWArtGrp();
+				w.updateWArtKlase();
+				w.updateWArtKlaseLank();
+			} catch (SQLException e) { SXUtil.log("Undantag i handleVeckoTimer vid WebArtikelUpdater: " + e.toString()); }
+		} catch (SQLException e) {
+			SXUtil.log("Undantag i handleVeckoTimer: " + e.toString());
+		} finally {
+			try { con.close(); } catch (Exception e) {}
+			try { conSe.close(); } catch (Exception e) {}
+			startVeckoTimer();
+		}
 	}
 	
 	private void handleJobbTimer() {
 			JobbHandler jobbHandler;
-			String q;
 
 			try {
 				jobbHandler = new JobbHandler(em,mailsxmail);
@@ -176,7 +203,7 @@ public class SxServerMainBean implements SxServerMainLocal {
 				context.setRollbackOnly();
 			}
 			finally { 
-				//startJobbTimer();	
+				startJobbTimer();	
 			} 
 		
 	}
@@ -185,15 +212,19 @@ public class SxServerMainBean implements SxServerMainLocal {
 	public void handleJobb(TableSxservjobb t) throws  DocumentException, IOException, NamingException, MessagingException {
 		JobbHandler jobbHandler = new JobbHandler(em,mailsxmail);		//Vi gör detta kryptiska anrop för att ny transaktion ska startas för varje jobb
 			System.out.println("Behandlar jobbid " + t.getJobbid());
-			if (t.getUppgift().equals("sänd")) {
-				if (t.getDokumenttyp().equals("faktura")) {
-					if (t.getSandsatt().equals("epost")) {
+			if (t.getUppgift().equals(SXConstant.SERVJOBB_UPPGIFT_SAND)) {
+				if (t.getDokumenttyp().equals(SXConstant.SERVJOBB_DOKUMENTTYP_FAKTURA)) {	//Faktura
+					if (t.getSandsatt().equals(SXConstant.SERVJOBB_SANDSATT_EPOST)) {
 						jobbHandler.handleSandFakturaEpost(t); 
 					}
-				} else if (t.getDokumenttyp().equals("best")) {
-					if (t.getSandsatt().equals("epost")) {
+				} else if (t.getDokumenttyp().equals(SXConstant.SERVJOBB_DOKUMENTTYP_BEST)) {	// Beställning
+					if (t.getSandsatt().equals(SXConstant.SERVJOBB_SANDSATT_EPOST)) {
 						jobbHandler.handleSandBestEpost(t); 
 					}				
+				} else if (t.getDokumenttyp().equals(SXConstant.SERVJOBB_DOKUMENTTYP_OFFERT)) {	//Offert
+					if (t.getSandsatt().equals(SXConstant.SERVJOBB_SANDSATT_EPOST)) {
+						jobbHandler.handleSandOffertEpost(t);
+					}
 				}
 			}
 		
@@ -219,10 +250,10 @@ public class SxServerMainBean implements SxServerMainLocal {
 
 	public void startTimers() {
 		startJobbTimer();
-		//startKvartTimer();
-		//startTimTimer();
-		//startDygnsTimer();
-		//startVeckoTimer();
+		startKvartTimer();
+		startTimTimer();
+		startDygnsTimer();
+		startVeckoTimer();
 	}
 	
 	private void startJobbTimer() {
@@ -267,15 +298,6 @@ public class SxServerMainBean implements SxServerMainLocal {
 
 		int faktnr = 149804;
 
-/*		SendMail m = new SendMail(mailsxmail, SXUtil.getSXReg(con,"SxServSMTPUser"), SXUtil.getSXReg(con,"SxServSMTPPassword"));
-		try {
-			m.sendMail(new InternetAddress(SXUtil.getSXReg(con,"SxServMailFakturaFromAddress"),SXUtil.getSXReg(con,"SxServMailFakturaFromName")),
-							"ulf.hemma@gmail.com", SXUtil.getSXReg(con,"SxServMailFakturaSubjectPrefix")
-							+ " " + faktnr + " " + SXUtil.getSXReg(con,"SxServMailFakturaSubjectSuffix")
-z							, SXUtil.getSXReg(con,"SxServMailFakturaBodyPrefix") + SXUtil.getSXReg(con,"SxServMailFakturaBodySuffix")
-							, sx.getPDF(faktnr)) ; 
-		} catch (Exception e) { throw new SQLException("Exception från mail: " + e.toString());}
-*/		
 		
 		return sx.getPDF(faktnr);
 	}
@@ -319,9 +341,10 @@ z							, SXUtil.getSXReg(con,"SxServMailFakturaBodyPrefix") + SXUtil.getSXReg(c
 		}
 		ret = ret + "</table>";
 
+		Connection conSe = null;
 		try {
-			Connection con = saljexse.getConnection();
-			Statement s = con.createStatement();
+			conSe = saljexse.getConnection();
+			Statement s = conSe.createStatement();
 			ResultSet r = s.executeQuery("select * from weborder1 order by wordernr");
 			ret = ret + "<table>";
 			while (r.next()) {
@@ -331,45 +354,90 @@ z							, SXUtil.getSXReg(con,"SxServMailFakturaBodyPrefix") + SXUtil.getSXReg(c
 			ret = ret + "</table>";
 			
 		} catch (Exception e) { ret = ret + e.toString(); }
+		finally { try { conSe.close(); } catch (Exception e) {} }
 		return ret;
 	}
 
 	private void checkWorder()  {
+		Connection conSe = null;
+		SXUtil.log("Startar checkWorder");
 		try {
-			WebOrderHandler woh = new WebOrderHandler(em,saljexse.getConnection(),anvandare);
+			conSe = saljexse.getConnection();
+			WebOrderHandler woh = new WebOrderHandler(em,conSe,SXUtil.getSXReg(em, SXConstant.SXREG_SERVERANVANDARE,SXConstant.SXREG_SERVERANVANDARE_DEFAULT));
 			ArrayList<Integer> orderList = woh.getSkickadWorderList();
 			for (Integer o : orderList) {
 				try {
-					if (sxServerMainBean.saveWorder(o) == null) {
-						SXUtil.log("Kunde inte spara weborder " + o + " Av okänd anledning.");
-					} else {
-						SXUtil.log("Weborder " + o + " sparad som order!");
+					ArrayList<Integer> sparadeOrderArr;
+					sparadeOrderArr = sxServerMainBean.saveWorder(o);
+					String logStr = "Weborder " + o + " sparad som order/ordrar: ";
+					for (Integer nr : sparadeOrderArr) {			//Skapa sträng med alla ordernummer som är sparade
+						logStr = logStr + nr + " ";
 					}
+					SXUtil.log(logStr);
+				} catch (KreditSparrException ke) {
+					SXUtil.log("Kreditspärr vid Weborder " + o + ". Ordern sparas inte." );
+					String mailTo = "";
+					Statement st = conSe.createStatement();
+					ResultSet r = st.executeQuery("select epost from webuser u, weborder1 o where u.loginnamn = o.loginnamn and o.wordernr = " + o);
+					if (r.next()) {
+						try {
+							mailTo = r.getString(1);
+							SendMail m = new SendMail(mailsxmail, SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPUSER), SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPPASSWORD));
+							m.sendSimpleMail(	em,
+													mailTo,
+													SXUtil.getSXReg(em,SXConstant.SXREG_WORDER_SPARRAD_ORDER_SUBJECT, SXConstant.SXREG_WORDER_SPARRAD_ORDER_SUBJECT_DEFAULT),
+													SXUtil.getSXReg(em,SXConstant.SXREG_WORDER_SPARRAD_ORDER_BODY, SXConstant.SXREG_WORDER_SPARRAD_ORDER_BODY_DEFAULT));
+						} catch (Exception e) {
+							SXUtil.log("Kunde inte skicka epost om kreditspärr till " + mailTo + " Weborder " + o + ". " + e.toString());
+						}
+					}
+					r.close();
+					st.executeUpdate("update worder1 set status='Spärrad' where wordernr = " + o);
 
 				} catch (SQLException se) {
-					SXUtil.log("Fel vid spara order: " + se.toString());
+					SXUtil.log("Fel vid spara order " + o + ": " + se.toString());
 				}
 			}
 		} catch (SQLException se1) {
 			SXUtil.log("Fel " + se1.toString()); 
+		}	finally {
+			try { conSe.close(); } catch (Exception e) {}
+			SXUtil.log("checkWorder slutförd");
 		}
 	}
 	
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	public ArrayList<Integer> saveWorder(int worderNr) throws java.sql.SQLException {
+	public ArrayList<Integer> saveWorder(int worderNr) throws java.sql.SQLException, KreditSparrException {
 		// Spara angiven weborder i egen transaktion
 		// returnerar array med ordernumren som webordern sparades som
-		WebOrderHandler woh = new WebOrderHandler(em,saljexse.getConnection(),anvandare);
-		ArrayList<Integer> ret = woh.loadWorderAndSaveSkickadAsOrder(worderNr);
-		if (ret == null) { context.setRollbackOnly(); }
+		Connection conSe = null;
+		ArrayList<Integer> ret;
+		try {
+			conSe = saljexse.getConnection();
+			WebOrderHandler woh = new WebOrderHandler(em,conSe,SXUtil.getSXReg(em, SXConstant.SXREG_SERVERANVANDARE,SXConstant.SXREG_SERVERANVANDARE_DEFAULT));
+			ret = woh.loadWorderAndSaveSkickadAsOrder(worderNr);
+			if (ret == null) { throw new SQLException("Kunde inte spara order. Webordernr: " + worderNr); }
+		} catch (KreditSparrException ke) {
+			throw ke;
+		} finally {
+			try { conSe.close(); } catch (Exception e) {}
+		}
 		return ret;
 	}
 
 	public String tester(String testTyp) {
+		Connection conSe = null;
+		Connection con = null;
 		try {
-			SXTester t = new SXTester(em, sxadm.getConnection() ,saljexse.getConnection());
+			conSe = saljexse.getConnection();
+			con = sxadm.getConnection();
+			SXTester t = new SXTester(em, con ,conSe);
 			return t.tester(testTyp);
-		}	catch (SQLException se) { return "SQLException inträffade: " + se.toString();}
+		}	catch (SQLException se) { return "SQLException inträffade: " + se.toString();
+		} finally {
+			try { con.close(); } catch (Exception e) {}
+			try { conSe.close(); } catch (Exception e) {}
+		}
 	}
 	
 

@@ -58,7 +58,7 @@ public class WebOrderHandler {
 	}
 	*/
 	
-	public ArrayList<Integer> loadWorderAndSaveSkickadAsOrder(int worderNr)  throws java.sql.SQLException, EntityNotFoundException {
+	public ArrayList<Integer> loadWorderAndSaveSkickadAsOrder(int worderNr)  throws java.sql.SQLException, KreditSparrException {
 		// Returnerar lista med de ordernummer som angiven weborder skapar, eller null om något gick fel
 		// Strategi för detta är att från en bean hä'mta lista på webordernr
 		// därefter starta en ny bean för varje wordernr, eller på annat sätt köra en separat transaktion fr varje
@@ -95,18 +95,15 @@ public class WebOrderHandler {
 		
 	}
 	
-	public ArrayList<Integer> saveSkickadAsOrder() throws java.sql.SQLException {
+	public ArrayList<Integer> saveSkickadAsOrder() throws java.sql.SQLException, KreditSparrException {
 		// Returnerar en ArrayList av de ordernummerr som det var sparat som
 		// om vi returnerar null härifrån, eller får ett undantag så behöver transaktionen avbrytas
-		Statement s = con.createStatement();                
+		Statement s = con.createStatement();    
 		ArrayList<Integer> orderList = sord.saveAsOrder();
 		if (s.executeUpdate("update weborder1 set status = 'Mottagen', kreditsparr = 0, mottagendatum = '" + SXUtil.getFormatDate() + "' where status = 'Skickad' and wordernr = " +  sord.getWorderNr()) < 1) {
 			// Om vi kommer hit så har antingen en annan process ändrat på ordern, eller så har det blivit något kommunikationsfel
-			// och vi måste göra en rollback
-			// Vi signalerar det genom att returnera null via orderList
-			orderList = null;
+			throw new SQLException("Kan inte uppdatera weborder1. Förmodligen är det en annan process som bearbetar ordern samtidigt");
 		}
-		
 		return orderList;
 	}
 

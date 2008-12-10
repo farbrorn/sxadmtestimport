@@ -41,7 +41,7 @@ public interface SxServerMainLocal {
 
 	  String tester(String testTyp);
 
-	  ArrayList<Integer> saveWorder(int worderNr) throws SQLException;
+	  ArrayList<Integer> saveWorder(int worderNr) throws SQLException, KreditSparrException;
 
 	
 }

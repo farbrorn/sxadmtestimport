@@ -11,7 +11,6 @@ import javax.mail.Transport;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMultipart;
-import javax.mail.Multipart;
 import javax.naming.NamingException;
 import javax.mail.internet.InternetAddress;
 import java.io.UnsupportedEncodingException;
@@ -19,6 +18,7 @@ import java.io.ByteArrayOutputStream;
 import javax.mail.util.ByteArrayDataSource;
 import javax.activation.DataHandler;
 import javax.mail.Part;
+import javax.persistence.EntityManager;
 /**
  *
  * @author Ulf
@@ -71,6 +71,10 @@ public class SendMail {
 	}
 */
 	
+	public void sendSimpleMail(EntityManager em, String mailTo, String subject, String text) throws NamingException, MessagingException, UnsupportedEncodingException {
+		sendMailTextHtml(	new InternetAddress(SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVMAILFROMADRESS, SXConstant.SXREG_SXSERVMAILFROMADRESS_DEFAULT)), mailTo, subject, text,text);
+	}
+
 	public void sendMailTextHtml(InternetAddress mailFrom, String mailTo, String subject, String bodyText, String bodyHTML) throws NamingException, MessagingException, UnsupportedEncodingException {
 		MimeMessage message;
 		message = new MimeMessage(mailsxmail);

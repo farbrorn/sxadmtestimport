@@ -17,12 +17,60 @@ public class SXConstant {
 	public static final  String ORDER_STATUS_VANTAR = "Väntar";
 	
 	public static final  String ORDERHAND_SKAPAD = "Skapad";
+
+	public static final	String SERVJOBB_UPPGIFT_SAND = "sänd";
+	public static final	String SERVJOBB_SANDSATT_EPOST = "epost";
+	public static final	String SERVJOBB_DOKUMENTTYP_FAKTURA = "faktura";
+	public static final	String SERVJOBB_DOKUMENTTYP_BEST = "best";
+	public static final	String SERVJOBB_DOKUMENTTYP_OFFERT = "offert";
+	public static final	String SERVJOBB_DOKUMENTTYP_ORDERERK = "ordererk";
 	
 	public static final  String SXREG_ARTNRFRAKT = "ArtNrFrakt";
 	public static final  String SXREG_ARTNRFRAKT_DEFAULT = "0000";
 	public static final  String SXREG_SERVERANVANDARE = "SXServDefaultAnvandare";
 	public static final  String SXREG_SERVERANVANDARE_DEFAULT = "00";
-	
+	public static final  String SXREG_SXSERVSMTPUSER = "SxServSMTPUser";
+	public static final  String SXREG_SXSERVSMTPUSER_DEFAULT = "";
+	public static final  String SXREG_SXSERVSMTPPASSWORD = "SxServSMTPPassword";
+	public static final  String SXREG_SXSERVSMTPASSWORD_DEFAULT = "";
+
+	public static final  String SXREG_SXSERVMAILFAKTURAFROMADRESS = "SxServMailFakturaFromAddress";
+	public static final  String SXREG_SXSERVMAILFAKTURAFROMADRESS_DEFAULT = "info@saljex.se";
+	public static final  String SXREG_SXSERVMAILFAKTURAFROMNAME = "SxServMailFakturaFromName";
+	public static final  String SXREG_SXSERVMAILFAKTURAFROMNAME_DEFAULT = "Säljex AB";
+	public static final  String SXREG_SXSERVMAILFAKTURASUBJEKTPREFIX = "SxServMailFakturaSubjectPrefix";
+	public static final  String SXREG_SXSERVMAILFAKTURASUBJEKTPREFIX_DEFAULT = "Faktura ";
+	public static final  String SXREG_SXSERVMAILFAKTURASUBJEKTSUFFIX = "SxServMailFakturaSubjectSuffix";
+	public static final  String SXREG_SXSERVMAILFAKTURASUBJEKTSUFFIX_DEFAULT = " från Säljex AB";
+	public static final  String SXREG_SXSERVMAILFAKTURABODYPREFIX = "SxServMailFakturaBodyPrefix";
+	public static final  String SXREG_SXSERVMAILFAKTURABODYPREFIX_DEFAULT = "Här kommer din faktura!";
+	public static final  String SXREG_SXSERVMAILFAKTURABODYSUFFIX = "SxServMailFakturaBodySuffix";
+	public static final  String SXREG_SXSERVMAILFAKTURABODYSUFFIX_DEFAULT = "<br/>Med vänlig hälsning</br>Säljex AB";
+
+
+	public static final  String SXREG_SXSERVMAILOFFERTFROMADRESS = "SxServMailOffertFromAddress";
+	public static final  String SXREG_SXSERVMAILOFFERTFROMADRESS_DEFAULT = "info@saljex.se";
+	public static final  String SXREG_SXSERVMAILOFFERTFROMNAME = "SxServMailOffertFromName";
+	public static final  String SXREG_SXSERVMAILOFFERTFROMNAME_DEFAULT = "Säljex AB";
+	public static final  String SXREG_SXSERVMAILOFFERTSUBJEKTPREFIX = "SxServMailOffertSubjectPrefix";
+	public static final  String SXREG_SXSERVMAILOFFERTSUBJEKTPREFIX_DEFAULT = "Offert ";
+	public static final  String SXREG_SXSERVMAILOFFERTSUBJEKTSUFFIX = "SxServMailOffertSubjectSuffix";
+	public static final  String SXREG_SXSERVMAILOFFERTSUBJEKTSUFFIX_DEFAULT = " från Säljex AB";
+	public static final  String SXREG_SXSERVMAILOFFERTBODYPREFIX = "SxServMailOffertBodyPrefix";
+	public static final  String SXREG_SXSERVMAILOFFERTBODYPREFIX_DEFAULT = "Här kommer din offert!";
+	public static final  String SXREG_SXSERVMAILOFFERTBODYSUFFIX = "SxServMailOffertBodySuffix";
+	public static final  String SXREG_SXSERVMAILOFFERTBODYSUFFIX_DEFAULT = "<br/>Med vänlig hälsning</br>Säljex AB";
+
+	public static final  String SXREG_SXSERVMAILFROMADRESS = "SxServMailFromAddress";
+	public static final  String SXREG_SXSERVMAILFROMADRESS_DEFAULT = "info@saljex.se";
+	public static final  String SXREG_SXSERVMAILFROMNAME = "SxServMailFromName";
+	public static final  String SXREG_SXSERVMAILFROMNAME_DEFAULT = "Säljex AB";
+
+	public static final	String SXREG_WORDER_SPARRAD_ORDER_SUBJECT = "sxServWorderSparradOrderSubject";
+	public static final	String SXREG_WORDER_SPARRAD_ORDER_SUBJECT_DEFAULT = "Viktig information om order i Säljex webb-shop";
+	public static final	String SXREG_WORDER_SPARRAD_ORDER_BODY = "sxServWorderSparradOrderBody";
+	public static final	String SXREG_WORDER_SPARRAD_ORDER_BODY_DEFAULT = "Hej!<br/>Vi har mottagit en order i vår webb-shop som vi inte kan behandla därför att kreditgränsen är överskriden.<br/><br/>Var vänlig kontakta oss så vi kan reda ut ev. missförstånd.<br/><br/><br/>Med vänlig hälsning<br/>Säljex AB";
+
 	public static final String BEST_SKICKASOM_EPOST = "epost";
 	public static final String BEST_STATUS_SKAPAD = "Skapad";
 	public static final String BEST_STATUS_VANTAR = "Väntar";

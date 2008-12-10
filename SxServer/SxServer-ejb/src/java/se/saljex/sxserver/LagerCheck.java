@@ -9,7 +9,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.logging.Logger;
-import javax.sql.DataSource;
 
 /**
  *
@@ -17,12 +16,10 @@ import javax.sql.DataSource;
  */
 public class LagerCheck {
 
-	private DataSource sxadm;
 	private Connection c;
 	
-	public LagerCheck(DataSource e) throws SQLException {
-		sxadm = e;
-		c = sxadm.getConnection();
+	public LagerCheck(Connection con) throws SQLException {
+		c = con;
 		
 	}
 
