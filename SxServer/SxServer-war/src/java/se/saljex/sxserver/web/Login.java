@@ -103,6 +103,7 @@ public class Login extends HttpServlet {
 	private void setFelaktigAnvandare() {
 		f.anvandareErr = "Felaktig användare/lösenord";
 		request.setAttribute("loginformdata", f);
+		SXUtil.log("Felaktig inloggning Användare " + f.anvandare + " fråån ip " + request.getRemoteAddr());
 	}
 
 	private boolean loginKund() throws SQLException {

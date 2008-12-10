@@ -7,9 +7,13 @@ import java.sql.SQLException;
 import java.util.List;
 import javax.annotation.Resource;
 import javax.ejb.EJB;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.PersistenceUnit;
 import javax.servlet.*;
 import javax.servlet.http.*;
 import javax.sql.DataSource;
+import javax.transaction.UserTransaction;
 import se.saljex.sxserver.*;
 
 /**
@@ -22,10 +26,12 @@ public class kund extends HttpServlet {
 	private LocalWebSupportLocal LocalWebSupportBean;
 	@Resource(name = "sxadm")
 	private DataSource sxadm;
+@PersistenceUnit
+private EntityManagerFactory emf;
 	
 
 	protected void processRequest(HttpServletRequest request, HttpServletResponse response)	throws ServletException, IOException {
-		KundHandler k = new KundHandler(request,response);
+	 KundHandler k = new KundHandler(request,response); // Här händer allt jobb direkt
 		k = null;
 	}
 
@@ -69,17 +75,15 @@ public class kund extends HttpServlet {
 			private ServletOutputStream outStream;
 			private HttpServletRequest request;
 			private HttpServletResponse response;
+			private EntityManager em;
 
 			public KundHandler(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 				request = req;
 				response = res;
 
-				try {
-					con = sxadm.getConnection();
-				} catch (SQLException se) {
-					SXUtil.log(se.toString()); se.printStackTrace();
-					throw new ServletException("Fel vid kommunikation med databasen.");
-				}
+				con = WebUtil.getConnection(sxadm);
+				em = emf.createEntityManager();
+
 
 				String get = request.getParameter("get");
 				String id = request.getParameter("id");
@@ -122,7 +126,8 @@ public class kund extends HttpServlet {
 				} finally {
 					try { out.close();	 } catch (Exception e) {}
 					try { outStream.close();	 } catch (Exception e) {}
-					try { con.close();} catch (SQLException e ){}
+					try { con.close();} catch (Exception e ){}
+					try { em.close();} catch (Exception e ){}
 				}
 
 			}
@@ -293,10 +298,10 @@ public class kund extends HttpServlet {
 		}
 		private void printFakturaInfo(String divInfo, String kundnr, int faktnr) throws ServletException, IOException{
 			if (faktnr > 0 && kundnr != null) {
-				List<TableFaktura2> listTableFaktura2;
-				TableFaktura1 tableFaktura1 = LocalWebSupportBean.getTableFaktura1(faktnr);
+				TableFaktura1 tableFaktura1 = em.find(TableFaktura1.class,faktnr);// = LocalWebSupportBean.getTableFaktura1(faktnr);
 				if (tableFaktura1 != null) if (tableFaktura1.getKundnr().equals(kundnr)) {
-					listTableFaktura2 = LocalWebSupportBean.getListTableFaktura2(faktnr);
+					//listTableFaktura2 = LocalWebSupportBean.getListTableFaktura2(faktnr);
+					List<TableFaktura2> listTableFaktura2 = em.createNamedQuery("TableFaktura2.findByFaktnr").setParameter("faktnr", faktnr).getResultList();
 					request.setAttribute("tablefaktura1", tableFaktura1);
 					request.setAttribute("listtablefaktura2", listTableFaktura2);
 				}

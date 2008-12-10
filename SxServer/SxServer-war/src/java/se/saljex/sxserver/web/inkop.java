@@ -40,281 +40,264 @@ public class inkop extends HttpServlet {
 	@Resource(name = "sxadm")
 	private DataSource sxadm;
 	
-	private Connection con;
-	private HttpServletRequest request;
-	private HttpServletResponse response;
-	private PrintWriter out;
-	private ServletOutputStream outStream;
-	private HttpSession session;
-	private SXSession sxSession;
-	private	Integer bnr = null;
-	private	Integer skd = null;
-	private BestForm bestForm = null;
-
-	private LoginForm loginForm = null;
-	
-	private boolean siteHeaderPrinted = false;
-	private boolean bodyHeaderPrinted = false;
-	private boolean midbarHeaderPrinted = false;
 
 	protected void processRequest(HttpServletRequest req, HttpServletResponse res)	throws ServletException, IOException {
-		this.request = req;
-		this.response = res;
-		session = req.getSession();
-		sxSession = WebUtil.getSXSession(session);
-		
-		//request.setCharacterEncoding("UTF-8");
-		//response.setContentType("text/html;charset=UTF-8");
-		String get = request.getParameter("get");
-		String id = request.getParameter("id");
-		if (id == null) { id = "1"; }
-
-		try { bnr = Integer.parseInt(request.getParameter("bnr")); } catch (Exception e) {}
-		try { skd = Integer.parseInt(request.getParameter("skd")); } catch (Exception e) {}
-		
-		try {	
-			con = sxadm.getConnection(); 
-		} catch (SQLException se) { 
-			SXUtil.log(se.toString()); se.printStackTrace();
-			throw new ServletException("Fel vid kommunikation med databasen."); 
-		}
-		
-		loginForm = new LoginForm();
-		loginForm.setBnr(request.getParameter("bnr"));
-		
-		try {
-			if (get != null) {
-				handleGet(get);
-			} else {
-				handleId(id);
-			}
-		} catch (com.lowagie.text.DocumentException ep) { 
-			SXUtil.log(ep.toString()); ep.printStackTrace();
-			throw new ServletException("Fel vid skapande av pdf"); 
-		} catch (SQLException se) { 
-		} catch (IOException ie) { 
-			SXUtil.log(ie.toString()); ie.printStackTrace();
-			throw new ServletException("IOException."); 
-		} finally {
-			loginForm = null;
-			try { bestForm.be1.close(); } catch (Exception e) {}
-			try { out.close();	 } catch (Exception e) {}
-			try { outStream.close();	 } catch (Exception e) {}			
-			try { con.close();} catch (SQLException e ){}	
-		}
+		InkopLocalHandler r = new InkopLocalHandler(req, res);
+		r = null;
 	}	
 		
-	private void handleGet(String get) throws IOException, ServletException, SQLException, com.lowagie.text.DocumentException {	
-			if ("pdf".equals(get)) {
-				outStream = response.getOutputStream();
-				
-				if (!login()) { throw  new ServletException("Inte inloggad" ); }
-				bnr = sxSession.getInkopInloggatBestNr();		///// Göres om!! ***********************************
-				
-				WebUtil.sendPdf(LocalWebSupportBean.getPdfBest(bnr), outStream, response);
-					
-			} 
-	}
 
-	private void handleId(String id) throws IOException, ServletException, SQLException{	
-			this.out = response.getWriter();
-			printSiteHeader();
-			printTopBar();
 
-			if (id.equals("0") || id.equals("logout")) {
-				sxSession.setInkopInloggatBestNr(bnr);
-				printLogin();
-	PageListBest1 p = new PageListBest1(con);
-	p.getPage(1);
-	while (p.next()) {
-		out.print("<br/><a href=\"?bnr="+ p.getBestnr() +"&skd="+p.getSakerhetskod()+"\">" + p.getBestnr() + "-" + p.getSakerhetskod() + "</a>");
-	} 
-//	p.close();
 
-			} else if (id.equals("1")) {
-				if (!login()) {
-					printLogin();				
+	public class InkopLocalHandler {
+		private Connection con;
+		private HttpServletRequest request;
+		private HttpServletResponse response;
+		private PrintWriter out;
+		private ServletOutputStream outStream;
+		private SXSession sxSession;
+		private	Integer bnr = null;
+		private	Integer skd = null;
+		private BestForm bestForm = null;
+
+		private LoginForm loginForm = null;
+
+		private boolean siteHeaderPrinted = false;
+		private boolean bodyHeaderPrinted = false;
+		private boolean midbarHeaderPrinted = false;
+
+		public InkopLocalHandler(HttpServletRequest req, HttpServletResponse res) throws IOException, ServletException {
+			request = req;
+			response = res;
+			sxSession = WebUtil.getSXSession(req.getSession());
+			con = WebUtil.getConnection(sxadm);
+
+			String get = request.getParameter("get");
+			String id = request.getParameter("id");
+			if (id == null) { id = "1"; }
+
+			try { bnr = Integer.parseInt(request.getParameter("bnr")); } catch (Exception e) {}
+			try { skd = Integer.parseInt(request.getParameter("skd")); } catch (Exception e) {}
+
+
+			loginForm = new LoginForm();
+			loginForm.setBnr(request.getParameter("bnr"));
+
+			try {
+				if (get != null) {
+					handleGet(get);
 				} else {
-					printLeftSideBar();
+					handleId(id);
+				}
+			} catch (com.lowagie.text.DocumentException ep) {
+				SXUtil.log(ep.toString()); ep.printStackTrace();
+				throw new ServletException("Fel vid skapande av pdf");
+			} catch (SQLException se) {
+			} catch (IOException ie) {
+				SXUtil.log(ie.toString()); ie.printStackTrace();
+				throw new ServletException("IOException.");
+			} finally {
+				loginForm = null;
+				try { bestForm.be1.close(); } catch (Exception e) {}
+				try { out.close();	 } catch (Exception e) {}
+				try { outStream.close();	 } catch (Exception e) {}
+				try { con.close();} catch (SQLException e ){}
+			}
+
+		}
+			private void handleGet(String get) throws IOException, ServletException, SQLException, com.lowagie.text.DocumentException {
+				if ("pdf".equals(get)) {
+					outStream = response.getOutputStream();
+
+					if (!login()) { throw  new ServletException("Inte inloggad" ); }
+					bnr = sxSession.getInkopInloggatBestNr();		///// Göres om!! ***********************************
+
+					WebUtil.sendPdf(LocalWebSupportBean.getPdfBest(bnr), outStream, response);
+
+				}
+			}
+
+			private void handleId(String id) throws IOException, ServletException, SQLException{
+				this.out = response.getWriter();
+				printSiteHeader();
+				printTopBar();
+
+				if (id.equals("0") || id.equals("logout")) {
+					sxSession.setInkopInloggatBestNr(bnr);
+					printLogin();
+			PageListBest1 p = new PageListBest1(con);
+			p.getPage(1);
+			while (p.next()) {
+			out.print("<br/><a href=\"?bnr="+ p.getBestnr() +"&skd="+p.getSakerhetskod()+"\">" + p.getBestnr() + "-" + p.getSakerhetskod() + "</a>");
+			}
+			//	p.close();
+
+				} else if (id.equals("1")) {
+					if (!login()) {
+						printLogin();
+					} else {
+						printLeftSideBar();
+						printBodyHeader();
+						printMidbarHeader();
+						printBest();
+					}
+				} else if (id.equals("2")) {
+					if (!login()) {
+						printLogin();
+					} else {
+						printLeftSideBar();
+						printBodyHeader();
+						printMidbarHeader();
+						updateForm();
+					}
+				} else {
 					printBodyHeader();
 					printMidbarHeader();
+					out.println("Felaktigt id");
+				}
+
+				printFooter();
+			}
+
+
+			// Logga in och läs in pagelisterna
+			private boolean login() throws SQLException {
+				try {
+					if (skd != null && bnr != null)  {
+						bestForm = new BestForm(con, bnr, skd);
+						this.setBestMottagen();
+
+						sxSession.setInkopInloggatBestNr(bnr);
+					} else {
+						if (sxSession.getInkopInloggatBestNr() == null) return false;
+						bestForm = new BestForm(con, sxSession.getInkopInloggatBestNr());
+					}
+					} catch (SXEntityNotFoundException e) {
+					sxSession.setInkopInloggatBestNr(null);
+					loginForm.setLoginError(true);
+					return false;
+				} catch (SXSecurityException e) {
+					sxSession.setInkopInloggatBestNr(null);
+					loginForm.setSecurityError(true);
+					return false;
+				}
+				return true;
+			}
+
+
+
+			private void updateForm() throws ServletException, IOException, SQLException{
+				boolean levDatumAngivet = false;
+				bestForm.readForm(request);		// Läs in och validera
+				if (bestForm.isParseError()) {
 					printBest();
-				}
-			} else if (id.equals("2")) {
-				if (!login()) {
-					printLogin();				
 				} else {
-					printLeftSideBar();
-					printBodyHeader();
-					printMidbarHeader();
-					updateForm();
+					try {
+						PreparedStatement s;
+
+						con.setAutoCommit(false);
+						s = con.prepareStatement("update best1 set status=?, bekrdat=? where bestnr = " + bnr);
+						s.setString(1, SXConstant.BEST_STATUS_MOTTAGEN);
+						try {
+							s.setDate(2, SXUtil.getSQLDate(SXUtil.parseDateStringToDate(bestForm.getFormBekrdat())));
+							levDatumAngivet = true;
+						} catch (java.text.ParseException e) {
+							s.setDate(2, null);
+						}
+						s.executeUpdate();
+
+						s = con.prepareStatement("update best2 set bekrdat=? where bestnr = " + bnr + " and rad=?");
+
+						for (BestFormRad b : bestForm.rader) {
+							s.setInt(2, b.rad);
+							try {
+								s.setDate(1, SXUtil.getSQLDate(SXUtil.parseDateStringToDate(b.formBekrdat)));
+								levDatumAngivet = true;
+							} catch (java.text.ParseException e) {
+								s.setDate(1, null);
+							}
+							s.executeUpdate();
+						}
+
+
+						WebUtil.insertBesthand(con, bnr, SXConstant.BESTHAND_LEVERANSBESKED);
+						con.commit();
+						bestForm.setSavedOK();
+
+						bestForm.setLevDatumBekraftat(levDatumAngivet);
+
+						printBest();
+					} catch (SQLException e) {
+						bestForm.setSaveError();
+						throw(e);
+					}
 				}
-			} else {	
+			}
+
+
+			private void setBestMottagen() throws SQLException{
+				con.setAutoCommit(false);
+				try {
+					PreparedStatement s;
+					s = con.prepareStatement("update best1 set status=? where bestnr = " + bnr);
+					s.setString(1, SXConstant.BEST_STATUS_MOTTAGEN);
+					if (s.executeUpdate() < 1) { throw new SQLException("Hittar inte beställning " + bnr + " vid update status"); }
+					WebUtil.insertBesthand(con, bnr, SXConstant.BEST_STATUS_MOTTAGEN);
+					con.commit();
+				} catch (Exception e) {
+					con.rollback();
+					throw new SQLException(e.toString());
+				} finally {
+					con.setAutoCommit(true);
+				}
+			}
+
+
+			private void printLogin() throws ServletException, IOException {
 				printBodyHeader();
 				printMidbarHeader();
-				out.println("Felaktigt id");
+				request.setAttribute("loginform", loginForm);
+				request.getRequestDispatcher("/WEB-INF/jspf/inkop/login.jsp").include(request, response);
 			}
 
-			printFooter();
-	} 
-
-
-// Logga in och läs in pagelisterna
-private boolean login() throws SQLException {
-	try {
-		if (skd != null && bnr != null)  {
-			bestForm = new BestForm(con, bnr, skd);
-			this.setBestMottagen();
-			
-			sxSession.setInkopInloggatBestNr(bnr);
-		} else {
-			if (sxSession.getInkopInloggatBestNr() == null) return false;
-			bestForm = new BestForm(con, sxSession.getInkopInloggatBestNr());
-		}
-	} catch (SXEntityNotFoundException e) {
-		sxSession.setInkopInloggatBestNr(null);
-		loginForm.setLoginError(true);
-		return false;
-	} catch (SXSecurityException e) {
-		sxSession.setInkopInloggatBestNr(null);
-		loginForm.setSecurityError(true);
-		return false;
-	}
-	return true;
-}
-
-
-
-private void updateForm() throws ServletException, IOException, SQLException{
-	boolean levDatumAngivet = false;
-	bestForm.readForm(request);		// Läs in och validera
-	if (bestForm.isParseError()) { 
-		printBest(); 
-	} else {
-		try {
-			PreparedStatement s;
-
-			con.setAutoCommit(false);
-			s = con.prepareStatement("update best1 set status=?, bekrdat=? where bestnr = " + bnr);
-			s.setString(1, SXConstant.BEST_STATUS_MOTTAGEN);
-			try {
-				s.setDate(2, SXUtil.getSQLDate(SXUtil.parseDateStringToDate(bestForm.getFormBekrdat())));
-				levDatumAngivet = true;
-			} catch (java.text.ParseException e) {
-				s.setDate(2, null);		
-			}
-			s.executeUpdate();
-
-			s = con.prepareStatement("update best2 set bekrdat=? where bestnr = " + bnr + " and rad=?");
-			
-			for (BestFormRad b : bestForm.rader) {
-				s.setInt(2, b.rad);
-				try {
-					s.setDate(1, SXUtil.getSQLDate(SXUtil.parseDateStringToDate(b.formBekrdat)));
-					levDatumAngivet = true;
-				} catch (java.text.ParseException e) {
-					s.setDate(1, null);			
-				}
-				s.executeUpdate();
+			private void printBest() throws ServletException, IOException {
+				request.setAttribute("bestform", bestForm);
+				request.getRequestDispatcher("/WEB-INF/jspf/inkop/bestform.jsp").include(request, response);
 			}
 
-			
-			insertBesthand(SXConstant.BESTHAND_LEVERANSBESKED);
-			con.commit();
-			bestForm.setSavedOK();
-			
-			bestForm.setLevDatumBekraftat(levDatumAngivet);
-			
-			
-			printBest();
-		} catch (SQLException e) {
-			bestForm.setSaveError();
-			throw(e);
-		}
+			private void printSiteHeader()  throws ServletException, IOException{
+					request.getRequestDispatcher("/WEB-INF/jspf/siteheader.jsp").include(request, response);
+					siteHeaderPrinted = true;
+			}
+			private void printBodyHeader()  throws ServletException, IOException{
+					out.println("<div id=\"body\">");
+					bodyHeaderPrinted = true;
+			}
+			private void printMidbarHeader()  throws ServletException, IOException{
+					out.println("<div id=\"midbar\">");
+					midbarHeaderPrinted = true;
+			}
+
+
+			private void printFooter()  throws ServletException, IOException {
+					if (midbarHeaderPrinted) out.println("</div>");
+					if (bodyHeaderPrinted) out.println("</div>");
+					if (siteHeaderPrinted) request.getRequestDispatcher("/WEB-INF/jspf/sitefooter.jsp").include(request, response);
+			}
+
+
+			private void printLeftSideBar() throws ServletException, IOException{
+				out.print("<div id=\"leftbar\">");
+				request.getRequestDispatcher("WEB-INF/jspf/inkop/leftsidebar.jsp").include(request, response);
+				out.print("</div>");
+			}
+
+			private void printTopBar() throws ServletException, IOException{
+				out.print("<div id=\"top\">");
+				request.getRequestDispatcher("WEB-INF/jspf/inkop/topbar.jsp").include(request, response);
+				out.print("</div>");
+			}
 	}
-}
-
-private void insertBesthand(String handelse) throws SQLException {
-	PreparedStatement s = con.prepareStatement("insert into besthand (bestnr, datum, tid, anvandare, handelse) values (?,?,?,?,?)");
-	java.util.Date d = new java.util.Date();
-	s.setInt(1, bnr);
-	s.setString(4, SXUtil.getSXReg(con, SXConstant.SXREG_SERVERANVANDARE, SXConstant.SXREG_SERVERANVANDARE_DEFAULT));
-	s.setString(5, handelse);
-	int cn = 0;
-	do {
-		s.setDate(2, SXUtil.getSQLDate(d));
-		s.setTime(3, SXUtil.getSQLTime(d));
-		cn++;
-		if (cn > 10){ throw new SQLException("Creates duplicate key in besthand"); }  // Avbryt med en Exception om vi har försökt för många gånger
-		d = new java.util.Date(d.getTime()+1000);	// Öka med 1 s för att vara förbered ifall dubbel key skapas
-	} while (s.executeUpdate() < 1);  // Loopa ända tills det är sparat
-	
-}
-
-private void setBestMottagen() throws SQLException{
-	con.setAutoCommit(false);
-	try {
-		PreparedStatement s;
-		s = con.prepareStatement("update best1 set status=? where bestnr = " + bnr);
-		s.setString(1, SXConstant.BEST_STATUS_MOTTAGEN);
-		if (s.executeUpdate() < 1) { throw new SQLException("Hittar inte beställning " + bnr + " vid update status"); }
-		insertBesthand(SXConstant.BEST_STATUS_MOTTAGEN);
-		con.commit();
-	} catch (Exception e) { 
-		con.rollback();
-		throw new SQLException(e.toString());
-	} finally {
-		con.setAutoCommit(true);
-	}
-	
-}
-
-
-private void printLogin() throws ServletException, IOException {
-	printBodyHeader();
-	printMidbarHeader();
-	request.setAttribute("loginform", loginForm);
-	request.getRequestDispatcher("/WEB-INF/jspf/inkop/login.jsp").include(request, response);
-}
-
-private void printBest() throws ServletException, IOException {
-	request.setAttribute("bestform", bestForm);
-	request.getRequestDispatcher("/WEB-INF/jspf/inkop/bestform.jsp").include(request, response);
-}
-
-private void printSiteHeader()  throws ServletException, IOException{
-				request.getRequestDispatcher("/WEB-INF/jspf/siteheader.jsp").include(request, response);
-				siteHeaderPrinted = true;
-}
-private void printBodyHeader()  throws ServletException, IOException{
-				out.println("<div id=\"body\">");	
-				bodyHeaderPrinted = true;
-}
-private void printMidbarHeader()  throws ServletException, IOException{
-				out.println("<div id=\"midbar\">");
-				midbarHeaderPrinted = true;
-}
-
-
-private void printFooter()  throws ServletException, IOException {
-				if (midbarHeaderPrinted) out.println("</div>"); 
-				if (bodyHeaderPrinted) out.println("</div>"); 
-				if (siteHeaderPrinted) request.getRequestDispatcher("/WEB-INF/jspf/sitefooter.jsp").include(request, response);	
-}
-
-
-	private void printLeftSideBar() throws ServletException, IOException{
-		out.print("<div id=\"leftbar\">");
-		request.getRequestDispatcher("WEB-INF/jspf/inkop/leftsidebar.jsp").include(request, response);		
-		out.print("</div>");
-	}
-
-	private void printTopBar() throws ServletException, IOException{
-		out.print("<div id=\"top\">");
-		request.getRequestDispatcher("WEB-INF/jspf/inkop/topbar.jsp").include(request, response);		
-		out.print("</div>");
-	}
-
 
 	
 	public class BestForm {
@@ -363,7 +346,7 @@ private void printFooter()  throws ServletException, IOException {
 					antalFelinloggningar = SXUtil.noNull(be1.getAntalfelinloggningar());
 					antalFelinloggningar++;
 					con.prepareStatement("update best1 set antalfelinloggningar = " + antalFelinloggningar + " where bestnr = " + bnr).executeUpdate();
-					insertBesthand(SXConstant.BESTHAND_FELINLOGGNING);
+					WebUtil.insertBesthand(con, bnr, SXConstant.BESTHAND_FELINLOGGNING);
 				}
 				try { be1.close(); } catch (Exception e2) {}
 				be1 = null;

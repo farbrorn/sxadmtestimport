@@ -7,9 +7,14 @@ package se.saljex.sxserver.web;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import se.saljex.sxserver.SXConstant;
+import se.saljex.sxserver.SXUtil;
 
 /**
  *
@@ -36,6 +41,34 @@ public class WebUtil {
 				pdfStream.writeTo(outStream);
 				outStream.flush();		
 	}
+
+	public static java.sql.Connection getConnection(javax.sql.DataSource ds) throws javax.servlet.ServletException {
+			try {
+				return ds.getConnection();
+			} catch (java.sql.SQLException se) {
+				SXUtil.log(se.toString()); se.printStackTrace();
+				throw new javax.servlet.ServletException("Fel vid kommunikation med databasen.");
+			}
+
+	}
+
 	
-	
+	// Lägger till händelse i besthand
+	public static void insertBesthand(Connection con, Integer bnr, String handelse) throws java.sql.SQLException {
+		PreparedStatement s = con.prepareStatement("insert into besthand (bestnr, datum, tid, anvandare, handelse) values (?,?,?,?,?)");
+		java.util.Date d = new java.util.Date();
+		s.setInt(1, bnr);
+		s.setString(4, SXUtil.getSXReg(con, SXConstant.SXREG_SERVERANVANDARE, SXConstant.SXREG_SERVERANVANDARE_DEFAULT));
+		s.setString(5, handelse);
+		int cn = 0;
+		do {
+			s.setDate(2, SXUtil.getSQLDate(d));
+			s.setTime(3, SXUtil.getSQLTime(d));
+			cn++;
+			if (cn > 10){ throw new SQLException("Creates duplicate key in besthand"); }  // Avbryt med en Exception om vi har försökt för många gånger
+			d = new java.util.Date(d.getTime()+1000);	// Öka med 1 s för att vara förbered ifall dubbel key skapas
+		} while (s.executeUpdate() < 1);  // Loopa ända tills det är sparat
+
+	}
+
 }
