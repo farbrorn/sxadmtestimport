@@ -4,6 +4,7 @@
  */
 
 package se.saljex.sxserver;
+import se.saljex.sxserver.SXUtil;
 import javax.mail.Session;
 import javax.mail.internet.InternetAddress;
 import com.lowagie.text.DocumentException;
@@ -195,23 +196,23 @@ public class JobbHandler {
 		String epost;
 
 		if (!testlage.equals("Nej")) {
-			epost = "ulf.hemma@gmail.com";
+			epost = "ulf.hemma@saljex.se";
 		} else {
 			epost = lev.getEmailorder1() + "," + lev.getEmailorder2();
 		}
 
 		
 		ht =	"<table border=\"1\" cellspacing=\"0\" width=\"100%\">" +
-				"<tr><th>Beställning till<br>Purchase order to</th><th colspan=\"3\">" + be1.getLevnamn() + "</th></tr>" +
-				"<tr><td><font size=\"1\">Beställare / Buyer</font></td><td>" + fup.getNamn() + "</td><td><font size=\"1\">KundNr / Customer#</font></td><td>" + lev.getKnummer() + "</td></tr>" +
-				"<tr><td rowspan=\"4\"><font size=\"1\">Lev.adress<br />Delivery address</font></td><td rowspan=\"4\">" + be1.getLevadr0() + "<br />" + be1.getLevadr1() + "<br />" + be1.getLevadr2() + "<br />" + be1.getLevadr3() +
+				"<tr><th>Beställning till<br>Purchase order to</th><th colspan=\"3\">" + SXUtil.toHtml(be1.getLevnamn()) + "</th></tr>" +
+				"<tr><td><font size=\"1\">Beställare / Buyer</font></td><td>" + SXUtil.toHtml(fup.getNamn()) + "</td><td><font size=\"1\">KundNr / Customer#</font></td><td>" + SXUtil.toHtml(lev.getKnummer()) + "</td></tr>" +
+				"<tr><td rowspan=\"4\"><font size=\"1\">Lev.adress<br />Delivery address</font></td><td rowspan=\"4\">" + SXUtil.toHtml(be1.getLevadr0()) + "<br />" + SXUtil.toHtml(be1.getLevadr1()) + "<br />" + SXUtil.toHtml(be1.getLevadr2()) + "<br />" + SXUtil.toHtml(be1.getLevadr3()) +
 				"</td><td><font size=\"1\">Datum / Date</font></td><td>" + SXUtil.getFormatDate(be1.getDatum()) + "</td></tr>" +
 				"<tr><td><font size=\"1\">Beställningsnr / Order#</font></td><td>" + be1.getBestnr() + "</td></tr>" +
 				"<tr><td><font size=\"1\">Säkerhetskod / Safety code</font></td><td>" + be1.getSakerhetskod() + "</td></tr>" +
-				"<tr><td><font size=\"1\">Märke</font></td><td>" + be1.getMarke() + "</td></tr>" +
-				"<tr><td><font size=\"1\">Leveranstid / Delivery date</font></td><td>" + be1.getLeverans() + "</td><td>&nbsp;</td><td>&nbsp;</td></tr>" +
-				"<tr><td><font size=\"1\">Vår ref. / Our contact</font></td><td>" + be1.getVarRef() + "</td><td><font size=\"1\">Er ref. / Your contact</font></td><td>" + be1.getErRef() + "</td></tr>" +
-				"<tr><td colspan=\"4\"><b>Viktigt / Important</b><br /><a href=\"" + burl + "?bnr=" + be1.getBestnr() + "&skd=" + be1.getSakerhetskod() + "\">" + burltext + "</a></td></table>" +
+				"<tr><td><font size=\"1\">Märke</font></td><td>" + SXUtil.toHtml(be1.getMarke()) + "</td></tr>" +
+				"<tr><td><font size=\"1\">Leveranstid / Delivery date</font></td><td>" + SXUtil.toHtml(be1.getLeverans()) + "</td><td>&nbsp;</td><td>&nbsp;</td></tr>" +
+				"<tr><td><font size=\"1\">Vår ref. / Our contact</font></td><td>" + SXUtil.toHtml(be1.getVarRef()) + "</td><td><font size=\"1\">Er ref. / Your contact</font></td><td>" + SXUtil.toHtml(be1.getErRef()) + "</td></tr>" +
+				"<tr><td colspan=\"4\"><b>Viktigt / Important</b><br /><a href=\"" + burl + "?bnr=" + be1.getBestnr() + "&skd=" + be1.getSakerhetskod() + "\">" + SXUtil.toHtml(burltext) + "</a></td></table>" +
 				"<br /><br />" +
 				"<table border=\"1\" cellspacing=\"0\" width=\"100%\"><tr><th>ArtNr<br />Our code</th><th>BestNr<br />Your code</th><th>Benämning<br />Item</th><th>Antal<br />Quantity</th><th>Enhet<br />Unit</th></tr>";
 
@@ -254,12 +255,12 @@ public class JobbHandler {
 			SXUtil.log("Beställning"  + be1.getBestnr() + " till " + be1.getLevnr() + " skickad!");
 			try {
 				be1.setStatus("Skickad");
-				em.persist(be1);
 				TableBesthand beh = new TableBesthand(be1.getBestnr(),SXUtil.getSXReg(em, SXConstant.SXREG_SERVERANVANDARE, SXConstant.SXREG_SERVERANVANDARE_DEFAULT),"Sänd E-Post",0);
 				em.persist(beh);
 				em.flush();
 			} catch (Exception e) {
-				SXUtil.log("Fel vid beställning " + be1.getBestnr() + ". E-post skickad, men kunde inte uppdatera status. " + e.toString());
+				SXUtil.log("Fel vid beställning " + be1.getBestnr() + ". E-post skickad, men kunde inte uppdatera status/händelse. " + e.toString());
+				e.printStackTrace();
 			}
 		}
 	}
@@ -327,12 +328,12 @@ public class JobbHandler {
 				if (be1.getAntalpamin() > 4 ) {
 					be1.setStatus("Fel");
 				}
-				em.persist(be1);
 				TableBesthand beh = new TableBesthand(be1.getBestnr(),SXUtil.getSXReg(em, SXConstant.SXREG_SERVERANVANDARE, SXConstant.SXREG_SERVERANVANDARE_DEFAULT),"Påminnelse skickad",0);
 				em.persist(beh);
 				em.flush();
 			} catch (Exception e) {
-				SXUtil.log("Fel vid påminnelse på beställning " + be1.getBestnr() + ". E-post skickad, men kunde inte uppdatera status. " + e.toString());
+				SXUtil.log("Fel vid påminnelse på beställning " + be1.getBestnr() + ". E-post skickad, men kunde inte uppdatera status/Händelse. " + e.toString());
+				e.printStackTrace();
 			}
 		}
 	}

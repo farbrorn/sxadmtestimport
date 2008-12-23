@@ -144,7 +144,7 @@ public class SXUtil {
 	}
 
 	public static TableFuppg getFuppg(EntityManager em) {
-		Query q = em.createNamedQuery("TableFuppg.find");
+		Query q = em.createNamedQuery("TableFuppg.findAll");
 		return (TableFuppg)q.getSingleResult();
 	}
 	

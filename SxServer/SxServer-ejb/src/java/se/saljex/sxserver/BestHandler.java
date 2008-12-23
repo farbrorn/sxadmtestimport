@@ -289,13 +289,11 @@ public class BestHandler {
 						} else {
 							lag.setBest(lag.getBest() - b.getBest());
 						}
-						em.persist(lag);
 					} else { // Vi har en *-rad
 						// Vid *-rad skall beställd-markeringen tas bort från stjarnrad
 						TableStjarnrad stj = em.find(TableStjarnrad.class, b.getStjid());
 						if (stj != null) {
 							stj.setBestdat(null);
-							em.persist(stj);
 						}
 					}
 				}
@@ -323,7 +321,7 @@ public class BestHandler {
 
 			 calcTotalSumma();
 
-			 em.persist(be1);
+			 if (!bestLaddad) em.persist(be1);
 			 short scn = 0;
 			 TableBest2 be2;
 			 for (BestHandlerRad b : bordreg) {
@@ -338,20 +336,18 @@ public class BestHandler {
 						lag = em.find(TableLager.class, new TableLagerPK(b.artnr, be1.getLagernr()));
 						if (lag == null) {
 							lag = new TableLager(b.artnr, be1.getLagernr(), 0, b.best);
+							em.persist(lag);
 						} else {
 							lag.setBest(lag.getBest() + b.best);
 						}
-						em.persist(lag);
 					} else { // Vi har en *-rad, och behöver då uppdatera att den är beställd
 						TableStjarnrad stj = em.find(TableStjarnrad.class, b.stjid);
 						if (stj != null) {
 							stj.setBestdat(new Date());
-							em.persist(stj);
 						}
 					}
 			 }
 			 em.persist(new TableBesthand(be1.getBestnr(), anvandare, SXConstant.BESTHAND_SKAPAD, 0));
-			 em.flush();
 			 bestLaddad = true;		//Signalera att beställning är sparad, och därför att betrakta som laddad
 			 return be1.getBestnr();
 	  }

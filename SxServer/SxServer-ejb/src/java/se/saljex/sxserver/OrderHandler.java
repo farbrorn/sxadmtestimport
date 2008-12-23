@@ -401,7 +401,6 @@ public class OrderHandler {
 						} else {
 							lag.setIorder(lag.getIorder() - o.getBest());
 						}
-						em.persist(lag);
 					} else { // Vi har en *-rad
 						// Vi gör inget med TableStjarnrad, utan låter uppdatera om något ändrats
 						// om raden har tagits bort från ordern låter vi deta bara passera
@@ -434,7 +433,7 @@ public class OrderHandler {
 			or1.setStatus(SXConstant.ORDER_STATUS_SPARAD);
 		}
 		if (or1.getDellev() == null) { or1.setDellev((short)1); }
-		em.persist(or1); 
+		if (!orderLaddad) em.persist(or1);
 		scn = 0;
 		for (OrderHandlerRad o : ordreg) {
 			scn++;
@@ -450,10 +449,10 @@ public class OrderHandler {
 				lag = em.find(TableLager.class, new TableLagerPK(o.artnr, or1.getLagernr()));
 				if (lag == null) {
 					lag = new TableLager(o.artnr, or1.getLagernr(),o.best,0);
+					em.persist(lag);
 				} else {
 					lag.setIorder(lag.getIorder()+o.best);
 				}
-				em.persist(lag);
 			} else { // Vi har *-rad
 				TableStjarnrad stj = null;
 				
@@ -469,6 +468,7 @@ public class OrderHandler {
 					stj = new TableStjarnrad(maxstjid);
 					stj.setAnvandare(anvandare);
 					stj.setRegdatum(new Date());
+					em.persist(stj);
 				}
 				stj.setAntal(o.best);
 				stj.setArtnr(o.artnr);
@@ -480,11 +480,9 @@ public class OrderHandler {
 				stj.setLagernr(or1.getLagernr());
 				stj.setLevnr(o.levnr);
 				stj.setNamn(o.namn);
-				em.persist(stj);
 			}
 		}
 		em.persist( new TableOrderhand(or1.getOrdernr(), anvandare, SXConstant.ORDERHAND_SKAPAD));
-		em.flush();
 		orderLaddad = true;			// Signalera att ordern nu finns sparad, och aktuell order därför betraktas som laddad
 		return or1.getOrdernr();
 	}

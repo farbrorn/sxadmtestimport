@@ -78,7 +78,7 @@ public class SendMail {
 	public void sendMailTextHtml(InternetAddress mailFrom, String mailTo, String subject, String bodyText, String bodyHTML) throws NamingException, MessagingException, UnsupportedEncodingException {
 		MimeMessage message;
 		message = new MimeMessage(mailsxmail);
-		message.setSubject(subject);
+		message.setSubject(subject,"UTF-8");
 		message.setRecipients(javax.mail.Message.RecipientType.TO, javax.mail.internet.InternetAddress.parse(mailTo, false));
 		message.setFrom(mailFrom);
 		
@@ -96,12 +96,12 @@ public class SendMail {
 
 		// Add text
 		MimeBodyPart mbp1 = new MimeBodyPart();
-		mbp1.setText(bodyText,"ISO-8859-1");
+		mbp1.setText(bodyText,"UTF-8");
 		mpContent.addBodyPart(mbp1);
 
 		// Add html
 		MimeBodyPart mbp2 = new MimeBodyPart();
-		mbp2.setText(bodyHTML,"ISO-8859-1","html");
+		mbp2.setText(bodyHTML,"UTF-8","html");
 		mpContent.addBodyPart(mbp2);
 
 		message.setContent(mpRoot);
@@ -113,7 +113,7 @@ public class SendMail {
 	public void sendMailTextHtmlPdf(InternetAddress mailFrom, String mailTo, String subject, String bodyText, String bodyHTML, ByteArrayOutputStream pdfStream, String fileName) throws NamingException, MessagingException, UnsupportedEncodingException {
 		MimeMessage message;
 		message = new MimeMessage(mailsxmail);
-		message.setSubject(subject);
+		message.setSubject(subject,"UTF-8");
 		message.setRecipients(javax.mail.Message.RecipientType.TO, javax.mail.internet.InternetAddress.parse(mailTo, false));
 		message.setFrom(mailFrom);
 		
@@ -131,12 +131,12 @@ public class SendMail {
 
 		// Add text
 		MimeBodyPart mbp1 = new MimeBodyPart();
-		mbp1.setText(bodyText,"ISO-8859-1");
+		mbp1.setText(bodyText,"UTF-8");
 		mpContent.addBodyPart(mbp1);
 
 		// Add html
 		MimeBodyPart mbp2 = new MimeBodyPart();
-		mbp2.setText(bodyHTML,"ISO-8859-1","html");
+		mbp2.setText(bodyHTML,"UTF-8","html");
 		mpContent.addBodyPart(mbp2);
 
 		// Add an attachment

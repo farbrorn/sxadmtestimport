@@ -227,7 +227,6 @@ public class SxServerMainBean implements SxServerMainLocal {
 					}
 				}
 			}
-		
 	}
 
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
@@ -381,7 +380,14 @@ public class SxServerMainBean implements SxServerMainLocal {
 					ResultSet r = st.executeQuery("select epost from webuser u, weborder1 o where u.loginnamn = o.loginnamn and o.wordernr = " + o);
 					if (r.next()) {
 						try {
-							mailTo = r.getString(1);
+							String testlage  = SXUtil.getSXReg(em,"SxServTestlage","Ja" );
+
+							if (!testlage.equals("Nej")) {
+								mailTo = "ulf.hemma@saljex.se";
+							} else {
+								mailTo = r.getString(1);
+							}
+
 							SendMail m = new SendMail(mailsxmail, SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPUSER), SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPPASSWORD));
 							m.sendSimpleMail(	em,
 													mailTo,
@@ -390,12 +396,14 @@ public class SxServerMainBean implements SxServerMainLocal {
 						} catch (Exception e) {
 							SXUtil.log("Kunde inte skicka epost om kreditspärr till " + mailTo + " Weborder " + o + ". " + e.toString());
 						}
+					} else {
+						SXUtil.log("Kunde inte hitta kontaktinfo för weborder " + o + " vid försök att skicka epost om kreditspärr.");
 					}
 					r.close();
 					st.executeUpdate("update worder1 set status='Spärrad' where wordernr = " + o);
 
 				} catch (SQLException se) {
-					SXUtil.log("Fel vid spara order " + o + ": " + se.toString());
+					SXUtil.log("Fel vid spara webordernr " + o + ": " + se.toString());
 				}
 			}
 		} catch (SQLException se1) {
