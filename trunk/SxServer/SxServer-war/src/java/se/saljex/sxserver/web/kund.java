@@ -1,5 +1,11 @@
 package se.saljex.sxserver.web;
 
+import se.saljex.sxserv.tables.TableKund;
+import se.saljex.sxserv.tables.TableFaktura2;
+import se.saljex.sxserv.tables.TableFaktura1;
+import se.saljex.sxserv.tables.TableOrder1;
+import se.saljex.sxserv.tables.TableKundres;
+import se.saljex.sxserv.tables.TableOrder2;
 import java.io.*;
 
 import java.sql.Connection;
