@@ -5,6 +5,8 @@
 
 package se.saljex.sxserver;
 
+import se.saljex.sxserv.tables.TableBest2PK;
+import se.saljex.sxserv.tables.TableBest2;
 import java.util.Date;
 
 /**
@@ -37,8 +39,8 @@ public class BestHandlerRad {
 	public double artIlager = 0;
 		
 	public void setAll(TableBest2 o) {
-		bestnr = o.tableBest2PK.getBestnr();
-		rad = o.tableBest2PK.getRad();
+		bestnr = o.getTableBest2PK().getBestnr();
+		rad = o.getTableBest2PK().getRad();
 		artnr = o.getArtnr();
 		artnamn = o.getArtnamn();
 		bartnr = o.getBartnr();
@@ -59,7 +61,7 @@ public class BestHandlerRad {
 	public TableBest2 getBest2() {
 		TableBest2 o = new TableBest2();
 
-		o.tableBest2PK = new TableBest2PK(bestnr,rad);
+		o.setTableBest2PK(new TableBest2PK(bestnr,rad));
 		o.setArtnr(artnr);
 		o.setArtnamn(artnamn);
 		o.setBartnr(bartnr);

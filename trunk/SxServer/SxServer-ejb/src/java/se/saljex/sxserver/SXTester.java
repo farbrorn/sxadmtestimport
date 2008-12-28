@@ -5,6 +5,7 @@
 
 package se.saljex.sxserver;
 
+import se.saljex.sxserv.tables.TableOrder1;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -104,7 +105,10 @@ public class SXTester {
 			System.out.println("tester SimpleOrderHandler - 2");
 			ret = ret + testerPrintOrder(soh.getTableOrder1(),soh.getOrdreg(),"Original SimpleOrder");
 			System.out.println("tester SimpleOrderHandler - 3");
-			ArrayList<Integer> al = soh.saveAsOrder();
+			ArrayList<Integer> al = null;
+			try {
+				al = soh.saveAsOrder();
+			} catch (KreditSparrException ke) { SXUtil.log("Kreditspärr exception"); ke.printStackTrace();}
 			for (Integer il : al) {
 				ret = ret + "<br> Sparad som ordernr: " + il;
 			}

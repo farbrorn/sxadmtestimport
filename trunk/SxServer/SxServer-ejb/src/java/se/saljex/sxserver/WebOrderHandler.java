@@ -122,7 +122,7 @@ public ArrayList<Integer> getSkickadWorderList() throws java.sql.SQLException {
 	} 
 
 
-
+/*
 public int updateWArtikel() throws SQLException {
 	con.createStatement().executeUpdate("delete from wartikelup");		// Rensar temporära tebellen
 	
@@ -257,6 +257,6 @@ public int updateWArtklaselank() throws SQLException {
 	con.createStatement().executeUpdate("create table wartklaselank select * from wartklaselankup");		// Kopierar temporära tabellen till original
 	return cn;	
 }
-
+*/
 }
     

@@ -4,6 +4,9 @@
  */
 
 package se.saljex.sxserver;
+import se.saljex.sxserv.tables.TableFuppg;
+import se.saljex.sxserv.tables.TableMeddel;
+import se.saljex.sxserv.tables.TableSxreg;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

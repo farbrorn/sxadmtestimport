@@ -1,6 +1,12 @@
 
 package se.saljex.sxserver;
 
+import se.saljex.sxserv.tables.TableFaktura1;
+import se.saljex.sxserv.tables.TableArtikel;
+import se.saljex.sxserv.tables.TableKund;
+import se.saljex.sxserv.tables.TableFuppg;
+import se.saljex.sxserv.tables.TableFaktura2;
+import se.saljex.sxserv.tables.TableBilder;
 import com.lowagie.text.*;//.text.Document;
 import com.lowagie.text.pdf.*;
 import javax.servlet.http.*;
