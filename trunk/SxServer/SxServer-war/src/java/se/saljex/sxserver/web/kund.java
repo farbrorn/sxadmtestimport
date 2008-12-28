@@ -19,7 +19,6 @@ import javax.persistence.PersistenceUnit;
 import javax.servlet.*;
 import javax.servlet.http.*;
 import javax.sql.DataSource;
-import javax.transaction.UserTransaction;
 import se.saljex.sxserver.*;
 
 /**
