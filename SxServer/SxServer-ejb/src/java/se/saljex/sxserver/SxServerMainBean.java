@@ -1,5 +1,7 @@
 package se.saljex.sxserver;
 
+import se.saljex.sxserv.tables.TableBest1;
+import se.saljex.sxserv.tables.TableSxservjobb;
 import java.sql.SQLException;
 import javax.ejb.Stateless;
 import javax.annotation.PostConstruct;

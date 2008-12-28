@@ -5,6 +5,8 @@
 
 package se.saljex.sxserver;
 
+import se.saljex.sxserv.tables.TableOrder2PK;
+import se.saljex.sxserv.tables.TableOrder2;
 import java.util.Date;
 
 /**
@@ -46,8 +48,8 @@ public class OrderHandlerRad {
 	public Double artIlager = null;
 		
 	public void setAll(TableOrder2 o) {
-		ordernr = o.tableOrder2PK.getOrdernr();
-		pos = o.tableOrder2PK.getPos();
+		ordernr = o.getTableOrder2PK().getOrdernr();
+		pos = o.getTableOrder2PK().getPos();
 		prisnr = o.getPrisnr();
 		dellev = o.getDellev();
 		artnr = o.getArtnr();
@@ -72,7 +74,7 @@ public class OrderHandlerRad {
 	public TableOrder2 getOrder2() {
 		TableOrder2 o = new TableOrder2();
 
-		o.tableOrder2PK = new TableOrder2PK(ordernr,pos);
+		o.setTableOrder2PK(new TableOrder2PK(ordernr,pos));
 		o.setPrisnr(prisnr);
 		o.setDellev(dellev);
 		o.setArtnr(artnr);

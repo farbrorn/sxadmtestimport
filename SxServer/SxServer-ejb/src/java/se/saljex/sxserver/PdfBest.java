@@ -1,6 +1,15 @@
 
 package se.saljex.sxserver;
 
+import se.saljex.sxserv.tables.TableArtikel;
+import se.saljex.sxserv.tables.TableSaljare;
+import se.saljex.sxserv.tables.TableKund;
+import se.saljex.sxserv.tables.TableFuppg;
+import se.saljex.sxserv.tables.TableLagerid;
+import se.saljex.sxserv.tables.TableBilder;
+import se.saljex.sxserv.tables.TableBest2;
+import se.saljex.sxserv.tables.TableBest1;
+import se.saljex.sxserv.tables.TableStjarnrad;
 import com.lowagie.text.*;//.text.Document;
 import com.lowagie.text.pdf.*;
 import javax.servlet.http.*;
