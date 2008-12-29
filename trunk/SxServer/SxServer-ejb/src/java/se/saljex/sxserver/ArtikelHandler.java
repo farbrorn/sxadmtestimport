@@ -5,8 +5,8 @@
 
 package se.saljex.sxserver;
 
-import se.saljex.sxserv.tables.TableLagerPK;
-import se.saljex.sxserv.tables.TableLager;
+import se.saljex.sxserver.tables.TableLagerPK;
+import se.saljex.sxserver.tables.TableLager;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;

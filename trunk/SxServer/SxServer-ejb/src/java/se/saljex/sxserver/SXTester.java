@@ -5,7 +5,7 @@
 
 package se.saljex.sxserver;
 
-import se.saljex.sxserv.tables.TableOrder1;
+import se.saljex.sxserver.tables.TableOrder1;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;

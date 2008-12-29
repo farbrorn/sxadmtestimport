@@ -5,8 +5,8 @@
 
 package se.saljex.sxserver;
 
-import se.saljex.sxserv.tables.TableBest2PK;
-import se.saljex.sxserv.tables.TableBest2;
+import se.saljex.sxserver.tables.TableBest2PK;
+import se.saljex.sxserver.tables.TableBest2;
 import java.util.Date;
 
 /**

@@ -5,15 +5,15 @@
 
 package se.saljex.sxserver;
 
-import se.saljex.sxserv.tables.TableFaktura1;
-import se.saljex.sxserv.tables.TableKundkontakt;
-import se.saljex.sxserv.tables.TableOrder1;
-import se.saljex.sxserv.tables.TableKund;
-import se.saljex.sxserv.tables.TableFaktura2;
-import se.saljex.sxserv.tables.TableKundlogin;
-import se.saljex.sxserv.tables.TableKundres;
-import se.saljex.sxserv.tables.TableOrder2;
-import se.saljex.sxserv.tables.TableRorder;
+import se.saljex.sxserver.tables.TableFaktura1;
+import se.saljex.sxserver.tables.TableKundkontakt;
+import se.saljex.sxserver.tables.TableOrder1;
+import se.saljex.sxserver.tables.TableKund;
+import se.saljex.sxserver.tables.TableFaktura2;
+import se.saljex.sxserver.tables.TableKundlogin;
+import se.saljex.sxserver.tables.TableKundres;
+import se.saljex.sxserver.tables.TableOrder2;
+import se.saljex.sxserver.tables.TableRorder;
 import com.lowagie.text.DocumentException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

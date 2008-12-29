@@ -5,7 +5,7 @@
 
 package se.saljex.sxserver;
 
-import se.saljex.sxserv.tables.TableOrder1;
+import se.saljex.sxserver.tables.TableOrder1;
 import java.util.ArrayList;
 import java.util.ListIterator;
 import javax.persistence.EntityManager;

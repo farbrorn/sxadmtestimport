@@ -5,8 +5,8 @@
 
 package se.saljex.sxserver;
 
-import se.saljex.sxserv.tables.TableOrder2PK;
-import se.saljex.sxserv.tables.TableOrder2;
+import se.saljex.sxserver.tables.TableOrder2PK;
+import se.saljex.sxserver.tables.TableOrder2;
 import java.util.Date;
 
 /**
