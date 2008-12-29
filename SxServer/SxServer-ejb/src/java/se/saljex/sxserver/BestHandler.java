@@ -4,18 +4,18 @@
  */
 package se.saljex.sxserver;
 
-import se.saljex.sxserv.tables.TableArtikel;
-import se.saljex.sxserv.tables.TableLev;
-import se.saljex.sxserv.tables.TableFaktdat;
-import se.saljex.sxserv.tables.TableSaljare;
-import se.saljex.sxserv.tables.TableBesthand;
-import se.saljex.sxserv.tables.TableFuppg;
-import se.saljex.sxserv.tables.TableLagerid;
-import se.saljex.sxserv.tables.TableLagerPK;
-import se.saljex.sxserv.tables.TableBest2;
-import se.saljex.sxserv.tables.TableBest1;
-import se.saljex.sxserv.tables.TableLager;
-import se.saljex.sxserv.tables.TableStjarnrad;
+import se.saljex.sxserver.tables.TableArtikel;
+import se.saljex.sxserver.tables.TableLev;
+import se.saljex.sxserver.tables.TableFaktdat;
+import se.saljex.sxserver.tables.TableSaljare;
+import se.saljex.sxserver.tables.TableBesthand;
+import se.saljex.sxserver.tables.TableFuppg;
+import se.saljex.sxserver.tables.TableLagerid;
+import se.saljex.sxserver.tables.TableLagerPK;
+import se.saljex.sxserver.tables.TableBest2;
+import se.saljex.sxserver.tables.TableBest1;
+import se.saljex.sxserver.tables.TableLager;
+import se.saljex.sxserver.tables.TableStjarnrad;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;

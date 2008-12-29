@@ -4,12 +4,12 @@
  */
 
 package se.saljex.sxserver;
-import se.saljex.sxserv.tables.TableLev;
-import se.saljex.sxserv.tables.TableBesthand;
-import se.saljex.sxserv.tables.TableFuppg;
-import se.saljex.sxserv.tables.TableBest2;
-import se.saljex.sxserv.tables.TableBest1;
-import se.saljex.sxserv.tables.TableSxservjobb;
+import se.saljex.sxserver.tables.TableLev;
+import se.saljex.sxserver.tables.TableBesthand;
+import se.saljex.sxserver.tables.TableFuppg;
+import se.saljex.sxserver.tables.TableBest2;
+import se.saljex.sxserver.tables.TableBest1;
+import se.saljex.sxserver.tables.TableSxservjobb;
 import se.saljex.sxserver.SXUtil;
 import javax.mail.Session;
 import javax.mail.internet.InternetAddress;

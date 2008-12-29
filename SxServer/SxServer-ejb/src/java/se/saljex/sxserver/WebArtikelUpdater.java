@@ -5,13 +5,13 @@
 
 package se.saljex.sxserver;
 
-import se.saljex.sxserv.tables.TableArtikel;
-import se.saljex.sxserv.tables.TableArtgrplank;
-import se.saljex.sxserv.tables.TableArtklase;
-import se.saljex.sxserv.tables.TableLagerPK;
-import se.saljex.sxserv.tables.TableArtgrp;
-import se.saljex.sxserv.tables.TableArtklaselank;
-import se.saljex.sxserv.tables.TableLager;
+import se.saljex.sxserver.tables.TableArtikel;
+import se.saljex.sxserver.tables.TableArtgrplank;
+import se.saljex.sxserver.tables.TableArtklase;
+import se.saljex.sxserver.tables.TableLagerPK;
+import se.saljex.sxserver.tables.TableArtgrp;
+import se.saljex.sxserver.tables.TableArtklaselank;
+import se.saljex.sxserver.tables.TableLager;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;

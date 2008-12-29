@@ -5,19 +5,19 @@
 
 package se.saljex.sxserver;
 
-import se.saljex.sxserv.tables.TableKunrabPK;
-import se.saljex.sxserv.tables.TableFdordernr;
-import se.saljex.sxserv.tables.TableLager;
-import se.saljex.sxserv.tables.TableNettopriPK;
-import se.saljex.sxserv.tables.TableOrder2;
-import se.saljex.sxserv.tables.TableNettopri;
-import se.saljex.sxserv.tables.TableArtikel;
-import se.saljex.sxserv.tables.TableOrder1;
-import se.saljex.sxserv.tables.TableKund;
-import se.saljex.sxserv.tables.TableKunrab;
-import se.saljex.sxserv.tables.TableLagerPK;
-import se.saljex.sxserv.tables.TableStjarnrad;
-import se.saljex.sxserv.tables.TableOrderhand;
+import se.saljex.sxserver.tables.TableKunrabPK;
+import se.saljex.sxserver.tables.TableFdordernr;
+import se.saljex.sxserver.tables.TableLager;
+import se.saljex.sxserver.tables.TableNettopriPK;
+import se.saljex.sxserver.tables.TableOrder2;
+import se.saljex.sxserver.tables.TableNettopri;
+import se.saljex.sxserver.tables.TableArtikel;
+import se.saljex.sxserver.tables.TableOrder1;
+import se.saljex.sxserver.tables.TableKund;
+import se.saljex.sxserver.tables.TableKunrab;
+import se.saljex.sxserver.tables.TableLagerPK;
+import se.saljex.sxserver.tables.TableStjarnrad;
+import se.saljex.sxserver.tables.TableOrderhand;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
