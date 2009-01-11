@@ -28,11 +28,16 @@ public class SendMail {
 	
 	private String user;
 	private String password;
+	private Integer port;
 	
-	public SendMail(Session s, String u, String p) {
+	public SendMail(Session s, String u, String p, String por) {
 		mailsxmail = s;
 		user = u;
 		password = p;
+		if (por==null) { port=25; }
+		else {
+			try { port = new Integer(por); } catch (NumberFormatException e) { port = 25; }
+		}
 	}
 	
 
@@ -163,7 +168,7 @@ public class SendMail {
 		Transport tr;
 		mailsxmail.getProperties().put("mail.smtp.auth", "true");
 		tr = mailsxmail.getTransport("smtp");
-		tr.connect(user,password);
+		tr.connect(null, port, user,password);
 		tr.sendMessage(mimeMessage, mimeMessage.getAllRecipients());
 		tr.close(); 
 	}
