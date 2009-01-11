@@ -18,7 +18,7 @@ CREATE OR REPLACE FUNCTION public."day"(timestamp)
  language sql
  returns null on null input;
 
-CREATE OR REPLACE FUNCTION public."ucase"(va567890+´+1234567890+rchar)
+CREATE OR REPLACE FUNCTION public."ucase"(varchar)
   RETURNS varchar AS
  'select upper ($1)'
  language sql
@@ -27,21 +27,7 @@ CREATE OR REPLACE FUNCTION public."ucase"(va567890+´+1234567890+rchar)
 
 
 create table kundkontakt (
-kontaktid integer not null, clara
-
-
-
-mamma
-
-
-
-
-
-
-
-
-
-vra2134
+kontaktid integer not null, 
 kundnr varchar(20) not null,
 namn varchar(30),
 tel varchar(30),
@@ -60,3 +46,4 @@ loginnamn varchar(30) not null,
 kontaktid integer not null unique,
 loginlosen varchar(20) not null,
 primary key (loginnamn));
+
