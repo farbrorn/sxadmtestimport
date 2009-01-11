@@ -175,7 +175,7 @@ public class SxServerMainBean implements SxServerMainLocal {
 					try {
 						sxServerMainBean.handleJobb(t);		//aNROPAS SÅ HÄR FÖR ATT STARTA NY TRANSAKTION
 					} catch (Exception e) {
-						SXUtil.log("Ett undantagsfel uppstod vid bearbetning av jobb." + t.getJobbid() + ". Försöker fortsätta med nästa " + e.toString()); 
+						SXUtil.log("Ett undantagsfel uppstod vid bearbetning av jobb." + t.getJobbid() + ". Försöker fortsätta med nästa " + e.toString()); e.printStackTrace();
 					}
 				}
 				
@@ -390,7 +390,8 @@ public class SxServerMainBean implements SxServerMainLocal {
 								mailTo = r.getString(1);
 							}
 
-							SendMail m = new SendMail(mailsxmail, SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPUSER), SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPPASSWORD));
+							SendMail m = new SendMail(mailsxmail, SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPUSER), SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPPASSWORD),
+																SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPSERVERPORT));
 							m.sendSimpleMail(	em,
 													mailTo,
 													SXUtil.getSXReg(em,SXConstant.SXREG_WORDER_SPARRAD_ORDER_SUBJECT, SXConstant.SXREG_WORDER_SPARRAD_ORDER_SUBJECT_DEFAULT),
