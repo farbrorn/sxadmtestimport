@@ -150,7 +150,12 @@ public class SXUtil {
 		Query q = em.createNamedQuery("TableFuppg.findAll");
 		return (TableFuppg)q.getSingleResult();
 	}
-	
+
+
+	public static void logDebug(String s) {
+		Logger.getLogger("sx").finest(s);
+	}
+
 	public static void log(String s) {
 		Logger.getLogger("sx").info(s);
 	}

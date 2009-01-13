@@ -67,7 +67,7 @@ public class LagerCheck {
 				a = s.executeUpdate("insert into lager (artnr, lagernr, ilager, bestpunkt, maxlager, best, iorder)" +
 						" values('" + r.getString(1) + "', " + r.getInt(2) + ", 0, 0, 0, " + r.getFloat(4) + ", " + r.getFloat(3) + ")" );
 				if (a < 1) {		//Vi fick inget tillagd 
-					System.out.println("Det gick inte att lägga till i lager. Artikelnr: " + r.getString(1) + ", lagernr: " + r.getInt(2));
+					SXUtil.log("Det gick inte att lägga till i lager. Artikelnr: " + r.getString(1) + ", lagernr: " + r.getInt(2));
 				}
 			}
 		}

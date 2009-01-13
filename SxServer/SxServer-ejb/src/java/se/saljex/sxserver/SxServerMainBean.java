@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.logging.FileHandler;
+import java.util.logging.Level;
 import java.util.logging.Logger;
   
 import javax.annotation.Resource;
@@ -89,7 +90,8 @@ public class SxServerMainBean implements SxServerMainLocal {
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	@Timeout
 	public void handleTimer(Timer timer)   {
-		System.out.println("handleTimer startad: " + timer.getInfo());		
+
+		SXUtil.logDebug("handleTimer startad: " + timer.getInfo());
 
 		if (timer.getInfo().equals("JobbTimer")) handleJobbTimer();
 		else if (timer.getInfo().equals("KvartTimer")) handleKvartTimer();
@@ -201,7 +203,7 @@ public class SxServerMainBean implements SxServerMainLocal {
 				} 
 				
 			} catch (Exception e) { 
-				System.out.println("Ett undantagsfel uppstod vid bearbetning av jobb: " + e.toString()); 
+				SXUtil.log("Ett undantagsfel uppstod vid bearbetning av jobb: " + e.toString());
 				context.setRollbackOnly();
 			}
 			finally { 
@@ -213,7 +215,7 @@ public class SxServerMainBean implements SxServerMainLocal {
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public void handleJobb(TableSxservjobb t) throws  DocumentException, IOException, NamingException, MessagingException {
 		JobbHandler jobbHandler = new JobbHandler(em,mailsxmail);		//Vi gör detta kryptiska anrop för att ny transaktion ska startas för varje jobb
-			System.out.println("Behandlar jobbid " + t.getJobbid());
+			SXUtil.log("Behandlar jobbid " + t.getJobbid());
 			if (t.getUppgift().equals(SXConstant.SERVJOBB_UPPGIFT_SAND)) {
 				if (t.getDokumenttyp().equals(SXConstant.SERVJOBB_DOKUMENTTYP_FAKTURA)) {	//Faktura
 					if (t.getSandsatt().equals(SXConstant.SERVJOBB_SANDSATT_EPOST)) {
@@ -258,7 +260,7 @@ public class SxServerMainBean implements SxServerMainLocal {
 	}
 	
 	private void startJobbTimer() {
-		sxServerMainBean.startTimer(7000,"JobbTimer");	//Måste startas som EJB-anrop för att new transaction skall funka
+		sxServerMainBean.startTimer(60*1000,"JobbTimer");	//Måste startas som EJB-anrop för att new transaction skall funka
 	}
 	private void startKvartTimer() {
 		sxServerMainBean.startTimer(15*60*1000,"KvartTimer");	//Måste startas som EJB-anrop för att new transaction skall funka
@@ -306,29 +308,18 @@ public class SxServerMainBean implements SxServerMainLocal {
 	public void main() {
 		/*Detta är uppstartsproceduren, som skall köras en gång vid systemstart, och därefter aldrig mer
 		 * Initieringen av denna metod sköts från en Listener som finns i Webb-delen och gör anropet hit */
-		startTimers();
 		if (Logger.getLogger("sx").getHandlers().length < 1) {	//Har vi ingen handler, så ska vi lägga till deb.  Vi måste kolla detta så att inte flera file-handlers blir registrerade
 																//Detta ifall applicationen startas om, och vi riskerar fler handlers
 			try {
 				Logger.getLogger("sx").addHandler(new FileHandler("%h/sxserver-%u-%g.log",1024*1024,3,true));
 			} catch (Exception e) { System.out.println("**** Undantagsfel i se.saljex.sxserver.main när java.util.logger försöker skapa FileHandler." + e.toString()); }
 		}
+		Logger.getLogger("sx").setLevel(Level.FINER); // Om vi sätter Level.FINER, så stänger vi av nivån finest som vi använder för debuginfo
+
 		Logger.getLogger("sx").info("se.saljex.sxserver.main startad.");
-/*		
-		try {
-			RandomAccessFile rf = new RandomAccessFile("c:\\dum\\sxlogo.png", "r");
-            int size = (int)rf.length();
-            byte imext[] = new byte[size];
-            rf.readFully(imext);
-            rf.close();
-			SerialBlob b = new SerialBlob(imext);
-			//b.setBytes(1,imext);
-			PreparedStatement pstmt = con.prepareStatement("insert into bilder (namn,typ,bilddata) values ('SxLogo','png',?) ");
-			pstmt.setBlob(1, b);
-			System.out.println ("Insert SQL " + pstmt.executeUpdate());
-			
-		} catch (Exception e) { Logger.getLogger("sx").warning("Exception cid " + e.toString()); }
-*/		
+		System.out.println("Loggning sker till filen sxserver-n-n.log i ägarens hemkatalog (t.ex. /root)");
+		
+		startTimers();
 	 }
 
 
