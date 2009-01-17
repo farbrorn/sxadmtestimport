@@ -1,4 +1,3 @@
-// fUNCTIONS - DATE, YEAR, MONTH, UCASE
 
 CREATE OR REPLACE FUNCTION public."year"(timestamp)
   RETURNS double precision AS
@@ -102,8 +101,7 @@ primary key (GRPID , KLASID));
 
 create table ARTGRUPP (
 NUMMER varchar(10)  ,
-GRUPP varchar(10)  ,
-primary key (*WARNING NO PRIMARY KEY*));
+GRUPP varchar(10) );
 
 
 create table ARTHAND (
