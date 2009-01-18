@@ -97,9 +97,10 @@ public class JobbHandler {
 	public List<TableBest1> getSandBestPaminEpostList() throws DocumentException, IOException, NamingException, MessagingException {
 		Query q;
 		q = em.createNamedQuery("TableBest1.findAllSendPaminEpost");
-		q.setParameter("pamindat", new Date());
+		q.setParameter("pamindat", SXUtil.addDate(new Date(), -SXConstant.BEST_PAMIN_DAGAR_MELLAN));
 		Date datum = new Date();
-		q.setParameter("datum", SXUtil.addDate(datum,-1));
+		q.setParameter("sanddat", SXUtil.addDate(datum,-SXConstant.BEST_PAMIN_DAGAR_EFTER_SAND));
+
 		
 		return q.getResultList();
 	}
@@ -202,7 +203,7 @@ public class JobbHandler {
 		String epost;
 
 		if (!testlage.equals("Nej")) {
-			epost = "ulf.hemma@saljex.se";
+			epost = SXConstant.EMAIL_VID_TESTLAGE;
 		} else {
 			epost = lev.getEmailorder1() + "," + lev.getEmailorder2();
 		}
@@ -261,6 +262,7 @@ public class JobbHandler {
 			SXUtil.log("Beställning"  + be1.getBestnr() + " till " + be1.getLevnr() + " skickad!");
 			try {
 				be1.setStatus("Skickad");
+				be1.setSanddat(new Date());
 				TableBesthand beh = new TableBesthand(be1.getBestnr(),SXUtil.getSXReg(em, SXConstant.SXREG_SERVERANVANDARE, SXConstant.SXREG_SERVERANVANDARE_DEFAULT),"Sänd E-Post",0);
 				em.persist(beh);
 				em.flush();
@@ -291,7 +293,7 @@ public class JobbHandler {
 		String epost;
 
 		if (!testlage.equals("Nej")) {
-			epost = "ulf.hemma@gmail.com";
+			epost = SXConstant.EMAIL_VID_TESTLAGE;
 		} else {
 			epost = lev.getEmailorder1() + "," + lev.getEmailorder2();
 		}

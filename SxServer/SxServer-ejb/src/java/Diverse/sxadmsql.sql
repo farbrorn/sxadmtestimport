@@ -1971,3 +1971,7 @@ NAMN varchar(30)  ,
 BESKRIVNING varchar(120)  ,
 primary key (ID));
 
+
+
+/* Ändringar 2008-01-18 */
+alter table best1 add column sanddat date;
