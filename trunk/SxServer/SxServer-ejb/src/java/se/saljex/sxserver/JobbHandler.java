@@ -205,7 +205,8 @@ public class JobbHandler {
 		if (!testlage.equals("Nej")) {
 			epost = SXConstant.EMAIL_VID_TESTLAGE;
 		} else {
-			epost = lev.getEmailorder1() + "," + lev.getEmailorder2();
+			epost = lev.getEmailorder1();
+			if (!SXUtil.toStr(lev.getEmailorder2()).isEmpty()) { epost = epost + "," + lev.getEmailorder2(); }
 		}
 
 		
@@ -293,7 +294,8 @@ public class JobbHandler {
 		if (!testlage.equals("Nej")) {
 			epost = SXConstant.EMAIL_VID_TESTLAGE;
 		} else {
-			epost = lev.getEmailorder1() + "," + lev.getEmailorder2();
+			epost = lev.getEmailorder1();
+			if (!SXUtil.toStr(lev.getEmailorder2()).isEmpty()) { epost = epost + "," + lev.getEmailorder2(); }
 		}
 
 		
