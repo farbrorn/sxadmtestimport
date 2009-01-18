@@ -22,7 +22,8 @@ import javax.persistence.TemporalType;
  */
 @Entity
 @Table(name = "BEST1")
-@NamedQueries({@NamedQuery(name = "TableBest1.findAllSendEpost", query = "SELECT b FROM TableBest1 b WHERE b.status = 'Skapad' and b.skickasom = 'epost' order by b.bestnr desc"), @NamedQuery(name = "TableBest1.findAllSendPaminEpost", query = "SELECT b FROM TableBest1 b WHERE b.status = 'Skickad' and b.skickasom = 'epost' and b.bekrdat is null and (b.pamindat is null or b.pamindat < :pamindat) and b.datum < :datum order by b.bestnr desc")})
+@NamedQueries({@NamedQuery(name = "TableBest1.findAllSendEpost", query = "SELECT b FROM TableBest1 b WHERE b.status = 'Skapad' and b.skickasom = 'epost' order by b.bestnr desc"),
+@NamedQuery(name = "TableBest1.findAllSendPaminEpost", query = "SELECT b FROM TableBest1 b WHERE b.status = 'Skickad' and b.skickasom = 'epost' and b.bekrdat is null and (b.pamindat is null or b.pamindat < :pamindat) and (b.sanddat is not null and b.sanddat < :sanddat)  order by b.bestnr desc")})
 public class TableBest1 implements Serializable {
 	private static final long serialVersionUID = 1L;
 	@Id
@@ -91,6 +92,9 @@ public class TableBest1 implements Serializable {
 	private Date pamindat;
 	@Column(name = "ANTALPAMIN")
 	private Integer antalpamin;
+	@Column(name = "SANDDAT")
+	@Temporal(TemporalType.DATE)
+	private Date sanddat;
 
 	public TableBest1() {
 	}
@@ -348,6 +352,13 @@ public class TableBest1 implements Serializable {
 
 	public void setPamindat(Date pamindat) {
 		this.pamindat = pamindat;
+	}
+	public Date getSanddat() {
+		return sanddat;
+	}
+
+	public void setSanddat(Date sanddat) {
+		this.sanddat = sanddat;
 	}
 
 	public Integer getAntalpamin() {

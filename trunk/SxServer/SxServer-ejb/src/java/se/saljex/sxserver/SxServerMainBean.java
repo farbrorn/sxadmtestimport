@@ -149,6 +149,8 @@ public class SxServerMainBean implements SxServerMainLocal {
 		try {
 			con = sxadm.getConnection();
 			conSe = saljexse.getConnection();
+
+			// Updatera aerikelträdet på webben
 			try {
 				WebArtikelUpdater w = new WebArtikelUpdater(em, conSe);
 				w.updateWArtGrp();
@@ -193,7 +195,7 @@ public class SxServerMainBean implements SxServerMainLocal {
 				} 
 
 				//Sänd påminnelser på beställning
-				lbe1 = jobbHandler.getSandBestEpostList();
+				lbe1 = jobbHandler.getSandBestPaminEpostList();
 				for (TableBest1 be1 : lbe1) {
 					try {
 						sxServerMainBean.handleSandBestPaminEpost(be1);		//aNROPAS SÅ HÄR FÖR ATT STARTA NY TRANSAKTION
