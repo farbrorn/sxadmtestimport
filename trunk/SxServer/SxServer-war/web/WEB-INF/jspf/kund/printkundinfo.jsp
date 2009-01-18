@@ -5,6 +5,7 @@
 --%>
 <%@ page import="se.saljex.sxserver.*" %>
 <%@ page import="se.saljex.sxserver.web.*" %>
+<%@ page import="se.saljex.sxserver.tables.*" %>
 
 <% 
 SXSession sxSession = WebUtil.getSXSession(session);

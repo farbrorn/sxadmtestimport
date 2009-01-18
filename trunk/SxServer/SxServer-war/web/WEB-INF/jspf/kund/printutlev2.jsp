@@ -3,9 +3,9 @@
     Created on : 2008-jun-16, 19:42:28
     Author     : ulf
 --%>
+<%@ page import="se.saljex.sxserver.tables.*" %>
 <%@ page import="se.saljex.sxserver.SXUtil" %>
 <%@ page import="se.saljex.sxserver.web.*" %>
-<%@ page import="se.saljex.sxserver.TableOrder1" %>
 <%@ page import="java.util.List" %>
 
 <% 

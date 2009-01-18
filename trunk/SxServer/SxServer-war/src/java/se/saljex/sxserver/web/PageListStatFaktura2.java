@@ -107,7 +107,7 @@ private PreparedStatement qart;
 			r.next();
 			ret = r.getString(1);
 			if (ret == null) ret = "";
-		} catch (SQLException sqe) { System.out.println(sqe.toString()) ;}
+		} catch (SQLException sqe) { SXUtil.log(sqe.toString()) ;}
 		return ret;
 	}
 	

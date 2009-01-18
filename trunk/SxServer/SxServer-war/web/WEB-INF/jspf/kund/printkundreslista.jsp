@@ -3,6 +3,7 @@
     Created on : 2008-jun-16, 19:42:28
     Author     : ulf
 --%>
+<%@ page import="se.saljex.sxserver.tables.*" %>
 <%@ page import="se.saljex.sxserver.*" %>
 <%@ page import="se.saljex.sxserver.web.*" %>
 <%@ page import="java.util.List" %>

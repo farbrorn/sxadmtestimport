@@ -141,7 +141,13 @@ Order is not confirmed by receiver.
 		<%= errinfo %>
 	 </td>
 </tr>
-<% }%>   
+	<% if (r.stjSaljare != null) { %>
+	 <tr>
+		  <td>&nbsp;</td>
+			<td colspan="7">Detta är en specialartikel. Vid frågor vänligen kontakta <%= SXUtil.toHtml(r.stjSaljare) %> Tel: <%= SXUtil.toHtml(r.stjSaljareTel) %> E-post: <%= SXUtil.toHtml(r.stjSaljareEpost) %> </td>
+	 </tr>
+<%		}
+	 }%>   
 </table>
 </form>
 </div>
