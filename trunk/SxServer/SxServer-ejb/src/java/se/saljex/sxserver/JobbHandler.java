@@ -245,16 +245,15 @@ public class JobbHandler {
 							, "Beställningen är i HTML-format. Din e-postläsare verkar inte stödja HTML, och vi ber dig kontakta oss." , ht);
 		} catch (Exception e) {
 			err = true;
-			SXUtil.log("Beställning " + be1.getBestnr() + " till " + be1.getLevnr() + " kunde inte skickas epost. " + e.toString());
+			SXUtil.log("Beställning " + be1.getBestnr() + " till " + be1.getLevnr() + ", epostadress " + epost + " kunde inte skickas epost. " + e.toString());
+			em.persist(new TableBesthand(be1.getBestnr(),SXUtil.getSXReg(em, SXConstant.SXREG_SERVERANVANDARE, SXConstant.SXREG_SERVERANVANDARE_DEFAULT), "E-Post sändning misslyckad",0));
 			be1.setSxservsandforsok((short)(be1.getSxservsandforsok() + 1));
 			if (be1.getSxservsandforsok() > 4 ) {
 				SXUtil.sendMessage(em, "Beställning " + be1.getBestnr() + " till " + be1.getLevnr() + " kunde inte skickas epost.", 
 									"Skriv ut en kopia och faxa!", be1.getVarRef());
 				SXUtil.log("Beställning " + be1.getBestnr() + " till " + be1.getLevnr() + " kunde inte skickas epost. Max antal försök uppnått, flaggar som fel " + e.toString());
 				be1.setStatus("Fel");
-				em.persist(be1);
-				TableBesthand beh = new TableBesthand(be1.getBestnr(),SXUtil.getSXReg(em, SXConstant.SXREG_SERVERANVANDARE, SXConstant.SXREG_SERVERANVANDARE_DEFAULT), "E-Post sändning misslyckad",0);
-				em.persist(beh);
+				em.persist(new TableBesthand(be1.getBestnr(),SXUtil.getSXReg(em, SXConstant.SXREG_SERVERANVANDARE, SXConstant.SXREG_SERVERANVANDARE_DEFAULT), "E-Post sändning misslyckad - flaggar som fel",0));
 				em.flush();
 			}
 		}
@@ -263,8 +262,7 @@ public class JobbHandler {
 			try {
 				be1.setStatus("Skickad");
 				be1.setSanddat(new Date());
-				TableBesthand beh = new TableBesthand(be1.getBestnr(),SXUtil.getSXReg(em, SXConstant.SXREG_SERVERANVANDARE, SXConstant.SXREG_SERVERANVANDARE_DEFAULT),"Sänd E-Post",0);
-				em.persist(beh);
+				em.persist(new TableBesthand(be1.getBestnr(),SXUtil.getSXReg(em, SXConstant.SXREG_SERVERANVANDARE, SXConstant.SXREG_SERVERANVANDARE_DEFAULT),"Sänd E-Post",0));
 				em.flush();
 			} catch (Exception e) {
 				SXUtil.log("Fel vid beställning " + be1.getBestnr() + ". E-post skickad, men kunde inte uppdatera status/händelse. " + e.toString());
