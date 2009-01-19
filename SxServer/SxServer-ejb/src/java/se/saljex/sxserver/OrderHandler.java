@@ -122,19 +122,19 @@ public class OrderHandler {
 		double bastaBruttoPris = 0.0;
 		double bastaNettoPris = 0.0;
 		TableKunrab kra;
-		if (!art.getRabkod().isEmpty()) {	// Om rabkoden är tom så gäller ingen rabatt
-			if (!art.getRabkod().equals("NTO")) {	// Vi kan inte ha rabatter för hela NTO-gruppen
+		if (!SXUtil.isEmpty(art.getRabkod())) {	// Om rabkoden är tom så gäller ingen rabatt
+			if (!"NTO".equals(art.getRabkod())) {	// Vi kan inte ha rabatter för hela NTO-gruppen
 				kra = em.find(TableKunrab.class, new TableKunrabPK(kun.getNummer(),art.getRabkod(),""));	// Ta först fram rabatten för huvudgruppen
 				if (kra != null) { if (kra.getRab() > bastaRab) { bastaRab = kra.getRab(); } }
 			}
-			if (!art.getKod1().isEmpty()) {				// KOlla nu om vi har undergrupp, och ta fram rabatten till den
+			if (!SXUtil.isEmpty(art.getKod1())) {				// KOlla nu om vi har undergrupp, och ta fram rabatten till den
 														//  Här tillåter vi att huvudgruppen är av NTO, så vi kan få rabatt på undergrupp till den
 				kra = em.find(TableKunrab.class, new TableKunrabPK(kun.getNummer(),art.getRabkod(),art.getKod1()));
 				if (kra != null) { if (kra.getRab() > bastaRab) { bastaRab = kra.getRab(); } }
 			}
 			// Kolla nu hur det är med basrabatten, ändra inte om det är frågan om nettopris
 			// Vi tillåter inte basrabatt på NTO-Gruppen
-			if (kun.getBasrab() > bastaRab && !art.getRabkod().equals("NTO")) { bastaRab = kun.getBasrab(); }
+			if (kun.getBasrab() > bastaRab && !"NTO".equals(art.getRabkod())) { bastaRab = kun.getBasrab(); }
 		}
 		// Nu ska vi ha bastaRab laddat och klart
 
@@ -186,7 +186,7 @@ public class OrderHandler {
 		}
 
 		// Kolla om det finns ett nettopris som offert
-		if (!kun.getNettolst().isEmpty()) {
+		if (!SXUtil.isEmpty(kun.getNettolst())) {
 			net = em.find(TableNettopri.class, new TableNettopriPK(kun.getNettolst(), artnr));
 			if (net != null) {
 				if (net.getPris() > 0.0 && 
@@ -321,23 +321,25 @@ public class OrderHandler {
 		Double b;
 		b = (Double)em.createNamedQuery("TableKundres.findSumForKreditTest")
 			.setParameter("kundnr", kun.getNummer())
-			.setParameter("falldat", SXUtil.addDate(new Date(), 60))
+			.setParameter("falldat", SXUtil.addDate(new Date(), -60))
 			.getSingleResult();
-		
-		if (b.compareTo(new Double(1000)) > 0) { return false; }
+		if (b != null)	if (b.compareTo(new Double(1000)) > 0) { return false; }
 
-		b = (Double)em.createNamedQuery("TableKundres.findSumForKreditTest")
-			.setParameter("kundnr", kun.getNummer())
-			.setParameter("falldat", SXUtil.addDate(new Date(), 30))
-			.getSingleResult();
-		
-		if (b.compareTo(kun.getKgransforfall30()) > 0) { return false; }
+			b = (Double)em.createNamedQuery("TableKundres.findSumForKreditTest")
+				.setParameter("kundnr", kun.getNummer())
+				.setParameter("falldat", SXUtil.addDate(new Date(), -30))
+				.getSingleResult();
+		if ( kun.getKgransforfall30() > 0) {
+			if (b != null) if (b.compareTo(kun.getKgransforfall30()) > 0) { return false; }
+		} else {
+			if (b != null) if (b.compareTo(new Double(5000)) > 0) { return false; }
+		}
 		
 		if (kun.getKgrans() > 0) {
 			b = (Double)em.createNamedQuery("TableKundres.findSumForKund")
 				.setParameter("kundnr", kun.getNummer())
 				.getSingleResult();
-			if (b.compareTo(kun.getKgrans() - getOrderSumma()) > 0) { return false; }		// Jämför mot nuvarande orderns värde om kunden är kredivärdig
+			if (b != null) if (b.compareTo(kun.getKgrans() - getOrderSumma()) > 0) { return false; }		// Jämför mot nuvarande orderns värde om kunden är kredivärdig
 		}
 
 		// Har vi kommit hit så har alla spärrar passerats, och det är grönt för kunden att handla
@@ -458,41 +460,43 @@ public class OrderHandler {
 			em.persist(or2);
 			
 			// Uppdatera lagersaldo
-			if (!o.artnr.startsWith("*")) {			
-				lag = em.find(TableLager.class, new TableLagerPK(o.artnr, or1.getLagernr()));
-				if (lag == null) {
-					lag = new TableLager(o.artnr, or1.getLagernr(),o.best,0);
-					em.persist(lag);
-				} else {
-					lag.setIorder(lag.getIorder()+o.best);
+			if (o.artnr != null) {
+				if (!o.artnr.startsWith("*")) {
+					lag = em.find(TableLager.class, new TableLagerPK(o.artnr, or1.getLagernr()));
+					if (lag == null) {
+						lag = new TableLager(o.artnr, or1.getLagernr(),o.best,0);
+						em.persist(lag);
+					} else {
+						lag.setIorder(lag.getIorder()+o.best);
+					}
+				} else { // Vi har *-rad
+					TableStjarnrad stj = null;
+
+					if (o.stjid > 0) {
+						stj = (TableStjarnrad)em.find(TableStjarnrad.class, o.stjid);
+					}
+
+					// Denna if-sats är beroende av resultatet från stj = em.find
+					// samt av värdet i o.stjid
+					// Så var försiktig vid ändringar
+					if (stj == null) {
+						Integer maxstjid = (Integer)em.createNamedQuery("TableStjarnrad.getMaxId").getSingleResult();
+						stj = new TableStjarnrad(maxstjid);
+						stj.setAnvandare(anvandare);
+						stj.setRegdatum(new Date());
+						em.persist(stj);
+					}
+					stj.setAntal(o.best);
+					stj.setArtnr(o.artnr);
+					stj.setAutobestall(o.stjAutobestall);
+					stj.setFinnsilager(o.stjFinnsILager);
+					stj.setEnh(o.enh);
+					stj.setInpris(o.netto);
+					stj.setKundnr(or1.getKundnr());
+					stj.setLagernr(or1.getLagernr());
+					stj.setLevnr(o.levnr);
+					stj.setNamn(o.namn);
 				}
-			} else { // Vi har *-rad
-				TableStjarnrad stj = null;
-				
-				if (o.stjid > 0) {
-					stj = (TableStjarnrad)em.find(TableStjarnrad.class, o.stjid);
-				}
-				
-				// Denna if-sats är beroende av resultatet från stj = em.find
-				// samt av värdet i o.stjid
-				// Så var försiktig vid ändringar
-				if (stj == null) {
-					Integer maxstjid = (Integer)em.createNamedQuery("TableStjarnrad.getMaxId").getSingleResult();
-					stj = new TableStjarnrad(maxstjid);
-					stj.setAnvandare(anvandare);
-					stj.setRegdatum(new Date());
-					em.persist(stj);
-				}
-				stj.setAntal(o.best);
-				stj.setArtnr(o.artnr);
-				stj.setAutobestall(o.stjAutobestall);
-				stj.setFinnsilager(o.stjFinnsILager);
-				stj.setEnh(o.enh);
-				stj.setInpris(o.netto);
-				stj.setKundnr(or1.getKundnr());
-				stj.setLagernr(or1.getLagernr());
-				stj.setLevnr(o.levnr);
-				stj.setNamn(o.namn);
 			}
 		}
 		em.persist( new TableOrderhand(or1.getOrdernr(), anvandare, SXConstant.ORDERHAND_SKAPAD));

@@ -221,6 +221,10 @@ public class SXUtil {
        return calendar.getTime();
     }
 
+	 public static boolean isEmpty(String s) {
+		 if (s==null || s.isEmpty()) return true; else return false;
+	 }
+
 	 public static Integer noNull(Integer a) {
 		 if (a==null) return 0; else return a;
 	 }

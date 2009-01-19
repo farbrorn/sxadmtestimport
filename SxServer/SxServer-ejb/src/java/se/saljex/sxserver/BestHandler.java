@@ -108,7 +108,7 @@ public class BestHandler {
 			 bord = new BestHandlerRad();
 			 art = em.find(TableArtikel.class, artnr);
 			 if (art == null) {
-					SXUtil.log("OrderHandler-addRow-Kan inte hitta artikel " + artnr + " för order.");
+					SXUtil.log("BestHandler-addRow-Kan inte hitta artikel " + artnr + " för best.");
 					return null;
 			 }
 			 bord.best = antal;
@@ -218,7 +218,7 @@ public class BestHandler {
 			 be1.setLevnamn(lev.getNamn());
 			 be1.setErRef(lev.getRef());
 
-			 if (!lev.getLevvillkor1().isEmpty()) {
+			 if (!SXUtil.isEmpty(lev.getLevvillkor1())) {
 					be1.setLevvillkor1(lev.getLevvillkor1());
 					be1.setLevvillkor2(lev.getLevvillkor2());
 					be1.setLevvillkor3(lev.getLevvillkor3());
@@ -344,18 +344,20 @@ public class BestHandler {
 					em.persist(be2);
 
 					// Uppdatera lagersaldo
-					if (!b.artnr.startsWith("*")) {	
-						lag = em.find(TableLager.class, new TableLagerPK(b.artnr, be1.getLagernr()));
-						if (lag == null) {
-							lag = new TableLager(b.artnr, be1.getLagernr(), 0, b.best);
-							em.persist(lag);
-						} else {
-							lag.setBest(lag.getBest() + b.best);
-						}
-					} else { // Vi har en *-rad, och behöver då uppdatera att den är beställd
-						TableStjarnrad stj = em.find(TableStjarnrad.class, b.stjid);
-						if (stj != null) {
-							stj.setBestdat(new Date());
+					if (b.artnr != null) {
+						if (!b.artnr.startsWith("*")) {
+							lag = em.find(TableLager.class, new TableLagerPK(b.artnr, be1.getLagernr()));
+							if (lag == null) {
+								lag = new TableLager(b.artnr, be1.getLagernr(), 0, b.best);
+								em.persist(lag);
+							} else {
+								lag.setBest(lag.getBest() + b.best);
+							}
+						} else { // Vi har en *-rad, och behöver då uppdatera att den är beställd
+							TableStjarnrad stj = em.find(TableStjarnrad.class, b.stjid);
+							if (stj != null) {
+								stj.setBestdat(new Date());
+							}
 						}
 					}
 			 }
@@ -364,5 +366,3 @@ public class BestHandler {
 			 return be1.getBestnr();
 	  }
 }
-	
-	
