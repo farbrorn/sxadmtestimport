@@ -52,7 +52,7 @@ import javax.sql.DataSource;
  *												pool property	port=3306, databasename = , userName = , serverName =, password = 
  *												Connection validation: Checked
  *												Allow non component callers: checked (Vet inte om det behövs, men stod så i ett exepel)
- *												Transaction isolation: read-commited
+ *												Stäng av transaktionshantering så den inte blandas ihop med sxadm transaktioner
  * * Registrera mailhanterare i glassfish
  * 
  */
@@ -265,7 +265,8 @@ public class SxServerMainBean implements SxServerMainLocal {
 		sxServerMainBean.startTimer(60*1000,"JobbTimer");	//Måste startas som EJB-anrop för att new transaction skall funka
 	}
 	private void startKvartTimer() {
-		sxServerMainBean.startTimer(15*60*1000,"KvartTimer");	//Måste startas som EJB-anrop för att new transaction skall funka
+//		sxServerMainBean.startTimer(15*60*1000,"KvartTimer");	//Måste startas som EJB-anrop för att new transaction skall funka
+		sxServerMainBean.startTimer(30*1000,"KvartTimer");	//Måste startas som EJB-anrop för att new transaction skall funka
 	}
 	private void startTimTimer() {
 		sxServerMainBean.startTimer(60*60*1000,"TimTimer");	//Måste startas som EJB-anrop för att new transaction skall funka
@@ -316,7 +317,7 @@ public class SxServerMainBean implements SxServerMainLocal {
 				Logger.getLogger("sx").addHandler(new FileHandler("%h/sxserver-%u-%g.log",1024*1024,3,true));
 			} catch (Exception e) { System.out.println("**** Undantagsfel i se.saljex.sxserver.main när java.util.logger försöker skapa FileHandler." + e.toString()); }
 		}
-		Logger.getLogger("sx").setLevel(Level.FINER); // Om vi sätter Level.FINER, så stänger vi av nivån finest som vi använder för debuginfo
+//		Logger.getLogger("sx").setLevel(Level.FINER); // Om vi sätter Level.FINER, så stänger vi av nivån finest som vi använder för debuginfo
 
 		Logger.getLogger("sx").info("se.saljex.sxserver.main startad.");
 		System.out.println("Loggning sker till filen sxserver-n-n.log i ägarens hemkatalog (t.ex. /root)");
@@ -372,7 +373,7 @@ public class SxServerMainBean implements SxServerMainLocal {
 					SXUtil.log("Kreditspärr vid Weborder " + o + ". Ordern sparas inte." );
 					String mailTo = "";
 					Statement st = conSe.createStatement();
-					ResultSet r = st.executeQuery("select epost from webuser u, weborder1 o where u.loginnamn = o.loginnamn and o.wordernr = " + o);
+					ResultSet r = st.executeQuery("select u.epost from webuser u, weborder1 o where u.loginnamn = o.loginnamn and o.wordernr = " + o);
 					if (r.next()) {
 						try {
 							String testlage  = SXUtil.getSXReg(em,"SxServTestlage","Ja" );
@@ -396,7 +397,7 @@ public class SxServerMainBean implements SxServerMainLocal {
 						SXUtil.log("Kunde inte hitta kontaktinfo för weborder " + o + " vid försök att skicka epost om kreditspärr.");
 					}
 					r.close();
-					st.executeUpdate("update worder1 set status='Spärrad' where wordernr = " + o);
+					st.executeUpdate("update weborder1 set status='Spärrad', kreditsparr=1 where wordernr = " + o);
 
 				} catch (SQLException se) {
 					SXUtil.log("Fel vid spara webordernr " + o + ": " + se.toString());

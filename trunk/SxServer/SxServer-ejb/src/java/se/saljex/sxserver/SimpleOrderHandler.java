@@ -150,6 +150,7 @@ public class SimpleOrderHandler  {
 	}
 	
 	public ArrayList<Integer> saveAsOrder() throws KreditSparrException {
+	SXUtil.logDebug("SimpleOrderHandler - saveAsOrder() - Start");
 		BestHandler bes;
 		ArrayList<Integer> ordList = new ArrayList();
 		int bestnr;
@@ -189,7 +190,7 @@ public class SimpleOrderHandler  {
 					}
 				}
 				
-				if (delOrh.getLevadr1().isEmpty() && delOrh.getLevadr2().isEmpty() && delOrh.getLevadr3().isEmpty()) {
+				if (SXUtil.isEmpty(delOrh.getLevadr1()) && SXUtil.isEmpty(delOrh.getLevadr2()) && SXUtil.isEmpty(delOrh.getLevadr3())) {
 					bes.setLevAdr(delOrh.getNamn(), delOrh.getAdr1(), delOrh.getAdr2(), delOrh.getAdr3());
 				} else {
 					bes.setLevAdr(null, delOrh.getLevadr1(), delOrh.getLevadr2(), delOrh.getLevadr3());	

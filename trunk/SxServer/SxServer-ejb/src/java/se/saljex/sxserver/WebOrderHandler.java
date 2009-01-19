@@ -6,12 +6,10 @@
 package se.saljex.sxserver;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
 
@@ -64,13 +62,16 @@ public class WebOrderHandler {
 		// därefter starta en ny bean för varje wordernr, eller på annat sätt köra en separat transaktion fr varje
 		// Varje post i worderlistan som genererar ett fel hoppas över, och förhoppningsvis funkar det vid nästa körning
 		// Loggar mm sker från anropande rutinen
+	SXUtil.logDebug("WebOrderHandler - loadWorderAndSaveSkickadAsOrder(int) - Start");
 		loadWorder(worderNr);
-		return saveSkickadAsOrder();
+		ArrayList<Integer> ret = saveSkickadAsOrder();
+		return ret;
 	}
 	
 	public void loadWorder(int worderNr) throws java.sql.SQLException, EntityNotFoundException {
 		// Hämtar data ur weborder1 och skapar en SimpleOrderHandler och läser in angiven order.
 		// Throws EntityNotFound om inte wordernumret hittas
+	SXUtil.logDebug("WebOrderHandler - loadWorder(int) - Start");
 		Statement s = con.createStatement();
 		ResultSet r = s.executeQuery("select wordernr, kundnr, marke, lagernr, antalrader from weborder1 where wordernr = " + worderNr);
 		if (r.next()) {
@@ -83,6 +84,7 @@ public class WebOrderHandler {
 	
 	public void loadWorder(int worderNr, String kundNr, String marke, short lagerNr) throws java.sql.SQLException {
 		// Skapar en SimpleOrderHandler och läser in angiven order. Ingen läsning sker i weborder1 för att kunna användas i en loop 
+	SXUtil.logDebug("WebOrderHandler - loadWorder(int, string, string, short) - Start");
 		sord = new SimpleOrderHandler(em, kundNr, lagerNr, anvandare, worderNr, marke);
 		
 		Statement s = con.createStatement();
@@ -98,9 +100,10 @@ public class WebOrderHandler {
 	public ArrayList<Integer> saveSkickadAsOrder() throws java.sql.SQLException, KreditSparrException {
 		// Returnerar en ArrayList av de ordernummerr som det var sparat som
 		// om vi returnerar null härifrån, eller får ett undantag så behöver transaktionen avbrytas
+	SXUtil.logDebug("WebOrderHandler - saveSkickadAsOrder() - Start");
 		Statement s = con.createStatement();    
 		ArrayList<Integer> orderList = sord.saveAsOrder();
-		if (s.executeUpdate("update weborder1 set status = 'Mottagen', kreditsparr = 0, mottagendatum = '" + SXUtil.getFormatDate() + "' where status = 'Skickad' and wordernr = " +  sord.getWorderNr()) < 1) {
+		if (s.executeUpdate("update weborder1 set status = 'Mottagen', mottagendatum='" + SXUtil.getFormatDate() + "'  where status = 'Skickad' and wordernr = " +  sord.getWorderNr()) < 1) {
 			// Om vi kommer hit så har antingen en annan process ändrat på ordern, eller så har det blivit något kommunikationsfel
 			throw new SQLException("Kan inte uppdatera weborder1. Förmodligen är det en annan process som bearbetar ordern samtidigt");
 		}
@@ -112,6 +115,7 @@ public ArrayList<Integer> getSkickadWorderList() throws java.sql.SQLException {
 	// Listan kan sedan användas för att loopa igenom, och köra flera omgångar av WebOrderHandler
 	// Om vi råkar få en weborder som alltid osrsakar fel, så skippar vi den bara och går vidare med nästa
 	// vilket inte går om man kör en select weborder1 vid varje tillfälle - den felaktiga ordern kommer då alltid att komma först
+	SXUtil.logDebug("WebOrderHandler - getSkickadWorderList() - Startad");
 		ArrayList<Integer> listWor2 = new ArrayList();                
 		Statement s = con.createStatement();                
 		ResultSet r = s.executeQuery("select wordernr from weborder1 where status = 'Skickad'");                
