@@ -265,8 +265,7 @@ public class SxServerMainBean implements SxServerMainLocal {
 		sxServerMainBean.startTimer(60*1000,"JobbTimer");	//Måste startas som EJB-anrop för att new transaction skall funka
 	}
 	private void startKvartTimer() {
-//		sxServerMainBean.startTimer(15*60*1000,"KvartTimer");	//Måste startas som EJB-anrop för att new transaction skall funka
-		sxServerMainBean.startTimer(30*1000,"KvartTimer");	//Måste startas som EJB-anrop för att new transaction skall funka
+		sxServerMainBean.startTimer(15*60*1000,"KvartTimer");	//Måste startas som EJB-anrop för att new transaction skall funka
 	}
 	private void startTimTimer() {
 		sxServerMainBean.startTimer(60*60*1000,"TimTimer");	//Måste startas som EJB-anrop för att new transaction skall funka
@@ -317,7 +316,7 @@ public class SxServerMainBean implements SxServerMainLocal {
 				Logger.getLogger("sx").addHandler(new FileHandler("%h/sxserver-%u-%g.log",1024*1024,3,true));
 			} catch (Exception e) { System.out.println("**** Undantagsfel i se.saljex.sxserver.main när java.util.logger försöker skapa FileHandler." + e.toString()); }
 		}
-//		Logger.getLogger("sx").setLevel(Level.FINER); // Om vi sätter Level.FINER, så stänger vi av nivån finest som vi använder för debuginfo
+		Logger.getLogger("sx").setLevel(Level.FINER); // Om vi sätter Level.FINER, så stänger vi av nivån finest som vi använder för debuginfo
 
 		Logger.getLogger("sx").info("se.saljex.sxserver.main startad.");
 		System.out.println("Loggning sker till filen sxserver-n-n.log i ägarens hemkatalog (t.ex. /root)");
