@@ -7,6 +7,22 @@
     <class>se.saljex.sxserver.tables.TableArtgrplank</class>
     <class>se.saljex.sxserver.tables.TableArtklase</class>
     <class>se.saljex.sxserver.tables.TableArtklaselank</class>
+    <class>se.saljex.sxserver.tables.TableFaktura1</class>
+    <class>se.saljex.sxserver.tables.TableFaktura2</class>
+    <class>se.saljex.sxserver.tables.TableOrder1</class>
+    <class>se.saljex.sxserver.tables.TableOrder2</class>
+    <class>se.saljex.sxserver.tables.TableBest1</class>
+    <class>se.saljex.sxserver.tables.TableBest2</class>
+    <class>se.saljex.sxserver.tables.TableBesthand</class>
+    <class>se.saljex.sxserver.tables.TableBetjour</class>
+    <class>se.saljex.sxserver.tables.TableKund</class>
+    <class>se.saljex.sxserver.tables.TableKundkontakt</class>
+    <class>se.saljex.sxserver.tables.TableKundlogin</class>
+    <class>se.saljex.sxserver.tables.TableKundres</class>
+    <class>se.saljex.sxserver.tables.TableOffert1</class>
+    <class>se.saljex.sxserver.tables.TableOffert2</class>
+    <class>se.saljex.sxserver.tables.TableOrderhand</class>
+    <class>se.saljex.sxserver.tables.TableRorder</class>
     <exclude-unlisted-classes>true</exclude-unlisted-classes>
     <properties/>
   </persistence-unit>
