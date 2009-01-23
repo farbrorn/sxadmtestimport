@@ -6,8 +6,8 @@
 <%@ page import="se.saljex.sxserver.tables.*" %>
 <%@ page import="se.saljex.sxserver.SXUtil" %>
 <%@ page import="se.saljex.sxserver.web.*" %>
-<%@ page import="se.saljex.sxserver.TableFaktura1" %>
-<%@ page import="se.saljex.sxserver.TableFaktura2" %>
+<%@ page import="se.saljex.sxserver.tables.TableFaktura1" %>
+<%@ page import="se.saljex.sxserver.tables.TableFaktura2" %>
 <%@ page import="java.util.List" %>
  <script type="text/javascript">
 	$(document).ready(function() {
