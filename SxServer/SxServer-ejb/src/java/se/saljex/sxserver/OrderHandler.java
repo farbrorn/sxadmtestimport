@@ -303,16 +303,16 @@ public class OrderHandler {
 		or1.setLevvillkor(kun.getLevvillkor());
 		or1.setMottagarfrakt(kun.getMottagarfrakt());
 		or1.setFraktkundnr(kun.getFraktkundnr());
-		or1.setFraktbolag(kun.getFraktbolag());
+		or1.setFraktbolag(SXUtil.toStr(kun.getFraktbolag()));			//Säkerställ att inte spara null, då de kan orsaka problem vid dagens order
 		or1.setFraktfrigrans(kun.getFraktfrigrans());
 		if (kun.getMomsfri() > 0) { 
 			or1.setMoms((short)0);
 		} else {
 			or1.setMoms((short)1);
 		}
-		or1.setLinjenr1(kun.getLinjenr1());
-		or1.setLinjenr2(kun.getLinjenr2());
-		or1.setLinjenr3(kun.getLinjenr3());		
+		or1.setLinjenr1(SXUtil.toStr(kun.getLinjenr1()));			//Säkerställ att inte nullvärden sparas, för de kan orsaka problem med dagens order
+		or1.setLinjenr2(SXUtil.toStr(kun.getLinjenr2()));
+		or1.setLinjenr3(SXUtil.toStr(kun.getLinjenr3()));
 		or1.setWordernr(0);
 		or1.setUtlevbokad((short)0);
 	}
