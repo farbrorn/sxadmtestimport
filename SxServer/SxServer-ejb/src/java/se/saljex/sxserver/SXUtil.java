@@ -74,7 +74,13 @@ public class SXUtil {
 		}		
 		return testDate;
 	}
-	
+
+	public static java.util.Date createDate(int ar, int man, int dag) {
+		Calendar c =  Calendar.getInstance();
+		c.set(ar, man-1, dag, 0, 0, 0);		// Sätt alla tidsabgivrler till 0 så det även passar sin java.sql.date
+		c.set( Calendar.MILLISECOND, 0 );
+		return new java.util.Date(c.getTimeInMillis());
+	}
 	
 	public static Calendar getTodaySQLDate()  {
 		// Returns todys date as a Calendar and WITH TIME PART SET TO 0
