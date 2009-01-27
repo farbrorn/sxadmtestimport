@@ -105,22 +105,22 @@ public class TableOrder1 implements Serializable {
 	private Date doljdatum;
 	@Column(name = "TILLANNANFILIAL", nullable = false)
 	private short tillannanfilial;
-	@Column(name = "UTLEVBOKAD")
+	@Column(name = "UTLEVBOKAD", nullable = false)
 	private Short utlevbokad;
-	@Column(name = "ANNANLEVADRESS")
+	@Column(name = "ANNANLEVADRESS", nullable = false)
 	private Short annanlevadress;
 	@Column(name = "ORDERMEDDELANDE")
 	private String ordermeddelande;
 	@Column(name = "TIDIGASTFAKTDATUM")
 	@Temporal(TemporalType.DATE)
 	private Date tidigastfaktdatum;
-	@Column(name = "WORDERNR")
+	@Column(name = "WORDERNR", nullable = false)
 	private Integer wordernr;
-	@Column(name = "LINJENR1")
+	@Column(name = "LINJENR1", nullable = false)
 	private String linjenr1;
-	@Column(name = "LINJENR2")
+	@Column(name = "LINJENR2", nullable = false)
 	private String linjenr2;
-	@Column(name = "LINJENR3")
+	@Column(name = "LINJENR3", nullable = false)
 	private String linjenr3;
 
 	public TableOrder1() {

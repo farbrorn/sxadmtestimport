@@ -2023,5 +2023,14 @@ primary key (ID));
 alter table best1 add column sanddat date;
 alter table rapphuvud add column jspfilename varchar(60);
 alter table rapphuvud alter behorighet type varchar(20);
-alter table order1 alter utlevbokad set not null default 0;
-alter table order1 alter wordernr set not null default 0;
+
+/* En del grejer för att säkerställa att vi inte får nullvärden som kan ställa till det i dagens order */
+alter table order1 alter utlevbokad set not null ;
+alter table order1 alter wordernr set not null ;
+alter table order1 alter annanlevadress set not null;
+alter table order1 alter linjenr1 set default '';
+alter table order1 alter linjenr2 set default '';
+alter table order1 alter linjenr3 set default '';
+alter table order1 alter linjenr1 set not null;
+alter table order1 alter linjenr2 set not null;
+alter table order1 alter linjenr3 set not null;
