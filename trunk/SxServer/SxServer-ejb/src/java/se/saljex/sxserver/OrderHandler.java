@@ -313,8 +313,8 @@ public class OrderHandler {
 		or1.setLinjenr1(kun.getLinjenr1());
 		or1.setLinjenr2(kun.getLinjenr2());
 		or1.setLinjenr3(kun.getLinjenr3());		
-		or1.setFraktbolag(kun.getFraktbolag());
-		or1.setFraktfrigrans(kun.getFraktfrigrans());
+		or1.setWordernr(0);
+		or1.setUtlevbokad((short)0);
 	}
 
 	public boolean checkKreditvardighet() {
@@ -348,8 +348,7 @@ public class OrderHandler {
 
 	public void setMarke(String marke) {
 		or1.setMarke(marke);
-	}
-	public String getMarke() {
+	}	public String getMarke() {
 		return or1.getMarke();
 	}
 	

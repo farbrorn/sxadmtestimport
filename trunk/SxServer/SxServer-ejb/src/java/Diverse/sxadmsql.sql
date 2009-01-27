@@ -25,6 +25,52 @@ CREATE OR REPLACE FUNCTION public."ucase"(varchar)
 
 
 
+
+create table RAPPCOLUMNS (
+RAPPID integer not null ,
+COL integer not null ,
+SQLLABEL varchar(512)  ,
+LABEL varchar(512)  ,
+GROUPBY smallint default      0  not null ,
+DECIMALER integer  ,
+HIDDEN smallint default      0  not null ,
+GROUPBYHEADERTEXT varchar(1024)  ,
+GROUPBYFOOTERTEXT varchar(1024)  ,
+primary key (RAPPID , COL));
+
+
+create table RAPPHUVUD (
+RAPPID integer not null ,
+BEHORIGHET varchar(10)  ,
+KATEGORI varchar(30)  ,
+UNDERGRUPP varchar(30)  ,
+KORTBESKRIVNING varchar(100)  ,
+REPORTRUBRIK varchar(1024)  ,
+SQLFROM varchar(1024)  ,
+ISDISTINCT smallint default      0  not null ,
+CRTIME timestamp default CURRENT_TIMESTAMP   ,
+primary key (RAPPID));
+
+
+create table RAPPPROPS (
+RAPPID integer not null ,
+RAD integer not null ,
+TYPE varchar(10) not null ,
+SUMCOLUMN integer  ,
+RESETCOLUMN integer  ,
+SUMTYPE varchar(10)  ,
+SUMTEXT varchar(512)  ,
+WHEREPOS integer  ,
+JAVATYPE varchar(10)  ,
+NAME varchar(30)  ,
+LABEL varchar(512)  ,
+HIDDEN smallint  ,
+DEFAULTVALUE varchar(128)  ,
+primary key (RAPPID , RAD));
+
+
+
+
 create table kundkontakt (
 kontaktid integer not null, 
 kundnr varchar(20) not null,
@@ -1975,3 +2021,7 @@ primary key (ID));
 
 /* Ändringar 2008-01-18 */
 alter table best1 add column sanddat date;
+alter table rapphuvud add column jspfilename varchar(60);
+alter table rapphuvud alter behorighet type varchar(20);
+alter table order1 alter utlevbokad set not null default 0;
+alter table order1 alter wordernr set not null default 0;
