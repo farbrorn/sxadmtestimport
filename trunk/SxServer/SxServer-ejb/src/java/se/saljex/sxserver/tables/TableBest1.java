@@ -55,8 +55,8 @@ public class TableBest1 implements Serializable {
 	@Column(name = "BEKRDAT")
 	@Temporal(TemporalType.DATE)
 	private Date bekrdat;
-	@Column(name = "FRAKTFRITT")
-	private Double fraktfritt;
+	@Column(name = "FRAKTFRITT", nullable = false)
+	private double fraktfritt;
 	@Column(name = "MOTTAGARFRAKT", nullable = false)
 	private short mottagarfrakt;
 	@Column(name = "LEVVILLKOR1")
@@ -81,17 +81,17 @@ public class TableBest1 implements Serializable {
 	private String status;
 	@Column(name = "MEDDELANDE")
 	private String meddelande;
-	@Column(name = "SAKERHETSKOD")
-	private Integer sakerhetskod;
-	@Column(name = "ANTALFELINLOGGNINGAR")
-	private Integer antalfelinloggningar;
-	@Column(name = "SXSERVSANDFORSOK")
-	private Short sxservsandforsok;
+	@Column(name = "SAKERHETSKOD", nullable = false)
+	private int sakerhetskod;
+	@Column(name = "ANTALFELINLOGGNINGAR", nullable = false)
+	private int antalfelinloggningar;
+	@Column(name = "SXSERVSANDFORSOK", nullable = false)
+	private short sxservsandforsok;
 	@Column(name = "PAMINDAT")
 	@Temporal(TemporalType.DATE)
 	private Date pamindat;
-	@Column(name = "ANTALPAMIN")
-	private Integer antalpamin;
+	@Column(name = "ANTALPAMIN", nullable = false)
+	private int antalpamin;
 	@Column(name = "SANDDAT")
 	@Temporal(TemporalType.DATE)
 	private Date sanddat;
@@ -218,11 +218,11 @@ public class TableBest1 implements Serializable {
 		this.bekrdat = bekrdat;
 	}
 
-	public Double getFraktfritt() {
+	public double getFraktfritt() {
 		return fraktfritt;
 	}
 
-	public void setFraktfritt(Double fraktfritt) {
+	public void setFraktfritt(double fraktfritt) {
 		this.fraktfritt = fraktfritt;
 	}
 
@@ -322,27 +322,27 @@ public class TableBest1 implements Serializable {
 		this.meddelande = meddelande;
 	}
 
-	public Integer getSakerhetskod() {
+	public int getSakerhetskod() {
 		return sakerhetskod;
 	}
 
-	public void setSakerhetskod(Integer sakerhetskod) {
+	public void setSakerhetskod(int sakerhetskod) {
 		this.sakerhetskod = sakerhetskod;
 	}
 
-	public Integer getAntalfelinloggningar() {
+	public int getAntalfelinloggningar() {
 		return antalfelinloggningar;
 	}
 
-	public void setAntalfelinloggningar(Integer antalfelinloggningar) {
+	public void setAntalfelinloggningar(int antalfelinloggningar) {
 		this.antalfelinloggningar = antalfelinloggningar;
 	}
 
-	public Short getSxservsandforsok() {
+	public short getSxservsandforsok() {
 		return sxservsandforsok;
 	}
 
-	public void setSxservsandforsok(Short sxservsandforsok) {
+	public void setSxservsandforsok(short sxservsandforsok) {
 		this.sxservsandforsok = sxservsandforsok;
 	}
 
@@ -361,11 +361,11 @@ public class TableBest1 implements Serializable {
 		this.sanddat = sanddat;
 	}
 
-	public Integer getAntalpamin() {
+	public int getAntalpamin() {
 		return antalpamin;
 	}
 
-	public void setAntalpamin(Integer antalpamin) {
+	public void setAntalpamin(int antalpamin) {
 		this.antalpamin = antalpamin;
 	}
 

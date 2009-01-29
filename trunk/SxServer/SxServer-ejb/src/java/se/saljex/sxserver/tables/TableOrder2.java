@@ -27,32 +27,32 @@ public class TableOrder2 implements Serializable {
 	private static final long serialVersionUID = 1L;
 	@EmbeddedId
 	protected TableOrder2PK tableOrder2PK;
-	@Column(name = "PRISNR")
-	private Short prisnr;
-	@Column(name = "DELLEV")
-	private Short dellev;
+	@Column(name = "PRISNR", nullable = false)
+	private short prisnr;
+	@Column(name = "DELLEV", nullable = false)
+	private short dellev;
 	@Column(name = "ARTNR", nullable = false)
 	private String artnr;
 	@Column(name = "NAMN")
 	private String namn;
 	@Column(name = "LEVNR")
 	private String levnr;
-	@Column(name = "BEST")
-	private Double best;
-	@Column(name = "RAB")
-	private Double rab;
-	@Column(name = "LEV")
-	private Double lev;
+	@Column(name = "BEST", nullable = false)
+	private double best;
+	@Column(name = "RAB", nullable = false)
+	private double rab;
+	@Column(name = "LEV", nullable = false)
+	private double lev;
 	@Column(name = "TEXT")
 	private String text;
-	@Column(name = "PRIS")
-	private Double pris;
-	@Column(name = "SUMMA")
-	private Double summa;
+	@Column(name = "PRIS", nullable = false)
+	private double pris;
+	@Column(name = "SUMMA", nullable = false)
+	private double summa;
 	@Column(name = "KONTO")
 	private String konto;
-	@Column(name = "NETTO")
-	private Double netto;
+	@Column(name = "NETTO", nullable = false)
+	private double netto;
 	@Column(name = "ENH")
 	private String enh;
 	@Column(name = "LEVDAT")
@@ -64,8 +64,8 @@ public class TableOrder2 implements Serializable {
 	@Column(name = "UTSKRIVENTID")
 	@Temporal(TemporalType.TIME)
 	private Date utskriventid;
-	@Column(name = "STJID")
-	private Integer stjid;
+	@Column(name = "STJID", nullable = false)
+	private int stjid;
 
 	public TableOrder2() {
 	}
@@ -82,19 +82,19 @@ public class TableOrder2 implements Serializable {
 		this.tableOrder2PK = tableOrder2PK;
 	}
 
-	public Short getPrisnr() {
+	public short getPrisnr() {
 		return prisnr;
 	}
 
-	public void setPrisnr(Short prisnr) {
+	public void setPrisnr(short prisnr) {
 		this.prisnr = prisnr;
 	}
 
-	public Short getDellev() {
+	public short getDellev() {
 		return dellev;
 	}
 
-	public void setDellev(Short dellev) {
+	public void setDellev(short dellev) {
 		this.dellev = dellev;
 	}
 
@@ -122,27 +122,27 @@ public class TableOrder2 implements Serializable {
 		this.levnr = levnr;
 	}
 
-	public Double getBest() {
+	public double getBest() {
 		return best;
 	}
 
-	public void setBest(Double best) {
+	public void setBest(double best) {
 		this.best = best;
 	}
 
-	public Double getRab() {
+	public double getRab() {
 		return rab;
 	}
 
-	public void setRab(Double rab) {
+	public void setRab(double rab) {
 		this.rab = rab;
 	}
 
-	public Double getLev() {
+	public double getLev() {
 		return lev;
 	}
 
-	public void setLev(Double lev) {
+	public void setLev(double lev) {
 		this.lev = lev;
 	}
 
@@ -154,19 +154,19 @@ public class TableOrder2 implements Serializable {
 		this.text = text;
 	}
 
-	public Double getPris() {
+	public double getPris() {
 		return pris;
 	}
 
-	public void setPris(Double pris) {
+	public void setPris(double pris) {
 		this.pris = pris;
 	}
 
-	public Double getSumma() {
+	public double getSumma() {
 		return summa;
 	}
 
-	public void setSumma(Double summa) {
+	public void setSumma(double summa) {
 		this.summa = summa;
 	}
 
@@ -178,11 +178,11 @@ public class TableOrder2 implements Serializable {
 		this.konto = konto;
 	}
 
-	public Double getNetto() {
+	public double getNetto() {
 		return netto;
 	}
 
-	public void setNetto(Double netto) {
+	public void setNetto(double netto) {
 		this.netto = netto;
 	}
 
@@ -218,11 +218,11 @@ public class TableOrder2 implements Serializable {
 		this.utskriventid = utskriventid;
 	}
 
-	public Integer getStjid() {
+	public int getStjid() {
 		return stjid;
 	}
 
-	public void setStjid(Integer stjid) {
+	public void setStjid(int stjid) {
 		this.stjid = stjid;
 	}
 

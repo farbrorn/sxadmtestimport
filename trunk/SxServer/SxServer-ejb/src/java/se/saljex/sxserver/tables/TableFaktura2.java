@@ -50,24 +50,24 @@ public class TableFaktura2 implements Serializable {
 	private String enh;
 	@Column(name = "NAMN")
 	private String namn;
-	@Column(name = "BON_NR")
-	private Integer bonNr;
+	@Column(name = "BON_NR", nullable = false)
+	private int bonNr;
 	@Column(name = "ORDERNR", nullable = false)
 	private int ordernr;
-	@Column(name = "RANTAFAKTURANR")
-	private Integer rantafakturanr;
+	@Column(name = "RANTAFAKTURANR", nullable = false)
+	private int rantafakturanr;
 	@Column(name = "RANTAFALLDATUM")
 	@Temporal(TemporalType.DATE)
 	private Date rantafalldatum;
 	@Column(name = "RANTABETALDATUM")
 	@Temporal(TemporalType.DATE)
 	private Date rantabetaldatum;
-	@Column(name = "RANTABETALBELOPP")
-	private Double rantabetalbelopp;
-	@Column(name = "RANTAPROC")
-	private Double rantaproc;
-	@Column(name = "STJID")
-	private Integer stjid;
+	@Column(name = "RANTABETALBELOPP", nullable = false)
+	private double rantabetalbelopp;
+	@Column(name = "RANTAPROC", nullable = false)
+	private double rantaproc;
+	@Column(name = "STJID", nullable = false)
+	private int stjid;
 
 	public TableFaktura2() {
 	}
@@ -187,11 +187,11 @@ public class TableFaktura2 implements Serializable {
 		this.namn = namn;
 	}
 
-	public Integer getBonNr() {
+	public int getBonNr() {
 		return bonNr;
 	}
 
-	public void setBonNr(Integer bonNr) {
+	public void setBonNr(int bonNr) {
 		this.bonNr = bonNr;
 	}
 
@@ -203,11 +203,11 @@ public class TableFaktura2 implements Serializable {
 		this.ordernr = ordernr;
 	}
 
-	public Integer getRantafakturanr() {
+	public int getRantafakturanr() {
 		return rantafakturanr;
 	}
 
-	public void setRantafakturanr(Integer rantafakturanr) {
+	public void setRantafakturanr(int rantafakturanr) {
 		this.rantafakturanr = rantafakturanr;
 	}
 
@@ -227,27 +227,27 @@ public class TableFaktura2 implements Serializable {
 		this.rantabetaldatum = rantabetaldatum;
 	}
 
-	public Double getRantabetalbelopp() {
+	public double getRantabetalbelopp() {
 		return rantabetalbelopp;
 	}
 
-	public void setRantabetalbelopp(Double rantabetalbelopp) {
+	public void setRantabetalbelopp(double rantabetalbelopp) {
 		this.rantabetalbelopp = rantabetalbelopp;
 	}
 
-	public Double getRantaproc() {
+	public double getRantaproc() {
 		return rantaproc;
 	}
 
-	public void setRantaproc(Double rantaproc) {
+	public void setRantaproc(double rantaproc) {
 		this.rantaproc = rantaproc;
 	}
 
-	public Integer getStjid() {
+	public int getStjid() {
 		return stjid;
 	}
 
-	public void setStjid(Integer stjid) {
+	public void setStjid(int stjid) {
 		this.stjid = stjid;
 	}
 

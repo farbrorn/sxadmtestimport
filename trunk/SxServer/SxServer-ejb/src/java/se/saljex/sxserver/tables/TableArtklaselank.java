@@ -24,8 +24,8 @@ public class TableArtklaselank implements Serializable {
 	  private static final long serialVersionUID = 1L;
 	  @EmbeddedId
 	  protected TableArtklaselankPK tableArtklaselankPK;
-	  @Column(name = "SORTORDER")
-	  private Integer sortorder;
+	  @Column(name = "SORTORDER", nullable = false)
+	  private int sortorder;
 
 	  public TableArtklaselank() {
 	  }
@@ -46,11 +46,11 @@ public class TableArtklaselank implements Serializable {
 			 this.tableArtklaselankPK = tableArtklaselankPK;
 	  }
 
-	  public Integer getSortorder() {
+	  public int getSortorder() {
 			 return sortorder;
 	  }
 
-	  public void setSortorder(Integer sortorder) {
+	  public void setSortorder(int sortorder) {
 			 this.sortorder = sortorder;
 	  }
 

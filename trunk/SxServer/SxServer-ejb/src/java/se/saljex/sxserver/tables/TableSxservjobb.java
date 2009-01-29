@@ -54,7 +54,7 @@ public class TableSxservjobb implements Serializable {
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date bearbetar;
 	@Column(name = "ANTALFORSOK", nullable = false)
-	private Integer antalforsok;
+	private int antalforsok;
 
 	public TableSxservjobb() {
 	}
@@ -159,11 +159,11 @@ public class TableSxservjobb implements Serializable {
 		this.bearbetar = bearbetar;
 	}
 	
-	public Integer getAntalforsok() {
+	public int getAntalforsok() {
 		return antalforsok;
 	}
 
-	public void setAntalforsok(Integer antalforsok) {
+	public void setAntalforsok(int antalforsok) {
 		this.antalforsok = antalforsok;
 	}
 

@@ -24,8 +24,8 @@ public class TableArtgrplank implements Serializable {
 	  private static final long serialVersionUID = 1L;
 	  @EmbeddedId
 	  protected TableArtgrplankPK tableArtgrplankPK;
-	  @Column(name = "SORTORDER")
-	  private Integer sortorder;
+	  @Column(name = "SORTORDER", nullable = false)
+	  private int sortorder;
 
 	  public TableArtgrplank() {
 	  }
@@ -46,11 +46,11 @@ public class TableArtgrplank implements Serializable {
 			 this.tableArtgrplankPK = tableArtgrplankPK;
 	  }
 
-	  public Integer getSortorder() {
+	  public int getSortorder() {
 			 return sortorder;
 	  }
 
-	  public void setSortorder(Integer sortorder) {
+	  public void setSortorder(int sortorder) {
 			 this.sortorder = sortorder;
 	  }
 

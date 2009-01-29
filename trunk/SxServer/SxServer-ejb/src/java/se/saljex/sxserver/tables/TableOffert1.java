@@ -80,8 +80,8 @@ public class TableOffert1 implements Serializable {
 	  private short skrivejpris;
 	  @Column(name = "LAGERNR", nullable = false)
 	  private short lagernr;
-	  @Column(name = "ANNANLEVADRESS")
-	  private Short annanlevadress;
+	  @Column(name = "ANNANLEVADRESS", nullable = false)
+	  private short annanlevadress;
 	  @Column(name = "ORDERMEDDELANDE")
 	  private String ordermeddelande;
 
@@ -301,11 +301,11 @@ public class TableOffert1 implements Serializable {
 			 this.lagernr = lagernr;
 	  }
 
-	  public Short getAnnanlevadress() {
+	  public short getAnnanlevadress() {
 			 return annanlevadress;
 	  }
 
-	  public void setAnnanlevadress(Short annanlevadress) {
+	  public void setAnnanlevadress(short annanlevadress) {
 			 this.annanlevadress = annanlevadress;
 	  }
 
