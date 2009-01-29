@@ -25,16 +25,16 @@ public class TableArtgrp implements Serializable {
 	  @Id
 	  @Column(name = "GRPID", nullable = false)
 	  private Integer grpid;
-	  @Column(name = "PREVGRPID")
-	  private Integer prevgrpid;
+	  @Column(name = "PREVGRPID", nullable = false)
+	  private int prevgrpid;
 	  @Column(name = "RUBRIK")
 	  private String rubrik;
 	  @Column(name = "TEXT")
 	  private String text;
 	  @Column(name = "INFOURL")
 	  private String infourl;
-	  @Column(name = "SORTORDER")
-	  private Integer sortorder;
+	  @Column(name = "SORTORDER", nullable = false)
+	  private int sortorder;
 	  @Column(name = "HTML")
 	  private String html;
 
@@ -53,11 +53,11 @@ public class TableArtgrp implements Serializable {
 			 this.grpid = grpid;
 	  }
 
-	  public Integer getPrevgrpid() {
+	  public int getPrevgrpid() {
 			 return prevgrpid;
 	  }
 
-	  public void setPrevgrpid(Integer prevgrpid) {
+	  public void setPrevgrpid(int prevgrpid) {
 			 this.prevgrpid = prevgrpid;
 	  }
 
@@ -85,11 +85,11 @@ public class TableArtgrp implements Serializable {
 			 this.infourl = infourl;
 	  }
 
-	  public Integer getSortorder() {
+	  public int getSortorder() {
 			 return sortorder;
 	  }
 
-	  public void setSortorder(Integer sortorder) {
+	  public void setSortorder(int sortorder) {
 			 this.sortorder = sortorder;
 	  }
 

@@ -54,8 +54,8 @@ public class TableStjarnrad implements Serializable {
 	  @Column(name = "BESTDAT")
 	  @Temporal(TemporalType.DATE)
 	  private Date bestdat;
-	  @Column(name = "BESTNR")
-	  private Integer bestnr;
+	  @Column(name = "BESTNR", nullable = false)
+	  private int bestnr;
 	  @Column(name = "ANVANDARE")
 	  private String anvandare;
 	  @Column(name = "FINNSILAGER", nullable = false)
@@ -63,8 +63,8 @@ public class TableStjarnrad implements Serializable {
 	  @Column(name = "INKOMDATUM")
 	  @Temporal(TemporalType.DATE)
 	  private Date inkomdatum;
-	  @Column(name = "FAKTURANR")
-	  private Integer fakturanr;
+	  @Column(name = "FAKTURANR", nullable = false)
+	  private int fakturanr;
 
 	  public TableStjarnrad() {
 		  
@@ -179,11 +179,11 @@ public class TableStjarnrad implements Serializable {
 			 this.bestdat = bestdat;
 	  }
 
-	  public Integer getBestnr() {
+	  public int getBestnr() {
 			 return bestnr;
 	  }
 
-	  public void setBestnr(Integer bestnr) {
+	  public void setBestnr(int bestnr) {
 			 this.bestnr = bestnr;
 	  }
 
@@ -211,11 +211,11 @@ public class TableStjarnrad implements Serializable {
 			 this.inkomdatum = inkomdatum;
 	  }
 
-	  public Integer getFakturanr() {
+	  public int getFakturanr() {
 			 return fakturanr;
 	  }
 
-	  public void setFakturanr(Integer fakturanr) {
+	  public void setFakturanr(int fakturanr) {
 			 this.fakturanr = fakturanr;
 	  }
 

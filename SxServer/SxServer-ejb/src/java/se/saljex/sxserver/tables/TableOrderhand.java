@@ -37,12 +37,12 @@ public class TableOrderhand implements Serializable {
 	private String fraktsedelnr;
 	@Column(name = "NYORDERNR", nullable = false)
 	private int nyordernr;
-	@Column(name = "ANTALKOLLI")
-	private Integer antalkolli;
+	@Column(name = "ANTALKOLLI", nullable = false)
+	private int antalkolli;
 	@Column(name = "KOLLISLAG")
 	private String kollislag;
-	@Column(name = "TOTALVIKT")
-	private Integer totalvikt;
+	@Column(name = "TOTALVIKT", nullable = false)
+	private int totalvikt;
 	@Column(name = "SERVERDATUM")
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date serverdatum;
@@ -115,11 +115,11 @@ public class TableOrderhand implements Serializable {
 		this.nyordernr = nyordernr;
 	}
 
-	public Integer getAntalkolli() {
+	public int getAntalkolli() {
 		return antalkolli;
 	}
 
-	public void setAntalkolli(Integer antalkolli) {
+	public void setAntalkolli(int antalkolli) {
 		this.antalkolli = antalkolli;
 	}
 
@@ -131,11 +131,11 @@ public class TableOrderhand implements Serializable {
 		this.kollislag = kollislag;
 	}
 
-	public Integer getTotalvikt() {
+	public int getTotalvikt() {
 		return totalvikt;
 	}
 
-	public void setTotalvikt(Integer totalvikt) {
+	public void setTotalvikt(int totalvikt) {
 		this.totalvikt = totalvikt;
 	}
 

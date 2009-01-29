@@ -31,8 +31,8 @@ public class TableOrder1 implements Serializable {
 	@Id
 	@Column(name = "ORDERNR", nullable = false)
 	private Integer ordernr;
-	@Column(name = "DELLEV")
-	private Short dellev;
+	@Column(name = "DELLEV", nullable = false)
+	private short dellev;
 	@Column(name = "NAMN")
 	private String namn;
 	@Column(name = "ADR1")
@@ -106,22 +106,22 @@ public class TableOrder1 implements Serializable {
 	@Column(name = "TILLANNANFILIAL", nullable = false)
 	private short tillannanfilial;
 	@Column(name = "UTLEVBOKAD", nullable = false)
-	private Short utlevbokad;
+	private short utlevbokad;
 	@Column(name = "ANNANLEVADRESS", nullable = false)
-	private Short annanlevadress;
+	private short annanlevadress;
 	@Column(name = "ORDERMEDDELANDE")
 	private String ordermeddelande;
 	@Column(name = "TIDIGASTFAKTDATUM")
 	@Temporal(TemporalType.DATE)
 	private Date tidigastfaktdatum;
 	@Column(name = "WORDERNR", nullable = false)
-	private Integer wordernr;
+	private int wordernr;
 	@Column(name = "LINJENR1", nullable = false)
-	private String linjenr1;
+	private String linjenr1 = "";
 	@Column(name = "LINJENR2", nullable = false)
-	private String linjenr2;
+	private String linjenr2 = "";
 	@Column(name = "LINJENR3", nullable = false)
-	private String linjenr3;
+	private String linjenr3 = "";
 
 	public TableOrder1() {
 	}
@@ -135,15 +135,15 @@ public class TableOrder1 implements Serializable {
 		return ordernr;
 	}
 
-	public void setOrdernr(Integer ordernr) {
+	public void setOrdernr(int ordernr) {
 		this.ordernr = ordernr;
 	}
 
-	public Short getDellev() {
+	public short getDellev() {
 		return dellev;
 	}
 
-	public void setDellev(Short dellev) {
+	public void setDellev(short dellev) {
 		this.dellev = dellev;
 	}
 
@@ -415,15 +415,15 @@ public class TableOrder1 implements Serializable {
 		return utlevbokad;
 	}
 
-	public void setUtlevbokad(Short utlevbokad) {
+	public void setUtlevbokad(short utlevbokad) {
 		this.utlevbokad = utlevbokad;
 	}
 
-	public Short getAnnanlevadress() {
+	public short getAnnanlevadress() {
 		return annanlevadress;
 	}
 
-	public void setAnnanlevadress(Short annanlevadress) {
+	public void setAnnanlevadress(short annanlevadress) {
 		this.annanlevadress = annanlevadress;
 	}
 
@@ -443,11 +443,11 @@ public class TableOrder1 implements Serializable {
 		this.tidigastfaktdatum = tidigastfaktdatum;
 	}
 
-	public Integer getWordernr() {
+	public int getWordernr() {
 		return wordernr;
 	}
 
-	public void setWordernr(Integer wordernr) {
+	public void setWordernr(int wordernr) {
 		this.wordernr = wordernr;
 	}
 
@@ -456,6 +456,7 @@ public class TableOrder1 implements Serializable {
 	}
 
 	public void setLinjenr1(String linjenr1) {
+		if (linjenr1 == null) { linjenr1 = ""; }
 		this.linjenr1 = linjenr1;
 	}
 
@@ -464,6 +465,7 @@ public class TableOrder1 implements Serializable {
 	}
 
 	public void setLinjenr2(String linjenr2) {
+		if (linjenr2 == null) { linjenr2 = ""; }
 		this.linjenr2 = linjenr2;
 	}
 
@@ -472,6 +474,7 @@ public class TableOrder1 implements Serializable {
 	}
 
 	public void setLinjenr3(String linjenr3) {
+		if (linjenr3 == null) { linjenr3 = ""; }
 		this.linjenr3 = linjenr3;
 	}
 

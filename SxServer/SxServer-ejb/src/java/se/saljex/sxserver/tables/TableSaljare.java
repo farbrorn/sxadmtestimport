@@ -57,8 +57,8 @@ public class TableSaljare implements Serializable {
 	  private short behorighet;
 	  @Column(name = "LOSEN")
 	  private String losen;
-	  @Column(name = "LAGERNR")
-	  private Short lagernr;
+	  @Column(name = "LAGERNR", nullable = false)
+	  private short lagernr;
 	  @Column(name = "LOSENGILTIGTDATUM")
 	  @Temporal(TemporalType.DATE)
 	  private Date losengiltigtdatum;
@@ -187,11 +187,11 @@ public class TableSaljare implements Serializable {
 			 this.losen = losen;
 	  }
 
-	  public Short getLagernr() {
+	  public short getLagernr() {
 			 return lagernr;
 	  }
 
-	  public void setLagernr(Short lagernr) {
+	  public void setLagernr(short lagernr) {
 			 this.lagernr = lagernr;
 	  }
 

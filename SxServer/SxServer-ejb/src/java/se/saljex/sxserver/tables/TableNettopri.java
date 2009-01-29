@@ -27,7 +27,7 @@ public class TableNettopri implements Serializable {
 	@EmbeddedId
 	protected TableNettopriPK tableNettopriPK;
 	@Column(name = "PRIS", nullable = false)
-	private Double pris;
+	private double pris;
 	@Column(name = "VALUTA")
 	private String valuta;
 	@Column(name = "DATUM")

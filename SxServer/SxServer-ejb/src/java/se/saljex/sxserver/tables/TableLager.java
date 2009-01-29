@@ -35,8 +35,8 @@ public class TableLager implements Serializable {
 	private double iorder;
 	@Column(name = "LAGERPLATS")
 	private String lagerplats;
-	@Column(name = "HINDRAFILIALBEST")
-	private Short hindrafilialbest;
+	@Column(name = "HINDRAFILIALBEST", nullable = false)
+	private short hindrafilialbest;
 
 	public TableLager() {
 	}
@@ -108,11 +108,11 @@ public class TableLager implements Serializable {
 		this.lagerplats = lagerplats;
 	}
 
-	public Short getHindrafilialbest() {
+	public short getHindrafilialbest() {
 		return hindrafilialbest;
 	}
 
-	public void setHindrafilialbest(Short hindrafilialbest) {
+	public void setHindrafilialbest(short hindrafilialbest) {
 		this.hindrafilialbest = hindrafilialbest;
 	}
 

@@ -2034,3 +2034,57 @@ alter table order1 alter linjenr3 set default '';
 alter table order1 alter linjenr1 set not null;
 alter table order1 alter linjenr2 set not null;
 alter table order1 alter linjenr3 set not null;
+
+/* 2009-01-29 */
+alter table order2 alter prisnr not null;
+alter table order2 alter prisnr default 0;
+alter table order2 alter dellev not null;
+alter table order2 alter dellev default 0;
+alter table order2 alter prisnr not null;
+alter table order2 alter rab not null;
+alter table order2 alter lev not null;
+alter table order2 alter pris not null;
+alter table order2 alter summa not null;
+alter table order2 alter netto not null;
+alter table order2 alter stjid not null;
+
+alter table best1 alter sakerhetskod not null;
+alter table best1 alter antalfelinloggningar not null;
+alter table best1 alter sxservsandforsok not null;
+alter table best1 alter antalpamin not null;
+
+alter table orderhand alter antalkolli not null;
+alter table orderhand alter totalvikt not null;
+
+alter table faktura1 alter mottagarfrakt default 0;
+
+alter table faktura2 alter rab default 0;
+alter table faktura2 alter bon_nr not null;
+alter table faktura2 alter ordernr default 0;
+alter table faktura2 alter rantafakturanr not null;
+alter table faktura2 alter stjid not null;
+alter table faktura2 alter rantabelopp not null;
+alter table faktura2 alter rantaproc not null;
+
+alter table kundres alter antalpaminnelser not null;
+alter table kundres alter pantsatt not null;
+
+alter table lager alter hindrafilialbest not null;
+
+alter table lagerid alter maxlagervarde not null;
+
+alter table offert1 alter annanlevadress not null;
+
+alter table saljare alter lagernr not null;
+
+alter table stjarnrad alter bestnr not null;
+alter table stjarnrad alter fakturanr not null;
+
+alter table sxservjobb alter antalforsok  not null;
+
+alter table artgrp alter prevgrpid not null;
+alter table artgrp alter sortorder not null;
+
+alter table artgrplank alter sortorder not null;
+
+alter table artklaselank alter sortorder not null;

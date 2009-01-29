@@ -50,8 +50,8 @@ public class TableLagerid implements Serializable {
 	  private int checkmeddelidletime;
 	  @Column(name = "SKRIVFOLJESEDEL", nullable = false)
 	  private short skrivfoljesedel;
-	  @Column(name = "MAXLAGERVARDE")
-	  private Double maxlagervarde;
+	  @Column(name = "MAXLAGERVARDE", nullable = false)
+	  private double maxlagervarde;
 
 	  public TableLagerid() {
 	  }
@@ -168,11 +168,11 @@ public class TableLagerid implements Serializable {
 			 this.skrivfoljesedel = skrivfoljesedel;
 	  }
 
-	  public Double getMaxlagervarde() {
+	  public double getMaxlagervarde() {
 			 return maxlagervarde;
 	  }
 
-	  public void setMaxlagervarde(Double maxlagervarde) {
+	  public void setMaxlagervarde(double maxlagervarde) {
 			 this.maxlagervarde = maxlagervarde;
 	  }
 

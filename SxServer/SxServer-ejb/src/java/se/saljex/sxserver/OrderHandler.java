@@ -315,6 +315,8 @@ public class OrderHandler {
 		or1.setLinjenr3(SXUtil.toStr(kun.getLinjenr3()));
 		or1.setWordernr(0);
 		or1.setUtlevbokad((short)0);
+		or1.setTillannanfilial((short)0);
+		or1.setAnnanlevadress((short)0);
 	}
 
 	public boolean checkKreditvardighet() {
@@ -446,7 +448,8 @@ public class OrderHandler {
 		if (or1.getStatus() == null ) {		// Om vi inte satt status sätter vi förvald nu
 			or1.setStatus(SXConstant.ORDER_STATUS_SPARAD);
 		}
-		if (or1.getDellev() == null) { or1.setDellev((short)1); }
+		if (or1.getDellev() == 0) { or1.setDellev((short)1); }
+
 		if (!orderLaddad) em.persist(or1);
 		scn = 0;
 		for (OrderHandlerRad o : ordreg) {

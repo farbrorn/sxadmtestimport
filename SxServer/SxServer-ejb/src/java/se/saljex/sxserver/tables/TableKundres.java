@@ -70,12 +70,12 @@ public class TableKundres implements Serializable {
 	  @Column(name = "INKASSODATUM")
 	  @Temporal(TemporalType.DATE)
 	  private Date inkassodatum;
-	  @Column(name = "ANTALPAMINNELSER")
-	  private Integer antalpaminnelser;
+	  @Column(name = "ANTALPAMINNELSER", nullable = false)
+	  private int antalpaminnelser;
 	  @Column(name = "INKASSOSTATUS")
 	  private String inkassostatus;
-	  @Column(name = "PANTSATT")
-	  private Short pantsatt;
+	  @Column(name = "PANTSATT", nullable = false)
+	  private short pantsatt;
 
 	  public TableKundres() {
 	  }
@@ -213,11 +213,11 @@ public class TableKundres implements Serializable {
 			 this.inkassodatum = inkassodatum;
 	  }
 
-	  public Integer getAntalpaminnelser() {
+	  public int getAntalpaminnelser() {
 			 return antalpaminnelser;
 	  }
 
-	  public void setAntalpaminnelser(Integer antalpaminnelser) {
+	  public void setAntalpaminnelser(int antalpaminnelser) {
 			 this.antalpaminnelser = antalpaminnelser;
 	  }
 
@@ -229,11 +229,11 @@ public class TableKundres implements Serializable {
 			 this.inkassostatus = inkassostatus;
 	  }
 
-	  public Short getPantsatt() {
+	  public short getPantsatt() {
 			 return pantsatt;
 	  }
 
-	  public void setPantsatt(Short pantsatt) {
+	  public void setPantsatt(short pantsatt) {
 			 this.pantsatt = pantsatt;
 	  }
 
