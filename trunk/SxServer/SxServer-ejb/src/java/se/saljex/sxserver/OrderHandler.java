@@ -502,6 +502,7 @@ public class OrderHandler {
 			}
 		}
 		em.persist( new TableOrderhand(or1.getOrdernr(), anvandare, SXConstant.ORDERHAND_SKAPAD));
+		em.flush();
 		orderLaddad = true;			// Signalera att ordern nu finns sparad, och aktuell order därför betraktas som laddad
 		return or1.getOrdernr();
 	}

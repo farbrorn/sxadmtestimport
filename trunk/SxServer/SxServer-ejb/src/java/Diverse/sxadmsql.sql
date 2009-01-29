@@ -2036,55 +2036,55 @@ alter table order1 alter linjenr2 set not null;
 alter table order1 alter linjenr3 set not null;
 
 /* 2009-01-29 */
-alter table order2 alter prisnr not null;
-alter table order2 alter prisnr default 0;
-alter table order2 alter dellev not null;
-alter table order2 alter dellev default 0;
-alter table order2 alter prisnr not null;
-alter table order2 alter rab not null;
-alter table order2 alter lev not null;
-alter table order2 alter pris not null;
-alter table order2 alter summa not null;
-alter table order2 alter netto not null;
-alter table order2 alter stjid not null;
+alter table order2 alter prisnr set not null;
+alter table order2 alter prisnr set default 0;
+alter table order2 alter dellev set not null;
+alter table order2 alter dellev set default 0;
+alter table order2 alter prisnr set not null;
+alter table order2 alter rab set not null;
+alter table order2 alter lev set not null;
+alter table order2 alter pris set not null;
+alter table order2 alter summa set not null;
+alter table order2 alter netto set not null;
+alter table order2 alter stjid set not null;
 
-alter table best1 alter sakerhetskod not null;
-alter table best1 alter antalfelinloggningar not null;
-alter table best1 alter sxservsandforsok not null;
-alter table best1 alter antalpamin not null;
+alter table best1 alter sakerhetskod set not null;
+alter table best1 alter antalfelinloggningar set not null;
+alter table best1 alter sxservsandforsok set not null;
+alter table best1 alter antalpamin set not null;
 
-alter table orderhand alter antalkolli not null;
-alter table orderhand alter totalvikt not null;
+alter table orderhand alter antalkolli set not null;
+alter table orderhand alter totalvikt set not null;
 
-alter table faktura1 alter mottagarfrakt default 0;
+alter table faktura1 alter mottagarfrakt set default 0;
 
-alter table faktura2 alter rab default 0;
-alter table faktura2 alter bon_nr not null;
-alter table faktura2 alter ordernr default 0;
-alter table faktura2 alter rantafakturanr not null;
-alter table faktura2 alter stjid not null;
-alter table faktura2 alter rantabelopp not null;
-alter table faktura2 alter rantaproc not null;
+alter table faktura2 alter rab set default 0;
+alter table faktura2 alter bon_nr set not null;
+alter table faktura2 alter ordernr set default 0;
+alter table faktura2 alter rantafakturanr set not null;
+alter table faktura2 alter stjid set not null;
+alter table faktura2 alter rantabetalbelopp set not null;
+alter table faktura2 alter rantaproc set not null;
 
-alter table kundres alter antalpaminnelser not null;
-alter table kundres alter pantsatt not null;
+alter table kundres alter antalpaminnelser set not null;
+alter table kundres alter pantsatt set not null;
 
-alter table lager alter hindrafilialbest not null;
+alter table lager alter hindrafilialbest set not null;
 
-alter table lagerid alter maxlagervarde not null;
+alter table lagerid alter maxlagervarde set not null;
 
-alter table offert1 alter annanlevadress not null;
+alter table offert1 alter annanlevadress set not null;
 
-alter table saljare alter lagernr not null;
+alter table saljare alter lagernr set not null;
 
-alter table stjarnrad alter bestnr not null;
-alter table stjarnrad alter fakturanr not null;
+alter table stjarnrad alter bestnr set not null;
+alter table stjarnrad alter fakturanr set not null;
 
-alter table sxservjobb alter antalforsok  not null;
+alter table sxservjobb alter antalforsok  set not null;
 
-alter table artgrp alter prevgrpid not null;
-alter table artgrp alter sortorder not null;
+alter table artgrp alter prevgrpid set not null;
+alter table artgrp alter sortorder set not null;
 
-alter table artgrplank alter sortorder not null;
+alter table artgrplank alter sortorder set not null;
 
-alter table artklaselank alter sortorder not null;
+alter table artklaselank alter sortorder set not null;

@@ -236,7 +236,8 @@ public class SimpleOrderHandler  {
 		}												// Nu har vi första leverantören med direktleverans i direktlevLev, eller null om ingen hittades
 		// Loopa igenom raderna på angiven leverantör eller alla om direktlevLev=null, och skapa ny order
 		OrderHandler delOrh = new OrderHandler(em, orh.getKundNr(),  orh.getLagerNr(), anvandare);
-		delOrh.setMarke(orh.getMarke());
+		delOrh.setMarke(sor1.getMarke());
+		delOrh.setWordernr(sor1.getWordernr());
 		if (direktlevLev != null) { delOrh.setStatus(SXConstant.ORDER_STATUS_DIREKTLEV); }
 		ListIterator<OrderHandlerRad> orl = or.listIterator();
 		OrderHandlerRad rad;
