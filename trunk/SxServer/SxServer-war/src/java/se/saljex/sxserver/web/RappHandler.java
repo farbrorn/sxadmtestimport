@@ -46,54 +46,9 @@ public class RappHandler {
 	}
 	
 	public void prepareFromSQLRepository(int rappId) throws SQLException {
-		/*
-		 
-create table rapphuvud (
-rappid integer not null, 
-behorighet varchar(10),
-kategori varchar(30), 
-undergrupp varchar(30), 
-kortbeskrivning varchar(100), 
-reportrubrik varchar(1024), 
-sqlfrom varchar(1024), 
-isdistinct smallint not null default 0, 
-crtime timestamp default timestamp, 
-primary key(rappid))
-
-create table rappcolumns (
-		 rappid integer not null,
-		 col integer not null,
-		 sqllabel varchar(512),
-		 label varchar(512),
-		 groupby smallint not null default 0,		 
-		 decimaler integer,
-		 hidden smallint not null default 0,
-		 groupbyheadertext varchar(1024),
-		 groupbyfootertext varchar(1024),
-		 primary key (rappid, col))
-		rs1 = s1.executeQuery("select type, sumcolumn, resetcolumn, sumtype, sumtext, pos, javatype, name, label, hidden, defaultvalue from rappprops where rappid = " + rappId + " order by pos");
-		 * 
-		 create table rappprops (
-		 rappid integer not null,
-		 rad integer not null,
-		 type varchar(10) not null,
-		 sumcolumn integer,
-		 resetcolumn integer,
-		 sumtype varchar(10),
-		 sumtext varchar(512),
-		 pos integer,
-		 javatype varchar(10),
-		 name varchar(30),
-		 label varchar(512),
-		 hidden smallint,
-		 defaultvalue varchar(128),
-		 primary key (rappid, rad))
-		 
-		 
-		 * */
 		Statement s1 = con.createStatement();
+		StringBuilder sb = new StringBuilder();
 		try {
-			StringBuilder sb = new StringBuilder();
 			ResultSet rs1;
 
 			rs1 =  s1.executeQuery("select reportrubrik, sqlfrom, isdistinct from rapphuvud where rappid = " + rappId);
@@ -149,8 +104,13 @@ create table rappcolumns (
 		} finally {
 			try { s1.close(); } catch (Exception e) {}
 		}
+		SXUtil.logDebug("SQL-Sats för rapport: " + sb.toString());
 	}
 	
+
+
+
+
 	public void prepareQuery(String sql) throws SQLException {
 		PreparedStatement st = con.prepareStatement(sql);
 		if (sqlFilters != null) {
@@ -495,8 +455,10 @@ create table rappcolumns (
 			String ret;
 			if (o == null) {
 				ret = "";
-			} else if (javaType == TYP_DOUBLE || javaType == TYP_FLOAT) {
+			} else if (javaType == TYP_DOUBLE) {
 				ret = SXUtil.getFormatNumber((Double)o, decimaler);
+			} else if (javaType == TYP_FLOAT) {
+				ret = SXUtil.getFormatNumber((Float)o, decimaler);
 			} else if (javaType == TYP_BIGDECIMAL) {
 				ret = SXUtil.getFormatNumber(((BigDecimal)o).doubleValue(), decimaler);
 			} else if (javaType == TYP_DATE) {

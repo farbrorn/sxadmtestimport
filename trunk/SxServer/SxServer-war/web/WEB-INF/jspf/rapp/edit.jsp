@@ -28,6 +28,7 @@ RappEdit.RappColumn rc;
 <tr><td>Undergrupp:</td><td><%= SXUtil.toHtml(r.getHuvud().undergrupp) %></td></tr>
 <tr><td>Kortbeskrivning:</td><td><%= SXUtil.toHtml(r.getHuvud().kortbeskrivning) %></td></tr>
 <tr><td>SQL from-sats:</td><td><%= SXUtil.toHtml(r.getHuvud().sqlfrom) %></td></tr>
+<tr><td>JSP-Fil (För specialrapporter):</td><td><%= SXUtil.toHtml(r.getHuvud().jspfilename) %></td></tr>
 <tr><td colspan="2"><td><% if(r.getHuvud().markedForDelete) out.print("Kommer att raderas"); %></td></td>
 </table>
 <a href="?id=edithuvud&rappsession=<%= rappSession %>">Ändra</a>

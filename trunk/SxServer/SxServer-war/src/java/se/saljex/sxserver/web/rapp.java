@@ -8,6 +8,8 @@ package se.saljex.sxserver.web;
 import java.io.*;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import javax.annotation.Resource;
@@ -100,8 +102,8 @@ public class rapp extends HttpServlet {
 				rappSession = Integer.parseInt(request.getParameter("rappsession"));
 				currentRappEdit = sxSession.getArrRappEdit().get(rappSession);
 			}
-			catch (NumberFormatException e) {SXUtil.log(e.toString()); }
-			catch (NullPointerException e) {SXUtil.log(e.toString()); }
+			catch (NumberFormatException e) { }
+			catch (NullPointerException e) { }
 			catch (IndexOutOfBoundsException e) { out.println("Felaktig rappsession. Möjligen har sessionen utgått pga timeout."); return; }
 
 
@@ -117,10 +119,20 @@ public class rapp extends HttpServlet {
 					out.println("Ingen behörighet");
 					return;
 				}
+				if (!checkRappBehorighet(rappId, sxSession.getIntraAnvandareKort())) {
+					out.println("Ingen behörighet");
+					return;
+				}
+				String jspFileName;
 
 				if (get != null) {			//Vi har en get-request som bara skickar en del av sidan
 					if (get.equals("viewrapp")) {
-						printRapp("", sxSession.getIntraAnvandareKort(), rappId);
+						jspFileName = getJSPFileName(rappId);
+						if (jspFileName != null) {
+							printJSPRapp(jspFileName);
+						} else {
+							printRapp("", sxSession.getIntraAnvandareKort(), rappId);
+						}
 					} else {
 						out.println("Inga data tillgängliga!");
 					}
@@ -130,7 +142,12 @@ public class rapp extends HttpServlet {
 					if (id.equals("1")) {
 						printRappHuvudList("id=\"midbar\"");
 					} else if (id.equals("2")) {
-						printRappInput("id=\"midbar\"", sxSession.getIntraAnvandareKort(), rappId);
+						jspFileName = getJSPFileName(rappId);
+						if (jspFileName != null) {
+							printJSPRapp(jspFileName);
+						} else {
+							printRappInput("id=\"midbar\"", sxSession.getIntraAnvandareKort(), rappId);
+						}
 			//					printKundinfo(request, response,"id=\"midbar\"");
 			//					printRightSideBar(request,response,"id=\"rightbar\"");
 					} else if (id.equals("edithuvud")) {
@@ -271,6 +288,37 @@ public class rapp extends HttpServlet {
 					out.println("<div id=\"body\">");
 		}
 
+		private boolean checkRappBehorighet(Integer rappId, String anvandareKort) {
+			// Kollar om användaren har behörighet att visa angiven rapport
+			if (rappId == null) { return true; }  //Alla har rätt att visa en null-rapport....
+			if (sxSession.isAdminuser() || sxSession.isSuperuser()) return true;
+			try {
+				PreparedStatement s = con.prepareStatement("select r.rappid from saljare s join anvbehorighet a on a.anvandare = s.namn join rapphuvud r on a.behorighet = r.behorighet where s.forkortning = ? and r.rappid = ?");
+				s.setString(1, anvandareKort);
+				s.setInt(2, rappId);
+				ResultSet rs  = s.executeQuery();
+				if (rs.next()) {
+					// Om vi har minst en rad returnerad så vet vi att  behörigheten är ok!
+					return true;
+				}
+			} catch (SQLException e) { SXUtil.logDebug("Undantag vid checkRappBehorighet: " + e.toString());return false; }
+			return false;
+		}
+
+		private String getJSPFileName(Integer rappId) {
+			// Returnerar filnamnet för JSP-rapport, eller null om det är en 'standardrapport'
+			String ret = null;
+			if (rappId == null) { return null; }
+			try {
+				ResultSet rs  = con.createStatement().executeQuery("select jspfilename from rapphuvud where rappid = " + rappId);
+				if (rs.next()) {
+					ret = rs.getString(1);
+					if (SXUtil.isEmpty(ret)) ret = null;
+				}
+			} catch (SQLException e) { SXUtil.logDebug("Undantag vid getJSPFileName: " + e.toString());return null; }
+			return ret;
+		}
+
 		private void printFooter()  throws ServletException, IOException {
 					out.println("</div>");
 					request.getRequestDispatcher("/WEB-INF/jspf/sitefooter.jsp").include(request, response);
@@ -281,7 +329,7 @@ public class rapp extends HttpServlet {
 				try {
 					RappHTML rh = new RappHTML(con, request);
 					out.println(rh.printHTMLInputForm(rappId));
-				} catch (SQLException e) { SXUtil.log("Undantag vid rapport:" + e.toString()); out.println("Undantag vid rapport: " + e.toString()); }
+				} catch (SQLException e) { SXUtil.log("Undantag vid printRappInput:" + e.toString()); out.println("Undantag vid rapport: " + e.toString()); }
 			}
 		}
 		private void printRapp(String divInfo, String anvandareKort, int rappId) throws ServletException, IOException{
@@ -291,7 +339,7 @@ public class rapp extends HttpServlet {
 					RappHTML rh = new RappHTML(con, request);
 					rh.prepareFromSQLRepository(rappId);
 					out.println(rh.print());
-				} catch (SQLException e) { SXUtil.log("Undantag vid rapport:" + e.toString()); response.getWriter().println("Undantag vid rapport: " + e.toString()); }
+				} catch (SQLException e) { SXUtil.log("Undantag vid printRapp:" + e.toString()); response.getWriter().println("Undantag vid rapport: " + e.toString()); }
 			}
 			request.getRequestDispatcher("/WEB-INF/jspf/rapp/rappfootervisa.jsp").include(request, response);
 		}
@@ -303,7 +351,7 @@ public class rapp extends HttpServlet {
 				request.setAttribute("divinfo", divInfo);
 				request.setAttribute("rapphuvudlist", rl);
 				request.getRequestDispatcher("WEB-INF/jspf/rapp/printrapphuvudlist.jsp").include(request, response);
-			} catch (SQLException e) { SXUtil.log("Undantag vid rapp: " + e.toString()); response.getWriter().println(e.toString());}
+			} catch (SQLException e) { SXUtil.log("Undantag vid printRappHuvud: " + e.toString()); response.getWriter().println(e.toString());}
 		}
 
 		private void printRappEdit(String divInfo, RappEdit rappEdit) throws ServletException, IOException{
@@ -339,6 +387,10 @@ public class rapp extends HttpServlet {
 			request.getRequestDispatcher("WEB-INF/jspf/kund/topbar.jsp").include(request, response);
 		}
 
+		private void printJSPRapp(String jspFileName) throws ServletException, IOException{
+			request.setAttribute("con", con);
+			request.getRequestDispatcher("WEB-INF/jspf/rapp/" + jspFileName).include(request, response);
+		}
 	 }
 
 }
