@@ -107,12 +107,12 @@ public class TableArtikel implements Serializable {
 	@Column(name = "KAMPTIDAT")
 	@Temporal(TemporalType.DATE)
 	private Date kamptidat;
-	@Column(name = "KAMPPRIS")
-	private Double kamppris;
-	@Column(name = "KAMPPRISSTAF1")
-	private Double kampprisstaf1;
-	@Column(name = "KAMPPRISSTAF2")
-	private Double kampprisstaf2;
+	@Column(name = "KAMPPRIS", nullable = false)
+	private double kamppris;
+	@Column(name = "KAMPPRISSTAF1", nullable = false)
+	private double kampprisstaf1;
+	@Column(name = "KAMPPRISSTAF2", nullable = false)
+	private double kampprisstaf2;
 	@Column(name = "INP_MILJO", nullable = false)
 	private double inpMiljo;
 	@Column(name = "INP_FRAKT", nullable = false)
@@ -148,35 +148,37 @@ public class TableArtikel implements Serializable {
 	private short kampkundgrp;
 	@Column(name = "CN8")
 	private String cn8;
-	@Column(name = "FRAKTVILLKOR")
-	private Short fraktvillkor;
-	@Column(name = "DAGSPRIS")
-	private Short dagspris;
-	@Column(name = "HINDRAEXPORT")
-	private Short hindraexport;
+	@Column(name = "FRAKTVILLKOR", nullable = false)
+	private short fraktvillkor;
+	@Column(name = "DAGSPRIS", nullable = false)
+	private short dagspris;
+	@Column(name = "HINDRAEXPORT", nullable = false)
+	private short hindraexport;
 	@Column(name = "UTGATTDATUM")
 	@Temporal(TemporalType.DATE)
 	private Date utgattdatum;
-	@Column(name = "MINSALJPACK")
-	private Double minsaljpack;
-	@Column(name = "STORPACK")
-	private Double storpack;
-	@Column(name = "PRISGILTIGHETSTID")
-	private Integer prisgiltighetstid;
-	@Column(name = "ONSKATTB")
-	private Integer onskattb;
-	@Column(name = "ONSKATTBSTAF1")
-	private Integer onskattbstaf1;
-	@Column(name = "ONSKATTBSTAF2")
-	private Integer onskattbstaf2;
-	@Column(name = "SALDA")
-	private Double salda;
-	@Column(name = "DIREKTLEV")
-	private Short direktlev;
+	@Column(name = "MINSALJPACK", nullable = false)
+	private double minsaljpack;
+	@Column(name = "STORPACK", nullable = false)
+	private double storpack;
+	@Column(name = "PRISGILTIGHETSTID", nullable = false)
+	private int prisgiltighetstid;
+	@Column(name = "ONSKATTB", nullable = false)
+	private int onskattb;
+	@Column(name = "ONSKATTBSTAF1", nullable = false)
+	private int onskattbstaf1;
+	@Column(name = "ONSKATTBSTAF2", nullable = false)
+	private int onskattbstaf2;
+	@Column(name = "SALDA", nullable = false)
+	private double salda;
+	@Column(name = "DIREKTLEV", nullable = false)
+	private short direktlev;
 	@Column(name = "KATNAMN")
 	private String katnamn;
 	@Column(name = "BILDARTNR")
 	private String bildartnr;
+	@Column(name = "PLOCKINSTRUKTION")
+	private String plockinstruktion;
 
 	public TableArtikel() {
 	}
@@ -496,27 +498,27 @@ public class TableArtikel implements Serializable {
 		this.kamptidat = kamptidat;
 	}
 
-	public Double getKamppris() {
+	public double getKamppris() {
 		return kamppris;
 	}
 
-	public void setKamppris(Double kamppris) {
+	public void setKamppris(double kamppris) {
 		this.kamppris = kamppris;
 	}
 
-	public Double getKampprisstaf1() {
+	public double getKampprisstaf1() {
 		return kampprisstaf1;
 	}
 
-	public void setKampprisstaf1(Double kampprisstaf1) {
+	public void setKampprisstaf1(double kampprisstaf1) {
 		this.kampprisstaf1 = kampprisstaf1;
 	}
 
-	public Double getKampprisstaf2() {
+	public double getKampprisstaf2() {
 		return kampprisstaf2;
 	}
 
-	public void setKampprisstaf2(Double kampprisstaf2) {
+	public void setKampprisstaf2(double kampprisstaf2) {
 		this.kampprisstaf2 = kampprisstaf2;
 	}
 
@@ -648,27 +650,27 @@ public class TableArtikel implements Serializable {
 		this.cn8 = cn8;
 	}
 
-	public Short getFraktvillkor() {
+	public short getFraktvillkor() {
 		return fraktvillkor;
 	}
 
-	public void setFraktvillkor(Short fraktvillkor) {
+	public void setFraktvillkor(short fraktvillkor) {
 		this.fraktvillkor = fraktvillkor;
 	}
 
-	public Short getDagspris() {
+	public short getDagspris() {
 		return dagspris;
 	}
 
-	public void setDagspris(Short dagspris) {
+	public void setDagspris(short dagspris) {
 		this.dagspris = dagspris;
 	}
 
-	public Short getHindraexport() {
+	public short getHindraexport() {
 		return hindraexport;
 	}
 
-	public void setHindraexport(Short hindraexport) {
+	public void setHindraexport(short hindraexport) {
 		this.hindraexport = hindraexport;
 	}
 
@@ -680,67 +682,67 @@ public class TableArtikel implements Serializable {
 		this.utgattdatum = utgattdatum;
 	}
 
-	public Double getMinsaljpack() {
+	public double getMinsaljpack() {
 		return minsaljpack;
 	}
 
-	public void setMinsaljpack(Double minsaljpack) {
+	public void setMinsaljpack(double minsaljpack) {
 		this.minsaljpack = minsaljpack;
 	}
 
-	public Double getStorpack() {
+	public double getStorpack() {
 		return storpack;
 	}
 
-	public void setStorpack(Double storpack) {
+	public void setStorpack(double storpack) {
 		this.storpack = storpack;
 	}
 
-	public Integer getPrisgiltighetstid() {
+	public int getPrisgiltighetstid() {
 		return prisgiltighetstid;
 	}
 
-	public void setPrisgiltighetstid(Integer prisgiltighetstid) {
+	public void setPrisgiltighetstid(int prisgiltighetstid) {
 		this.prisgiltighetstid = prisgiltighetstid;
 	}
 
-	public Integer getOnskattb() {
+	public int getOnskattb() {
 		return onskattb;
 	}
 
-	public void setOnskattb(Integer onskattb) {
+	public void setOnskattb(int onskattb) {
 		this.onskattb = onskattb;
 	}
 
-	public Integer getOnskattbstaf1() {
+	public int getOnskattbstaf1() {
 		return onskattbstaf1;
 	}
 
-	public void setOnskattbstaf1(Integer onskattbstaf1) {
+	public void setOnskattbstaf1(int onskattbstaf1) {
 		this.onskattbstaf1 = onskattbstaf1;
 	}
 
-	public Integer getOnskattbstaf2() {
+	public int getOnskattbstaf2() {
 		return onskattbstaf2;
 	}
 
-	public void setOnskattbstaf2(Integer onskattbstaf2) {
+	public void setOnskattbstaf2(int onskattbstaf2) {
 		this.onskattbstaf2 = onskattbstaf2;
 	}
 
-	public Double getSalda() {
+	public double getSalda() {
 		return salda;
 	}
 
-	public void setSalda(Double salda) {
+	public void setSalda(double salda) {
 		this.salda = salda;
 	}
 
-	public Short getDirektlev() {
+	public short getDirektlev() {
 		return direktlev;
 	}
 
-	public void setDirektlev(Short direktlev) {
+	public void setDirektlev(short direktlev) {
 		this.direktlev = direktlev;
 	}
 
@@ -758,6 +760,14 @@ public class TableArtikel implements Serializable {
 
 	public void setBildartnr(String bildartnr) {
 		this.bildartnr = bildartnr;
+	}
+
+	public String getPlockinstruktion() {
+		return plockinstruktion;
+	}
+
+	public void setPlockinstruktion(String plockinstruktion) {
+		this.plockinstruktion = plockinstruktion;
 	}
 
 	@Override

@@ -2088,3 +2088,98 @@ alter table artgrp alter sortorder set not null;
 alter table artgrplank alter sortorder set not null;
 
 alter table artklaselank alter sortorder set not null;
+
+/* 2009-01-31 */
+update artikel set kamppris = 0 where kamppris is null;
+update artikel set kampprisstaf1 = 0 where kampprisstaf1 is null;
+update artikel set kampprisstaf2 = 0 where kampprisstaf2 is null;
+alter table artikel alter kamppris set not null;
+alter table artikel alter kampprisstaf1 set not null;
+alter table artikel alter kampprisstaf2 set not null;
+alter table artikel alter fraktvillkor set not null;
+alter table artikel alter dagspris set not null;
+alter table artikel alter hindraexport set not null;
+alter table artikel alter prisgiltighetstid set not null;
+alter table artikel alter onskattb set not null;
+alter table artikel alter onskattbstaf1 set not null;
+alter table artikel alter onskattbstaf2 set not null;
+alter table artikel alter salda set not null;
+alter table artikel alter direktlev set not null;
+alter table artikel alter storpack set not null;
+alter table artikel alter minsaljpack set not null;
+
+alter table artikel alter utprisny set default 0;
+
+
+CREATE OR REPLACE FUNCTION "adddate"(date, integer)  RETURNS date AS
+'select $1 + $2'
+  LANGUAGE 'sql' VOLATILE STRICT
+  COST 100;
+
+
+
+CREATE OR REPLACE FUNCTION "subdate"(date, integer)  RETURNS date AS
+'select $1 - $2'
+  LANGUAGE 'sql' VOLATILE STRICT
+  COST 100;
+
+
+create or replace view vartkundorder as
+select
+k.nummer as kundnr,
+a.nummer as artnr,
+a.namn as artnamn,
+a.lev as lev,
+a.bestnr as bestnr,
+a.rsk as rsk,
+a.enummer as enummer,
+a.refnr as refnr,
+a.plockinstruktion as plockinstruktion,
+a.enhet as wnhet,
+a.utpris as utpris,
+a.staf_pris1 as staf_pris1,
+a.staf_pris2 as staf_pris2,
+a.staf_antal1 as staf_antal1,
+a.staf_antal2 as staf_antal2,
+a.rabkod as rabkod,
+a.kod1 as kod1,
+a.inpris as inpris,
+a.prisdatum as prisdatum,
+a.prisgiltighetstid,
+a.konto as konto,
+a.struktnr as struktnr,
+a.forpack as forpack,
+a.kampfrdat as kampfrdat,
+a.kamptidat as kamptidat,
+a.kamppris as kamppris,
+a.kampprisstaf1 as kampprisstaf1,
+a.kampprisstaf2 as kampprisstaf2,
+a.inp_miljo as inp_miljo,
+a.inp_frakt as inp_frakt,
+a.inp_fraktproc as inp_fraktproc,
+a.kampkundartgrp as kampkundartgrp,
+a.kampkundgrp as kampkundgrp,
+a.fraktvillkor as fraktvillkor,
+a.dagspris as dagspris,
+a.minsaljpack as minsaljpack,
+a.anvisnr as anvisnr,
+a.utgattdatum as utgattdatum,
+lid.lagernr as lagernr,
+coalesce(l.ilager,0) as ilager,
+coalesce(k.basrab,0) as basrab,
+coalesce(r2.rab,0) as gruppbasrab,
+coalesce(r.rab,0) as undergrupprab,
+coalesce(n.pris,0) as nettopris,
+an.anvisning as anvisning
+from
+artikel a
+join lagerid lid on 1=1
+left outer join lager l on l.lagernr = lid.lagernr and l.artnr =a.nummer
+left outer join kund k on 1=1
+left outer join kunrab r2 on r2.kundnr = k.nummer and coalesce(r2.rabkod,'') = coalesce(a.rabkod,'') and coalesce(r2.kod1,'') = ''
+left outer join kunrab r on r.kundnr = k.nummer and coalesce(r.rabkod,'') = coalesce(a.rabkod,'') and coalesce(r.kod1,'') = coalesce(a.kod1,'')
+left outer join nettopri n on n.lista = k.nettolst and n.artnr = a.nummer
+left outer join anvis an on an.anvisnr = a.nummer
+
+
+
