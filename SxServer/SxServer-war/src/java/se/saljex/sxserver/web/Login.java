@@ -140,6 +140,7 @@ public class Login extends HttpServlet {
 				sxSession.setIntraAnvandare(rs.getString(1));
 				sxSession.setIntraAnvandareKort(rs.getString(2));
 				sxSession.setSuperuser(true);
+				sxSession.setAdminuser(true);
 				return true;
 			} else {
 				// LoginError
