@@ -135,6 +135,38 @@ public class LocalWebSupportBean implements LocalWebSupportLocal {
 		return pdf.getPDF(nr);
 	}
 
+	public String updateWebArtikelTradWithHTMLResponse() {
+		String ret = "";
+		java.sql.Connection conSe = null;
+		int cn;
+		try {
+			conSe = saljexse.getConnection();
+			WebArtikelUpdater w = new WebArtikelUpdater(em, conSe);
+			try {
+				ret = ret + "<br/>Startar updateWArtGrp";
+				cn = w.updateWArtGrp();
+				ret = ret + " - Klart! Antal rader: " + cn;
+			} catch (java.sql.SQLException e) { ret = ret + "<br/>Undantag vid updateWArtGrp " + e.toString(); }
+			try {
+				ret = ret + "<br/>Startar updateWArtGrpLank";
+				cn = w.updateWArtGrpLank();
+				ret = ret + " - Klart! Antal rader: " + cn;
+			} catch (java.sql.SQLException e) { ret = ret + "<br/>Undantag vid updateWArtGrpLank " + e.toString(); }
+			try {
+				ret = ret + "<br/>Startar updateWArtKlase";
+				cn = w.updateWArtKlase();
+				ret = ret + " - Klart! Antal rader: " + cn;
+			} catch (java.sql.SQLException e) { ret = ret + "<br/>Undantag vid updateWArtKlase " + e.toString(); }
+			try {
+				ret = ret + "<br/>Startar updateWArtKlaseLank";
+				cn = w.updateWArtKlaseLank();
+				ret = ret + " - Klart! Antal rader: " + cn;
+			} catch (java.sql.SQLException e) { ret = ret + "<br/>Undantag vid updateWArtKlaseLank " + e.toString(); }
+		} catch (java.sql.SQLException e) { ret = ret + "<br/>Undantag vid getConnection " + e.toString(); }
+		finally { try { conSe.close(); } catch (Exception e) {} }
+		return ret;
+	}
+
 
 
     

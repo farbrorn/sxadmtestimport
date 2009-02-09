@@ -37,7 +37,7 @@ public class WebArtikelUpdater {
 	}
 
 	
-	public void updateWArt() throws SQLException {
+	public int updateWArt() throws SQLException {
 		SXUtil.log("Börjar uppdatera WArt");
 		Statement s = con.createStatement();
 		s.executeUpdate("delete from wartikelup");
@@ -91,9 +91,10 @@ public class WebArtikelUpdater {
 			", staf_antal1, staf_antal2, bestnr, rabkod, kod1, prisdatum, refnr, vikt, volym, minsaljpack, forpack, rsk, enummer, fraktvillkor" +
 			", prisgiltighetstid, utgattdatum, katnamn, bildartnr, maxlager, ilager from wartikelup");
 		SXUtil.log("Update WArt färdigt! Antal rader: " + antalRader);
+		return antalRader;
 	}
 
-	public void updateWArtGrp() throws SQLException {
+	public int updateWArtGrp() throws SQLException {
 		SXUtil.log("Börjar uppdatera WArtGrp");
 		Statement s = con.createStatement();
 		s.executeUpdate("delete from wartgrpup");
@@ -113,10 +114,11 @@ public class WebArtikelUpdater {
 		s.executeUpdate("delete from wartgrp");
 		int antalRader = s.executeUpdate("insert into wartgrp (grpid, prevgrpid, rubrik, infourl, sortorder, text, html) select grpid, prevgrpid, rubrik, infourl, sortorder, text, html from wartgrpup");
 		SXUtil.log("Update WArtGrp färdigt! Antal rader: " + antalRader);
+		return antalRader;
 	}
 
 
-	public void updateWArtGrpLank() throws SQLException {
+	public int updateWArtGrpLank() throws SQLException {
 		SXUtil.log("Börjar uppdatera WArtGrpLank");
 		Statement s = con.createStatement();
 		s.executeUpdate("delete from wartgrplankup");
@@ -132,9 +134,10 @@ public class WebArtikelUpdater {
 		s.executeUpdate("delete from wartgrplank");
 		int antalRader = s.executeUpdate("insert into wartgrplank (grpid, klasid, sortorder) select grpid, klasid, sortorder from wartgrplankup");
 		SXUtil.log("Update WArtGrpLank färdigt! Antal rader: " + antalRader);
+		return antalRader;
 	}
 
-	public void updateWArtKlase() throws SQLException {
+	public int updateWArtKlase() throws SQLException {
 		SXUtil.log("Börjar uppdatera WArtKlase");
 		Statement s = con.createStatement();
 		s.executeUpdate("delete from wartklaseup");
@@ -153,9 +156,10 @@ public class WebArtikelUpdater {
 		s.executeUpdate("delete from wartklase");
 		int antalRader = s.executeUpdate("insert into wartklase (klasid, rubrik, infourl, fraktvillkor, text, html) select klasid, rubrik, infourl, fraktvillkor, text, html from wartklaseup");
 		SXUtil.log("Update WArtKlase färdigt! Antal rader: " + antalRader);
+		return antalRader;
 	}
 	
-	public void updateWArtKlaseLank() throws SQLException {
+	public int updateWArtKlaseLank() throws SQLException {
 		SXUtil.log("Börjar uppdatera WArtKlaseLank");
 		Statement s = con.createStatement();
 		s.executeUpdate("delete from wartklaselankup");
@@ -171,6 +175,7 @@ public class WebArtikelUpdater {
 		s.executeUpdate("delete from wartklaselank");
 		int antalRader = s.executeUpdate("insert into wartklaselank (klasid, artnr, sortorder) select klasid, artnr, sortorder from wartklaselankup");
 		SXUtil.log("Update WArtKlaseLank färdigt! Antal rader: " + antalRader);
+		return antalRader;
 	}
 
 

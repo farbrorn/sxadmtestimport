@@ -154,7 +154,7 @@ public class SxServerMainBean implements SxServerMainLocal {
 			try {
 				WebArtikelUpdater w = new WebArtikelUpdater(em, conSe);
 				w.updateWArtGrp();
-				w.updateWArtGrp();
+				w.updateWArtGrpLank();
 				w.updateWArtKlase();
 				w.updateWArtKlaseLank();
 			} catch (SQLException e) { SXUtil.log("Undantag i handleVeckoTimer vid WebArtikelUpdater: " + e.toString()); }
