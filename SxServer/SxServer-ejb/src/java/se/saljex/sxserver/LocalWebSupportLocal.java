@@ -52,4 +52,6 @@ public interface LocalWebSupportLocal {
 
 	TableKundlogin getTableKundlogin(String loginnamn);
 
+	String updateWebArtikelTradWithHTMLResponse();
+
 }
