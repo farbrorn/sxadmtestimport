@@ -17,7 +17,10 @@ import se.saljex.sxserver.tables.TableRorder;
 import com.lowagie.text.DocumentException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Date;
 import java.util.List;
+import javax.ejb.Timer;
 import javax.annotation.Resource;
 import javax.ejb.EJBContext;
 import javax.ejb.Stateless;
@@ -164,6 +167,18 @@ public class LocalWebSupportBean implements LocalWebSupportLocal {
 			} catch (java.sql.SQLException e) { ret = ret + "<br/>Undantag vid updateWArtKlaseLank " + e.toString(); }
 		} catch (java.sql.SQLException e) { ret = ret + "<br/>Undantag vid getConnection " + e.toString(); }
 		finally { try { conSe.close(); } catch (Exception e) {} }
+		return ret;
+	}
+
+	public String getHTMLStatus() {
+		String ret = "<h1>Statusrapport från SXServer</h1><br/>" + new Date().getTime() + "<br>";
+		ret = ret + "<h2>Timers</h2><br/>";
+		ret = ret+"<table><tr><th>Timer namn</th><th>Nästa tid</th></tr>";
+		Collection<Timer> c = timerService.getTimers();
+		for (Timer timer : c) {
+			ret = ret + "<tr><td>" + timer.getInfo() + "</td><td>" + timer.getNextTimeout().toString() + "</td></tr>";
+		}
+		ret = ret + "</table>";
 		return ret;
 	}
 
