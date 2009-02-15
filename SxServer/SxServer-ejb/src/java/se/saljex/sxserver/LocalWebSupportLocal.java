@@ -54,4 +54,6 @@ public interface LocalWebSupportLocal {
 
 	String updateWebArtikelTradWithHTMLResponse();
 
+	String getHTMLStatus();
+
 }
