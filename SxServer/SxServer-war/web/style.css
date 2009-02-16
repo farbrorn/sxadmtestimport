@@ -127,6 +127,57 @@ img {
 	float: right;
 	}
 
+.midgroup {
+	background: #efefef;
+	margin: 5px 5px 5px 5px; 
+	padding: 2px 2px 2px 2px;
+   border-top-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+   border-right-style: solid;
+   border-top-width: 2px;
+   border-bottom-width: 2px;
+   border-left-width: 2px;
+   border-right-width: 2px;
+   border-top-color: #ededed;
+   border-bottom-color: #ededed;
+   border-left-color: #ededed;
+   border-right-color: #ededed;
+}
+
+.midgroupkalender {
+	
+   overflow: scroll;
+   height: 200px;
+}
+
+.rgroup {
+	background: #efefff;
+	margin: 5px 5px 5px 5px;
+	padding: 2px 2px 2px 2px;
+   border-top-width: 1px;
+   border-bottom-width: 1px;
+   border-left-width: 1px;
+   border-right-width: 1px;
+}
+.rgroupforsalj {
+	background: #efffff;
+	margin: 5px 5px 5px 5px;
+	padding: 2px 2px 2px 2px;
+   border-top-style: solid;
+   border-bottom-style: solid;
+   border-left-style: solid;
+   border-right-style: solid;
+   border-top-width: 1px;
+   border-bottom-width: 1px;
+   border-left-width: 1px;
+   border-right-width: 1px;
+   border-top-color: #edfdfd;
+   border-bottom-color: #edfdfd;
+   border-left-color: #edfdfd;
+   border-right-color: #edfdfd;
+}
+
 .docgrupp {
 	/*width: 710%; */
 	margin: 0px 0px 0px 0px; 

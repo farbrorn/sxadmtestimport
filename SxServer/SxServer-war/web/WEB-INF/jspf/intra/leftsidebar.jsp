@@ -8,5 +8,5 @@ String divInfo = (String)request.getAttribute("divinfo");
 if (divInfo == null) divInfo = "";
 %>
 <div <%= divInfo %>>
-<a href="?id=1">Kundinfo</a><br/>
+<a href="?id=welcome">Startsida</a><br/>
 </div>
