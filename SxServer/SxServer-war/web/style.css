@@ -145,11 +145,6 @@ img {
    border-right-color: #ededed;
 }
 
-.midgroupkalender {
-	
-   overflow: scroll;
-   height: 200px;
-}
 
 .rgroup {
 	background: #efefff;
@@ -178,6 +173,12 @@ img {
    border-right-color: #edfdfd;
 }
 
+.midtable {
+	width: 780px;
+}
+.midtable td {
+   vertical-align: top;
+}
 .docgrupp {
 	/*width: 710%; */
 	margin: 0px 0px 0px 0px; 
@@ -188,6 +189,7 @@ img {
 	border-bottom: 1px solid #000000;
 	background: #eeeeee;
 }
+
 
 .docgrupp h1 {
 	background: #ff0000;
