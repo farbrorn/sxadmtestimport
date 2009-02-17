@@ -29,14 +29,14 @@ if (rs.next()) sumIAr = rs.getDouble(3);
 rs.close();
 %>
 
-<table width="780px">
+<table class="midtable"width="780px">
 	<tr>
-		<td width="580px" align="top">
+		<td width="580px">
 			<div class="midgroup">
 				<h4>Aktuellt</h4>
 				Test
 			</div>
-			<div class="midgroup midgroupkalender">
+			<div class="midgroup" style="overflow: scroll; height: 200px">
 				<h4>Kalender</h4>
 				<table><tr><th>Datum</th><th>Tid</th><th>Händelse</th><th></th></tr>
 				<%
@@ -55,7 +55,7 @@ rs.close();
 				</table>
 			</div>
 		</td>
-		<td width="200px" align="top">
+		<td width="200px">
 			<div class="rgroupforsalj">
 				<h4>Försäljning</h4>
 				<%= iAr %>: <%= SXUtil.getFormatNumber(sumIAr, 0) %><br/>
