@@ -2179,7 +2179,13 @@ left outer join kund k on 1=1
 left outer join kunrab r2 on r2.kundnr = k.nummer and coalesce(r2.rabkod,'') = coalesce(a.rabkod,'') and coalesce(r2.kod1,'') = ''
 left outer join kunrab r on r.kundnr = k.nummer and coalesce(r.rabkod,'') = coalesce(a.rabkod,'') and coalesce(r.kod1,'') = coalesce(a.kod1,'')
 left outer join nettopri n on n.lista = k.nettolst and n.artnr = a.nummer
-left outer join anvis an on an.anvisnr = a.nummer
+left outer join anvis an on an.anvisnr = a.nummer;
 
+// 2009-02-19
+insert into behorighet (behorighet, beskrivning) values ('IntraLogin','Kan logga in på intranätet');
+insert into behorighet (behorighet, beskrivning) values ('IntraAdmin','Administrativa funktioner på intranätet');
+insert into behorighet (behorighet, beskrivning) values ('IntraSuperuser','Superuser på intranätet');
+
+//
 
 

@@ -101,7 +101,11 @@ public class SXConstant {
 	public static	final short		KAMPBIT_OEM			= 8;
 	public static	final short		KAMPBIT_GROSSIST		= 16;
 
-	
+	public static final String		BEHORIGHET_INTRA_LOGIN		= "IntraLogin";
+	public static final String		BEHORIGHET_INTRA_ADMIN		= "IntraAdmin";
+	public static final String		BEHORIGHET_INTRA_SUPERUSER	= "IntraSuperuser";
+	public static final String		BEHORIGHET_EKONOMI			= "Ekonomi";
+
 	public static final int DEFAULT_FT = 0; // Förvalt företag vid t.ex. tablefaktdat. Kommer kanske att ändra namn senare. ft är reserverat för att hålla reda på olika företag i samma databas, 
 	
 }

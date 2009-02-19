@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package se.saljex.sxserver;
+package se.saljex.sxserver; 
 
 import se.saljex.sxserver.tables.TableOrder1;
 import java.sql.Connection;
