@@ -130,20 +130,29 @@ public class Login extends HttpServlet {
 	}
 	private boolean loginIntra() throws SQLException {
 		if (f.anvandare != null) {
-			st = con.prepareStatement("select forkortning, namn from saljare where forkortning=? and losen=?");
+			st = con.prepareStatement("select forkortning, namn, a.behorighet from saljare s, anvbehorighet a where a.anvandare = s.namn " +
+							" and s.forkortning=? and s.losen=?");
 			st.setString(1, f.anvandare);
 			st.setString(2, request.getParameter("losen"));
 			ResultSet rs = st.executeQuery();
-			if (rs.next()) {
-				sxSession.setInloggad(true);
-				sxSession.setIntrauser(true);
-				sxSession.setIntraAnvandare(rs.getString(1));
-				sxSession.setIntraAnvandareKort(rs.getString(2));
-				sxSession.setSuperuser(true);
-				sxSession.setAdminuser(true);
+			while (rs.next()) {
+				if (SXConstant.BEHORIGHET_INTRA_SUPERUSER.equals(rs.getString(3))
+						|| SXConstant.BEHORIGHET_INTRA_SUPERUSER.equals(rs.getString(3))
+						|| SXConstant.BEHORIGHET_INTRA_ADMIN.equals(rs.getString(3))	  ) {
+					sxSession.setInloggad(true);
+					sxSession.setIntrauser(true);
+					sxSession.setIntraAnvandare(rs.getString(1));
+					sxSession.setIntraAnvandareKort(rs.getString(2));
+				}
+				if (SXConstant.BEHORIGHET_INTRA_SUPERUSER.equals(rs.getString(3)))	sxSession.setSuperuser(true);
+				if (SXConstant.BEHORIGHET_INTRA_ADMIN.equals(rs.getString(3)))			sxSession.setAdminuser(true);
+			}
+			if (sxSession.getInloggad()) {
 				return true;
 			} else {
 				// LoginError
+				sxSession.setSuperuser(false);
+				sxSession.setAdminuser(false);
 				setFelaktigAnvandare();
 				return false;
 			}
