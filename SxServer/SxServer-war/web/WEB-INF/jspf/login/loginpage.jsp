@@ -19,10 +19,10 @@ request.getRequestDispatcher("/WEB-INF/jspf/siteheader.jsp").include(request, re
 	<div id="body">
 	  <div id="midbar">
 		<h2>Logga in</h2>
-		<form name="loginfr" action="login?refPage=<%= refPage %>&logintype=<%= loginType %>" method="POST">
+		<form name="loginfr" action="login?refpage=<%= refPage %>&logintype=<%= loginType %>" method="POST">
 			<table>
 				<tr><td>Användare</td><td><input type="text" name="anvandare" value="<%= f.anvandare %>" size="20" /></td><td><span id="errtext"><%= f.anvandareErr %></span></td></tr>
-				<tr><td>Lösen</td><td><input type="text" name="losen" value="" size="20" /></td><td></td></tr>
+				<tr><td>Lösen</td><td><input type="password" name="losen" value="" size="20" /></td><td></td></tr>
 				<tr><td colspan="3"><input type="submit" value="Login" name="loginbt" /></td></tr>
 			</table>
 		</form>

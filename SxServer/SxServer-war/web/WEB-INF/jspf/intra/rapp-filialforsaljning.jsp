@@ -68,11 +68,15 @@ rs = p.executeQuery();
 				Double sumTBAr = 0.0;
 				Double sumTotMan = 0.0;
 				Double sumTBMan = 0.0;
-				while (rs.next()) {
-					if (tempAr != null && (tempAr != rs.getInt(1) || tempMan != rs.getInt(2))) {
+				boolean oddRow = true;
+				while (true) {
+					boolean res = rs.next();
+					if (	(res && tempAr != null && (tempAr != rs.getInt(1) || tempMan != rs.getInt(2)))
+							  || (!res && tempMan != null)
+							  ) {
 						// Skriv månadssumma
 					%>
-							<tr>
+							<tr class="trrappsum">
 								<td colspan="3">Totalt för månad <%= tempMan %></td>
 								<td class="tdn12"><%= SXUtil.getFormatNumber(sumTotMan,0) %></td>
 								<td class="tdn12"><%= SXUtil.getFormatNumber(sumTBMan,0) %></td>
@@ -81,9 +85,9 @@ rs = p.executeQuery();
 						sumTotMan = 0.0;
 						sumTBMan = 0.0;
 					}
-					if (tempAr != null && tempAr != rs.getInt(1)) {
+					if (	(res && tempAr != null && tempAr != rs.getInt(1)) || (!res && tempMan != null) ) {
 						%>
-							<tr>
+							<tr class="trrappsum">
 								<td colspan="3">Totalt för år <%= tempAr %></td>
 								<td class="tdn12"><%= SXUtil.getFormatNumber(sumTotAr,0) %></td>
 								<td class="tdn12"><%= SXUtil.getFormatNumber(sumTBAr,0) %></td>
@@ -92,32 +96,33 @@ rs = p.executeQuery();
 						sumTotAr = 0.0;
 						sumTBAr = 0.0;
 					}
+					if (!res) break;		// Avsluta loopen om det inte finns mer rader
 					if (tempAr == null) tempAr = 0;
 					if (tempMan == null) tempMan = 0;
+
+					if (oddRow) out.print("<tr class=\"trdocodd\">"); else out.print("<tr class=\"trdoceven\">");
+					oddRow = !oddRow;
 					if (!tempAr.equals(rs.getInt(1)) || !tempMan.equals(rs.getInt(2))) {	// Skriv Årsrubrik
 						tempAr = rs.getInt(1);
 						tempMan = rs.getInt(2);
 						%>
-							<tr>
-								<td><%= rs.getInt(1) %></td>
-								<td><%= rs.getInt(2) %></td>
-							</tr>
+							<td><b><%= rs.getInt(1) %></b></td>
+							<td><b><%= rs.getInt(2) %></b></td>
 						<%
-					} 
-				%>
-				<tr>
-					<td>&nbsp;</td>
-					<td>&nbsp;</td>
+					} else {	%>
+							<td>&nbsp;</td>
+							<td>&nbsp;</td>
+					<% } %>
+
 					<td><%= rs.getString(4) %></td>
 					<td class="tdn12"><%= SXUtil.getFormatNumber(rs.getDouble(5),0) %></td>
 					<td class="tdn12"><%= SXUtil.getFormatNumber(rs.getDouble(6),0) %></td>
 				</tr>
-				<%
-				sumTotAr += rs.getDouble(5);
-				sumTBAr += rs.getDouble(6);
-				sumTotMan += rs.getDouble(5);
-				sumTBMan += rs.getDouble(6);
-
+					<%
+					sumTotAr += rs.getDouble(5);
+					sumTBAr += rs.getDouble(6);
+					sumTotMan += rs.getDouble(5);
+					sumTBMan += rs.getDouble(6);
 				}
 				%>
 			</table>
