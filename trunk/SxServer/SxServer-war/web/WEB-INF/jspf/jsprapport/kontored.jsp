@@ -5,17 +5,14 @@
 --%>
 <%@ page import="se.saljex.sxserver.SXUtil" %>
 <%@ page import="se.saljex.sxserver.web.*" %>
+<%@ page import="java.sql.*" %>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
    "http://www.w3.org/TR/html4/loose.dtd">
 
-<html><head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>JSP Page</title>
-</head><body>
-<h1>Hello World!</h1>
-
+<h1>Resultatrapport</h1>
+Visar resultat per kostnadsställe, baserat på bokföring och täckningsbidrag på försäljning.<p/>
 <%
 	Integer year = 0;
 	Integer periodFrom = 0;
@@ -26,6 +23,7 @@
 	String qAcc;
 	Double sum;
 	Double tb;
+	Connection con = (java.sql.Connection)request.getAttribute("con");
 
 	java.sql.Date frDat;
 	java.sql.Date toDat;
@@ -38,15 +36,12 @@
 	try {  kstInt = java.lang.Integer.parseInt(kstString);  } catch (java.lang.NumberFormatException e) {}
 
 
-	if (year == 0 || periodFrom == 0 || periodTo == 0 || periodFrom > periodTo) {
-		printInputForm();
-	} else {
+	if (!(year == 0 || periodFrom == 0 || periodTo == 0 || periodFrom > periodTo || "true".equals(request.getAttribute("inputform")))) {
 
 		toDat = SXUtil.getSQLDate(SXUtil.createDate(year, periodTo+1, 1));
 		frDat = SXUtil.getSQLDate(SXUtil.createDate(year, periodFrom, 1));
 
 
-		java.sql.Connection con = (java.sql.Connection)request.getAttribute("con");
 		String qTB = " SELECT SUM(T_NETTO-T_INNETTO) FROM FAKTURA1 " +
 							" WHERE DATUM >= '" + SXUtil.getFormatDate(frDat) + "'" +
 							" AND DATUM < '" + SXUtil.getFormatDate(toDat) + "'" +
@@ -122,19 +117,15 @@
 		out.print("<tr><td colspan=\"2\">Täckningsbidrag (inkl. Grumskunder)</td><td align=\"right\">" + SXUtil.getFormatNumber(tb) + "</td></tr>");
 		out.print("<tr><td colspan=\"2\">Resultat: </td><td align=\"right\">" + SXUtil.getFormatNumber(tb-sum) + "</td></tr>");
 		out.print("</table>");
-	}
+	} else {
 %>
 
-</body>
-</html>
 
-
-<%!
-	public static void printInputForm() {
-%>
-        <form action="" method="post">
-          År ; ?>):<br />
-			 <input type="text" maxlength="4" name="year" value="<%= SXUtil.getFormatDate().substring(0, 3) %>" style="width: 200px;" />
+        <form action="" method="get">
+			 <input type="hidden" name="id" value="printjsprapport"/>
+			 <input type="hidden" name="jsp" value="kontored"/>
+          År:<br />
+			 <input type="text" maxlength="4" name="year" value="<%= SXUtil.getFormatDate().substring(0, 4) %>" style="width: 200px;" />
 
           <p />
           Fr.o.m. Period/Månad:<br />
@@ -173,17 +164,15 @@
           <p />
           Kostnadsställe:<br />
           <select name="kst" style="width: 200px;">
-            <?php
+            <%
 
-              $query = "SELECT KST, NAMN FROM BOKKST WHERE FT = 1";
-              $result = odbc_exec( $connect, $query ) or die( odbc_errormsg() );
+				  ResultSet rsk = con.createStatement().executeQuery("SELECT KST, NAMN FROM BOKKST WHERE FT = 1");
 
-              while( odbc_fetch_row( $result ) ) {
-                echo "<option value=\"" . odbc_result( $result, 1 ) . "\">" . odbc_result( $result, 2 ) . " (" . odbc_result( $result, 1 ) . ")</option>";
-                echo "\n";
+              while( rsk.next() ) {
+					 out.print("<option value=\"" + rsk.getString(1) + "\">" + SXUtil.toHtml(rsk.getString(2)) + " (" + SXUtil.toHtml(rsk.getString(1)) + ")</option>");
               }
 
-            ?>
+            %>
             <option value="">Ospec. kostnadsställe</option>
             <option value="all">Alla kostnadsställen</option>
           </select>
@@ -191,8 +180,4 @@
           <p />
           <input type="submit" value="Visa" />
         </form>
-
-
-<%!
-	}
-%>
+<% } %>

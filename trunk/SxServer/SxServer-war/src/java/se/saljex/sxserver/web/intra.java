@@ -41,6 +41,7 @@ public class intra extends HttpServlet {
 		private HttpServletResponse response;
 
 		private String id;
+		private String get;
 		private SXSession sxSession;
 
 		public Handler(HttpServletRequest req, HttpServletResponse res) throws IOException, ServletException{
@@ -61,14 +62,19 @@ public class intra extends HttpServlet {
 
 			con = WebUtil.getConnection(sxadm);
 
+			get = request.getParameter("get");
 			id = request.getParameter("id");
 			if (id == null) { id = "welcome"; }
 
 			try {
 				request.setAttribute("con", con);			// Skicka alltid med connection så vi slipper slå upp den i jsp-filen
-				request.getRequestDispatcher("/WEB-INF/jspf/siteheader.jsp").include(request, response);
-				printWSide(jspPath + id + ".jsp");
-				request.getRequestDispatcher("/WEB-INF/jspf/sitefooter.jsp").include(request, response);
+				if (get != null) {
+					print(jspPath + get + ".jsp");
+				} else {
+					request.getRequestDispatcher("/WEB-INF/jspf/siteheader.jsp").include(request, response);
+					printWSide(jspPath + id + ".jsp");
+					request.getRequestDispatcher("/WEB-INF/jspf/sitefooter.jsp").include(request, response);
+				}
 			} finally {
 				try { out.close();	 } catch (Exception e) {}
 				try { con.close();} catch (Exception e ){}

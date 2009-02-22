@@ -6,14 +6,16 @@
 <%@ page import="se.saljex.sxserver.SXUtil" %>
 <%@ page import="se.saljex.sxserver.web.*" %>
 <%@ page import="java.util.ArrayList" %>
+<%@ page import="java.sql.*" %>
 
-<% 
-ArrayList<RappHTML.RappHuvudList> rl = (ArrayList<RappHTML.RappHuvudList>)request.getAttribute("rapphuvudlist"); 
-String divInfo = (String)request.getAttribute("divinfo");
-if (divInfo == null) divInfo = "";
+<%
+Connection con = (Connection)request.getAttribute("con");
+SXSession sxSession = (SXSession)request.getAttribute("sxsession");
+RapportLista rj = new RapportLista();
+rj.fillFromDatabase(con);
+ArrayList<RapportLista.RapportListaHuvud> rl = rj.getHuvuden();
 %>
 
-<div <%= divInfo %>>
 <h1>Rapporter</h1>
 <table>
 <%
@@ -21,7 +23,7 @@ String tempKategori = "";
 String tempUndergrupp = "";
 boolean kategoriFirstRow = true;
 boolean undergruppFirstRow = true;
-for (RappHTML.RappHuvudList r : rl) {
+for (RapportLista.RapportListaHuvud r : rl) {
 	if (r.kategori == null) { r.kategori = ""; }
 	if (r.undergrupp == null) { r.undergrupp = ""; }
 	if (kategoriFirstRow || !tempKategori.equals(r.kategori)) {
@@ -34,14 +36,19 @@ for (RappHTML.RappHuvudList r : rl) {
 		tempUndergrupp = r.undergrupp;
 		undergruppFirstRow = false;
 	}
-%>
-<tr>
-<td><%= "<a href=\"?id=2&rappid=" + r.rappid + "\">" + SXUtil.toHtml(r.kortbeskrivning) + "</a>" %></td>
-<td><a href="?id=editrappid&rappid=<%= r.rappid %>">Ändra</a></td>
-</tr>
-<%
+	out.print("<tr>");
+	if (rj.isBehorig(r, sxSession.getIntraAnvandare(), con)) {
+		if (r.rappid != null) {
+			out.print("<td><a href=\"?id=2&rappid=" + r.rappid + "\">" + SXUtil.toHtml(r.kortbeskrivning) + "</a></td>");
+			if (sxSession.isAdminuser()) {
+				out.print("<td><a href=\"?id=editrappid&rappid=" + r.rappid + "\">Ändra</a></td>");
+			}
+		} else {
+			out.print("<td><a href=\"?id=printjsprapport&inputform=true&jsp=" + r.jsp + "\">" + SXUtil.toHtml(r.kortbeskrivning) + "</a></td>");
+		}
+	}
+	out.print("</tr>");
 }
 %>
 </table>
-<a href="?id=new">Ny rapport</a>
-</div>
+<% if (sxSession.isAdminuser()) { %> <a href="?id=new">Ny rapport</a> <% } %>
