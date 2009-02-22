@@ -136,7 +136,7 @@ public class Login extends HttpServlet {
 			st.setString(2, request.getParameter("losen"));
 			ResultSet rs = st.executeQuery();
 			while (rs.next()) {
-				if (SXConstant.BEHORIGHET_INTRA_SUPERUSER.equals(rs.getString(3))
+				if (SXConstant.BEHORIGHET_INTRA_LOGIN.equals(rs.getString(3))
 						|| SXConstant.BEHORIGHET_INTRA_SUPERUSER.equals(rs.getString(3))
 						|| SXConstant.BEHORIGHET_INTRA_ADMIN.equals(rs.getString(3))	  ) {
 					sxSession.setInloggad(true);
