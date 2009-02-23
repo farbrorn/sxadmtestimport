@@ -25,8 +25,11 @@ public class RapportLista {
 	private boolean filledFromDatabase = false;
 
 	public RapportLista() {
+		ArrayList<String> arEkonomi = new ArrayList();
+		arEkonomi.add("Ekonomi");
 		// Sätt upp lista på alla registrerade rapporter
-		huvuden.add(new RapportListaHuvud("kontored", "Ekonomi", "Resultat", "Resultat per kostnadsställe", "", null, null));
+		huvuden.add(new RapportListaHuvud("kontored", "Ekonomi", "Resultat", "Resultat per kostnadsställe", "", null, arEkonomi));
+		huvuden.add(new RapportListaHuvud("reskontraanalys", "Ekonomi", "Reskontra", "Reskontra för olika månader", "", null, null));
 		huvuden.add(new RapportListaHuvud("filialforsaljning", "Filialrapporter", "Försäljning", "Försäljning för filial per mån", "", null, null));
 		huvuden.add(new RapportListaHuvud("topplistaartikel", "Filialrapporter", "Topplistor", "Artiklar", "", null, null));
 		huvuden.add(new RapportListaHuvud("topplistakund", "Filialrapporter", "Topplistor", "Kunder", "", null, null));
@@ -94,7 +97,7 @@ public class RapportLista {
 			bstr = "b.behorighet in (" + bstr + ")";
 
 
-			PreparedStatement ps = con.prepareStatement("select count(*) from anvbehorighet where anvandare = ? and  " + bstr);
+			PreparedStatement ps = con.prepareStatement("select count(*) from anvbehorighet b where anvandare = ? and  " + bstr);
 			ps.setString(1, anvandare);
 			ResultSet rs = ps.executeQuery();
 			if (rs.next()) {
