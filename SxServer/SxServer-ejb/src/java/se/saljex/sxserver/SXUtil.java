@@ -15,12 +15,12 @@ import java.util.Date;
 import java.util.Calendar;
 import java.text.SimpleDateFormat;
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.logging.Logger;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.persistence.EntityManager;
-import java.util.regex.*;
 import javax.persistence.Query;
 
 /**
@@ -197,21 +197,16 @@ public class SXUtil {
        return simpleDateFormat.format(new Date());
     }
     
-    public static String getFormatNumber(double tal, int decimaler) {
-        int x;
-        String format = "###0";
-        if (decimaler > 0) {
-            format = format + ".";
-            for (x=0;x<decimaler;x++) {
-                format = format + "0";
-            }
-        }
-        
-        DecimalFormat df = new DecimalFormat(format);
-        String s = df.format(tal);
-        return s;
+    public static String getFormatNumber(Double tal, int decimaler) {
+		  if (tal == null) return "";
+        NumberFormat nf;
+		  nf = NumberFormat.getInstance();
+		  nf.setMaximumFractionDigits(decimaler);
+		  nf.setMinimumFractionDigits(decimaler);
+        return nf.format(tal);
     }
-    public static String getFormatNumber(double tal) {
+
+    public static String getFormatNumber(Double tal) {
         return getFormatNumber(tal,2);
     }
 
