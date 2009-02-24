@@ -53,11 +53,3 @@
 	}
 %>
 </table>
-select sum(belopp), sum(case when falldat < '2009-02-23' then belopp else 0 end ) as forfallet,
- sum(case when falldat < '2009-02-23'::date-30 then belopp else 0 end ) as forfallet30  from
- ( SELECT f1.faktnr, F1.datum+f1.ktid as falldat, f1.t_attbetala - sum(coalesce(b.bet,0)) as belopp
-   FROM faktura1 f1 left outer join betjour b on b.faktnr = f1.faktnr AND b.betdat <= '2009-02-23'
-   where  f1.datum <= '2009-02-23'
-   group by f1.faktnr, F1.datum+f1.ktid, f1.t_attbetala
-   having f1.t_attbetala - sum(coalesce(b.bet,0)) <> 0
- ) kk

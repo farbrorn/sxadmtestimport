@@ -29,7 +29,7 @@ public class RapportLista {
 		arEkonomi.add("Ekonomi");
 		// Sätt upp lista på alla registrerade rapporter
 		huvuden.add(new RapportListaHuvud("kontored", "Ekonomi", "Resultat", "Resultat per kostnadsställe", "", null, arEkonomi));
-		huvuden.add(new RapportListaHuvud("reskontraanalys", "Ekonomi", "Reskontra", "Reskontra för olika månader", "", null, null));
+		huvuden.add(new RapportListaHuvud("reskontraanalys", "Ekonomi", "Reskontra", "Reskontra för olika månader", "", null, arEkonomi));
 		huvuden.add(new RapportListaHuvud("filialforsaljning", "Filialrapporter", "Försäljning", "Försäljning för filial per mån", "", null, null));
 		huvuden.add(new RapportListaHuvud("topplistaartikel", "Filialrapporter", "Topplistor", "Artiklar", "", null, null));
 		huvuden.add(new RapportListaHuvud("topplistakund", "Filialrapporter", "Topplistor", "Kunder", "", null, null));
@@ -98,9 +98,12 @@ public class RapportLista {
 
 
 			PreparedStatement ps = con.prepareStatement("select count(*) from anvbehorighet b where anvandare = ? and  " + bstr);
+//System.out.println("select count(*) from anvbehorighet b where b.anvandare = ? and  " + bstr);
+//System.out.println("anv: " + anvandare);
 			ps.setString(1, anvandare);
 			ResultSet rs = ps.executeQuery();
 			if (rs.next()) {
+//System.out.println("rs getint:; " + rs.getInt(1));
 				if (rs.getInt(1) > 0) return true;
 			}
 		return false;
