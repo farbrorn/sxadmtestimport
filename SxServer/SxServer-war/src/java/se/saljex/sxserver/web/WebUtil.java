@@ -10,9 +10,11 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import javax.naming.InitialContext;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.sql.DataSource;
 import se.saljex.sxserver.SXConstant;
 import se.saljex.sxserver.SXUtil;
 
@@ -29,7 +31,11 @@ public class WebUtil {
 		}
 		return s;
 	}
-	
+
+	public static Connection getConnection() throws javax.naming.NamingException, SQLException {
+			InitialContext ic = new InitialContext();
+			return ((DataSource)ic.lookup("sxadm")).getConnection();
+	}
 	
 	/* Tar en pdf-stream och skickar den till ett ServletResponse med korrekta header */
 	public static void sendPdf(ByteArrayOutputStream pdfStream, ServletOutputStream outStream, HttpServletResponse response )	throws IOException		 {
