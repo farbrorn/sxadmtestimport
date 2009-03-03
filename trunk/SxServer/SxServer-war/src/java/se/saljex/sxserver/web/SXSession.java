@@ -5,7 +5,6 @@
 
 package se.saljex.sxserver.web;
 import java.util.ArrayList;
-import se.saljex.sxserver.*;
 
 /**
  *Håller reda på alla session-variabler
@@ -38,7 +37,7 @@ public class SXSession {
 	private ArrayList<RappEdit> arrRappEdit = new ArrayList();
 	public void setInkopInloggatBestNr(Integer inkopInloggatBestNr) { this.inkopInloggatBestNr = inkopInloggatBestNr; }
 	public Integer getInkopInloggatBestNr() { return this.inkopInloggatBestNr; }
-	
+
 	public boolean checkBehorighetKund() {
 		if (inloggad) {
 			if (kundLoginNamn != null) return true;

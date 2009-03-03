@@ -1,152 +1,137 @@
 package se.saljex.sxserver.web;
-
-// Based on code from http://www.onjava.com/onjava/2001/04/05/example/listing1.html
-
-import javax.servlet.http.HttpServletRequest;
+import java.io.FileOutputStream;
 import javax.servlet.ServletInputStream;
-import java.util.Map;
-import java.util.Hashtable;
-import java.io.PrintWriter;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.Hashtable;
+import java.util.Vector;
 
 public class HtmlFileUpload {
 
-  private String savePath, filepath, filename, contentType;
-  private Map fields;
+	private Hashtable parameters = new Hashtable();
+	private byte[] fileBytes, bytes;
+	private final int FILE_SIZE_LIMIT = 1024*1024*50; // 50mb limit
+	private String originalFileName = null;
+	private String contentType = null;
 
-  public String getFilePathAndName() {
-	  if (filename == null) return null;
-	  return (savePath==null? "" : savePath) + filename;
-  }
+	public HtmlFileUpload(HttpServletRequest request) throws IOException {
 
-  public String getFilename() {
-    return filename;
-  }
+		ServletInputStream in = request.getInputStream();
+		int contentLength = request.getContentLength();
+		Vector vBytes = new Vector();
+		Vector vFileBytes = new Vector();
+		byte[] b = new byte[1];
+		int paramCount = 0;
+		
+		// if the file they are trying to upload is too big, throw an exception
+		if(contentLength > FILE_SIZE_LIMIT) throw new IOException("File has exceeded size limit.");
+		// Check that theree is something attached
+			if(contentLength > 0) {
+			// read the request into a vector of Bytes
+			while(in.read(b) > -1) vBytes.add(new Byte(b[0]));
 
-  public String getFilepath() {
-    return filepath;
-  }
+			// create a byte array from the vector
+			bytes = new byte[vBytes.size()];
+			for(int i = 0; i < bytes.length; i++) {
 
-  public void setSavePath(String savePath) {
-    this.savePath = savePath;
-  }
+				Byte temp = (Byte)vBytes.get(i);
+				bytes[i] = temp.byteValue();
+			}
 
-  public String getContentType() {
-    return contentType;
-  }
+			// data string that will be used to hack things up into pieces
+			String data = new String(bytes, "ISO-8859-1");
+			// the boundry is the first line that occurs
+			String boundary = data.substring(0,data.indexOf('\n'));
+			// all the elements are separated by the boundary
+			String[] elements = data.split(boundary);
 
-  public String getFieldValue(String fieldName) {
-    if (fields == null || fieldName == null)
-      return null;
-    return (String) fields.get(fieldName);
-  }
+System.out.println("Elements length: " + elements.length);
 
-  private void setFilename(String s) {
-    if (s==null)
-      return;
+			for(int i = 0; i < elements.length; i++) {
+				if(elements[i].length() > 0) {
+System.out.println("Element : " + i + " " + elements[i]);
 
-    int pos = s.indexOf("filename=\"");
-    if (pos != -1) {
-      filepath = s.substring(pos+10, s.length()-1);
-      // Windows browsers include the full path on the client
-      // But Linux/Unix and Mac browsers only send the filename
-      // test if this is from a Windows browser
-      pos = filepath.lastIndexOf("\\");
-      if (pos != -1)
-        filename = filepath.substring(pos + 1);
-      else
-        filename = filepath;
-    }
-  }
-private void setContentType(String s) {
-    if (s==null)
-      return;
+					String[] descval = elements[i].split("\n");
+System.out.println("descval length: " + descval.length);
 
-    int pos = s.indexOf(": ");
-    if (pos != -1)
-      contentType = s.substring(pos+2, s.length());
-  }
+					// if it's got more than 4 lines, it's a file
+					if(descval.length > 4) {
 
-  public void doUpload(HttpServletRequest request) throws IOException {
-    ServletInputStream in = request.getInputStream();
+						// take the first line of this element and split it by ";"
+						String[] disp = descval[1].split(";");
+System.out.println("disp length: " + disp.length);
+						// the long file name is the second part of the first line.. take only what is between the quotes
+						String longFileName = disp[2].substring(disp[2].indexOf('"')+1,disp[2].length()-2).trim();
+					//	parameters.put("longFileName",longFileName);
+						// the fileName is the longFileName without the directorys
+						originalFileName = longFileName.substring(longFileName.lastIndexOf("\\")+1,longFileName.length());
+						//parameters.put("originalfilename",longFileName.substring(longFileName.lastIndexOf("\\")+1,longFileName.length()));
+						// gab the content type from the second line in this element
+						contentType = descval[2].substring(descval[2].indexOf(' ')+1,descval[2].length()-1);
+						//parameters.put("contenttype",descval[2].substring(descval[2].indexOf(' ')+1,descval[2].length()-1));
 
-    byte[] line = new byte[128];
-    int i = in.readLine(line, 0, 128);
-    if (i < 3)
-      return;
-    int boundaryLength = i - 2;
+						int pos = 0;
+						int lineCount = 0;
 
-    String boundary = new String(line, 0, boundaryLength); //-2 discards the newline character
-    fields = new Hashtable();
+						// count the lines and the bytes up to this point
+						while(lineCount != ((paramCount+1) * 4)) {
+								if((char)bytes[pos] == '\n') lineCount++;
+								pos++;
+						}
+System.out.println("pos: " + pos + " linecount " + lineCount + " paramcount " + paramCount);
 
-    while (i != -1) {
-      String newLine = new String(line, 0, i);
-      if (newLine.startsWith("Content-Disposition: form-data; name=\"")) {
-        if (newLine.indexOf("filename=\"") != -1) {
-          setFilename(new String(line, 0, i-2));
-          if (filename==null)
-            return;
-          //this is the file content
-          i = in.readLine(line, 0, 128);
-          setContentType(new String(line, 0, i-2));
-          i = in.readLine(line, 0, 128);
-          // blank line
-          i = in.readLine(line, 0, 128);
-          newLine = new String(line, 0, i);
-          PrintWriter pw = new PrintWriter(new BufferedWriter(new
-            FileWriter((savePath==null? "" : savePath) + filename)));
-          while (i != -1 && !newLine.startsWith(boundary)) {
-            // the problem is the last line of the file content
-            // contains the new line character.
-            // So, we need to check if the current line is
-            // the last line.
-            i = in.readLine(line, 0, 128);
-            if ((i==boundaryLength+2 || i==boundaryLength+4) // + 4 is eof
-              && (new String(line, 0, i).startsWith(boundary)))
-              pw.print(newLine.substring(0, newLine.length()-2));
-            else
-              pw.print(newLine);
-            newLine = new String(line, 0, i);
+						// grab all the bytes from the current position all the way to
+						// right befor the last boundary
+						for(int k = pos; k < (bytes.length - boundary.length() - 4); k++) {
 
-          }
-          pw.close();
+							// add each byte to the vFileBytes Vector
+							vFileBytes.add(new Byte(bytes[k]));
+						}
 
-        }
-        else {
-          //this is a field
-          // get the field name
-          int pos = newLine.indexOf("name=\"");
-          String fieldName = newLine.substring(pos+6, newLine.length()-3);
-          //System.out.println("fieldName:" + fieldName);
-          // blank line
-          i = in.readLine(line, 0, 128);
-          i = in.readLine(line, 0, 128);
-          newLine = new String(line, 0, i);
-          StringBuffer fieldValue = new StringBuffer(128);
-          while (i != -1 && !newLine.startsWith(boundary)) {
-            // The last line of the field
-            // contains the new line character.
-            // So, we need to check if the current line is
-            // the last line.
-            i = in.readLine(line, 0, 128);
-            if ((i==boundaryLength+2 || i==boundaryLength+4) // + 4 is eof
-              && (new String(line, 0, i).startsWith(boundary)))
-              fieldValue.append(newLine.substring(0, newLine.length()-2));
-            else
-              fieldValue.append(newLine);
-            newLine = new String(line, 0, i);
-          }
-          //System.out.println("fieldValue:" + fieldValue.toString());
-          fields.put(fieldName, fieldValue.toString());
-        }
-      }
-      i = in.readLine(line, 0, 128);
+						// convert the Vector to a byte array
+						fileBytes = new byte[vFileBytes.size()];
+						for(int j = 0; j < fileBytes.length; j++) {
 
-    } // end while
-  }
+							Byte temp = (Byte)vFileBytes.get(j);
+							fileBytes[j] = temp.byteValue();
+						}
 
+						//parameters.put("contentLength",""+fileBytes.length);
 
+					// if it's got 4 lines, it's just a regular parameter
+					} else if(descval.length == 4) {
 
+						paramCount++;
+
+						parameters.put(
+							// key
+							descval[1].substring(descval[1].indexOf('"')+1,descval[1].length()-2).trim(),
+							// value
+							descval[3].trim()
+						);
+					}
+				}
+			}
+		} else {		// We have no multipart
+
+		}
+	}
+
+	public boolean saveFile(String fileName) throws IOException {
+		if (originalFileName == null) return false;
+		FileOutputStream fos = new FileOutputStream(fileName);
+		fos.write(fileBytes);
+		fos.close();
+		return true;
+	}
+	
+	public byte[] getFile() { return fileBytes; }
+	public Hashtable getParameters() { return parameters; }
+
+	public String getContentType() {		return contentType;	}
+	public String getOriginalFileName() {		return originalFileName;	}
+
+	public String getFieldValue(String s) { return (String)parameters.get(s); }
+	// returns the entire request as a string
+	public String toString() { return new String(bytes); }
 }

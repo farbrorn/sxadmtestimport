@@ -458,7 +458,7 @@ public class RappHandler {
 			} else if (javaType == TYP_DOUBLE) {
 				ret = SXUtil.getFormatNumber((Double)o, decimaler);
 			} else if (javaType == TYP_FLOAT) {
-				ret = SXUtil.getFormatNumber((Float)o, decimaler);
+				ret = SXUtil.getFormatNumber(new Double((Float)o), decimaler);
 			} else if (javaType == TYP_BIGDECIMAL) {
 				ret = SXUtil.getFormatNumber(((BigDecimal)o).doubleValue(), decimaler);
 			} else if (javaType == TYP_DATE) {
