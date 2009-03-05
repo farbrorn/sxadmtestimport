@@ -1,6 +1,8 @@
 package se.saljex.sxserver.web;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
@@ -102,6 +104,13 @@ public class InlaggHandler {
 		} else return null;
 	}
 
+	public void getFile(int inlaggId) throws SQLException, FileNotFoundException, IOException {
+		IntraInlagg inl = getInlagg(inlaggId);
+		FileInputStream fis = new FileInputStream(inl.fileName);
+		byte[] a = new byte[fis.available()];
+		fis.read(a);
+		fis.close();
+	}
 
 
 	private ResultSet getInlaggResultSet(String filterStr, String sqlSuffix) throws SQLException {
