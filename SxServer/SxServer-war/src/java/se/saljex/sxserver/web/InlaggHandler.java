@@ -104,12 +104,13 @@ public class InlaggHandler {
 		} else return null;
 	}
 
-	public void getFile(int inlaggId) throws SQLException, FileNotFoundException, IOException {
+	public byte[] readFile(int inlaggId) throws SQLException, FileNotFoundException, IOException {
 		IntraInlagg inl = getInlagg(inlaggId);
 		FileInputStream fis = new FileInputStream(inl.fileName);
 		byte[] a = new byte[fis.available()];
 		fis.read(a);
 		fis.close();
+		return a;
 	}
 
 

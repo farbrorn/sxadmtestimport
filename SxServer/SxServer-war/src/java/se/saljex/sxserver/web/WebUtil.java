@@ -43,10 +43,21 @@ public class WebUtil {
 				response.setHeader("Cache-Control", "must-revalidate, post-check=0, pre-check=0");
 				response.setHeader("Pragma", "public");
 				response.setContentType("application/pdf");
-				response.setContentLength(pdfStream.size()); 
+				response.setContentLength(pdfStream.size());
 				pdfStream.writeTo(outStream);
-				outStream.flush();		
+				outStream.flush();
 	}
+
+	public static void sendFile(byte[] fil, String contentType, ServletOutputStream outStream, HttpServletResponse response )	throws IOException		 {
+				response.setHeader("Expires", "0");
+				response.setHeader("Cache-Control", "must-revalidate, post-check=0, pre-check=0");
+				response.setHeader("Pragma", "public");
+				response.setContentType(contentType);
+				response.setContentLength(fil.length);
+				outStream.write(fil);
+				outStream.flush();
+	}
+
 
 	public static java.sql.Connection getConnection(javax.sql.DataSource ds) throws javax.servlet.ServletException {
 			try {

@@ -45,21 +45,17 @@ public class HtmlFileUpload {
 			// all the elements are separated by the boundary
 			String[] elements = data.split(boundary);
 
-System.out.println("Elements length: " + elements.length);
 
 			for(int i = 0; i < elements.length; i++) {
 				if(elements[i].length() > 0) {
-System.out.println("Element : " + i + " " + elements[i]);
 
 					String[] descval = elements[i].split("\n");
-System.out.println("descval length: " + descval.length);
 
 					// if it's got more than 4 lines, it's a file
 					if(descval.length > 4) {
 
 						// take the first line of this element and split it by ";"
 						String[] disp = descval[1].split(";");
-System.out.println("disp length: " + disp.length);
 						// the long file name is the second part of the first line.. take only what is between the quotes
 						String longFileName = disp[2].substring(disp[2].indexOf('"')+1,disp[2].length()-2).trim();
 					//	parameters.put("longFileName",longFileName);
@@ -78,7 +74,6 @@ System.out.println("disp length: " + disp.length);
 								if((char)bytes[pos] == '\n') lineCount++;
 								pos++;
 						}
-System.out.println("pos: " + pos + " linecount " + lineCount + " paramcount " + paramCount);
 
 						// grab all the bytes from the current position all the way to
 						// right befor the last boundary
