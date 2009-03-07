@@ -27,6 +27,9 @@ Double sumIAr = 0.0;
 if (rs.next()) sumFgAr  = rs.getDouble(3);
 if (rs.next()) sumIAr = rs.getDouble(3);
 rs.close();
+
+InlaggHandler inh  = new InlaggHandler(con);
+ArrayList<InlaggHandler.IntraInlagg> arrInl = inh.getInlaggListByKanalId(null);
 %>
 
 <table class="midtable"width="780px">
@@ -34,7 +37,13 @@ rs.close();
 		<td width="580px">
 			<div class="midgroup">
 				<h4>Aktuellt</h4>
-				Test
+				<%	for (InlaggHandler.IntraInlagg inl : arrInl)  {%>
+				<%= "Av " + SXUtil.toHtml(inl.anvandareKort) + " " + inl.crTime %>
+					<br/><b><%= SXUtil.toHtml(inl.rubrik) %><b/>
+					<br/><%= SXUtil.toHtml(inl.ingress) %>
+					<br/><%= SXUtil.toHtml(inl.fileName + "-" + inl.contentType) %>
+					<p/>
+				<%}%>
 			</div>
 			<div class="midgroup" style="overflow: scroll; height: 200px">
 				<h4>Kalender</h4>
