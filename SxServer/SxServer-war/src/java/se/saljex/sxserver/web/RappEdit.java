@@ -51,7 +51,7 @@ public class RappEdit {
 		s = con.createStatement();
 
 		try {
-			rs = s.executeQuery("select behorighet, kategori, undergrupp,kortbeskrivning, reportrubrik, sqlfrom, isdistinct, crtime, jspfilename from rapphuvud where rappid = " + rappId);
+			rs = s.executeQuery("select behorighet, kategori, undergrupp,kortbeskrivning, reportrubrik, sqlfrom, isdistinct, crtime from rapphuvud where rappid = " + rappId);
 			if (rs.next()) {
 				huvud.behorighet = rs.getString(1);
 				huvud.kategori = rs.getString(2);
@@ -61,7 +61,6 @@ public class RappEdit {
 				huvud.sqlfrom = rs.getString(6);
 				huvud.isdistinct = rs.getInt(7) != 0;
 				huvud.crtime = rs.getTimestamp(8);
-				huvud.jspfilename = rs.getString(9);
 				huvud.toFormData();
 
 				rs = s.executeQuery("select col, sqllabel, label, groupby, decimaler, hidden, groupbyheadertext, groupbyfootertext from rappcolumns where rappid = " + rappId + " order by col");
@@ -136,7 +135,7 @@ public class RappEdit {
 				}
 			}
 
-			ps = con.prepareStatement("insert into rapphuvud (behorighet, kategori, undergrupp, kortbeskrivning, reportrubrik, sqlfrom, isdistinct, rappid, jspfilename) values (?,?,?,?,?,?,?,?,?)");
+			ps = con.prepareStatement("insert into rapphuvud (behorighet, kategori, undergrupp, kortbeskrivning, reportrubrik, sqlfrom, isdistinct, rappid) values (?,?,?,?,?,?,?,?)");
 			ps.setString(1, huvud.behorighet);
 			ps.setString(2, huvud.kategori);
 			ps.setString(3, huvud.undergrupp);
@@ -145,7 +144,7 @@ public class RappEdit {
 			ps.setString(6, huvud.sqlfrom);
 			ps.setInt(7, huvud.getIsdistinctToInt());
 			ps.setInt(8, rappId);
-			ps.setString(9, huvud.jspfilename);
+//			ps.setString(9, huvud.jspfilename);
 			ps.executeUpdate();
 			ps.close();
 
@@ -231,7 +230,6 @@ public class RappEdit {
 			huvud.kortbeskrivning = huvud.rappHuvudFormData.kortbeskrivning;
 			huvud.reportrubrik = huvud.rappHuvudFormData.reportrubrik;
 			huvud.sqlfrom = huvud.rappHuvudFormData.sqlfrom;
-			huvud.jspfilename = huvud.rappHuvudFormData.jspfilename;
 			if (huvud.rappHuvudFormData.markedForDelete != null)	huvud.markedForDelete = "true".equals(huvud.rappHuvudFormData.markedForDelete); else huvud.markedForDelete = false;
 			isChanged = true;
 			//lastMessage = "Sparat OK!";
@@ -446,7 +444,7 @@ public class RappEdit {
 		public String sqlfrom = null;
 		public String isdistinct = null;
 		public String markedForDelete = null;
-		public String jspfilename = null;
+//		public String jspfilename = null;
 
 		public String behorighetErr = null;
 		public String kategoriErr = null;
@@ -527,7 +525,6 @@ public class RappEdit {
 			sqlfrom = request.getParameter("sqlfrom");
 			isdistinct = request.getParameter("isdistinct");
 			markedForDelete = request.getParameter("markedfordelete");
-			jspfilename = request.getParameter("jspfilename");
 		}
 
 		
@@ -540,9 +537,9 @@ public class RappEdit {
 			sb.append("<table>");
 			sb.append("<tr><td>Kategori:</td><td><input type=\"text\" name=\"kategori\" value=\"" + SXUtil.toHtml(kategori) + "\"></td><td>" + SXUtil.toHtml(kategoriErr) + "</td></tr>");
 			sb.append("<tr><td>Undergrupp:</td><td><input type=\"text\" name=\"undergrupp\" value=\"" + SXUtil.toHtml(undergrupp) + "\"></td><td>" + SXUtil.toHtml(undergruppErr) + "</td></tr>");
+			sb.append("<tr><td>Behörighetsgrupp:</td><td><input type=\"text\" name=\"behorighet\" value=\"" + SXUtil.toHtml(behorighet) + "\"></td><td>" + SXUtil.toHtml(behorighetErr) + "</td></tr>");
 			sb.append("<tr><td>Kortbeskrivning:</td><td><input type=\"text\" name=\"kortbeskrivning\" value=\"" + SXUtil.toHtml(kortbeskrivning) + "\"></td><td>" + SXUtil.toHtml(kortbeskrivningErr) + "</td></tr>");
 			sb.append("<tr><td>Rubrik:</td><td><input type=\"text\" name=\"reportrubrik\" value=\"" + SXUtil.toHtml(reportrubrik) + "\"></td><td>" + SXUtil.toHtml(reportrubrikErr) + "</td></tr>");
-			sb.append("<tr><td>JSP Fil (För specialrapport):</td><td><input type=\"text\" name=\"jspfilename\" value=\"" + SXUtil.toHtml(jspfilename) + "\"></td><td>" + SXUtil.toHtml("") + "</td></tr>");
 			sb.append("<tr><td>SQL from-sats:</td><td><input type=\"text\" name=\"sqlfrom\" size=\"100\" value=\"" + SXUtil.toHtml(sqlfrom) + "\"></td><td>" + SXUtil.toHtml(sqlfromErr) + "</td></tr>");
 			if ("true".equals(isdistinct))  checked = "checked"; else checked = "";
 			sb.append("<tr><td colspan=\"2\">SQL distinct: <input type=\"checkbox\" name=\"sqlfrom\" value=\"true\" " + checked + "></td><td>" + SXUtil.toHtml(isdistinctErr) + "</td></tr>");
@@ -937,7 +934,6 @@ public class RappEdit {
 		public boolean isdistinct = false;
 		public java.sql.Timestamp crtime = null;
 		public boolean markedForDelete = false;
-		public String jspfilename  = null;
 		
 		public int getIsdistinctToInt() { if (isdistinct) return 1; else return 0; }
 		public void toFormData() {
@@ -949,7 +945,6 @@ public class RappEdit {
 			rappHuvudFormData.reportrubrik = reportrubrik;
 			rappHuvudFormData.sqlfrom = sqlfrom;
 			rappHuvudFormData.undergrupp = undergrupp;
-			rappHuvudFormData.jspfilename = jspfilename;
 			if (markedForDelete) rappHuvudFormData.markedForDelete = "true"; else rappHuvudFormData.markedForDelete = "false";
 		}
 	}
