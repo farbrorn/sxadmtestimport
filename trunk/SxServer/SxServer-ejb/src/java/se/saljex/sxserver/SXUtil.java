@@ -206,8 +206,15 @@ public class SXUtil {
         return nf.format(tal);
     }
 
+    public static String getFormatNumber(Float tal, int decimaler) {
+		 return getFormatNumber(new Double(tal));
+    }
+
     public static String getFormatNumber(Double tal) {
         return getFormatNumber(tal,2);
+    }
+    public static String getFormatNumber(Float tal) {
+        return getFormatNumber(new Double(tal));
     }
 
 	public static Double getRoundedDecimal(Double a) {	
