@@ -170,7 +170,7 @@ public class RappEdit {
 			ps.close();
 
 			int propsCn = 0;
-			ps = con.prepareStatement("insert into rappprops (rappid, rad, type, sumcolumn, sumtype, sumtext, wherepos, javatype, name, label, hidden, defaultvalue) values (?,?,?,?,?,?,?,?,?,?,?,?)");
+			ps = con.prepareStatement("insert into rappprops (rappid, rad, type, sumcolumn, sumtype, sumtext, wherepos, javatype, name, label, hidden, defaultvalue, resetcolumn) values (?,?,?,?,?,?,?,?,?,?,?,?,?)");
 			for (RappFilter rf : this.arrFilter) {
 				if (!rf.markedForDelete) {
 					propsCn++;
@@ -186,6 +186,7 @@ public class RappEdit {
 					ps.setString(10, rf.label);
 					ps.setInt(11, rf.getHiddenToInt());
 					ps.setString(12, rf.defaultvalue);
+					ps.setInt(13, 0);
 					ps.executeUpdate();
 				}
 			}
@@ -204,6 +205,7 @@ public class RappEdit {
 					ps.setString(10, null);
 					ps.setInt(11, 0);
 					ps.setString(12, null);
+					ps.setInt(13, rsu.resetcolumn);
 					ps.executeUpdate();
 				}
 			}
