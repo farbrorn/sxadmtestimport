@@ -38,7 +38,7 @@ public class RappHandler {
 		protected ArrayList<Sum> sums = new ArrayList();
 		protected Connection con;
 		protected String reportRubrik = null;
-		
+
 		private boolean firstRow = true;
 		
 	public RappHandler(Connection con) throws SQLException{
@@ -78,7 +78,7 @@ public class RappHandler {
 			sb.append(" from ");
 			sb.append(sqlFrom);
 			// Ta fram filtren
-			rs1 = s1.executeQuery("select type, sumcolumn, resetcolumn, sumtype, sumtext, wherepos, javatype, name, label, hidden, defaultvalue from rappprops where rappid = " + rappId + " order by wherepos");
+			rs1 = s1.executeQuery("select type, sumcolumn, resetcolumn, sumtype, sumtext, wherepos, javatype, name, label, hidden, defaultvalue from rappprops where rappid = " + rappId + " order by wherepos, rad");
 			while(rs1.next()) {
 				if ("Filter".equals(rs1.getString(1))) {
 					this.addSqlFilterField(rs1.getInt(6), rs1.getString(7), rs1.getString(8), rs1.getString(9), rs1.getInt(10) != 0, stringToJavaTypeObject(rs1.getString(7),rs1.getString(11)), stringToJavaTypeObject(rs1.getString(7),getFilterValue(rs1.getString(8))));
@@ -95,7 +95,7 @@ public class RappHandler {
 				this.colArr[r.getPos()].setLabel(r.getLabel());
 			}
 			// Ta fram summorna
-			rs1 = s1.executeQuery("select type, sumcolumn, resetcolumn, sumtype, sumtext, wherepos, javatype, name, label, hidden, defaultvalue from rappprops where rappid = " + rappId + " order by wherepos");
+			rs1 = s1.executeQuery("select type, sumcolumn, resetcolumn, sumtype, sumtext, wherepos, javatype, name, label, hidden, defaultvalue from rappprops where rappid = " + rappId + " order by wherepos, rad");
 			while(rs1.next()) {
 				if ("Sum".equals(rs1.getString(1))) {
 					this.addSum(rs1.getInt(2), rs1.getInt(3), rs1.getString(4), rs1.getString(5));
@@ -209,15 +209,31 @@ public class RappHandler {
 			}
 			//Skriv först uta alla group footer och summor, men bara om det inte är första raden
 			if (!firstRow) {
+				// Om en summa har GroupBreak, så ska alla efterföljande också ha det, förutsatt att det inte är en totalsumma
+				int forstaGroupBreak = 0;
+				int groupBreakCn = 0;
+				for (Sum s : sums) {
+					groupBreakCn++;
+					if (colArr[s.resetColumn].hasGroupBreak()) {
+						forstaGroupBreak = groupBreakCn;
+						break;
+					}
+				}
+
+				// Skriv GroupFooter för alla columner med groupBreak
 				for (int cn=noColumns; cn>0; cn--) {			// Tagroup by i omvänd ordning
-					if (colArr[cn].hasGroupBreak()) {
-						if (colArr[cn].isGroupBy()) printGroupFooter(cn);
-						for (Sum s : sums) {
-							if (s.resetColumn == cn) {
-								printSum(s);
-								s.reset();
-							}
-						}
+					if (colArr[cn].isGroupBy() && colArr[cn].hasGroupBreak()) printGroupFooter(cn);
+				}
+
+				//Skriv alla summor i omvänd ordning
+				//Sum s;
+				for (int cn = sums.size()-1; cn>=0; cn--) {
+					Sum s = (Sum)sums.get(cn);
+					//groupBreakCn++;
+					// Gör inte group break om det saknas resetColumn, eller om vi inte hade någon forstaGroupBreak
+					if (forstaGroupBreak > 0 && cn >= forstaGroupBreak-1 && s.resetColumn > 0) {
+						printSum(s);
+						s.reset();
 					}
 				}
 			}
@@ -370,7 +386,7 @@ public class RappHandler {
 		private boolean hidden = false;			//Dölj vid utskrift
 		private String groupByHeaderText = null;
 		private String groupByFooterText = null;
-		
+
 		public RappColumn(ResultSetMetaData md, int pos) throws SQLException {
 				int ctype = md.getColumnType(pos);
 				if (ctype == java.sql.Types.VARCHAR || ctype == java.sql.Types.CHAR) { 
@@ -626,8 +642,10 @@ public class RappHandler {
 					}
 				}
 			} else if (sumType.equals("Sum") || sumType.equals("Min") || sumType.equals("Max")) {
-				if (colArr[sumColumn].javaType == TYP_DOUBLE || colArr[sumColumn].javaType == TYP_FLOAT) {
+				if (colArr[sumColumn].javaType == TYP_DOUBLE) {
 					ret = SXUtil.getFormatNumber((Double)sum, colArr[sumColumn].decimaler);
+				} else if (colArr[sumColumn].javaType == TYP_FLOAT) {
+					ret = SXUtil.getFormatNumber((Float)sum, colArr[sumColumn].decimaler);
 				} else if (colArr[sumColumn].javaType == TYP_BIGDECIMAL) {
 					ret = SXUtil.getFormatNumber(((BigDecimal)sum).doubleValue(), colArr[sumColumn].decimaler);
 				} else if (colArr[sumColumn].javaType == TYP_DATE) {
