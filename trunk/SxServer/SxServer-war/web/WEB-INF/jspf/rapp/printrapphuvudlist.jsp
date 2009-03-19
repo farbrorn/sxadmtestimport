@@ -24,20 +24,21 @@ String tempUndergrupp = "";
 boolean kategoriFirstRow = true;
 boolean undergruppFirstRow = true;
 for (RapportLista.RapportListaHuvud r : rl) {
-	if (r.kategori == null) { r.kategori = ""; }
-	if (r.undergrupp == null) { r.undergrupp = ""; }
-	if (kategoriFirstRow || !tempKategori.equals(r.kategori)) {
-		out.print("<tr><td><h2>" + SXUtil.toHtml(r.kategori) + "</h2></td></tr>");
-		tempKategori = r.kategori;
-		kategoriFirstRow = false;
-	}
-	if (undergruppFirstRow || !tempUndergrupp.equals(r.undergrupp)) {
-		out.print("<tr><td><h3>" + SXUtil.toHtml(r.undergrupp) + "</h3></td></tr>");
-		tempUndergrupp = r.undergrupp;
-		undergruppFirstRow = false;
-	}
-	out.print("<tr>");
 	if (rj.isBehorig(r, sxSession.getIntraAnvandare(), con)) {
+		if (r.kategori == null) { r.kategori = ""; }
+		if (r.undergrupp == null) { r.undergrupp = ""; }
+		if (kategoriFirstRow || !tempKategori.equals(r.kategori)) {
+			out.print("<tr><td><h2>" + SXUtil.toHtml(r.kategori) + "</h2></td></tr>");
+			tempKategori = r.kategori;
+			kategoriFirstRow = false;
+		}
+		if (undergruppFirstRow || !tempUndergrupp.equals(r.undergrupp)) {
+			out.print("<tr><td><h3>" + SXUtil.toHtml(r.undergrupp) + "</h3></td></tr>");
+			tempUndergrupp = r.undergrupp;
+			undergruppFirstRow = false;
+		}
+		out.print("<tr>");
+		
 		if (r.rappid != null) {
 			out.print("<td><a href=\"?id=2&rappid=" + r.rappid + "\">" + SXUtil.toHtml(r.kortbeskrivning) + "</a></td>");
 			if (sxSession.isAdminuser()) {
