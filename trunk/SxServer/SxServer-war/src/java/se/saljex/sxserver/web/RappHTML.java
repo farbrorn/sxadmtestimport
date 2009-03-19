@@ -52,7 +52,7 @@ public class RappHTML extends RappHandler {
 					if (super.colArr[cn].getJavaType() == TYP_INT || super.colArr[cn].getJavaType() == TYP_BIGDECIMAL || super.colArr[cn].getJavaType() == TYP_FLOAT || super.colArr[cn].getJavaType() == TYP_DOUBLE) {
 						sbGlobal.append("<td class=\"tdn\">"); 
 					} else {
-						sbGlobal.append("<td class=\"tds\">"); 
+						sbGlobal.append("<td>"); 
 					}
 					sbGlobal.append(super.colArr[cn].getCurrValueString());
 					sbGlobal.append("</td>");
@@ -72,21 +72,26 @@ public class RappHTML extends RappHandler {
 
 	@Override
 	protected void printGroupFooter(int col) {
-		int x = antalColumns;
-		if ( x > 1) { x--; }
-		sbGlobal.append("<tr class=\"trrappgroupfooter\"><td colspan=\"" + x + "\" class=\"tdrappgroupfooter\">" + super.colArr[col].getGroupByFooterTextString() + "</td></tr>");
+		sbGlobal.append("<tr class=\"trrappgroupfooter\"><td colspan=\"" + antalColumns + "\" class=\"tdrappgroupfooter\">" + super.colArr[col].getGroupByFooterTextString() + "</td></tr>");
 	}
 	@Override
 	protected void printGroupHeader(int col) {
-		int x = antalColumns;
-		if ( x > 1) { x--; }
-		sbGlobal.append("<tr class=\"trrappgroupheader\"><td colspan=\"" + x + "\" class=\"tdrappgroupheader\">" + super.colArr[col].getGroupByHeaderTextString() + "</td></tr>");
+		sbGlobal.append("<tr class=\"trrappgroupheader\"><td colspan=\"" + antalColumns + "\" class=\"tdrappgroupheader\">" + super.colArr[col].getGroupByHeaderTextString() + "</td></tr>");
 	}
 	@Override
 	protected void printSum(Sum s) {
-		int x = antalColumns;
-		if ( x > 2) { x = x-2; }
-		sbGlobal.append("<tr class=\"trrappsum\"><td class=\"tdrappsum\">" + s.getText() + "</td><td colspan=\"" + x + "\" class=\"tdrappsum\">" + s.getSumString() + "</td></tr>");
+		int x1 = antalColumns-1;		//Kommer att räknas ut till antalet kolumner för texten
+		int x2;							//Kommer att räknas ut till antalet kolumner för summan
+		int m = x1%2;
+		if (x1 > 1) {
+			x1 = x1/2;
+			x2 = x1;
+			if (m > 0) x1++;		// Om det är udda antal kolumner så ökar vi den ena så det går jämt ut
+		} else {	//Om vi bara har en kolumn i rapporten så kommer summan att skrivas i en extra kolumn vilket kan tolkas som en bug men vi bortser från det
+			x1 = 1;
+			x2 = 1;
+		}
+		sbGlobal.append("<tr class=\"trrappsum\"><td colspan=\"" + x1 + "\" class=\"tdrappsum\">" + s.getText() + "</td><td colspan=\"" + x2 + "\" class=\"tdrappsum tdn\">" + s.getSumString() + "</td></tr>");
 	}
 
 	public String printHTMLInputForm(Integer rappId) throws SQLException {
