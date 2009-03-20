@@ -42,13 +42,31 @@ Double sumIAr = 0.0;
 if (rs.next()) sumFgAr  = rs.getDouble(3);
 if (rs.next()) sumIAr = rs.getDouble(3);
 rs.close();
+SparradeKunderHandler sph = new SparradeKunderHandler(con);
+ArrayList<SparradeKunderHandler.SparrKund> spka = sph.getSparrList(lagernr);
 %>
 <table class="midtable"width="780px">
 	<tr>
 		<td width="580px">
 			<div class="midgroup">
 				<h4> <%= lagerNamn %></h4>
-				Test
+
+			</div>
+			<div class="midgroup">
+				<h4>Spärrlista</h4>
+				Lista på de vanligaste kunderna som har överskridit sin kreditgräns.
+				<table>
+					<tr><th>Kundnr</th><th>Namn</th><th>Kreditgräns</th><th>Total reskontra</th><th>Långtidsförfallet</th></tr>
+<%						for (SparradeKunderHandler.SparrKund spk : spka) { %>
+						<tr>
+							<td><%= SXUtil.toHtml(spk.kundNr) %></td>
+							<td><%= SXUtil.toHtml(spk.namn) %></td>
+							<td><%= SXUtil.getFormatNumber(spk.kgrans) %></td>
+							<td><%= SXUtil.getFormatNumber(spk.totalReskontra) %></td>
+							<td><%= SXUtil.getFormatNumber(spk.totaltForfallet60) %></td>
+						</tr>
+				<% } %>
+				</table>
 			</div>
 		</td>
 		<td width="200px">

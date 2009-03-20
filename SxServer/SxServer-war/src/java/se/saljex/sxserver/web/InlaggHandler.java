@@ -58,15 +58,32 @@ public class InlaggHandler {
 		this.con = con;
 	}
 
-	public ResultSet getKanaler() throws SQLException {
-		return con.createStatement().executeQuery("select kanalid, rubrik, beskrivning from intrakanaler order by rubrik");
+/*	protected ResultSet getKanalerResultSet() throws SQLException {
+		return con.createStatement().executeQuery("select kanalid, rubrik, beskrivning, showonstartpage from intrakanaler order by rubrik");
+	}
+*/
+	public ArrayList<IntraKanal> getKanaler() throws SQLException {
+		return getKanaler(null, null);
+	}
+	public ArrayList<IntraKanal> getKanalerOnStartPage() throws SQLException {
+		return getKanaler("showonstartpage>0", "showonstartpage, rubrik");
 	}
 
+	private ArrayList<IntraKanal> getKanaler(String filter, String orderBy) throws SQLException {
+		ArrayList<IntraKanal> a = new ArrayList();
+		if (filter==null || filter.isEmpty()) filter = "1=1";
+		if (orderBy==null || orderBy.isEmpty()) orderBy = "rubrik";
+		ResultSet rs = con.createStatement().executeQuery("select kanalid, rubrik, beskrivning, showonstartpage from intrakanaler where " + filter + " order by " + orderBy);
+		while (rs.next()){
+			a.add(new IntraKanal(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getInt(4)!=0 ));
+		}
+		return a;
 
+	}
 	/* Returnerar inlägg ur en kanal
 	 * kanalId: Önskad kanal, om null returneras för alla kanaler
 	 * page: Sida att börja från, börjar på 1, mindre värden tolkas som 1
-	 * pageSize: Sidstorlek, eller antal rader att visa
+	 * pageSize: Sidstorlek, eller antal rader att visa 0=alla inlägg
 	 * filterByDatum: Skall vi filtrera efter visaTill-datumet?
 	 */
 	public ArrayList<IntraInlagg> getInlaggListByKanalId(Integer kanalId, int page, int pageSize, boolean filterByDatum) throws SQLException {
@@ -138,7 +155,8 @@ public class InlaggHandler {
 
 	public String getKanalerOptionList() throws SQLException {
 		boolean selected = false;
-		ResultSet rs = getKanaler();
+		ResultSet rs = con.createStatement().executeQuery("select kanalid, rubrik, beskrivning, showonstartpage from intrakanaler order by rubrik");
+
 		StringBuilder sb = new StringBuilder();
 		while (rs.next()) {
 			sb.append("<option value=\"" + rs.getInt(1) + "\"");
@@ -339,5 +357,17 @@ public class InlaggHandler {
 		public java.sql.Date visaTill = null;
 		public String anvandareKort = null;
 		public java.sql.Timestamp crTime = null;
+	}
+	public class IntraKanal {
+		public IntraKanal(int kanalId, String rubrik, String beskrivning, boolean showOnStartPage) {
+			this.kanalId = kanalId;
+			this.beskrivning = beskrivning;
+			this.rubrik = rubrik;
+			this.showOnStartPage = showOnStartPage;
+		}
+		public int kanalId;
+		public String rubrik = null;
+		public String beskrivning = null;
+		public boolean showOnStartPage;
 	}
 }
