@@ -29,22 +29,26 @@ if (rs.next()) sumIAr = rs.getDouble(3);
 rs.close();
 
 InlaggHandler inh  = new InlaggHandler(con);
+ArrayList<InlaggHandler.IntraKanal> arrKan = inh.getKanalerOnStartPage();
 ArrayList<InlaggHandler.IntraInlagg> arrInl = inh.getInlaggListByKanalId(null);
 %>
 
 <table class="midtable"width="780px">
 	<tr>
 		<td width="580px">
-			<div class="midgroup">
-				<h4>Aktuellt</h4>
-				<%	for (InlaggHandler.IntraInlagg inl : arrInl)  {%>
-				<%= "Av " + SXUtil.toHtml(inl.anvandareKort) + " " + inl.crTime %>
-					<br/><b><%= SXUtil.toHtml(inl.rubrik) %><b/>
-					<br/><%= SXUtil.toHtml(inl.ingress) %>
-					<br/><%= SXUtil.toHtml(inl.fileName + "-" + inl.contentType) %>
-					<p/>
-				<%}%>
-			</div>
+				<% for (InlaggHandler.IntraKanal kan : arrKan ) { 
+					arrInl = inh.getInlaggListByKanalId(kan.kanalId);
+				%>
+					<div class="midgroup">
+					<a href="?id=kanalview&kanalid=<%= kan.kanalId %>"><h1><%= kan.rubrik %></h1></a>
+					<%	for (InlaggHandler.IntraInlagg inl : arrInl)  {%>
+						<a href="?id=inlaggview&inlaggid=<%= inl.inlaggId %>"><h2><%= SXUtil.toHtml(inl.rubrik) %></h2></a>
+						<%= SXUtil.toHtml(inl.ingress) %>
+					<%= "<h4>Av " + SXUtil.toHtml(inl.anvandareKort) + " " + inl.crTime + "</h4>" %>
+						<p/>
+					<%}%>
+					</div>
+				<% } %>
 			<div class="midgroup" style="overflow: scroll; height: 200px">
 				<h4>Kalender</h4>
 				<table><tr><th>Datum</th><th>Tid</th><th>Händelse</th><th></th></tr>
