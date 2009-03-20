@@ -2188,6 +2188,6 @@ insert into behorighet (behorighet, beskrivning) values ('IntraSuperuser','Super
 
 //
 insert into behorighet (behorighet, beskrivning) values ('Ekonomi','Ekonomiska funktioner och rapporter');
-create table intrakanaler (kanalid integer not null, rubrik varchar(30) not null, beskrivning varchar(512), primary key (kanalid));
+create table intrakanaler (kanalid integer not null, rubrik varchar(30) not null, beskrivning varchar(512), showonstartpage smallint not null default 0, primary key (kanalid));
 create table intrainlagg (inlaggid integer not null, kanalid integer not null, rubrik varchar(30) not null, ingress varchar(512), brodtext varchar(4096), filename varchar(100), contenttype varchar(100), originalfilename varchar(100), visatill date, anvandarekort varchar(3), crtime timestamp default current_timestamp , primary key (inlaggid))
 
