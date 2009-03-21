@@ -130,7 +130,7 @@ public class Login extends HttpServlet {
 	}
 	private boolean loginIntra() throws SQLException {
 		if (f.anvandare != null) {
-			st = con.prepareStatement("select forkortning, namn, a.behorighet from saljare s, anvbehorighet a where a.anvandare = s.namn " +
+			st = con.prepareStatement("select forkortning, namn, a.behorighet, lagernr from saljare s, anvbehorighet a where a.anvandare = s.namn " +
 							" and s.forkortning=? and s.losen=?");
 			st.setString(1, f.anvandare);
 			st.setString(2, request.getParameter("losen"));
@@ -143,6 +143,7 @@ public class Login extends HttpServlet {
 					sxSession.setIntrauser(true);
 					sxSession.setIntraAnvandare(rs.getString(2));
 					sxSession.setIntraAnvandareKort(rs.getString(1));
+					sxSession.setIntraAnvandareLagerNr(rs.getInt(4));
 				}
 				if (SXConstant.BEHORIGHET_INTRA_SUPERUSER.equals(rs.getString(3)))	sxSession.setSuperuser(true);
 				if (SXConstant.BEHORIGHET_INTRA_ADMIN.equals(rs.getString(3)))			sxSession.setAdminuser(true);

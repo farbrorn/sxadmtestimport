@@ -49,21 +49,22 @@ ArrayList<SparradeKunderHandler.SparrKund> spka = sph.getSparrList(lagernr);
 	<tr>
 		<td width="580px">
 			<div class="midgroup">
-				<h4> <%= lagerNamn %></h4>
+				<h1> <%= lagerNamn %></h1>
 
 			</div>
 			<div class="midgroup">
-				<h4>Spärrlista</h4>
-				Lista på de vanligaste kunderna som har överskridit sin kreditgräns.
+				<h1>Spärrlista</h1>
+				Lista på de vanligaste kunderna i <%= lagerNamn %> som har överskridit sin kreditgräns.<br/>
+				Observera att listan inte är komplett, och kreditkoll måste utföras även på kunder som inte står med på listan.
 				<table>
-					<tr><th>Kundnr</th><th>Namn</th><th>Kreditgräns</th><th>Total reskontra</th><th>Långtidsförfallet</th></tr>
+					<tr><th>Kundnr</th><th>Namn</th><th class="tdn12">Kreditgräns</th><th class="tdn12">Total reskontra</th><th class="tdn12">Långtidsförfallet</th></tr>
 <%						for (SparradeKunderHandler.SparrKund spk : spka) { %>
 						<tr>
 							<td><%= SXUtil.toHtml(spk.kundNr) %></td>
 							<td><%= SXUtil.toHtml(spk.namn) %></td>
-							<td><%= SXUtil.getFormatNumber(spk.kgrans) %></td>
-							<td><%= SXUtil.getFormatNumber(spk.totalReskontra) %></td>
-							<td><%= SXUtil.getFormatNumber(spk.totaltForfallet60) %></td>
+							<td class="tdn12"><%= SXUtil.getFormatNumber(spk.kgrans) %></td>
+							<td class="tdn12"><%= SXUtil.getFormatNumber(spk.totalReskontra) %></td>
+							<td class="tdn12"><%= SXUtil.getFormatNumber(spk.totaltForfallet60) %></td>
 						</tr>
 				<% } %>
 				</table>

@@ -50,7 +50,7 @@ ArrayList<InlaggHandler.IntraInlagg> arrInl = inh.getInlaggListByKanalId(null);
 					</div>
 				<% } %>
 			<div class="midgroup" style="overflow: scroll; height: 200px">
-				<h4>Kalender</h4>
+				<h1>Kalender</h1>
 				<table><tr><th>Datum</th><th>Tid</th><th>Händelse</th><th></th></tr>
 				<%
 				rs = con.createStatement().executeQuery("select f_dat, f_tid, kmemo from kalender order by f_dat, f_tid");

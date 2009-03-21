@@ -35,6 +35,7 @@ public class RapportLista {
 		huvuden.add(new RapportListaHuvud("topplistakund", "Filialrapporter", "Topplistor", "Kunder", "", null, null));
 		huvuden.add(new RapportListaHuvud("topplistaartgrupp", "Filialrapporter", "Topplistor", "Artikelgrupper", "", null, null));
 		huvuden.add(new RapportListaHuvud("topplistalagervarde", "Filialrapporter", "Lager", "Lagervärde", "", null, null));
+		huvuden.add(new RapportListaHuvud("filialstat1", "Filialrapporter", "Lager", "Order/försäljningsstatistik", "", null, null));
 
 		java.util.Collections.sort(huvuden, new RapportListaHuvudComparator());
 	}

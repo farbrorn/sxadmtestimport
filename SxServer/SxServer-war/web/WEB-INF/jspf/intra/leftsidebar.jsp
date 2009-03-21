@@ -8,37 +8,35 @@
 <%@ page import="java.sql.*" %>
 <%@ page import="java.util.*" %>
 
-<a href="?id=welcome">Startsida</a><br/>
-<a href="rapp">Rapporter</a><br/>
+<a href="?id=welcome">Startsida</a><p/>
+<a href="rapp">Rapporter</a><p/>
 
 <%
 Connection con = (Connection)request.getAttribute("con");
+SXSession sxSession = WebUtil.getSXSession(request.getSession());
+Integer lagerNr = sxSession.getIntraAnvandareLagerNr();
+String lagerNamn = null;
+
+// Om vi begärt annat lager än förvalt
+try { lagerNr = Integer.parseInt(request.getParameter("lagernr")); } catch (NumberFormatException e) {}
 
 ResultSet rs = con.createStatement().executeQuery("select lagernr, bnamn  from lagerid order by bnamn");
 while (rs.next()) {
 	out.print("<a href=\"?id=viewlager&lagernr="+ rs.getInt(1) + "\">" + rs.getString(2) + "</a><br/>");
+	if (lagerNr.equals(rs.getInt(1))) lagerNamn = rs.getString(2);
 }
 rs.close();
 %>
-<%
-// Submeby för filial
-if ("viewlager".equals(request.getParameter("id"))) {
-	String lagernr = request.getParameter("lagernr");
-	if (lagernr != null) {
-		%>
-		<p/>
-		<b>Rapporter</b><br/>
-		<a href="?id=rapp-lafervarde&lagernr=<%= lagernr %>">Lagervärde</a><br/>
-		<a href="?id=rapp-filialforsaljning&lagernr=<%= lagernr %>">Försäljnning</a><br/>
-		<p/><b>Topplistor</b><br/>
-		<a href="?id=rapp-topplistaartikel&sokform=true&lagernr=<%= lagernr %>">Artiklar</a><br/>
-		<a href="?id=rapp-topplistakund&sokform=true&lagernr=<%= lagernr %>">Kunder</a><br/>
-		<a href="?id=rapp-topplistaartgrupp&sokform=true&lagernr=<%= lagernr %>">Artikelgrupper</a><br/>
-		<a href="?id=rapp-topplistalagervarde&sokform=true&lagernr=<%= lagernr %>">Lagervärde</a><br/>
-		<p/>
-		<%
-	}
-}
 
-%>
+<p/>
+<h1><%= lagerNamn %></h1>
+<b>Rapporter</b><br/>
+<a href="?id=rapp-filialforsaljning&lagernr=<%= lagerNr %>">Försäljning</a><br/>
+<a href="?id=rapp-filialstat1&lagernr=<%= lagerNr %>">Försäljningsutveckling</a><br/>
+<p/><b>Topplistor</b><br/>
+<a href="?id=rapp-topplistaartikel&sokform=true&lagernr=<%= lagerNr %>">Artiklar</a><br/>
+<a href="?id=rapp-topplistakund&sokform=true&lagernr=<%= lagerNr %>">Kunder</a><br/>
+<a href="?id=rapp-topplistaartgrupp&sokform=true&lagernr=<%= lagerNr %>">Artikelgrupper</a><br/>
+<a href="?id=rapp-topplistalagervarde&sokform=true&lagernr=<%= lagerNr %>">Lagervärde</a><br/>
+<p/>
 
