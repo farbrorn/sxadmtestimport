@@ -18,6 +18,7 @@ public class SXSession {
 
 	private String intraAnvandare = null;
 	private String intraAnvandareKort = null;
+	private Integer intraAnvandareLagerNr = null;
 
 	private String levnr = null;
 	private String levnamn = null;
@@ -84,6 +85,9 @@ public class SXSession {
 	public void setIntraAnvandareKort(String intraAnvandareKort) {
 		this.intraAnvandareKort = intraAnvandareKort;
 	}
+
+	public Integer getIntraAnvandareLagerNr() {		return intraAnvandareLagerNr;	}
+	public void setIntraAnvandareLagerNr(Integer intraAnvandareLagerNr) {		this.intraAnvandareLagerNr = intraAnvandareLagerNr;	}
 	
 	public String getKundnr() {
 		return kundnr;
