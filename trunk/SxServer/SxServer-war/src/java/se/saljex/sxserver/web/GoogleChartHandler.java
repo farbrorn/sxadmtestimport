@@ -60,9 +60,12 @@ public class GoogleChartHandler {
 	}
 	*/
 	public void setLinjeDiagram() {
-		type = "öc";
+		type = "lc";
 	}
 
+	public void setMeter() {
+		type = "gom";
+	}
 
 	public void clearSerier() {
 		serieCn = 0;

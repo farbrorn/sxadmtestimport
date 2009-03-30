@@ -143,7 +143,7 @@ if (!"true".equals(request.getParameter("inputform"))) {
 						if (oddRow) out.print("<tr class=\"trdocodd\">"); else out.print("<tr class=\"trdoceven\">");
 						oddRow = !oddRow;
 						%>
-						<td class="tds30"><%= SXUtil.toHtml(rs.getString(2)) %></td>
+						<td class="tds30"><a href="kund?id=setkund&kundnr=<%= rs.getString(1) %>"><%= SXUtil.toHtml(rs.getString(2)) %></a></td>
 						<td class="tdn12"><%= SXUtil.getFormatNumber(rs.getDouble(3),0) %></td>
 						<td class="tdn12"><%= SXUtil.getFormatNumber(rs.getDouble(4),0) %></td>
 						<td class="tdn12"><%= SXUtil.getFormatNumber(rs.getDouble(5),0) %></td>

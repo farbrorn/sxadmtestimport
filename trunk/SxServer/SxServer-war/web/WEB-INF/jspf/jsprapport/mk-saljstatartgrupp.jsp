@@ -1,6 +1,6 @@
 <%-- 
-    Document   : saljstatartgrupp
-    Created on : 2009-mar-22, 14:26:08
+    Document   : mk-saljstatartgrupp
+    Created on : 2009-mar-27, 20:08:21
     Author     : ulf
 --%>
 <%@ page import="se.saljex.sxserver.SXUtil" %>
@@ -9,18 +9,6 @@
 <%@ page import="java.util.*" %>
 
 <%
-String lagerTyp = request.getParameter("lagertyp");
-if (lagerTyp==null) lagerTyp = "lager";
-
-String kundNr = request.getParameter("kundnr");
-
-Integer lagernr = null;	//Null betyder alla
-if(!"alla".equals(request.getParameter("lagernr"))) {
-	try {
-		lagernr = Integer.parseInt(request.getParameter("lagernr"));
-	} catch (NumberFormatException e) {}
-}
-
 int frar = 0;
 try {
 	frar = Integer.parseInt(request.getParameter("frar"));
@@ -32,21 +20,18 @@ if (frar < iAr-40 || frar > iAr) frar = iAr-3;
 
 Connection con = (Connection)request.getAttribute("con");
 ResultSet rs;
+String anvandare = null;
 
-if (!"true".equals(request.getParameter("inputform"))) {
+// Om vi har skickat med anvandare som attribut betyder det att vi har låst rapporten till den
+// användaren via någon typ av behörighetskontroll. Användaren ska inte kunnaa ändras via parameter
+boolean lasTillAnvandre = true;
+anvandare = (String)request.getAttribute("anvandare");
+if (anvandare==null) { //  Bars om vi inte skickat med som attrubyr
+	anvandare=request.getParameter("anvandare");
+	lasTillAnvandre = false;
+}
 
-	String lagerNamn = "Alla filialer";
-	if (lagernr!=null) {
-		// Lageruppgifter
-		rs = con.createStatement().executeQuery("select bnamn  from lagerid where lagernr=" + lagernr);
-		if (!rs.next()) {
-			out.print("Ogiltigt lager");
-			return;
-		}
-		lagerNamn = rs.getString(1);
-		rs.close();
-	}
-
+if (lasTillAnvandre || (anvandare != null && !"true".equals(request.getParameter("inputform")))) {
 
 
 	PreparedStatement p = con.prepareStatement(
@@ -54,21 +39,14 @@ if (!"true".equals(request.getParameter("inputform"))) {
 " from rabkoder r left outer join " +
 " (select year(f1.datum) as ar, month(f1.datum) as man, a.rabkod as rabkod, sum(f2.summa) as summa, sum(f2.summa-(f2.lev*f2.netto)) as tb " +
 " from faktura1 f1 join faktura2 f2 on f1.faktnr=f2.faktnr  join artikel a on a.nummer=f2.artnr  " +
-" where (f1.lagernr = ? or 0=? or (rtrim(substring(f1.saljare,1,30)) in (select namn from saljare where lagernr=?)) and 1=? ) " +
-" and  (f1.kundnr = ? or 0=?) " +
-" and year(f1.datum) between ? and ?  " +
+" where f1.saljare like ? and year(f1.datum) between ? and ?  " +
 " group by year(f1.datum), month(f1.datum), a.rabkod) b on b.rabkod = r.rabkod " +
 " where coalesce(r.kod1,'') = '' " +
 " order by r.rabkod, b.ar, b.man, r.rabkod "
 			  		  );
-	p.setInt(1, lagernr!=null ? lagernr : 0);
-	p.setInt(2, lagernr==null ? 0 : 1);
-	p.setInt(3, lagernr!=null ? lagernr : 0);
-	p.setInt(4, (lagernr==null || !"team".equals(lagerTyp)) ? 0 : 1);
-	p.setString(5, kundNr!=null ? kundNr : "");
-	p.setInt(6, kundNr==null ? 0 : 1);
-	p.setInt(7, frar);
-	p.setInt(8, iAr);
+	p.setString(1, anvandare+"%");
+	p.setInt(2, frar);
+	p.setInt(3, iAr);
 	rs = p.executeQuery();
 
 	int arrSize = iAr - frar + 1;
@@ -82,15 +60,7 @@ if (!"true".equals(request.getParameter("inputform"))) {
 	gch.setSize(350, 200);
 	gch2.setSize(350, 200);
 %>
-				<h1>Försäljning per artikelgrupp för <%= lagerNamn %></h1>
-				<% if (lagernr!=null) {
-						if ("team".equals(lagerTyp)) {
-							%>Rapporten inkluderar teamförsäljning från andra filialer<%
-						} else {
-							%>Rapporten visar endast försäljning över vald filial.<%
-						}
-					}
-				%>
+				<h1>Försäljning per artikelgrupp för <%= anvandare %></h1>
 				<table id="doclist">
 					<tr>
 						<th>År</th>
@@ -161,16 +131,16 @@ if (!"true".equals(request.getParameter("inputform"))) {
 	%>
 <h1>Försäljning per artikelgrupp</h1>
 <form action="" method="get">
-		<table><tr><td>Lager:</td>
+		<table><tr><td>Användare:</td>
 		<td>
-			<select name="lagernr" style="width: 200px;">
+			<select name="anvandare" style="width: 200px;">
 			<%
-				if (lagernr==null) lagernr=0;
-				ResultSet rsk = con.createStatement().executeQuery("SELECT lagernr, bnamn FROM lagerid");
+				ResultSet rsk = con.createStatement().executeQuery("SELECT namn from saljare order by namn");
 				while( rsk.next() ) {
-					out.print("<option value=\"" + rsk.getInt(1) + "\"");
-					if (lagernr.equals(rsk.getInt(1))) out.print(" selected=\"selected\"");
-					out.print(">" + SXUtil.toHtml(rsk.getString(2)) + "</option>");
+					if (anvandare==null) anvandare=rsk.getString(1);
+					out.print("<option value=\"" + rsk.getString(1) + "\"");
+					if (anvandare.equals(rsk.getString(1))) out.print(" selected=\"selected\"");
+					out.print(">" + SXUtil.toHtml(rsk.getString(1)) + "</option>");
 				}
 			%>
 			</select> <br/>

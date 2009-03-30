@@ -42,4 +42,6 @@ rs.close();
 <p/>
 <h1><%= SXUtil.toHtml(sxSession.getIntraAnvandare()) %></h1>
 <a href="?id=mk-kundlista">Kunder</a><br/>
+<a href="?id=mk-statistik">Statistik</a><br/>
+<a href="?id=mk-saljstatartgrupp">Statistik artikelgrupp</a><br/>
 
