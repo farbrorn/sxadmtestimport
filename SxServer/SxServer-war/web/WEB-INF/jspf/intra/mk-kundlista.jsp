@@ -27,12 +27,13 @@ rs = p.executeQuery();
 Listar alla kunder på vald säljare samt antal faktuor och fakturerat nettobelopp senaste året
 <table id="doclist">
 	<tr>
-s		<th class="tds15">Kundnr</th>
+		<th class="tds15">Kundnr</th>
 		<th class="tds30">Namn</th>
 		<th class="tds30">Ort</th>
 		<th class="tds30">Referens</th>
 		<th class="tdn12">Fakturor</th>
 		<th class="tdn12">Nettofakt</th>
+		<th class="tds15">Statistik</th>
 		 <th></th>
 	</tr>
 
@@ -47,6 +48,7 @@ while (rs.next()) {
 	<td class="tds30"><%= SXUtil.toHtml(rs.getString(4)) %></td>
 	<td class="tdn12"><%= rs.getInt(5) %></td>
 	<td class="tdn12"><%= SXUtil.getFormatNumber(rs.getDouble(6),0) %></td>
+	<td><a href="?id=kun-stat&kundnr=<%= rs.getString(1) %>">Stat</a>&nbsp;<a href="?id=kun-saljstatartgrupp&kundnr=<%= rs.getString(1) %>">Grupp</a></td>
 <td></td></tr>
 <% }
 %>
