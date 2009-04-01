@@ -26,7 +26,17 @@ final String OB_TB = "tb";
 final String checkedStr = "checked=\"checked\"";
 
 String frar = SXUtil.toStr(request.getParameter("frar"));
-String lagernr = SXUtil.toStr(request.getParameter("lagernr"));
+
+String lagerTyp = request.getParameter("lagertyp");
+if (lagerTyp==null) lagerTyp = "lager";
+
+String kundNr = request.getParameter("kundnr");
+
+Integer lagerNr = null;
+try {
+	lagerNr = Integer.parseInt(request.getParameter("lagernr"));
+} catch (NumberFormatException e) {}
+
 String orderby = SXUtil.toStr(request.getParameter("orderby"));
 if (frar==null) frar = SXUtil.getFormatDate().substring(0, 4);
 if (orderby==null) orderby=OB_SUMMA;
@@ -36,6 +46,8 @@ if (orderby==null) orderby=OB_SUMMA;
  $(document).ready(function() {
 	$("input[@name=orderby]").click( function() { $("input[@name=page]").val(1); loadsokreslocal(); });
 	$("input[@name=bsok]").click( function() { $("input[@name=page]").val(1); loadsokreslocal(); return false;});
+	$("select[@name=lagernr]").click( function() {  loadsokreslocal(); return false;});
+	$("input[@name=lagertyp]").click( function() { loadsokreslocal();});
 	loadsokres();
 });
 function loadsokreslocal() {
@@ -46,6 +58,20 @@ function loadsokreslocal() {
 
 <div id="divdocsok">
 <form id="sokform" action="">
+Lager:
+<select name="lagernr">
+	<option value="alla" <%= lagerNr==null ? "selected" : "" %>>Alla</option>
+<%
+rs = con.createStatement().executeQuery("select lagernr, bnamn from lagerid order by bnamn");
+while (rs.next()) {
+%>
+<option value="<%= rs.getInt(1) %>" <%= lagerNr!=null && lagerNr.equals(rs.getInt(1)) ? "selected" : ""  %>><%= SXUtil.toHtml(rs.getString(2)) %></option>
+<%
+}
+%>
+</select>
+<input type="radio" name="lagertyp" value="lager" <%= "lager".equals(request.getParameter("lagertyp")) || request.getParameter("lagertyp")==null  ? "checked" : "" %>>Endast lagerförsäljning &nbsp;
+<input type="radio" name="lagertyp" value="team" <%= "team".equals(request.getParameter("lagertyp")) ? "checked" : "" %>>Lager med teammedlemmar <br/>
 	Från år: <input type="text" name="frar" maxlength="4" value="<%= frar %>" style="width: 50px;"/>
 	Sortera:
 	<input type="radio" name="orderby" value="<%= OB_SUMMA %>" <% if (OB_SUMMA.equals(orderby)) out.print(checkedStr); %>/>Fakturabelopp &nbsp;
@@ -54,7 +80,7 @@ function loadsokreslocal() {
 	<input type="radio" name="orderby" value="<%= OB_SALDA %>" <% if (OB_SALDA.equals(orderby)) out.print(checkedStr); %>/>Anal sålda &nbsp;
    <input type="submit" name="bsok" value="Visa" />
 	<input type="hidden" name="get" value="rapp-<%= jspName %>"/>
-	<input type="hidden" name="lagernr" value="<%= lagernr %>"/>
+	<input type="hidden" name="lagernr" value="<%= lagerNr %>"/>
 </form>
 </div>
 <div id="divdoclist"></div>

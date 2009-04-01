@@ -18,18 +18,23 @@ final String OB_RADER = "rader";
 final String OB_TB = "tb";
 final String checkedStr = "checked=\"checked\"";
 
+String lagerTyp = request.getParameter("lagertyp");
+if (lagerTyp==null) lagerTyp = "lager";
+
+String kundNr = request.getParameter("kundnr");
+
 int frar = 0;
 int tiar = 0;
 int frman = 0;
 int timan = 0;
 int maxrader = 100;
 int sida = 0;
-Integer lagernr = null;
+Integer lagerNr = null;
 
 if (!"alla".equals(request.getParameter("lagernr"))) {
-	lagernr = 0;
+	lagerNr = 0;
 	try {
-		lagernr = Integer.parseInt(request.getParameter("lagernr"));
+		lagerNr = Integer.parseInt(request.getParameter("lagernr"));
 	} catch (NumberFormatException e) {}
 }
 
@@ -75,24 +80,20 @@ if (frar == tiar && frman > timan) frman = timan;
 
 if (maxrader < 0) maxrader = 100;
 
-String lagerNamn;
+String lagerNamn = "Alla filialer";
 
 if (!"true".equals(request.getParameter("inputform"))) {
 
-	String lagerWhere = "1=1";
 
 	// Lageruppgifter
-	if (lagernr != null) {
-		rs = con.createStatement().executeQuery("select bnamn  from lagerid where lagernr=" + lagernr);
+	if (lagerNr != null) {
+		rs = con.createStatement().executeQuery("select bnamn  from lagerid where lagernr=" + lagerNr);
 		if (!rs.next()) {
 			out.print("Ogiltigt lager");
 			return;
 		}
-		lagerWhere = "f1.lagernr = " + lagernr;
 		lagerNamn = rs.getString(1);
 		rs.close();
-	} else {
-		lagerNamn = "alla";
 	}
 
 	java.util.Date frdat;
@@ -108,21 +109,35 @@ if (!"true".equals(request.getParameter("inputform"))) {
 	PreparedStatement p = con.prepareStatement(
 		"select f1.kundnr, k.namn, round(sum(f2.summa)/100)*100, round(sum(case f2.netto when 0 then 0 else f2.summa-f2.lev*f2.netto end)/100)*100, count(*), sum(f2.lev) "
 		+" from faktura1 f1, faktura2 f2, kund k where k.nummer=f1.kundnr and f1.faktnr = f2.faktnr "
+		+" and (f1.lagernr = ? or 0=? or (rtrim(substring(f1.saljare,1,30)) in (select namn from saljare where lagernr=?)) and 1=? ) "
+		+" and  (f1.kundnr = ? or 0=?) "
 		+" and f1.datum between ? and ?"
-		+" and " + lagerWhere
 		+" and f2.artnr <> '*RÄNTA*' and f2.artnr <> '*BONUS*' and f2.lev<>0"
 		+" group by f1.kundnr, k.namn"
 		+" order by " + sqlOrder
 		+" limit " + maxrader
 		+" offset " + maxrader*sida
 			  );
-	p.setDate(1, new java.sql.Date(frdat.getTime()));
-	p.setDate(2, new java.sql.Date(tidat.getTime()));
+	p.setInt(1, lagerNr!=null ? lagerNr : 0);
+	p.setInt(2, lagerNr==null ? 0 : 1);
+	p.setInt(3, lagerNr!=null ? lagerNr : 0);
+	p.setInt(4, (lagerNr==null || !"team".equals(lagerTyp)) ? 0 : 1);
+	p.setString(5, kundNr!=null ? kundNr : "");
+	p.setInt(6, kundNr==null ? 0 : 1);
+	p.setDate(7, new java.sql.Date(frdat.getTime()));
+	p.setDate(8, new java.sql.Date(tidat.getTime()));
 	rs = p.executeQuery();
 
 	%>
 				<h1>Kundtoppen för <%= lagerNamn %></h1>
-				Topplistan för kunder<br/>
+				<% if (lagerNr!=null) {
+						if ("team".equals(lagerTyp)) {
+							%>Rapporten inkluderar teamförsäljning från andra filialer<%
+						} else {
+							%>Rapporten visar endast försäljning över vald filial.<%
+						}
+					}
+				%>
 				<table>
 					<tr><td>Period</td><td><%= SXUtil.getFormatDate(frdat) + "-" + SXUtil.getFormatDate(tidat) %></td></tr>
 					<tr><td>Sortering</td><td><%= orderForklaring %></td></tr>
@@ -164,15 +179,15 @@ if (!"true".equals(request.getParameter("inputform"))) {
 		<td>
 			<select name="lagernr" style="width: 200px;">
 			<%
-				if (lagernr==null) lagernr=0;
+				if (lagerNr==null) lagerNr=0;
 				ResultSet rsk = con.createStatement().executeQuery("SELECT lagernr, bnamn FROM lagerid");
 				while( rsk.next() ) {
 					out.print("<option value=\"" + rsk.getInt(1) + "\"");
-					if (lagernr != null && lagernr.equals(rsk.getInt(1))) out.print(" selected=\"selected\"");
+					if (lagerNr != null && lagerNr.equals(rsk.getInt(1))) out.print(" selected=\"selected\"");
 					out.print(">" + SXUtil.toHtml(rsk.getString(2)) + "</option>");
 				}
 				%> <option value="alla" <%
-				if (lagernr == null) { %>  selected="selected" <% }
+				if (lagerNr == null) { %>  selected="selected" <% }
 				%> >Alla</option>
 
 

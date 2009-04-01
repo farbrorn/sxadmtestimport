@@ -10,9 +10,14 @@
 <%@ page import="java.util.*" %>
 
 <%
-Integer lagernr = null;
+String lagerTyp = request.getParameter("lagertyp");
+if (lagerTyp==null) lagerTyp = "lager";
+
+String kundNr = request.getParameter("kundnr");
+
+Integer lagerNr = null;
 try {
-	lagernr = Integer.parseInt(request.getParameter("lagernr"));
+	lagerNr = Integer.parseInt(request.getParameter("lagernr"));
 } catch (NumberFormatException e) {}
 int frar = 0;
 try {
@@ -26,29 +31,37 @@ if (frar < iAr-40 || frar > iAr) frar = iAr-3;
 Connection con = (Connection)request.getAttribute("con");
 ResultSet rs;
 
-if (lagernr != null && !"true".equals(request.getParameter("inputform"))) {
+if (!"true".equals(request.getParameter("inputform"))) {
 
 	// Lageruppgifter
-	rs = con.createStatement().executeQuery("select bnamn  from lagerid where lagernr=" + lagernr);
-	if (!rs.next()) {
-		out.print("Ogiltigt lager");
-		return;
+	String lagerNamn = "Alla filialer";
+	if (lagerNr!=null) {
+		rs = con.createStatement().executeQuery("select bnamn  from lagerid where lagernr=" + lagerNr);
+		if (!rs.next()) {
+			out.print("Ogiltigt lager");
+			return;
+		}
+		lagerNamn = rs.getString(1);
+		rs.close();
 	}
-	String lagerNamn = rs.getString(1);
-	rs.close();
-
-
 
 	PreparedStatement p = con.prepareStatement(
 "select year(f1.datum), month(f1.datum), count(distinct f2.ordernr) as order, count(distinct f1.faktnr) as fakturor, sum(case when f2.lev <> 0 then 1 else 0 end) as orderrader, coalesce(sum(f2.summa),0), coalesce(sum(f2.summa - case when f2.netto = 0 then f2.summa else f2.lev*f2.netto end),0), count(distinct f1.kundnr), count(distinct f2.artnr) " +
 " from faktura1 f1 join faktura2 f2 on f1.faktnr = f2.faktnr " +
-" where lagernr = ? and year(f1.datum) between ? and ? " +
+" where (f1.lagernr = ? or 0=? or (rtrim(substring(f1.saljare,1,30)) in (select namn from saljare where lagernr=?)) and 1=? ) " +
+" and  (f1.kundnr = ? or 0=?) " +
+" and year(f1.datum) between ? and ?  " +
 " group by year(f1.datum), month(f1.datum) " +
 " order by  year(f1.datum) desc, month(f1.datum) "
 			  );
-	p.setInt(1, lagernr);
-	p.setInt(2, frar);
-	p.setInt(3, iAr);
+	p.setInt(1, lagerNr!=null ? lagerNr : 0);
+	p.setInt(2, lagerNr==null ? 0 : 1);
+	p.setInt(3, lagerNr!=null ? lagerNr : 0);
+	p.setInt(4, (lagerNr==null || !"team".equals(lagerTyp)) ? 0 : 1);
+	p.setString(5, kundNr!=null ? kundNr : "");
+	p.setInt(6, kundNr==null ? 0 : 1);
+	p.setInt(7, frar);
+	p.setInt(8, iAr);
 	rs = p.executeQuery();
 
 	int arrSize = iAr - frar + 1;
@@ -73,7 +86,14 @@ if (lagernr != null && !"true".equals(request.getParameter("inputform"))) {
 
 	%>
 				<h1>Försäljning för <%= lagerNamn %></h1>
-				Rappporten försäljningsstatistik för <%= lagerNamn %> utan att räkna med försäljning från andra filialer.
+				<% if (lagerNr!=null) {
+						if ("team".equals(lagerTyp)) {
+							%>Rapporten inkluderar teamförsäljning från andra filialer<%
+						} else {
+							%>Rapporten visar endast försäljning över vald filial.<%
+						}
+					}
+				%>
 				<table id="doclist">
 					<tr>
 						<th>År</th>
@@ -261,11 +281,11 @@ if (lagernr != null && !"true".equals(request.getParameter("inputform"))) {
 		<td>
 			<select name="lagernr" style="width: 200px;">
 			<%
-				if (lagernr==null) lagernr=0;
+				if (lagerNr==null) lagerNr=0;
 				ResultSet rsk = con.createStatement().executeQuery("SELECT lagernr, bnamn FROM lagerid");
 				while( rsk.next() ) {
 					out.print("<option value=\"" + rsk.getInt(1) + "\"");
-					if (lagernr.equals(rsk.getInt(1))) out.print(" selected=\"selected\"");
+					if (lagerNr.equals(rsk.getInt(1))) out.print(" selected=\"selected\"");
 					out.print(">" + SXUtil.toHtml(rsk.getString(2)) + "</option>");
 				}
 			%>
