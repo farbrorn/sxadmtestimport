@@ -82,6 +82,7 @@ while (rs.next()) {
    <input type="submit" name="bsok" value="Visa" />
 	<input type="hidden" name="get" value="rapp-<%= jspName %>"/>
 	<input type="hidden" name="lagernr" value="<%= lagernr %>"/>
+	<input type="hidden" name="kundnr" value="<%= SXUtil.toStr(request.getParameter("kundnr")) %>"
 </form>
 </div>
 <div id="divdoclist"></div>

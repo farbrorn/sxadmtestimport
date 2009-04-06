@@ -1,3 +1,4 @@
+
 <%-- 
     Document   : topplistaartikel
     Created on : 2009-feb-20, 15:30:25
@@ -122,7 +123,7 @@ if (!"true".equals(request.getParameter("inputform"))) {
 	p.setInt(3, lagerNr!=null ? lagerNr : 0);
 	p.setInt(4, (lagerNr==null || !"team".equals(lagerTyp)) ? 0 : 1);
 	p.setString(5, kundNr!=null ? kundNr : "");
-	p.setInt(6, kundNr==null ? 0 : 1);
+	p.setInt(6, kundNr==null || kundNr.isEmpty() ? 0 : 1);
 	p.setDate(7, new java.sql.Date(frdat.getTime()));
 	p.setDate(8, new java.sql.Date(tidat.getTime()));
 	rs = p.executeQuery();
@@ -136,6 +137,7 @@ if (!"true".equals(request.getParameter("inputform"))) {
 							%>Rapporten visar endast försäljning över vald filial.<%
 						}
 					}
+					if (kundNr!=null && !kundNr.isEmpty()) { %> Filtrerat på kundnr <%= kundNr %><% }
 				%>
 				<table>
 					<tr><td>Period</td><td><%= SXUtil.getFormatDate(frdat) + "-" + SXUtil.getFormatDate(tidat) %></td></tr>

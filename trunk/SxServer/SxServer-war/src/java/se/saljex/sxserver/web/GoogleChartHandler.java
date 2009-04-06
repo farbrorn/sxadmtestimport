@@ -21,6 +21,8 @@ public class GoogleChartHandler {
 	private int sizeX = 400;
 	private int sizeY = 200;
 
+	private Double scaleMax = null;
+
 	private String type="lc";
 	private String lineStyle="1,1,0";
 
@@ -91,6 +93,8 @@ public class GoogleChartHandler {
 		addEtikett("Dec");		
 	}
 
+	public void setScaleMax(Double scaleMax) {		this.scaleMax = scaleMax;	}
+
 	public void setSize(int x, int y) {
 		sizeX = x;
 		sizeY = y;
@@ -136,6 +140,15 @@ public class GoogleChartHandler {
 		}
 		sb.deleteCharAt(sb.length()-1);
 
+		// Sätt y-axel
+		sb.append("&chxt=y");
+		// Sätt skalan på y-axel
+		Double maxValue;
+		if (scaleMax==null) {
+			maxValue = getMaxValue();
+		} else {maxValue = scaleMax;}
+
+		sb.append("&chxr=0,0," + Math.round(maxValue) + "," + Math.round(maxValue/5));
 		return sb.toString();
 	}
 
@@ -156,12 +169,16 @@ public class GoogleChartHandler {
 	private String simpleEncode() {
 		StringBuilder sb = new StringBuilder();
 
-		double maxValue = getMaxValue();
-
+		double maxValue;
+		if (scaleMax==null) maxValue = getMaxValue(); else maxValue = scaleMax;
+		char c;
+		int p;
 		for (SerieInfo si : serier) {
 			for (Double d : si.getValueArr()) {
 				if (d!=null && d >= 0) {
-					sb.append(simpleEncoding.charAt((int)Math.round((simpleEncoding.length()-1) * d / maxValue)));
+					p = (int)Math.round((simpleEncoding.length()-1) * d / maxValue);
+					if (p>simpleEncoding.length()-1) c = '_'; else c=simpleEncoding.charAt(p);
+					sb.append(c);
 				}
 				else {
 					sb.append("_");
