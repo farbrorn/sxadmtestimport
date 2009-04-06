@@ -33,7 +33,6 @@ function loadsokreslocal() {
 
 <div id="divdocsok">
 
-<h1>Statistik artikelgrupper</h1>
 <form id="sokform" action="">
 <input type="hidden" name="get" value="printjsprapport"/>
 <input type="hidden" name="jsp" value="<%= jspName %>"/>
@@ -52,6 +51,7 @@ while (rs.next()) {
 <input type="radio" name="lagertyp" value="lager" <%= "lager".equals(request.getParameter("lagertyp")) || request.getParameter("lagertyp")==null  ? "checked" : "" %>>Endast lagerförsäljning &nbsp;
 <input type="radio" name="lagertyp" value="team" <%= "team".equals(request.getParameter("lagertyp")) ? "checked" : "" %>>Lager med teammedlemmar &nbsp;
 <input type="submit" value="Sök" name="bsok"/>
+<input type="hidden" name="kundnr" value="<%= SXUtil.toStr(request.getParameter("kundnr")) %>"
 </form>
 </div>
 

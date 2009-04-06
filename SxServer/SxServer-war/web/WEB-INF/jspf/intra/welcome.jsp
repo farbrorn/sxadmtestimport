@@ -42,8 +42,8 @@ ArrayList<InlaggHandler.IntraInlagg> arrInl = inh.getInlaggListByKanalId(null);
 					<div class="midgroup">
 					<a href="?id=kanalview&kanalid=<%= kan.kanalId %>"><h1><%= kan.rubrik %></h1></a>
 					<%	for (InlaggHandler.IntraInlagg inl : arrInl)  {%>
-						<a href="?id=inlaggview&inlaggid=<%= inl.inlaggId %>"><h2><%= SXUtil.toHtml(inl.rubrik) %></h2></a>
-						<%= SXUtil.toHtml(inl.ingress) %>
+						<a href="?id=inlaggview&inlaggid=<%= inl.inlaggId %>"><h2><%= inl.rubrik %></h2></a>
+						<%= inl.ingress %>
 					<%= "<h4>Av " + SXUtil.toHtml(inl.anvandareKort) + " " + inl.crTime + "</h4>" %>
 						<p/>
 					<%}%>

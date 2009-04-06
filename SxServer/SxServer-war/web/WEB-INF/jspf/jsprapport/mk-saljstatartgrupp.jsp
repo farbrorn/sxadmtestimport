@@ -37,8 +37,9 @@ if (lasTillAnvandre || (anvandare != null && !"true".equals(request.getParameter
 	PreparedStatement p = con.prepareStatement(
 "select r.rabkod, r.beskrivning, b.ar, b.man, b.summa, b.tb " +
 " from rabkoder r left outer join " +
-" (select year(f1.datum) as ar, month(f1.datum) as man, a.rabkod as rabkod, sum(f2.summa) as summa, sum(f2.summa-(f2.lev*f2.netto)) as tb " +
-" from faktura1 f1 join faktura2 f2 on f1.faktnr=f2.faktnr  join artikel a on a.nummer=f2.artnr  " +
+" (select year(f1.datum) as ar, month(f1.datum) as man, a.rabkod as rabkod, sum(f2.summa) as summa, " +
+" coalesce(sum(f2.summa - case when f2.netto = 0 then f2.summa else f2.lev*f2.netto + case when f1.bonus<>0 then f2.summa*fu.bonusproc2/100 else 0 end end ),0) as tb " +
+" from faktura1 f1 join faktura2 f2 on f1.faktnr=f2.faktnr  join artikel a on a.nummer=f2.artnr, fuppg fu  " +
 " where f1.saljare like ? and year(f1.datum) between ? and ?  " +
 " group by year(f1.datum), month(f1.datum), a.rabkod) b on b.rabkod = r.rabkod " +
 " where coalesce(r.kod1,'') = '' " +
@@ -51,7 +52,7 @@ if (lasTillAnvandre || (anvandare != null && !"true".equals(request.getParameter
 
 	int arrSize = iAr - frar + 1;
 	double[][] summa = new double[arrSize][12];
-	double[][] tb = new double[arrSize][12];
+	double[][] tbproc = new double[arrSize][12];
 
 	GoogleChartHandler gch = new GoogleChartHandler();
 	GoogleChartHandler gch2 = new GoogleChartHandler();
@@ -94,9 +95,10 @@ if (lasTillAnvandre || (anvandare != null && !"true".equals(request.getParameter
 							%><tr><td colspan="13"><b><br/><%= SXUtil.toHtml(tempRabkod) + " - " + SXUtil.toHtml(tempRabnamn) %></b></td></tr><%
 							gch.clearSerier();
 							gch2.clearSerier();
+							gch2.setScaleMax(100.0);
 							for (int cn=0; cn <= iAr-frar; cn++) {
 								gch.addSerie("Netto " + (iAr-cn), summa[cn]);
-								gch2.addSerie("TB  " + (iAr-cn), tb[cn]);
+								gch2.addSerie("TB  " + (iAr-cn), tbproc[cn]);
 							}
 							%>	<tr><td colspan="13"><img src="<%= gch.getURL() %>"/><img src="<%= gch2.getURL() %>"/></td></tr>		<%
 
@@ -105,12 +107,12 @@ if (lasTillAnvandre || (anvandare != null && !"true".equals(request.getParameter
 								odd = !odd;
 								%><tr class="trdoc<%= odd ? "odd" : "even" %>"><td><%= iAr-cn %></td><%
 								for (int mn = 0; mn < 12; mn++) {
-								%><td class="tdn12"><%= Math.round(summa[cn][mn]/1000) %></td><%
+								%><td class="tdn12"><%= Math.round(summa[cn][mn]) %></td><%
 								}
 								%></tr><%
 							}
 							summa = new double[arrSize][12];
-							tb = new double[arrSize][12];
+							tbproc = new double[arrSize][12];
 							if (rsnext) {
 								tempRabkod = rs.getString(1);
 								tempRabnamn = rs.getString(2);
@@ -118,8 +120,8 @@ if (lasTillAnvandre || (anvandare != null && !"true".equals(request.getParameter
 						}
 						if (!rsnext) break;
 						if (rs.getInt(3) > 0) {
-							summa[iAr - rs.getInt(3)][rs.getInt(4)-1] = rs.getDouble(5);
-							tb[iAr - rs.getInt(3)][rs.getInt(4)-1] = rs.getDouble(6);
+							summa[iAr - rs.getInt(3)][rs.getInt(4)-1] = rs.getDouble(5)/1000;
+							tbproc[iAr - rs.getInt(3)][rs.getInt(4)-1] = rs.getDouble(5) != 0 ? rs.getDouble(6)/rs.getDouble(5)*100 : 0.0;
 						}
 					}
 					%>

@@ -34,8 +34,10 @@ if (anvandare==null) { //  Bars om vi inte skickat med som attrubyr
 
 if (lasTillAnvandre || (anvandare != null && !"true".equals(request.getParameter("inputform")))) {
 	PreparedStatement p = con.prepareStatement(
-"select year(f1.datum), month(f1.datum), count(distinct f2.ordernr) as order, count(distinct f1.faktnr) as fakturor, sum(case when f2.lev <> 0 then 1 else 0 end) as orderrader, coalesce(sum(f2.summa),0), coalesce(sum(f2.summa - case when f2.netto = 0 then f2.summa else f2.lev*f2.netto end),0), count(distinct f1.kundnr), count(distinct f2.artnr) " +
-" from faktura1 f1 join faktura2 f2 on f1.faktnr = f2.faktnr " +
+"select year(f1.datum), month(f1.datum), count(distinct f2.ordernr) as order, count(distinct f1.faktnr) as fakturor, sum(case when f2.lev <> 0 then 1 else 0 end) as orderrader, coalesce(sum(f2.summa),0), " +
+" coalesce(sum(f2.summa - case when f2.netto = 0 then f2.summa else f2.lev*f2.netto + case when f1.bonus<>0 then f2.summa*fu.bonusproc2/100 else 0 end end ),0), " +
+" count(distinct f1.kundnr), count(distinct f2.artnr) " +
+" from faktura1 f1 join faktura2 f2 on f1.faktnr = f2.faktnr, fuppg fu " +
 " where f1.saljare like ? and year(f1.datum) between ? and ? " +
 " group by year(f1.datum), month(f1.datum) " +
 " order by  year(f1.datum) desc, month(f1.datum) "
@@ -58,8 +60,8 @@ if (lasTillAnvandre || (anvandare != null && !"true".equals(request.getParameter
 		antalOrder[iAr - rs.getInt(1)][rs.getInt(2)-1] = rs.getInt(3);
 		antalFakturor[iAr - rs.getInt(1)][rs.getInt(2)-1] = rs.getInt(4);
 		antalOrderRader[iAr - rs.getInt(1)][rs.getInt(2)-1] = rs.getInt(5);
-		summa[iAr - rs.getInt(1)][rs.getInt(2)-1] = rs.getDouble(6);
-		tb[iAr - rs.getInt(1)][rs.getInt(2)-1] = rs.getDouble(7);
+		summa[iAr - rs.getInt(1)][rs.getInt(2)-1] = Math.round(rs.getDouble(6)/1000);
+		tb[iAr - rs.getInt(1)][rs.getInt(2)-1] = Math.round(rs.getDouble(7)/1000);
 		antalUnikaKunder[iAr - rs.getInt(1)][rs.getInt(2)-1] = rs.getInt(8);
 		antalUnikaArtiklar[iAr - rs.getInt(1)][rs.getInt(2)-1] = rs.getInt(9);
 	}
@@ -95,14 +97,22 @@ if (lasTillAnvandre || (anvandare != null && !"true".equals(request.getParameter
 					boolean odd = false;
 					%><tr><td colspan="13"><b><br/>Nettoförsäljning (tusental kronor)</b></td></tr><%
 					gch.clearSerier();
-					for (int cn=0; cn <= iAr-frar; cn++) {	gch.addSerie("" + (iAr-cn), summa[cn]);	}
-					%>	<tr><td colspan="13"><img src="<%= gch.getURL() %>"/></td></tr>		<%
+					gch2.clearSerier();
+					gch2.setScaleMax(100.0);
+					for (int cn=0; cn <= iAr-frar; cn++) {
+						gch.addSerie("" + (iAr-cn), summa[cn]);
+						GoogleChartHandler.SerieInfo si = gch2.addSerie("TB " + (iAr-cn));
+						for (int man = 0; man < 11; man++) {
+							si.addValue(summa[cn][man]!=0.0 ? tb[cn][man]/summa[cn][man]*100 : 0.0 );
+						}
+					}
+					%>	<tr><td colspan="13"><img src="<%= gch.getURL() %>"/><img src="<%= gch2.getURL() %>"/></td></tr>		<%
 
 					for (int cn=0; cn <= iAr-frar; cn++) {
 						odd = !odd;
 						%><tr class="trdoc<%= odd ? "odd" : "even" %>"><td><%= iAr-cn %></td><%
 						for (int mn = 0; mn < 12; mn++) {
-						%><td class="tdn12"><%= Math.round(summa[cn][mn]/1000) %></td><%
+						%><td class="tdn12"><%= Math.round(summa[cn][mn]) %></td><%
 						}
 						%></tr><%
 					}
@@ -118,7 +128,7 @@ if (lasTillAnvandre || (anvandare != null && !"true".equals(request.getParameter
 						odd = !odd;
 						%><tr class="trdoc<%= odd ? "odd" : "even" %>"><td><%= iAr-cn %></td><%
 						for (int mn = 0; mn < 12; mn++) {
-						%><td class="tdn12"><%= Math.round(tb[cn][mn]/1000) %></td><%
+						%><td class="tdn12"><%= Math.round(tb[cn][mn]) %></td><%
 						}
 						%></tr><%
 					}

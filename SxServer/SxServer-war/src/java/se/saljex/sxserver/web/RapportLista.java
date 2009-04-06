@@ -39,8 +39,6 @@ public class RapportLista {
 		huvuden.add(new RapportListaHuvud("saljstatartgrupp", "Filialrapporter", "Försäljning", "Försäljningsstatistik varugrupper", "", null, null));
 		huvuden.add(new RapportListaHuvud("mk-statistik", "Ekonomi", "Försäljning", "Statistik på säljare", "", null, arEkonomi));
 		huvuden.add(new RapportListaHuvud("mk-saljstatartgrupp", "Ekonomi", "Försäljning", "Artikelgruppstatistik på säljare", "", null, arEkonomi));
-		huvuden.add(new RapportListaHuvud("kun-stat", "Ekonomi", "Försäljning", "Statistik på kund", "", null, arEkonomi));
-		huvuden.add(new RapportListaHuvud("kun-saljstatartgrupp", "Ekonomi", "Försäljning", "Artikelgruppstatistik på kund", "", null, arEkonomi));
 
 		java.util.Collections.sort(huvuden, new RapportListaHuvudComparator());
 	}

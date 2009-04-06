@@ -48,7 +48,7 @@ while (rs.next()) {
 	<td class="tds30"><%= SXUtil.toHtml(rs.getString(4)) %></td>
 	<td class="tdn12"><%= rs.getInt(5) %></td>
 	<td class="tdn12"><%= SXUtil.getFormatNumber(rs.getDouble(6),0) %></td>
-	<td><a href="?id=kun-stat&kundnr=<%= rs.getString(1) %>">Stat</a>&nbsp;<a href="?id=kun-saljstatartgrupp&kundnr=<%= rs.getString(1) %>">Grupp</a></td>
+	<td><a href="?id=rapp-filialstat1kundnr=<%= rs.getString(1) %>">Stat</a>&nbsp;<a href="?id=rapp-saljstatartgrupp&kundnr=<%= rs.getString(1) %>">Grupp</a></td>
 <td></td></tr>
 <% }
 %>
