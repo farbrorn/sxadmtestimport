@@ -2135,12 +2135,13 @@ a.rsk as rsk,
 a.enummer as enummer,
 a.refnr as refnr,
 a.plockinstruktion as plockinstruktion,
-a.enhet as wnhet,
+a.enhet as enhet,
 a.utpris as utpris,
 a.staf_pris1 as staf_pris1,
 a.staf_pris2 as staf_pris2,
 a.staf_antal1 as staf_antal1,
 a.staf_antal2 as staf_antal2,
+a.rab as rab,
 a.rabkod as rabkod,
 a.kod1 as kod1,
 a.inpris as inpris,
@@ -2149,6 +2150,7 @@ a.prisgiltighetstid,
 a.konto as konto,
 a.struktnr as struktnr,
 a.forpack as forpack,
+a.kop_pack as kop_pack,
 a.kampfrdat as kampfrdat,
 a.kamptidat as kamptidat,
 a.kamppris as kamppris,
@@ -2166,9 +2168,13 @@ a.anvisnr as anvisnr,
 a.utgattdatum as utgattdatum,
 lid.lagernr as lagernr,
 coalesce(l.ilager,0) as ilager,
+coalesce(l.iorder,0) as iorder,
+coalesce(l.best,0) as best,
+l.lagerplats as lagerplats,
 coalesce(k.basrab,0) as basrab,
 coalesce(r2.rab,0) as gruppbasrab,
 coalesce(r.rab,0) as undergrupprab,
+n.lista as nettolst,
 coalesce(n.pris,0) as nettopris,
 an.anvisning as anvisning
 from
@@ -2191,3 +2197,38 @@ insert into behorighet (behorighet, beskrivning) values ('Ekonomi','Ekonomiska f
 create table intrakanaler (kanalid integer not null, rubrik varchar(30) not null, beskrivning varchar(512), showonstartpage smallint not null default 0, primary key (kanalid));
 create table intrainlagg (inlaggid integer not null, kanalid integer not null, rubrik varchar(30) not null, ingress varchar(512), brodtext varchar(4096), filename varchar(100), contenttype varchar(100), originalfilename varchar(100), visatill date, anvandarekort varchar(3), crtime timestamp default current_timestamp , primary key (inlaggid))
 
+// 2009-07-13
+
+create table steprodukt (
+sn varchar(30),
+crdt timestamp default CURRENT_TIMESTAMP,
+instdatum date,
+anvandare varchar(3),
+artnr varchar(13),
+modell varchar(30),
+namn varchar(30),
+adr1 varchar(30),
+adr2 varchar(30),
+adr3 varchar(30),
+ref varchar(30),
+tel varchar(30),
+mobil varchar(30),
+epost varchar(128),
+installatornamn varchar(30),
+installatorkundnr varchar(30),
+faktnr integer,
+primary key (sn)
+);
+
+create table steproduktnot (
+sn varchar(30),
+id integer,
+crdt timestamp default CURRENT_TIMESTAMP,
+anvandare varchar(3),
+notering varchar(8192),
+bilaga bytea,
+filnamn varchar(2048),
+primary key (sn,id)
+);
+
+insert into behorighet (behorighet, beskrivning) values ('STETeknik','Stiebel Eltron Teknik');
