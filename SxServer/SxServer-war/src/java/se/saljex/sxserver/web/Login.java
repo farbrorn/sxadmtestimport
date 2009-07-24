@@ -147,6 +147,7 @@ public class Login extends HttpServlet {
 				}
 				if (SXConstant.BEHORIGHET_INTRA_SUPERUSER.equals(rs.getString(3)))	sxSession.setSuperuser(true);
 				if (SXConstant.BEHORIGHET_INTRA_ADMIN.equals(rs.getString(3)))			sxSession.setAdminuser(true);
+                                sxSession.addBehorighet(rs.getString(3));
 			}
 			if (sxSession.getInloggad()) {
 				return true;

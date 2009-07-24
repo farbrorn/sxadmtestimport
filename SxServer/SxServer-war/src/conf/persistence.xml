@@ -23,6 +23,9 @@
     <class>se.saljex.sxserver.tables.TableOffert2</class>
     <class>se.saljex.sxserver.tables.TableOrderhand</class>
     <class>se.saljex.sxserver.tables.TableRorder</class>
+    <class>se.saljex.sxserver.tables.TableSteprodukt</class>
+    <class>se.saljex.sxserver.tables.TableSteproduktnot</class>
+    <class>se.saljex.sxserver.tables.TableStepumpartnr</class>
     <exclude-unlisted-classes>true</exclude-unlisted-classes>
     <properties/>
   </persistence-unit>

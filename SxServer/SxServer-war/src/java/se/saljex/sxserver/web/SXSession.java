@@ -35,9 +35,22 @@ public class SXSession {
 	private boolean adminuser = false;
 	private boolean intrauser = false;
 
+        private ArrayList<String> arrBehorighet = new ArrayList();
+
 	private ArrayList<RappEdit> arrRappEdit = new ArrayList();
 	public void setInkopInloggatBestNr(Integer inkopInloggatBestNr) { this.inkopInloggatBestNr = inkopInloggatBestNr; }
 	public Integer getInkopInloggatBestNr() { return this.inkopInloggatBestNr; }
+
+        public void addBehorighet(String b) {
+            arrBehorighet.add(b);
+        }
+        public boolean isBehorighet(String b) {
+	    if (superuser || adminuser) return true;
+            if (arrBehorighet.indexOf(b) >= 0) return true; else return false;
+        }
+        public void clearBehorighet() {
+            arrBehorighet.clear();
+        }
 
 	public boolean checkBehorighetKund() {
 		if (inloggad) {
