@@ -51,6 +51,10 @@
         <servlet-name>admin</servlet-name>
         <servlet-class>se.saljex.sxserver.web.admin</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>ste</servlet-name>
+        <servlet-class>se.saljex.sxserver.web.ste</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>getPDF</servlet-name>
         <url-pattern>/getPDF</url-pattern>
@@ -84,6 +88,10 @@
         <servlet-name>admin</servlet-name>
         <url-pattern>/admin</url-pattern>
     </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ste</servlet-name>
+        <url-pattern>/ste</url-pattern>
+    </servlet-mapping>
     <session-config>
         <session-timeout>240</session-timeout>
     </session-config>
@@ -92,6 +100,24 @@
         </welcome-file-list>
     <ejb-local-ref>
         <ejb-ref-name>LocalWebSupportBean</ejb-ref-name>
+        <ejb-ref-type>Session</ejb-ref-type>
+        <local>se.saljex.sxserver.LocalWebSupportLocal</local>
+        <ejb-link>SxServer-ejb.jar#LocalWebSupportBean</ejb-link>
+    </ejb-local-ref>
+    <ejb-local-ref>
+        <ejb-ref-name>LocalWebSupportBean1</ejb-ref-name>
+        <ejb-ref-type>Session</ejb-ref-type>
+        <local>se.saljex.sxserver.LocalWebSupportLocal</local>
+        <ejb-link>SxServer-ejb.jar#LocalWebSupportBean</ejb-link>
+    </ejb-local-ref>
+    <ejb-local-ref>
+        <ejb-ref-name>LocalWebSupportBean2</ejb-ref-name>
+        <ejb-ref-type>Session</ejb-ref-type>
+        <local>se.saljex.sxserver.LocalWebSupportLocal</local>
+        <ejb-link>SxServer-ejb.jar#LocalWebSupportBean</ejb-link>
+    </ejb-local-ref>
+    <ejb-local-ref>
+        <ejb-ref-name>LocalWebSupportBean3</ejb-ref-name>
         <ejb-ref-type>Session</ejb-ref-type>
         <local>se.saljex.sxserver.LocalWebSupportLocal</local>
         <ejb-link>SxServer-ejb.jar#LocalWebSupportBean</ejb-link>

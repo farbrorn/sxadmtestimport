@@ -365,6 +365,12 @@ border: red 2px solid;
 .tds30 {
 	width: 240px;
 }
+.tds60 {
+	width: 480px;
+}
+.tds90 {
+	width: 700px;
+}
 .tddatum {
 	width: 80px;
 }
