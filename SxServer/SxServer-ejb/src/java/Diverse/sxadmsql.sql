@@ -2210,7 +2210,7 @@ namn varchar(30),
 adr1 varchar(30),
 adr2 varchar(30),
 adr3 varchar(30),
-ref varchar(30),
+referens varchar(30),
 tel varchar(30),
 mobil varchar(30),
 epost varchar(128),
@@ -2228,7 +2228,13 @@ anvandare varchar(3),
 notering varchar(8192),
 bilaga bytea,
 filnamn varchar(2048),
+contenttype varchar(254),
 primary key (sn,id)
 );
 
 insert into behorighet (behorighet, beskrivning) values ('STETeknik','Stiebel Eltron Teknik');
+
+create table stepumpartnr (
+artnr varchar(13),
+primary key(artnr)
+);

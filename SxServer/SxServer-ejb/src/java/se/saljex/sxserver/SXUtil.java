@@ -230,7 +230,7 @@ public class SXUtil {
     }
 
 	 public static boolean isEmpty(String s) {
-		 if (s==null || s.isEmpty()) return true; else return false;
+		 if (s==null || s.trim().isEmpty()) return true; else return false;
 	 }
 
 	 public static Integer noNull(Integer a) {
@@ -274,7 +274,7 @@ public class SXUtil {
 				else if (c == '&') sb.append("&amp;");
 				else if (c == '<') sb.append("&lt;");
 				else if (c == '>') sb.append("&gt;");
-				else if (c == '\n') sb.append("&lt;br/&gt;");
+				else if (c == '\n') sb.append("<br/>");
 				else sb.append(c);
 			}
 		}

@@ -19,6 +19,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 import javax.ejb.Local;
+import javax.persistence.EntityManagerFactory;
+import javax.transaction.UserTransaction;
 
 /**
  *
@@ -55,5 +57,9 @@ public interface LocalWebSupportLocal {
 	String updateWebArtikelTradWithHTMLResponse();
 
 	String getHTMLStatus();
+
+	EntityManagerFactory getEmf();
+
+	UserTransaction getUserTransaction();
 
 }
