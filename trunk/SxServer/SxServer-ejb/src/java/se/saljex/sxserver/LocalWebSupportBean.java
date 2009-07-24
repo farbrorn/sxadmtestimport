@@ -27,9 +27,12 @@ import javax.ejb.Stateless;
 import javax.ejb.TimerService;
 import javax.mail.Session;
 import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceContext;
+import javax.persistence.PersistenceUnit;
 import javax.persistence.Query;
 import javax.sql.DataSource;
+import javax.transaction.UserTransaction;
 
 /**
  *
@@ -45,6 +48,9 @@ public class LocalWebSupportBean implements LocalWebSupportLocal {
 	@Resource EJBContext context;
 	@Resource(name="sxmail", mappedName="sxmail") private Session mailsxmail;
 	@PersistenceContext private EntityManager em;
+	@Resource private UserTransaction utx;
+
+	@PersistenceUnit private EntityManagerFactory emf;
 
 	  public TableKund getTableKund(String kundnr) {
 			 if (kundnr != null) return em.find(TableKund.class, kundnr); else return null;
@@ -180,6 +186,14 @@ public class LocalWebSupportBean implements LocalWebSupportLocal {
 		}
 		ret = ret + "</table>";
 		return ret;
+	}
+
+	public EntityManagerFactory getEmf() {
+		return emf;
+	}
+
+	public UserTransaction getUserTransaction() {
+		return utx;
 	}
 
 
