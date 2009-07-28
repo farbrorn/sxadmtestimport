@@ -27,6 +27,7 @@ public class FormHandler {
 	public static final String K_PAGE = "page";
 	public static final String K_PAGESIZE = "pagesize";
 	public static final String K_SOKSTR = "sokstr";
+	public static final String K_GETFILE = "getfile";
 
 	public static final String ACTION_LIST = "list";
 	public static final String ACTION_NEW = "new";
@@ -65,6 +66,7 @@ public class FormHandler {
 		this.response = response;
 		this.jspPrefix = jspPrefix;
 		action = request.getParameter(K_ACTION);
+
 		if (action==null) action=ACTION_LIST;	//Default action
 		if (SXUtil.isEmpty(request.getParameter("get"))) idRequest = true; else idRequest=false;
 	}
@@ -160,6 +162,8 @@ public class FormHandler {
 			handleOtherAction();
 		}
 	}
+
+	public String getAction() {return action; }
 
 	private LocalWebSupportLocal lookupLocalWebSupportBean() {
 		try {

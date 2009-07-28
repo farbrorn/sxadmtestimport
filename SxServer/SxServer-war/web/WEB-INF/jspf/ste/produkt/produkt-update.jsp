@@ -20,11 +20,7 @@ String es="";
 %>
  <script type="text/javascript">
 $(document).ready(function() {
-	$("#d1").hide();
-	$("#inputpage").hide();
-	$("input[@name=bsok]").click( function() { $("input[@name=page]").val(1); loadsokres(); return false;});
-
-	loadsokres();
+		$("input[@name=<%= f.K_SN %>]").focus();
 });
 
 function setAll(kundnr, kundnamn, artnr, artnamn, faktnr) {
@@ -131,7 +127,7 @@ if (f.isMainActionNew() || f.isMainActionUpdate()) {
 Connection con = (Connection)request.getAttribute("con");
 Statement stm = con.createStatement();
 ResultSet rs =stm.executeQuery("select k.nummer, k.namn, f2.artnr, f2.namn, f1.faktnr, f1.datum from kund k, faktura1 f1, faktura2 f2, stepumpartnr sa " +
-		  " where k.nummer = f1.kundnr and f1.faktnr=f2.faktnr and sa.artnr=f2.artnr" +
+		  " where k.nummer = f1.kundnr and f1.faktnr=f2.faktnr and sa.artnr=f2.artnr and f2.lev > 0" +
 		  " and f1.datum > current_date-365" +
 		  " and f1.faktnr not in (select faktnr from steprodukt where faktnr is not null)" +
 		  " order by f1.faktnr desc"

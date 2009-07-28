@@ -40,7 +40,7 @@ while (rs.next()) {
 %>
 	<td class="tds10"><%= SXUtil.toHtml(rs.getString(1)) %></td>
 	<td class="tds30"><%= SXUtil.toHtml(rs.getString(2)) %></td>
-	<td class="tds10"><a href="?id=pumpartnr&<%= f.K_ACTION + "=" + f.ACTION_DELETE + "&" + f.K_ARTNR + "=" + SXUtil.toHtml(rs.getString(1)) %>">Radera</a></td>
+	<td class="tds10"><a href="?id=pumpartnr&<%= f.K_ACTION + "=" + f.ACTION_DELETE + "&" + f.K_ARTNR + "=" + SXUtil.urlEncode(rs.getString(1)) %>">Radera</a></td>
 	<td></td>
 </tr>
 <% } %>
