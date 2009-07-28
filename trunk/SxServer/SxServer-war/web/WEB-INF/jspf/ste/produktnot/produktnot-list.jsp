@@ -8,7 +8,6 @@
 <%@ page import="se.saljex.sxserver.web.*" %>
 <%@ page import="se.saljex.sxserver.tables.*" %>
 <%@ page import="java.util.List" %>
-sddsd
 <%
 FormHandlerSteproduktnot f = (FormHandlerSteproduktnot)request.getAttribute("FormHandlerSteproduktnot");
 WebTable wt = f.getWebTable();
@@ -16,44 +15,52 @@ List<TableSteproduktnot> l = wt.getPage();
 TableSteprodukt sp = f.getSteprodukt();
 %>
 
-<div id="divdoclist">
+<div id="divdoclist" style="padding-left: 4px;">
 	<table id="doclist">
 		<tr>
-			<td>Serienr</td>
+			<td class="tddocheadrubrik">Serienr</td>
 			<td><%= SXUtil.toHtml(sp.getSn()) %></td>
-			<td>Inst.datum</td>
+			<td class="tddocheadrubrik">Inst.datum</td>
 			<td><%= SXUtil.getFormatDate(sp.getInstdatum()) %></td>
 		</tr>
 		<tr>
-			<td>Artikelnr</td>
+			<td class="tddocheadrubrik">Artikelnr</td>
 			<td><%= SXUtil.toHtml(sp.getArtnr()) %></td>
-			<td>Modell</td>
+			<td class="tddocheadrubrik">Modell</td>
 			<td><%= SXUtil.toHtml(sp.getModell()) %></td>
 		</tr>
 		<tr>
-			<td>Installatör</td>
+			<td class="tddocheadrubrik">Installatör</td>
 			<td><%= SXUtil.toHtml(sp.getInstallatornamn()) %></td>
-			<td>Slutkund</td>
+			<td class="tddocheadrubrik">Slutkund</td>
 			<td><%= SXUtil.toHtml(sp.getNamn()) %></td>
 		</tr>
 	</table>
+	<p/>
 
 <table id="doclist">
-	<tr>
-		<th class="tds10">Datum</th>
-		<th class="tds10">Anvandare</th>
-		<th class="tds60">Notering</th>
-		<th class="tds30">Bilaga</th>
-	</tr>
 <%
 for (TableSteproduktnot t : l) {
 %>
-<tr>
-	<td class="tds10"><%= SXUtil.getFormatDate(t.getCrdt()) %></td>
-	<td class="tds10"><%= SXUtil.toHtml(t.getAnvandare()) %></td>
-	<td class="tds60"><%= SXUtil.toHtml(t.getNotering()) %></td>
-	<td class="tds30"><a href="?getfile=produktnot&<%=f.K_ACTION + "=" + f.ACTION_GETFILE +"&" + f.K_SN + "=" + SXUtil.toHtml(t.getTableSteproduktnotPK().getSn())+"&" + f.K_ID + "=" + t.getTableSteproduktnotPK().getId() %>" target="_blank"><%= SXUtil.toHtml(t.getFilnamn()) %></a></td>
-</tr>
+<tr><td>
+		<b>
+	<%= SXUtil.getFormatDate(t.getCrdt()) %>&nbsp;
+	av <%= SXUtil.toHtml(t.getAnvandare()) %>&nbsp;
+	Typ:&nbsp;<%= SXUtil.toHtml(t.getArendetyp()) %>&nbsp;
+	<% if (t.getFoljuppdatum() != null) { %>
+		Följupp:&nbsp;<%= SXUtil.getFormatDate(t.getFoljuppdatum()) %>&nbsp;
+	<% } %>
+	Q&A: <input disabled="disabled" type="checkbox" <%= t.getPublicerasomqa() > 0 ? "Checked" : "" %>/></b>
+	&nbsp;<a href="?getfile=produktnot&<%=f.K_ACTION + "=" + f.K_GETFILE +"&" + f.K_ID + "=" + t.getId() %>" target="_blank"><%= SXUtil.toHtml(t.getFilnamn()) %></a>
+	<br/><a href="?id=produktnot&<%= f.K_ACTION + "=" + f.ACTION_UPDATE + "&" + f.K_ID + "=" + t.getId() %>">Ändra</a>
+	<% if (f.ARENDETYP_SERVICEORDER.equals(t.getArendetyp())) { %>
+	&nbsp;&nbsp;<a href="?getfile=produktnot&<%= f.K_ACTION %>=<%= f.K_GETPDFSERVICEORDER %>&<%= f.K_ID %>=<%= t.getId() %>" target="_blank">Serviceorder som pdf</a>
+	<% } %>
+	</td></tr>
+<tr><td style="padding-left: 8px;">
+	<%= SXUtil.toHtml(t.getFraga()) %><p/>
+	<%= SXUtil.toHtml(t.getSvar()) %><p/>
+</td</tr>
 <%
 }
 %>

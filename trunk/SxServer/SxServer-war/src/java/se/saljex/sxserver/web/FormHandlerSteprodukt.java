@@ -7,6 +7,7 @@ package se.saljex.sxserver.web;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.Date;
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -45,6 +46,7 @@ public class FormHandlerSteprodukt extends FormHandler {
 	public static final String K_INSTALLATORKUNDNR = "installatorkundnr";
 	public static final String K_FAKTNR = "faktnr";
 
+	public static final String ACTION_FOLJUPPLIST = "foljupplist";
 
 	
 	public FormHandlerSteprodukt(EntityManager em, UserTransaction utx, String jspPrefix, HttpServletRequest request, HttpServletResponse response) {
@@ -74,6 +76,34 @@ public class FormHandlerSteprodukt extends FormHandler {
 			wt.setQueryParameter("sokstr", sokstr);
 		}
 
+		if (pageSize != null) { wt.setPageSize(pageSize); }
+		wt.setPage(page);
+		return wt;
+	}
+
+	public WebTable getWebTableForUppfoljning()  {
+		Integer page = null;
+		try { page = Integer.parseInt(request.getParameter(K_PAGE)); } catch (NumberFormatException e) { page=1; }
+		if (page < 1) { page = 1; }
+		Integer pageSize = null;
+		try { pageSize = Integer.parseInt(request.getParameter(K_PAGESIZE)); } catch (NumberFormatException e) {  }
+		if (pageSize != null && pageSize < 0) { pageSize = null; }
+
+		WebTable<TableSteprodukt> wt = new WebTable(em);
+		String sqlWhere = " where t.sn in (select n.sn from TableSteproduktnot n where n.foljuppdatum <= :datum)";
+		String sokstr = request.getParameter(K_SOKSTR);
+		if (!SXUtil.isEmpty(sokstr)) {
+			sokstr = "%"+sokstr.toUpperCase()+"%";
+			sqlWhere = sqlWhere + " and (upper(t.sn) like :sokstr or upper(t.artnr) like :sokstr or upper(t.modell) like :sokstr or upper(t.installatorkundnr) like :sokstr or" +
+					  " upper(t.installatornamn) like :sokstr or upper(t.namn) like :sokstr or upper(t.adr1) like :sokstr or upper(t.adr2) like :sokstr or" +
+					  " upper(t.tel) like :sokstr or upper(t.mobil) like :sokstr )";
+		}
+
+		wt.createQuery("select t from TableSteprodukt t " + sqlWhere + " order by t.sn desc");
+		if (!SXUtil.isEmpty(sokstr)) {
+			wt.setQueryParameter("sokstr", sokstr);
+		}
+		wt.setQueryParameter("datum", new Date());
 		if (pageSize != null) { wt.setPageSize(pageSize); }
 		wt.setPage(page);
 		return wt;
@@ -109,14 +139,20 @@ public class FormHandlerSteprodukt extends FormHandler {
 				t=null;
 			}
 			if (t==null) {
+				utx.rollback();
 				super.addFormError("Kan inte uppdatera - Serienumret finns inte");
 				t = new TableSteprodukt();
 				handleUpdate();
 			} else {
 				formToEntity();
-				em.flush();
-				utx.commit();
-				handleDoUpdateDone();
+				if (isFormError()) {
+					utx.rollback();
+					handleUpdate();
+				} else {
+					em.flush();
+					utx.commit();
+					handleDoUpdateDone();
+				}
 			}
 		} catch (IOException eio) { throw eio; 
 		} catch (ServletException esl) { throw esl; 
@@ -161,6 +197,16 @@ public class FormHandlerSteprodukt extends FormHandler {
 	@Override
 	protected void handleDoDelete() throws IOException, ServletException {
 		//Vi ska inte kunna radera
+	}
+
+	@Override
+	protected void handleOtherAction() throws IOException, ServletException {
+		if (ACTION_FOLJUPPLIST.equals(action)) {
+			mainAction = ACTION_LIST;
+			handleList();
+		} else {
+			handleOtherAction();
+		}
 	}
 
 	@Override
@@ -234,15 +280,16 @@ public class FormHandlerSteprodukt extends FormHandler {
 			try {
 				t.setFaktnr(Integer.parseInt(request.getParameter(K_FAKTNR)));
 				if (t.getArtnr() != null) {
-					Query q = em.createQuery("select sum(fa2.lev) from TableFaktura2 fa2 where fa2.tableFaktura2PKfaktnr = :faktnr and fa2.artnr = :artnr");
+					Query q = em.createQuery("select sum(fa2.lev) from TableFaktura2 fa2 where fa2.tableFaktura2PK.faktnr = :faktnr and fa2.artnr = :artnr");
 					q.setParameter("faktnr", t.getFaktnr());
 					q.setParameter("artnr", t.getArtnr());
-					Long antalPumpar = (Long)q.getSingleResult();
+					Double antalPumpar = (Double)q.getSingleResult();
 					if (antalPumpar <= 0) {
 						super.addFormError("Inga pumpar på angiven faktura");
 					}
-					q = em.createQuery("select count(*) from TableSteprodukter sp where sp.faktnr = :faktnr");
+					q = em.createQuery("select count(sp) from TableSteprodukt sp where sp.faktnr = :faktnr and sp.sn <> :sn");
 					q.setParameter("faktnr", t.getFaktnr());
+					q.setParameter("sn", t.getSn());
 					Long antalProdukter = (Long)q.getSingleResult();
 					if (antalProdukter >= antalPumpar) {
 						super.addFormError("Produkten på angiven faktura finns redan registrerad");

@@ -11,7 +11,15 @@
 
 <%
 FormHandlerSteprodukt f = (FormHandlerSteprodukt)request.getAttribute("FormHandlerSteprodukt");
-WebTable wt = f.getWebTable();
+WebTable wt;
+String sokAction;	//Action som utförs för att få söklistan
+if (f.ACTION_FOLJUPPLIST.equals(f.getAction())) {
+	wt = f.getWebTableForUppfoljning();
+	sokAction = f.ACTION_FOLJUPPLIST;
+} else {
+	wt = f.getWebTable();
+	sokAction = f.ACTION_LIST;
+}
 List<TableSteprodukt> l = wt.getPage();
 %>
 
@@ -20,6 +28,7 @@ List<TableSteprodukt> l = wt.getPage();
 	$(document).ready(function() {
 		$("input[@name=bsok]").click( function() {  loadsokreslocal(); return false;});
 		$("input[@name=sokstr]").keyup( function() {  loadsokreslocal(); 	});
+		$("input[@name=sokstr]").focus();
 		updateNextPrev();
 	});
 
@@ -68,11 +77,15 @@ List<TableSteprodukt> l = wt.getPage();
  </script>
 	<div id="divdocsok">
 
+<% if (f.ACTION_FOLJUPPLIST.equals(f.getAction())) { %>
+	<h1>Produkter för uppföljning</h1>
+<% } else { %>
 	<h1>Produkter</h1>
+<% } %>
 	<form id="sokform" action="">
 	<input type="hidden" name="id" value="produkt"/>
 	<input type="hidden" name="get" value=""/>
-	<input type="hidden" name="action" value="<%= f.ACTION_LIST %>"/>
+	<input type="hidden" name="action" value="<%= sokAction %>"/>
 	<input type="hidden" name="pagesize" value="<%= SXUtil.toStr(request.getParameter(f.K_PAGESIZE)) %>"/>
 	<input type="hidden" name="page" value="1"/>
 	<table id="doclist">
@@ -101,7 +114,6 @@ List<TableSteprodukt> l = wt.getPage();
 	<tr>
 		<th class="tdknapp"></th>
 		<th class="tds10"></th>
-		<th class="tds10"></th>
 		<th class="tds10">Serienr</th>
 		<th class="tds10">Inst.datum</th>
 		<th class="tds30">Modell</th>
@@ -119,9 +131,8 @@ for (TableSteprodukt t : l) {
 	}
 
 %>
-	<td class="tdknapp"><a href="JavaScript:shownotering(<%= radcn %>,'<%= t.getSn() %>')" name="a<%= radcn %>">Visa</a></td>
+<td class="tdknapp"><a  href="?id=produkt&<%= f.K_ACTION %>=<%= f.ACTION_UPDATE %>&<%= f.K_SN %>=<%= SXUtil.toHtml(t.getSn()) %>" onclick="shownotering(<%= radcn %>,'<%= t.getSn() %>'); return false;" name="a<%= radcn %>">Visa</a></td>
 	<td class="tds10"><a href="?id=produkt&<%= f.K_ACTION %>=<%= f.ACTION_UPDATE %>&<%= f.K_SN %>=<%= SXUtil.toHtml(t.getSn()) %>">Ändra</a></td>
-	<td class="tds10"><a href="?id=produktnot&<%= f.K_ACTION %>=<%= f.ACTION_LIST %>&<%= f.K_SN %>=<%= SXUtil.toHtml(t.getSn()) %>">Notering</a></td>
 	<td class="tds10"><%= SXUtil.toHtml(t.getSn()) %></td>
 	<td class="tds10"><%= SXUtil.getFormatDate(t.getInstdatum()) %></td>
 	<td class="tds30"><%= SXUtil.toHtml(t.getModell()) %></td>

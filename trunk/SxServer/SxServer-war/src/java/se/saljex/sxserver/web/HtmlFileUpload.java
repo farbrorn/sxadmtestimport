@@ -40,9 +40,9 @@ public class HtmlFileUpload {
 				Byte temp = (Byte)vBytes.get(i);
 				bytes[i] = temp.byteValue();
 			}
-FileOutputStream fos2 = new FileOutputStream("c:/dum/formdump");
-fos2.write(bytes);
-fos2.close();
+//FileOutputStream fos2 = new FileOutputStream("c:/dum/formdump");
+//fos2.write(bytes);
+//fos2.close();
 
 			// data string that will be used to hack things up into pieces
 			String data = new String(bytes, "ISO-8859-1");
@@ -98,9 +98,9 @@ fos2.close();
 							fileBytes = getBytes();
 							scannadeRader--;			//Sätt tillbaka temporär ökning. Ökning med samtliga rader sker senare
 							//parameters.put("contentLength",""+fileBytes.length);
-FileOutputStream fos = new FileOutputStream("c:/dum/formdump-fil");
-fos.write(fileBytes);
-fos.close();
+//FileOutputStream fos = new FileOutputStream("c:/dum/formdump-fil");
+//fos.write(fileBytes);
+//fos.close();
 						}
 
 					// if it's got 4 lines, it's just a regular parameter

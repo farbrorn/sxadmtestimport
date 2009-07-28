@@ -122,4 +122,10 @@
         <local>se.saljex.sxserver.LocalWebSupportLocal</local>
         <ejb-link>SxServer-ejb.jar#LocalWebSupportBean</ejb-link>
     </ejb-local-ref>
+    <ejb-local-ref>
+        <ejb-ref-name>LocalWebSupportBean4</ejb-ref-name>
+        <ejb-ref-type>Session</ejb-ref-type>
+        <local>se.saljex.sxserver.LocalWebSupportLocal</local>
+        <ejb-link>SxServer-ejb.jar#LocalWebSupportBean</ejb-link>
+    </ejb-local-ref>
     </web-app>

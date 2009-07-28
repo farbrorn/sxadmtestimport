@@ -13,8 +13,13 @@ SXSession sxSession = WebUtil.getSXSession(request.getSession());
 <p/>
 <b>Produkter</b><br/>
 <a href="?id=produkt">Lista</a><br/>
+<a href="?id=produkt&action=<%= FormHandlerSteprodukt.ACTION_FOLJUPPLIST %>">Lista för uppföljning</a><br/>
 <a href="?id=produkt&action=new">Lägg till</a><br/>
 <p/>
 <b>STE Artikelnummer</b><br/>
 <a href="?id=pumpartnr">Lista</a><br/>
 <a href="?id=pumpartnr&action=new">Lägg till</a><br/>
+<p/>
+<b>Statistik</b><br/>
+<a href="?id=ste-statistik">Försäljning</a><br/>
+<a href="?id=ste-topplistaartikel&lagernr=alla&inputform=true">Artikel</a><br/>

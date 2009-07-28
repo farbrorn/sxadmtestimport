@@ -88,7 +88,7 @@ System.out.print("zzzzz-"+s);
 				response.setHeader("Location", "login?refpage=ste&logintype=intra");
 				return;
 			}
-			if (!sxSession.isIntrauser() || !sxSession.isBehorighet(SXConstant.BEHORIGHET_STE_TEKNIK)) {
+			if (!sxSession.isIntrauser() && !sxSession.isBehorighet(SXConstant.BEHORIGHET_STE_TEKNIK)) {
 
 				out = response.getWriter();
 				out.println("Ingen behörighet");
@@ -117,6 +117,10 @@ System.out.print("zzzzz-"+s);
 			} else {
 				// Vi efterfrågar en fil, och vill därför inte öppna någon getWriter eller annat konstigt
 				if ("produktnot".equals(getfile)) {
+					FormHandlerSteproduktnot f = new FormHandlerSteproduktnot(em, utx, "", request, response);
+					f.handleOtherAction();
+				}
+				if (FormHandlerSteproduktnot.K_GETPDFSERVICEORDER.equals(getfile)) {
 					FormHandlerSteproduktnot f = new FormHandlerSteproduktnot(em, utx, "", request, response);
 					f.handleOtherAction();
 				}

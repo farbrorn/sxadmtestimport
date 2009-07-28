@@ -4,6 +4,7 @@
     Author     : ulf
 --%>
 <%@ page import="se.saljex.sxserver.SXUtil" %>
+<%@ page import="se.saljex.sxserver.SXConstant" %>
 <%@ page import="se.saljex.sxserver.web.*" %>
 <%@ page import="java.sql.*" %>
 <%@ page import="java.util.*" %>
@@ -44,4 +45,7 @@ rs.close();
 <a href="?id=mk-kundlista">Kunder</a><br/>
 <a href="?id=mk-statistik">Statistik</a><br/>
 <a href="?id=mk-saljstatartgrupp">Statistik artikelgrupp</a><br/>
+<% if (sxSession.isBehorighet(SXConstant.BEHORIGHET_STE_TEKNIK))  { %>
+<br/><a href="ste">Stiebel Eltron</a><br/>
 
+<%  } %>
