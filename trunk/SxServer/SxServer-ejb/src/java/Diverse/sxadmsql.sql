@@ -2221,15 +2221,20 @@ primary key (sn)
 );
 
 create table steproduktnot (
-sn varchar(30),
 id integer,
+sn varchar(30) not null,
 crdt timestamp default CURRENT_TIMESTAMP,
 anvandare varchar(3),
-notering varchar(8192),
+arendetyp varchar(60),
+felorsak varchar(60),
+publicerasomqa smallint not null default 0,
+foljuppdatum date,
+fraga varchar(8192),
+svar varchar(8192),
 bilaga bytea,
-filnamn varchar(2048),
+filnamn varchar(254),
 contenttype varchar(254),
-primary key (sn,id)
+primary key (id)
 );
 
 insert into behorighet (behorighet, beskrivning) values ('STETeknik','Stiebel Eltron Teknik');
@@ -2238,3 +2243,5 @@ create table stepumpartnr (
 artnr varchar(13),
 primary key(artnr)
 );
+
+insert into sxreg (id,varde) values ('BildLogoSteService','steservicelogo');

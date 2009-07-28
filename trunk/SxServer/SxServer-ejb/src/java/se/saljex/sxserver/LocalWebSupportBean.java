@@ -196,6 +196,12 @@ public class LocalWebSupportBean implements LocalWebSupportLocal {
 		return utx;
 	}
 
+	public ByteArrayOutputStream getPdfSteServiceorder(Integer id) throws DocumentException, IOException {
+		if (id==null) return null;
+		PdfSteServiceorder pdf = new PdfSteServiceorder(em);
+		return pdf.getPDF(id);
+	}
+
 
 
     

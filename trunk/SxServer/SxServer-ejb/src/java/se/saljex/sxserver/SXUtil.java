@@ -4,6 +4,8 @@
  */
 
 package se.saljex.sxserver;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import se.saljex.sxserver.tables.TableFuppg;
 import se.saljex.sxserver.tables.TableMeddel;
 import se.saljex.sxserver.tables.TableSxreg;
@@ -14,7 +16,6 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.Calendar;
 import java.text.SimpleDateFormat;
-import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.logging.Logger;
@@ -242,7 +243,12 @@ public class SXUtil {
 	 
 	 public static String toStr(String s) {
 		 if (s == null) return ""; else return s;
-	 }	 
+	 }
+
+	 public static String urlEncode(String s) {
+		 if (s == null) return ""; else try { return URLEncoder.encode(s, "UTF-8"); } catch (UnsupportedEncodingException e) {}
+		 return "";//Om vi får exception retureneras ""
+	 }
 	 
 	public static String toHtml(String string) {
 		// Baserat på kod från http://www.rgagnon.com/javadetails/java-0306.html av S. Bayer
