@@ -62,4 +62,6 @@ public interface LocalWebSupportLocal {
 
 	UserTransaction getUserTransaction();
 
+	ByteArrayOutputStream getPdfSteServiceorder(Integer id) throws DocumentException, IOException;
+
 }

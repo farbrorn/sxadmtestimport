@@ -7,9 +7,10 @@ package se.saljex.sxserver.tables;
 
 import java.io.Serializable;
 import java.util.Date;
+import javax.persistence.Basic;
 import javax.persistence.Column;
-import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
+import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
@@ -23,43 +24,78 @@ import javax.persistence.TemporalType;
  */
 @Entity
 @Table(name = "steproduktnot")
-@NamedQueries({@NamedQuery(name = "TableSteproduktnot.findAll", query = "SELECT t FROM TableSteproduktnot t")})
+@NamedQueries({@NamedQuery(name = "TableSteproduktnot.findAll", query = "SELECT t FROM TableSteproduktnot t"), @NamedQuery(name = "TableSteproduktnot.findById", query = "SELECT t FROM TableSteproduktnot t WHERE t.id = :id"), @NamedQuery(name = "TableSteproduktnot.findBySn", query = "SELECT t FROM TableSteproduktnot t WHERE t.sn = :sn"), @NamedQuery(name = "TableSteproduktnot.findByCrdt", query = "SELECT t FROM TableSteproduktnot t WHERE t.crdt = :crdt"), @NamedQuery(name = "TableSteproduktnot.findByAnvandare", query = "SELECT t FROM TableSteproduktnot t WHERE t.anvandare = :anvandare"), @NamedQuery(name = "TableSteproduktnot.findByArendetyp", query = "SELECT t FROM TableSteproduktnot t WHERE t.arendetyp = :arendetyp"), @NamedQuery(name = "TableSteproduktnot.findByPublicerasomqa", query = "SELECT t FROM TableSteproduktnot t WHERE t.publicerasomqa = :publicerasomqa"), @NamedQuery(name = "TableSteproduktnot.findByFoljuppdatum", query = "SELECT t FROM TableSteproduktnot t WHERE t.foljuppdatum = :foljuppdatum"), @NamedQuery(name = "TableSteproduktnot.findByFraga", query = "SELECT t FROM TableSteproduktnot t WHERE t.fraga = :fraga"), @NamedQuery(name = "TableSteproduktnot.findBySvar", query = "SELECT t FROM TableSteproduktnot t WHERE t.svar = :svar"), @NamedQuery(name = "TableSteproduktnot.findByFilnamn", query = "SELECT t FROM TableSteproduktnot t WHERE t.filnamn = :filnamn"), @NamedQuery(name = "TableSteproduktnot.findByContenttype", query = "SELECT t FROM TableSteproduktnot t WHERE t.contenttype = :contenttype")})
 public class TableSteproduktnot implements Serializable {
 	private static final long serialVersionUID = 1L;
-	@EmbeddedId
-	protected TableSteproduktnotPK tableSteproduktnotPK;
-	@Column(name = "crdt", insertable = false, updatable=false)
+	@Id
+	@Basic(optional = false)
+	@Column(name = "id")
+	private Integer id;
+	@Basic(optional = false)
+	@Column(name = "sn")
+	private String sn;
+	@Column(name = "crdt", insertable=false, updatable=false)
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date crdt;
 	@Column(name = "anvandare")
 	private String anvandare;
-	@Column(name = "notering")
-	private String notering;
+	@Column(name = "arendetyp")
+	private String arendetyp;
+	@Column(name = "felorsak")
+	private String felorsak;
+	@Basic(optional = false)
+	@Column(name = "publicerasomqa")
+	private short publicerasomqa;
+	@Column(name = "foljuppdatum")
+	@Temporal(TemporalType.DATE)
+	private Date foljuppdatum;
+	@Column(name = "fraga")
+	private String fraga;
+	@Column(name = "svar")
+	private String svar;
 	@Lob
 	@Column(name = "bilaga")
 	private byte[] bilaga;
 	@Column(name = "filnamn")
 	private String filnamn;
 	@Column(name = "contenttype")
-	private String conttenttype;
+	private String contenttype;
 
 	public TableSteproduktnot() {
 	}
 
-	public TableSteproduktnot(TableSteproduktnotPK tableSteproduktnotPK) {
-		this.tableSteproduktnotPK = tableSteproduktnotPK;
+	public TableSteproduktnot(Integer id) {
+		this.id = id;
 	}
 
-	public TableSteproduktnot(String sn, int id) {
-		this.tableSteproduktnotPK = new TableSteproduktnotPK(sn, id);
+	public TableSteproduktnot(Integer id, String sn, short publicerasomqa) {
+		this.id = id;
+		this.sn = sn;
+		this.publicerasomqa = publicerasomqa;
 	}
 
-	public TableSteproduktnotPK getTableSteproduktnotPK() {
-		return tableSteproduktnotPK;
+	public String getFelorsak() {
+		return felorsak;
 	}
 
-	public void setTableSteproduktnotPK(TableSteproduktnotPK tableSteproduktnotPK) {
-		this.tableSteproduktnotPK = tableSteproduktnotPK;
+	public void setFelorsak(String felorsak) {
+		this.felorsak = felorsak;
+	}
+
+	public Integer getId() {
+		return id;
+	}
+
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
+	public String getSn() {
+		return sn;
+	}
+
+	public void setSn(String sn) {
+		this.sn = sn;
 	}
 
 	public Date getCrdt() {
@@ -78,12 +114,44 @@ public class TableSteproduktnot implements Serializable {
 		this.anvandare = anvandare;
 	}
 
-	public String getNotering() {
-		return notering;
+	public String getArendetyp() {
+		return arendetyp;
 	}
 
-	public void setNotering(String notering) {
-		this.notering = notering;
+	public void setArendetyp(String arendetyp) {
+		this.arendetyp = arendetyp;
+	}
+
+	public short getPublicerasomqa() {
+		return publicerasomqa;
+	}
+
+	public void setPublicerasomqa(short publicerasomqa) {
+		this.publicerasomqa = publicerasomqa;
+	}
+
+	public Date getFoljuppdatum() {
+		return foljuppdatum;
+	}
+
+	public void setFoljuppdatum(Date foljuppdatum) {
+		this.foljuppdatum = foljuppdatum;
+	}
+
+	public String getFraga() {
+		return fraga;
+	}
+
+	public void setFraga(String fraga) {
+		this.fraga = fraga;
+	}
+
+	public String getSvar() {
+		return svar;
+	}
+
+	public void setSvar(String svar) {
+		this.svar = svar;
 	}
 
 	public byte[] getBilaga() {
@@ -102,18 +170,18 @@ public class TableSteproduktnot implements Serializable {
 		this.filnamn = filnamn;
 	}
 
-
-	public void setConttenttype(String conttenttype) {
-		this.conttenttype = conttenttype;
+	public String getContenttype() {
+		return contenttype;
 	}
-	public String getConttenttype() {
-		return conttenttype;
+
+	public void setContenttype(String contenttype) {
+		this.contenttype = contenttype;
 	}
 
 	@Override
 	public int hashCode() {
 		int hash = 0;
-		hash += (tableSteproduktnotPK != null ? tableSteproduktnotPK.hashCode() : 0);
+		hash += (id != null ? id.hashCode() : 0);
 		return hash;
 	}
 
@@ -124,7 +192,7 @@ public class TableSteproduktnot implements Serializable {
 			return false;
 		}
 		TableSteproduktnot other = (TableSteproduktnot) object;
-		if ((this.tableSteproduktnotPK == null && other.tableSteproduktnotPK != null) || (this.tableSteproduktnotPK != null && !this.tableSteproduktnotPK.equals(other.tableSteproduktnotPK))) {
+		if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
 			return false;
 		}
 		return true;
@@ -132,7 +200,7 @@ public class TableSteproduktnot implements Serializable {
 
 	@Override
 	public String toString() {
-		return "se.saljex.sxserver.tables.TableSteproduktnot[tableSteproduktnotPK=" + tableSteproduktnotPK + "]";
+		return "se.saljex.sxserver.tables.TableSteproduktnot[id=" + id + "]";
 	}
 
 }
