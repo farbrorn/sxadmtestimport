@@ -187,6 +187,8 @@ public class TableKund implements Serializable {
 	private String linjenr2;
 	@Column(name = "LINJENR3")
 	private String linjenr3;
+	@Column(name = "SKICKAFAKTURAEPOST", nullable = false)
+	private short skickafakturaepost;
 
 	public TableKund() {
 	}
@@ -875,6 +877,14 @@ public class TableKund implements Serializable {
 
 	public void setLinjenr3(String linjenr3) {
 		this.linjenr3 = linjenr3;
+	}
+
+	public short getSkickafakturaepost() {
+		return skickafakturaepost;
+	}
+
+	public void setSkickafakturaepost(short skickafakturaepost) {
+		this.skickafakturaepost = skickafakturaepost;
 	}
 
 	@Override

@@ -53,17 +53,10 @@ public class PdfSteServiceorder extends PdfHandler {
 		cb.saveState();
 		printHeader();
 
-		final int startY = 595;
-		final int stopY = 110;
-		final int detailArtHeight = 12;
-		final int detailTextHeight = 12;
-		int offsetY = startY + detailArtHeight;			//På första sidan ska måste vi öka med denna för att offsetminskningen sker före
-														//första raden skrivs ut. Efterföljande sidor kan dock starta på startY
+		ColumnText ct = new ColumnText(cb);
+		ct.setSimpleColumn(new Phrase(stenot.getFraga(),new Font(FontTimes,8)), 50, 162, 557, 606, 10, Element.ALIGN_LEFT);
+		ct.go();
 
-		// Artikelraderna är utskrivna
-       cb.setFontAndSize(FontCourier, 8);
-
-		 addText(50, 600, stenot.getFraga());
 		cb.restoreState();
 		document.close();
 
@@ -105,8 +98,8 @@ public class PdfSteServiceorder extends PdfHandler {
 //       drawRec(325, 680, 199, 64, 2);
 	   drawRec(47, 91, 510, 64, 2);
 
-		cb.moveTo(150,140);
-		cb.lineTo(200, 140);
+		cb.moveTo(150,130);
+		cb.lineTo(200, 130);
 		cb.moveTo(120,100);
 		cb.lineTo(220, 100);
 		cb.moveTo(340,100);
@@ -131,6 +124,7 @@ public class PdfSteServiceorder extends PdfHandler {
        addText(47,660,"Tel:");
        addText(47,650,"Mobil:");
        addText(325,740,"Installerad av:");
+       addText(325,720,"Serviceombud:");
        //addText(325,622,"Efter kredittiden debiteras ränta med " + of1.getRanta() + " %");
        cb.setFontAndSize(FontTimes, 8);
        addText(450,775,stenot.getId().toString());
@@ -149,24 +143,11 @@ public class PdfSteServiceorder extends PdfHandler {
        addText(100,650,steprod.getMobil());
 
        addText(375,740,steprod.getInstallatornamn());
+       addText(375,720,stenot.getServiceombudnamn());
 
-
-
-       addText(55,140,"Arbetet slutfört datum");
+       addText(55,130,"Arbetet slutfört datum");
        addText(55,100,"Signatur slutkund");
        addText(250,100,"Signatur serviceombud");
-
-
-//       addText(441,785,of1.getKundnr());
-//       addText(441,800,""+of1.getOffertnr());
- //      addText(332,730,of1.getNamn());
-//       addText(332,720,of1.getAdr1());
-//       addText(332,710,of1.getAdr2());
-//       addText(332,700,of1.getAdr3());
-//       addText(55,622,of1.getMarke());
-
-//       addText(414,633,SXUtil.getFormatDate(SXUtil.addDate(of1.getDatum(), of1.getKtid() )));
-
 
     }
 
