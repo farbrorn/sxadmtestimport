@@ -2187,17 +2187,17 @@ left outer join kunrab r on r.kundnr = k.nummer and coalesce(r.rabkod,'') = coal
 left outer join nettopri n on n.lista = k.nettolst and n.artnr = a.nummer
 left outer join anvis an on an.anvisnr = a.nummer;
 
-// 2009-02-19
+/* 2009-02-19 */
 insert into behorighet (behorighet, beskrivning) values ('IntraLogin','Kan logga in på intranätet');
 insert into behorighet (behorighet, beskrivning) values ('IntraAdmin','Administrativa funktioner på intranätet');
 insert into behorighet (behorighet, beskrivning) values ('IntraSuperuser','Superuser på intranätet');
 
-//
+
 insert into behorighet (behorighet, beskrivning) values ('Ekonomi','Ekonomiska funktioner och rapporter');
 create table intrakanaler (kanalid integer not null, rubrik varchar(30) not null, beskrivning varchar(512), showonstartpage smallint not null default 0, primary key (kanalid));
-create table intrainlagg (inlaggid integer not null, kanalid integer not null, rubrik varchar(30) not null, ingress varchar(512), brodtext varchar(4096), filename varchar(100), contenttype varchar(100), originalfilename varchar(100), visatill date, anvandarekort varchar(3), crtime timestamp default current_timestamp , primary key (inlaggid))
+create table intrainlagg (inlaggid integer not null, kanalid integer not null, rubrik varchar(30) not null, ingress varchar(512), brodtext varchar(4096), filename varchar(100), contenttype varchar(100), originalfilename varchar(100), visatill date, anvandarekort varchar(3), crtime timestamp default current_timestamp , primary key (inlaggid));
 
-// 2009-07-13
+/* 2009-07-13 */
 
 create table steprodukt (
 sn varchar(30),
@@ -2234,6 +2234,8 @@ svar varchar(8192),
 bilaga bytea,
 filnamn varchar(254),
 contenttype varchar(254),
+serviceombudkundnr varchar(30),
+serviceombudnamn varchar(30),
 primary key (id)
 );
 
@@ -2244,4 +2246,9 @@ artnr varchar(13),
 primary key(artnr)
 );
 
-insert into sxreg (id,varde) values ('BildLogoSteService','steservicelogo');
+insert into sxreg (id,varde) values ('BildLogoSteService','SteserviceLogo');
+
+insert into behorighet (behorighet, beskrivning) values ('BokLogin','Kan logga in till bokföringen');
+insert into behorighet (behorighet, beskrivning) values ('LonLogin','Kan logga in till löneprogram');
+
+alter table kund add column skickafakturaepost  smallint default      0  not null;

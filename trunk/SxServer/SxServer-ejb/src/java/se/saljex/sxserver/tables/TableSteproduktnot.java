@@ -60,6 +60,10 @@ public class TableSteproduktnot implements Serializable {
 	private String filnamn;
 	@Column(name = "contenttype")
 	private String contenttype;
+	@Column(name = "serviceombudkundnr")
+	private String serviceombudkundnr;
+	@Column(name = "serviceombudnamn")
+	private String serviceombudnamn;
 
 	public TableSteproduktnot() {
 	}
@@ -177,6 +181,23 @@ public class TableSteproduktnot implements Serializable {
 	public void setContenttype(String contenttype) {
 		this.contenttype = contenttype;
 	}
+
+	public String getServiceombudkundnr() {
+		return serviceombudkundnr;
+	}
+
+	public void setServiceombudkundnr(String serviceombudkundnr) {
+		this.serviceombudkundnr = serviceombudkundnr;
+	}
+
+	public String getServiceombudnamn() {
+		return serviceombudnamn;
+	}
+
+	public void setServiceombudnamn(String serviceombudnamn) {
+		this.serviceombudnamn = serviceombudnamn;
+	}
+
 
 	@Override
 	public int hashCode() {
