@@ -36,7 +36,7 @@ public interface SxServerMainLocal {
 
 	String getHTMLStatus();
 
-	void handleJobb(TableSxservjobb t) throws DocumentException, IOException,  NamingException, MessagingException;
+	void handleJobb(TableSxservjobb t) throws Exception;
 
 	void handleSandBestEpost(TableBest1 be1) throws DocumentException, IOException,  NamingException, MessagingException;
 	void handleSandBestPaminEpost(TableBest1 be1) throws DocumentException, IOException,  NamingException, MessagingException;

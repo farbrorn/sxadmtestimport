@@ -179,6 +179,10 @@ public class SxServerMainBean implements SxServerMainLocal {
 					try {
 						sxServerMainBean.handleJobb(t);		//aNROPAS SÅ HÄR FÖR ATT STARTA NY TRANSAKTION
 					} catch (Exception e) {
+						try {
+							t.setBearbetar(new Date());		// Om vi får en exception på detta jobb försöker vi sätt bearbetningstiden
+							em.flush();								// så att det dröjer ett tag (fn 1 timme) innan försök sker igen
+						} catch (Exception e2) {}				// Ignorera ev. exception eftersom funktionen inte är kritisk
 						SXUtil.log("Ett undantagsfel uppstod vid bearbetning av jobb." + t.getJobbid() + ". Försöker fortsätta med nästa " + e.toString()); e.printStackTrace();
 					}
 				}
@@ -215,8 +219,9 @@ public class SxServerMainBean implements SxServerMainLocal {
 	}
 	
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	public void handleJobb(TableSxservjobb t) throws  DocumentException, IOException, NamingException, MessagingException {
-		JobbHandler jobbHandler = new JobbHandler(em,mailsxmail);		//Vi gör detta kryptiska anrop för att ny transaktion ska startas för varje jobb
+	public void handleJobb(TableSxservjobb t) throws  Exception {
+		try {
+			JobbHandler jobbHandler = new JobbHandler(em,mailsxmail);		//Vi gör detta kryptiska anrop för att ny transaktion ska startas för varje jobb
 			SXUtil.log("Behandlar jobbid " + t.getJobbid());
 			if (t.getUppgift().equals(SXConstant.SERVJOBB_UPPGIFT_SAND)) {
 				if (t.getDokumenttyp().equals(SXConstant.SERVJOBB_DOKUMENTTYP_FAKTURA)) {	//Faktura
@@ -233,6 +238,7 @@ public class SxServerMainBean implements SxServerMainLocal {
 					}
 				}
 			}
+		} catch (Exception e) { context.setRollbackOnly(); throw e; }
 	}
 
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
@@ -262,7 +268,7 @@ public class SxServerMainBean implements SxServerMainLocal {
 	}
 	
 	private void startJobbTimer() {
-		sxServerMainBean.startTimer(60*1000,"JobbTimer");	//Måste startas som EJB-anrop för att new transaction skall funka
+		sxServerMainBean.startTimer(3*60*1000,"JobbTimer");	//Måste startas som EJB-anrop för att new transaction skall funka
 	}
 	private void startKvartTimer() {
 		sxServerMainBean.startTimer(15*60*1000,"KvartTimer");	//Måste startas som EJB-anrop för att new transaction skall funka
