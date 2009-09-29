@@ -53,9 +53,65 @@ public class PdfSteServiceorder extends PdfHandler {
 		cb.saveState();
 		printHeader();
 
+      cb.setFontAndSize(FontTimesBold, 8);
+		int x1 = 450;
+		final int tomrad = 15;
+
+		addText(50, 606, "Felbeskrivning");
+
+		addText(50, x1, "Utfört arbete");
+		cb.newPath();
+		for (int cn=0; cn<6; cn++) {
+			x1 = x1-tomrad;
+			cb.moveTo(50,x1);
+			cb.lineTo(500, x1);
+		}
+		cb.closePathStroke();
+
+		x1 = x1-tomrad-tomrad;
+		addText(50, x1, "Specifikation av materiel");
+      cb.setFontAndSize(FontTimesBold, 6);
+		x1 = x1-tomrad;
+		addText(50, x1, "STE Art.nr");
+		addText(150, x1, "Benämning");
+		addText(450, x1, "Antal");
+		cb.newPath();
+		for (int cn=0; cn<6; cn++) {
+			x1 = x1-tomrad;
+			cb.moveTo(50,x1);
+			cb.lineTo(145, x1);
+			cb.moveTo(150,x1);
+			cb.lineTo(445, x1);
+			cb.moveTo(450,x1);
+			cb.lineTo(500, x1);
+		}
+		cb.closePathStroke();
+
+      cb.setFontAndSize(FontTimesBold, 6);
+		x1 = x1-tomrad;
+		addText(50, x1, "OBS! Utbytta reservdelar skall sparas 1 månad och kunna återsändas till Stiebel Eltron på begäran.");
+      cb.setFontAndSize(FontTimes, 6);
+		x1 = x1-8;
+		addText(50, x1, "För samtliga produkter som marknadsförs av Stiebel Eltron lämnas garanti för konstruktions-, fabrikations- eller materialfel under 2 år räknat från installationsdatumet.");
+		x1 = x1-6;
+		addText(50, x1, "Stiebel Eltron åtar sig att under denna tid avhjälpa eventuella produktfel som kan uppstå som hänvisningsbara till vårt garantiåtagande.");
+		x1 = x1-6;
+		addText(50, x1, "Garantitiden för utbytt vara eller reservdel kan inte överstiga huvudproduktens ursprungliga garantitid.");
+		x1 = x1-6;
+		addText(50, x1, "För produkter levererade efter 2009-08-01 skall driftsättningsprotokoll finnas inrapporterat till oss för giltig garanti.");
+		x1 = x1-6;
+		addText(50, x1, "För produkter levererade innan 2009-08-01 skall installationsdatum styrkas med uppstartsprotokoll, faktura eller liknande handling.");
+		x1 = x1-6;
+		addText(50, x1, "Installationsrelaterade problem såsom flödesstörningar, felaktiga inställningar etc. är ej godkända garantifel och kommer att debiteras beställaren");
+
+
+
+      cb.setFontAndSize(FontTimes, 8);
 		ColumnText ct = new ColumnText(cb);
 		ct.setSimpleColumn(new Phrase(stenot.getFraga(),new Font(FontTimes,8)), 50, 162, 557, 606, 10, Element.ALIGN_LEFT);
 		ct.go();
+
+
 
 		cb.restoreState();
 		document.close();
