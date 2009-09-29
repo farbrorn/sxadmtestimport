@@ -43,7 +43,7 @@ private String sokStrSn;
 						  " or ucase(adr1) like ucase(?)" +
 						  " or ucase(adr2) like ucase(?)" +
 						  " or ucase(adr3) like ucase(?)" +
-						  " or ucase(ref) like ucase(?)" +
+						  " or ucase(referens) like ucase(?)" +
 						  " or ucase(tel) like ucase(?)" +
 						  " or ucase(mobil) like ucase(?)" +
 						  " or ucase(epost) like ucase(?)" +

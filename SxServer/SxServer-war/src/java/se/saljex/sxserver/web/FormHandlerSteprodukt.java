@@ -248,8 +248,8 @@ public class FormHandlerSteprodukt extends FormHandler {
 
 		t.setNamn(!SXUtil.isEmpty(request.getParameter(K_NAMN)) ? request.getParameter(K_NAMN) : null);
 		t.setAdr1(!SXUtil.isEmpty(request.getParameter(K_ADR1)) ? request.getParameter(K_ADR1) : null);
-		t.setAdr1(!SXUtil.isEmpty(request.getParameter(K_ADR2)) ? request.getParameter(K_ADR2) : null);
-		t.setAdr1(!SXUtil.isEmpty(request.getParameter(K_ADR3)) ? request.getParameter(K_ADR3) : null);
+		t.setAdr2(!SXUtil.isEmpty(request.getParameter(K_ADR2)) ? request.getParameter(K_ADR2) : null);
+		t.setAdr3(!SXUtil.isEmpty(request.getParameter(K_ADR3)) ? request.getParameter(K_ADR3) : null);
 		t.setReferens(!SXUtil.isEmpty(request.getParameter(K_REFERENS)) ? request.getParameter(K_REFERENS) : null);
 		t.setTel(!SXUtil.isEmpty(request.getParameter(K_TEL)) ? request.getParameter(K_TEL) : null);
 		t.setMobil(!SXUtil.isEmpty(request.getParameter(K_MOBIL)) ? request.getParameter(K_MOBIL) : null);

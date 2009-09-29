@@ -52,6 +52,18 @@ if (lasTillAnvandre || (anvandare != null && !"true".equals(request.getParameter
 	p.setInt(3, iAr);
 	rs = p.executeQuery();
 
+	PreparedStatement p2 = con.prepareStatement(
+"select year(f1.datum), month(f1.datum), " +
+" coalesce(sum(f2.lev),0) " +
+" from faktura1 f1 join faktura2 f2 on f1.faktnr = f2.faktnr " +
+" where year(f1.datum) between ? and ? " +
+" and f2.artnr in (select artnr from stepumpartnr) " +
+" group by year(f1.datum), month(f1.datum) " +
+" order by  year(f1.datum) desc, month(f1.datum) "
+			  );
+	p2.setInt(1, frar);
+	p2.setInt(2, iAr);
+
 	int arrSize = iAr - frar + 1;
 	int[][] antalOrder = new int[arrSize][12];
 	int[][] antalFakturor = new int[arrSize][12];
@@ -61,6 +73,9 @@ if (lasTillAnvandre || (anvandare != null && !"true".equals(request.getParameter
 	double[][] summa = new double[arrSize][12];
 	double[][] tb = new double[arrSize][12];
 
+	double[][] antalSaldaPumpar = new double[arrSize][12];
+
+
 	while (rs.next()) {
 		antalOrder[iAr - rs.getInt(1)][rs.getInt(2)-1] = rs.getInt(3);
 		antalFakturor[iAr - rs.getInt(1)][rs.getInt(2)-1] = rs.getInt(4);
@@ -69,6 +84,11 @@ if (lasTillAnvandre || (anvandare != null && !"true".equals(request.getParameter
 		tb[iAr - rs.getInt(1)][rs.getInt(2)-1] = Math.round(rs.getDouble(7)/1000);
 		antalUnikaKunder[iAr - rs.getInt(1)][rs.getInt(2)-1] = rs.getInt(8);
 		antalUnikaArtiklar[iAr - rs.getInt(1)][rs.getInt(2)-1] = rs.getInt(9);
+	}
+
+	rs = p2.executeQuery();
+	while (rs.next()) {
+		antalSaldaPumpar[iAr - rs.getInt(1)][rs.getInt(2)-1] = rs.getDouble(3);
 	}
 
 	GoogleChartHandler gch = new GoogleChartHandler();
@@ -98,6 +118,7 @@ if (lasTillAnvandre || (anvandare != null && !"true".equals(request.getParameter
 						<th class="tdn12">Dec</th>
 						<th></th>
 					</tr>
+
 					<%
 					boolean odd = false;
 					%><tr><td colspan="13"><b><br/>Nettoförsäljning (tusental kronor)</b></td></tr><%
@@ -121,6 +142,26 @@ if (lasTillAnvandre || (anvandare != null && !"true".equals(request.getParameter
 						}
 						%></tr><%
 					}
+
+
+
+					odd = false;
+					%><tr><td colspan="13"><b><br/>Antal sålda pumpar</b></td></tr><%
+					gch.clearSerier();
+					for (int cn=0; cn <= iAr-frar; cn++) {	gch.addSerie("" + (iAr-cn), antalSaldaPumpar[cn]);	}
+					%>
+					<tr><td colspan="13"><img src="<%= gch.getURL() %>"/></td></tr>
+					<%
+					for (int cn=0; cn <= iAr-frar; cn++) {
+						odd = !odd;
+						%><tr class="trdoc<%= odd ? "odd" : "even" %>"><td><%= iAr-cn %></td><%
+						for (int mn = 0; mn < 12; mn++) {
+						%><td class="tdn12"><%= Math.round(antalSaldaPumpar[cn][mn]) %></td><%
+						}
+						%></tr><%
+					}
+
+
 
 					odd = false;
 					%><tr><td colspan="13"><b><br/>Täckning (tusental kronor)</b></td></tr><%
