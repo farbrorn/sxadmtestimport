@@ -468,9 +468,14 @@ border: red 2px solid;
 #infotext {
 	background: #00ff88;
 	color: #000000;
-	font-weight: italic;
+	font-style: italic;
 	padding: 2px;
 	width: 796px;
+}
+
+#fotnot {
+	font-size: 10px;
+	font-style: italic;
 }
 
 .left {

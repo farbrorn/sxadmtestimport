@@ -20,8 +20,21 @@ String es="";
  <script type="text/javascript">
 	$(document).ready(function() {
 		$("textarea[@name=<%= f.K_FRAGA %>]").focus();
+		$("input[@name=<%= f.K_SERVICEOMBUDKUNDNR %>]").keyup( function() {  loadsokreslocal(); 	});
 	});
-</script>
+
+	function loadsokreslocal() {
+		$("input[@name=sokstr]").val($("input[@name=<%= f.K_SERVICEOMBUDKUNDNR %>]").val());
+		$("td[id=tdinfo]").load("?" + $("#sokformsomb").serialize(), function() {  } );
+	}
+	function setSomb(nr,na) {
+		$("input[@name=<%= f.K_SERVICEOMBUDKUNDNR %>]").val(nr);
+		$("input[@name=<%= f.K_SERVICEOMBUDNAMN %>]").val(na);
+		$("td[id=tdinfo]").val('');
+	}
+
+ </script>
+
 
 <% if (f.isMainActionNew()) { %>
 <h1>Registrera ny notering</h1>
@@ -38,15 +51,19 @@ String es="";
 <table>
 	<tr>
 		<td>Serienr:</td>
-		<td><%= SXUtil.toHtml(request.getParameter(f.K_SN)) %></td>
+		<td colspan="2"><%= SXUtil.toHtml(request.getParameter(f.K_SN)) %></td>
 	</tr>
 	<tr>
-		<td valign="top">Fråga:</td>
-		<td><textarea <%= d || e ? ds : es %> rows="10" cols="80" name="<%= f.K_FRAGA %>"><%= SXUtil.toHtml(f.t.getFraga()) %></textarea></td>
+		<td colspan="3" valign="top">
+			Fråga:<br/><span id="fotnot">Vid serviceorder anges felbeskrivning för serviceombud.</span>
+			<br/><textarea <%= d || e ? ds : es %> rows="10" cols="80" name="<%= f.K_FRAGA %>"><%= SXUtil.toStr(f.t.getFraga()) %></textarea>
+		</td>
 	</tr>
 	<tr>
-		<td valign="top">Svar:</td>
-		<td><textarea <%= d ? ds : es %> rows="10" cols="80" name="<%= f.K_SVAR %>"><%= SXUtil.toHtml(f.t.getSvar()) %></textarea></td>
+		<td colspan="3" valign="top">
+			Svar:<br/><span id="fotnot">Vid serviceorder anges svar från serviceombud.</span>
+			<br/><textarea <%= d ? ds : es %> rows="10" cols="80" name="<%= f.K_SVAR %>"><%= SXUtil.toStr(f.t.getSvar()) %></textarea>
+		</td>
 	</tr>
 	<tr>
 		<td>Ärendetyp</td>
@@ -55,6 +72,7 @@ String es="";
 				<%= f.getArendetypHtmlOptions() %>
 			</select>
 		</td>
+		<td rowspan="7" id="tdinfo"></td>
 	</tr>
 	<tr>
 		<td>Felorsak</td>
@@ -65,8 +83,15 @@ String es="";
 		</td>
 	</tr>
 	<tr>
+		<td>Serviceombud Kundnr:</td>
+		<td><input <%= d ? ds : es %> type="text" name="<%= f.K_SERVICEOMBUDKUNDNR %>" value="<%= SXUtil.toStr(f.t.getServiceombudkundnr()) %>"/></td>	</tr>
+	<tr>
+		<td>Serviceombud Namn:</td>
+		<td><input <%= d ? ds : es %> type="text" name="<%= f.K_SERVICEOMBUDNAMN %>" value="<%= SXUtil.toStr(f.t.getServiceombudnamn()) %>"/></td>
+	</tr>
+	<tr>
 		<td>Följ upp datum:</td>
-		<td><input <%= d ? ds : es %> type="text" name="<%= f.K_FOLJUPPDATUM %>" value="<%= SXUtil.getFormatDate(f.t.getFoljuppdatum()) %>"/> (Blankt fält för att ta bort uppföljning)</td>
+		<td><input <%= d ? ds : es %> type="text" name="<%= f.K_FOLJUPPDATUM %>" value="<%= SXUtil.getFormatDate(f.t.getFoljuppdatum()) %>"/><br/><span id="fotnot">(Blankt fält för att ta bort uppföljning)</span></td>
 	</tr>
 	<tr>
 		<td>Publicera som Q&A:</td>
@@ -74,10 +99,15 @@ String es="";
 	</tr>
 	<tr>
 		<td>Bifogad fil:</td>
-		<td><input <%= d || e ? ds : es %> type="file" name="<%= f.K_FILNAMN %>" value=""/></td>
+		<td><input <%= d || !SXUtil.isEmpty(f.t.getFilnamn()) ? ds : es %> type="file" name="<%= f.K_FILNAMN %>" value=""/></td>
 	</tr>
 	<tr><td colspan="2"><input type="submit" value="Spara"/></td></tr>
 </table>
 </form>
 
 <a href="?id=produktnot&<%= f.K_ACTION %>=<%= f.ACTION_LIST %>">Tillbaka</a>
+<form id="sokformsomb" action="">
+	<input type="hidden" name="get" value="sokserviceombud"/>
+	<input type="hidden" name="sokstr" value=""/>
+	<input type="hidden" name="rows" value="7"/>
+</form>

@@ -18,9 +18,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.UserTransaction;
-import se.saljex.sxserver.LocalWebSupportBean;
 import se.saljex.sxserver.LocalWebSupportLocal;
 import se.saljex.sxserver.SXUtil;
+import se.saljex.sxserver.tables.TableKund;
 import se.saljex.sxserver.tables.TableSteprodukt;
 import se.saljex.sxserver.tables.TableSteproduktnot;
 
@@ -40,10 +40,12 @@ public class FormHandlerSteproduktnot extends FormHandler {
 	public static final String K_FOLJUPPDATUM = "foljuppdatum";
 	public static final String K_BILAGA = "bilaga";
 	public static final String K_FILNAMN = "filnamn";
+	public static final String K_SERVICEOMBUDKUNDNR = "sombkundnr";
+	public static final String K_SERVICEOMBUDNAMN = "sombnamn";
 
 	public static final String ARENDETYP_DRIFTSATTPROT = "Driftsättningsprotokoll";
 	public static final String ARENDETYP_SERVICEORDER = "Serviceorder";
-	public static final String[] ARENDETYPER = {"","Teknik", ARENDETYP_DRIFTSATTPROT,ARENDETYP_SERVICEORDER, "Återrapportering serviceorder", "Övrigt"};
+	public static final String[] ARENDETYPER = {"","Teknik", ARENDETYP_DRIFTSATTPROT,ARENDETYP_SERVICEORDER, "Övrigt"};
 
 	public static final String[] FELORSAKER = {"","Installationsfel", "Inställningsfel", "Handhavandefel", "Produktfel garanti", "Produktfel ej garanti", "Annat" };
 
@@ -241,9 +243,6 @@ public class FormHandlerSteproduktnot extends FormHandler {
 	protected void formToEntity() {
 
 			if (!isMainActionUpdate())	{			// Dessa rader kan inte ändras vid update
-				t.setBilaga(htmlFileUpload.getFile().length > 0 ? htmlFileUpload.getFile() : new byte[0]);
-				t.setFilnamn(!SXUtil.isEmpty(htmlFileUpload.getOriginalFileName()) ? htmlFileUpload.getOriginalFileName() : null);
-				t.setContenttype(!SXUtil.isEmpty(htmlFileUpload.getContentType()) ? htmlFileUpload.getContentType() : null);
 				t.setFraga(!SXUtil.isEmpty(htmlFileUpload.getFieldValue(K_FRAGA)) ? htmlFileUpload.getFieldValue(K_FRAGA) : null);
 
 				String sn = request.getParameter(K_SN);
@@ -251,11 +250,28 @@ public class FormHandlerSteproduktnot extends FormHandler {
 				if (sn==null) addFormError("S/N saknas");
 			}
 
+			if (SXUtil.isEmpty(t.getFilnamn())) {  //Kan ändras vid update om ingen fil tidigare är uppladdad
+				t.setBilaga(htmlFileUpload.getFile().length > 0 ? htmlFileUpload.getFile() : new byte[0]);
+				t.setFilnamn(!SXUtil.isEmpty(htmlFileUpload.getOriginalFileName()) ? htmlFileUpload.getOriginalFileName() : null);
+				t.setContenttype(!SXUtil.isEmpty(htmlFileUpload.getContentType()) ? htmlFileUpload.getContentType() : null);
+			}
+
 			//Följande kan ändras vid update
 			t.setSvar(!SXUtil.isEmpty(htmlFileUpload.getFieldValue(K_SVAR)) ? htmlFileUpload.getFieldValue(K_SVAR) : null);
 			t.setArendetyp(!SXUtil.isEmpty(htmlFileUpload.getFieldValue(K_ARENDETYP)) ? htmlFileUpload.getFieldValue(K_ARENDETYP) : null);
 			t.setFelorsak(!SXUtil.isEmpty(htmlFileUpload.getFieldValue(K_FELORSAK)) ? htmlFileUpload.getFieldValue(K_FELORSAK) : null);
+			t.setServiceombudkundnr(!SXUtil.isEmpty(htmlFileUpload.getFieldValue(K_SERVICEOMBUDKUNDNR)) ? htmlFileUpload.getFieldValue(K_SERVICEOMBUDKUNDNR) : null);
+			t.setServiceombudnamn(!SXUtil.isEmpty(htmlFileUpload.getFieldValue(K_SERVICEOMBUDNAMN)) ? htmlFileUpload.getFieldValue(K_SERVICEOMBUDNAMN) : null);
 
+
+			if (!SXUtil.isEmpty(t.getServiceombudkundnr())) {
+				TableKund tk = em.find(TableKund.class, t.getServiceombudkundnr());
+				if (tk!=null) {
+					t.setServiceombudnamn(tk.getNamn());
+				} else {
+					addFormError("Kundnummer saknas i kundregistret");
+				}
+			}
 			java.util.Date datum = null;
 			try {
 				if (!SXUtil.isEmpty(htmlFileUpload.getFieldValue(K_FOLJUPPDATUM)))	datum = SXUtil.parseDateStringToDate(htmlFileUpload.getFieldValue(K_FOLJUPPDATUM));
