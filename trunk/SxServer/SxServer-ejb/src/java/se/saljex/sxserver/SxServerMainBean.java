@@ -390,7 +390,7 @@ public class SxServerMainBean implements SxServerMainLocal {
 							}
 
 							SendMail m = new SendMail(mailsxmail, SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPUSER), SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPPASSWORD),
-																SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPSERVERPORT));
+																SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPSERVERPORT), SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPTRANSPORT));
 							m.sendSimpleMail(	em,
 													mailTo,
 													SXUtil.getSXReg(em,SXConstant.SXREG_WORDER_SPARRAD_ORDER_SUBJECT, SXConstant.SXREG_WORDER_SPARRAD_ORDER_SUBJECT_DEFAULT),

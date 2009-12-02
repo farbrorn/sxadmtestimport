@@ -35,6 +35,8 @@ public class SXConstant {
 	public static final  String SXREG_SXSERVSMTPASSWORD_DEFAULT = "";
 	public static final  String SXREG_SXSERVSMTPSERVERPORT = "SxServSMTPServerPort";
 	public static final  String SXREG_SXSERVSMTPSERVERPORT_DEFAULT = "25";
+	public static final  String SXREG_SXSERVSMTPTRANSPORT = "SxServSMTPTransport";
+	public static final  String SXREG_SXSERVSMTPTRANSPORT_DEFAULT = "smtp";
 
 	public static final  String SXREG_SXSERVMAILFAKTURAFROMADRESS = "SxServMailFakturaFromAddress";
 	public static final  String SXREG_SXSERVMAILFAKTURAFROMADRESS_DEFAULT = "info@saljex.se";
