@@ -29,11 +29,14 @@ public class SendMail {
 	private String user;
 	private String password;
 	private Integer port;
+	private String transport;
 	
-	public SendMail(Session s, String u, String p, String por) {
+	public SendMail(Session s, String u, String p, String por, String transport) {
 		mailsxmail = s;
 		user = u;
 		password = p;
+		this.transport=transport;
+		if (transport==null || transport.isEmpty()) transport=SXConstant.SXREG_SXSERVSMTPTRANSPORT_DEFAULT;
 		if (por==null) { port=25; }
 		else {
 			try { port = new Integer(por); } catch (NumberFormatException e) { port = 25; }
@@ -166,9 +169,11 @@ public class SendMail {
 	
 	private void sendMail(MimeMessage mimeMessage)throws NamingException, MessagingException, UnsupportedEncodingException {
 		Transport tr;
-		mailsxmail.getProperties().put("mail.smtp.auth", "true");
-		tr = mailsxmail.getTransport("smtp");
-		tr.connect(null, port, user,password);
+		//mailsxmail.getProperties().put("mail.smtp.auth", "true");
+		tr = mailsxmail.getTransport(transport);
+		//tr = mailsxmail.getTransport("smtp");
+		tr.connect(null,user,password);
+//		tr.connect(null, port, user,password);
 		tr.sendMessage(mimeMessage, mimeMessage.getAllRecipients());
 		tr.close(); 
 	}
