@@ -5,6 +5,8 @@
 
 package se.saljex.sxserver.web;
 
+import se.saljex.sxserver.websupport.WebUtil;
+import se.saljex.sxserver.websupport.SXSession;
 import java.io.*;
 
 import java.sql.Connection;

@@ -7,6 +7,7 @@
 <%@ page import="se.saljex.sxserver.web.*" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.sql.*" %>
+<%@ page import="se.saljex.sxserver.websupport.*" %>
 
 <%
 Connection con = (Connection)request.getAttribute("con");

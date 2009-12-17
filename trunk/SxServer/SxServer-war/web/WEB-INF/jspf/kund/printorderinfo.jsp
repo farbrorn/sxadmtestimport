@@ -8,6 +8,7 @@
 <%@ page import="se.saljex.sxserver.web.*" %>
 <%@ page import="se.saljex.sxserver.tables.TableOrder1" %>
 <%@ page import="se.saljex.sxserver.tables.TableOrder2" %>
+<%@ page import="se.saljex.sxserver.websupport.*" %>
 <%@ page import="java.util.List" %>
  <script type="text/javascript">
 	$(document).ready(function() {

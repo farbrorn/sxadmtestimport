@@ -7,6 +7,7 @@
 <%@ page import="se.saljex.sxserver.SXUtil" %>
 <%@ page import="se.saljex.sxserver.web.*" %>
 <%@ page import="java.util.List" %>
+<%@ page import="se.saljex.sxserver.websupport.*" %>
 
 <% 
 SXSession sxSession = WebUtil.getSXSession(session);
