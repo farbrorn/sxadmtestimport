@@ -33,13 +33,24 @@ public class SimpleOrderHandler  {
 	}
 
 	public SimpleOrderHandler(EntityManager e, String kundNr, short lagerNr, String anvandare, int worderNr, String marke) {
-		// Skapar ny order
+		// Skapar ny order från en weborder
 		this(e);
 		setKund(kundNr);
 		setLagerNr(lagerNr);
 		setAnvandare(anvandare);
 		setWorderNr(worderNr);
 		setMarke(marke);
+		orderLaddad = false;
+	}
+
+public SimpleOrderHandler(EntityManager e, String kundNr, String kontaktNamn, short lagerNr, String anvandare, String marke) {
+		// Skapar ny order från SxShop
+		this(e);
+		setKund(kundNr);
+		setLagerNr(lagerNr);
+		setAnvandare(anvandare);
+		setMarke(marke);
+		setReferens(kontaktNamn);
 		orderLaddad = false;
 	}
 
@@ -117,6 +128,12 @@ public class SimpleOrderHandler  {
 	public void setKund(String kundNr) {		
 		sor1.setKundnr(kundNr);
 	}
+
+	public void setReferens(String referens) {
+		sor1.setReferens(referens);
+	}
+
+	public String getReferens() { return sor1.getReferens(); }
 
 	public void setWorderNr(int worderNr) {		
 		sor1.setWordernr(worderNr);

@@ -33,7 +33,9 @@ import javax.mail.MessagingException;
 import javax.naming.NamingException;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import javax.sql.DataSource;
+import se.saljex.sxserver.tables.TableVarukorg;
 
 
 
@@ -435,6 +437,9 @@ public class SxServerMainBean implements SxServerMainLocal {
 		return ret;
 	}
 
+
+
+
 	public String tester(String testTyp) {
 		Connection conSe = null;
 		Connection con = null;
@@ -449,6 +454,19 @@ public class SxServerMainBean implements SxServerMainLocal {
 			try { conSe.close(); } catch (Exception e) {}
 		}
 	}
+
+	public ArrayList<Integer> saveSxShopOrder(int kontaktId, String kundnr, String kontaktNamn, short lagerNr, String marke) throws KreditSparrException {
+		SimpleOrderHandler sord = new SimpleOrderHandler(em, kundnr, kontaktNamn, lagerNr, "00", marke);
+		Iterator i = em.createNamedQuery("TableVarukorg.findByKontaktidVK").setParameter("kontaktid", kontaktId).getResultList().iterator();
+		while (i.hasNext()) {
+			TableVarukorg v = (TableVarukorg)i.next();
+			sord.addRow(v.getTableVarukorgPK().getArtnr(),v.getAntal());
+		}
+		if (sord.getOrdreg().size() < 0) return null;
+		ArrayList<Integer> orderList = sord.saveAsOrder();
+		em.createNamedQuery("TableVarukorg.deleteByKontaktidVK").setParameter("kontaktid", kontaktId).executeUpdate();
+		return orderList;
+	}
 	
 
 
@@ -456,5 +474,4 @@ public class SxServerMainBean implements SxServerMainLocal {
 
 	
 
- 
 }

@@ -2252,3 +2252,12 @@ insert into behorighet (behorighet, beskrivning) values ('BokLogin','Kan logga i
 insert into behorighet (behorighet, beskrivning) values ('LonLogin','Kan logga in till löneprogram');
 
 alter table kund add column skickafakturaepost  smallint default      0  not null;
+
+/* Ändringar 2009-12-16 */
+create table varukorg (
+kontaktid integer not null,
+typ varchar(3) not null, /*Kan vara 'VK' för varukorg, 'FAV' för favoriter */
+artnr varchar(13) not null ,
+antal float(20) default  0.0000000000000000000E+00   ,
+primary key (kontaktid, typ, artnr));
+
