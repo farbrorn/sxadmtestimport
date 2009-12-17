@@ -117,7 +117,7 @@ List<TableSteprodukt> l = wt.getPage();
 		<th class="tds10">Serienr</th>
 		<th class="tds10">Inst.datum</th>
 		<th class="tds30">Modell</th>
-		<th class="tds30">Installatör</th>
+		<th class="tds30">Installatör/Slutkund</th>
 		<th></th>
 	</tr>
 <%
@@ -136,7 +136,9 @@ for (TableSteprodukt t : l) {
 	<td class="tds10"><%= SXUtil.toHtml(t.getSn()) %></td>
 	<td class="tds10"><%= SXUtil.getFormatDate(t.getInstdatum()) %></td>
 	<td class="tds30"><%= SXUtil.toHtml(t.getModell()) %></td>
-	<td class="tds30"><%= SXUtil.toHtml(t.getInstallatornamn()) %></td>
+	<td class="tds30"><%= SXUtil.toHtml(t.getInstallatornamn()) %>
+			<br/><%= SXUtil.toHtml(t.getNamn()) %> <%= SXUtil.toHtml(t.getAdr1()) %>
+	</td>
 	<td></td>
 </tr>
 <tr><td colspan="7"><div id="f<%= radcn %>" class="docgrupp" ></div></td></tr>

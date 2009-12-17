@@ -7,6 +7,8 @@
 <%@ page import="se.saljex.sxserver.SXUtil" %>
 <%@ page import="se.saljex.sxserver.web.*" %>
 <%@ page import="java.util.List" %>
+<%@ page import="se.saljex.sxserver.websupport.*" %>
+
  <script type="text/javascript">
 	$(document).ready(function() {
 

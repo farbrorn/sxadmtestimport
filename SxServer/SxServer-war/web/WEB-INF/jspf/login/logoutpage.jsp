@@ -4,6 +4,8 @@
     Author     : ulf
 --%>
 <%@ page import="se.saljex.sxserver.web.*" %>
+<%@ page import="se.saljex.sxserver.websupport.*" %>
+
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%
 SXSession sxSession = WebUtil.getSXSession(session);

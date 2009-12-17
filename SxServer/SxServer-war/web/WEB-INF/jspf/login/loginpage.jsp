@@ -3,6 +3,7 @@
     Created on : 2008-jun-16, 21:59:23
     Author     : ulf
 --%>
+<%@ page import="se.saljex.sxserver.websupport.*" %>
 <%@ page import="se.saljex.sxserver.web.*" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%

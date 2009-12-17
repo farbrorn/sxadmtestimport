@@ -5,6 +5,7 @@
 --%>
 <%@ page import="se.saljex.sxserver.SXUtil" %>
 <%@ page import="se.saljex.sxserver.web.*" %>
+<%@ page import="se.saljex.sxserver.websupport.*" %>
  <script type="text/javascript" src="sxdoclib.js"></script>
 
  <script type="text/javascript">

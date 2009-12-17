@@ -5,6 +5,8 @@
 
 package se.saljex.sxserver.web;
 
+import se.saljex.sxserver.websupport.WebUtil;
+import se.saljex.sxserver.websupport.SXSession;
 import se.saljex.sxserver.SXEntityNotFoundException;
 import java.io.*;
 import java.net.*;

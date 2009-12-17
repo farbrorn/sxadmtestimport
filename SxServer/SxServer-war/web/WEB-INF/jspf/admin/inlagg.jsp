@@ -5,6 +5,7 @@
 --%>
 <%@ page import="se.saljex.sxserver.SXUtil" %>
 <%@ page import="se.saljex.sxserver.web.*" %>
+<%@ page import="se.saljex.sxserver.websupport.*" %>
 <%@ page import="java.sql.*" %>
 <%@ page import="java.util.ArrayList" %>
 Inlägg<br/>

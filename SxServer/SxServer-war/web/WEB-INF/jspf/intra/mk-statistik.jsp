@@ -8,6 +8,7 @@
 <%@ page import="se.saljex.sxserver.web.*" %>
 <%@ page import="java.sql.*" %>
 <%@ page import="java.util.*" %>
+<%@ page import="se.saljex.sxserver.websupport.*" %>
 
 <%
 	String jspName = "mk-statistik";

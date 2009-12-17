@@ -2,6 +2,7 @@
 <%@ page import="se.saljex.sxserver.web.*" %>
 <%@ page import="java.sql.*" %>
 <%@ page import="java.util.*" %>
+<%@ page import="se.saljex.sxserver.websupport.*" %>
 
 <%
 Connection con = (Connection)request.getAttribute("con");
@@ -15,6 +16,9 @@ SXSession sxSession = WebUtil.getSXSession(request.getSession());
 <a href="?id=produkt">Lista</a><br/>
 <a href="?id=produkt&action=<%= FormHandlerSteprodukt.ACTION_FOLJUPPLIST %>">Lista för uppföljning</a><br/>
 <a href="?id=produkt&action=new">Lägg till</a><br/>
+<p/>
+<b>Listor</b><br/>
+<a href="?id=forsakringslista">Redovisning försäkring</a><br/>
 <p/>
 <b>STE Artikelnummer</b><br/>
 <a href="?id=pumpartnr">Lista</a><br/>
