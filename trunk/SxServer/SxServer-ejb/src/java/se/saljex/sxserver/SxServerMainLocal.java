@@ -45,5 +45,7 @@ public interface SxServerMainLocal {
 
 	  ArrayList<Integer> saveWorder(int worderNr) throws SQLException, KreditSparrException;
 
+	ArrayList<Integer> saveSxShopOrder(int kontaktId, String kundnr, String kontaktNamn, short lagerNr, String marke) throws KreditSparrException;
+
 	
 }
