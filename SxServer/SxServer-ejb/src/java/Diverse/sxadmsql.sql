@@ -2261,3 +2261,16 @@ artnr varchar(13) not null ,
 antal float(20) default  0.0000000000000000000E+00   ,
 primary key (kontaktid, typ, artnr));
 
+/* Ändringar 2010-01-20 */
+alter table kundlogin add autologinid varchar(100);
+alter table kundlogin add autologinexpire date;
+alter table intrainlagg alter ingress type varchar;
+alter table intrainlagg alter brodtext type varchar;
+
+create table kundloginhandelse (
+loginnamn varchar(30),
+handelse varchar,
+ip varchar(100),
+cr timestamp default current_timestamp
+)
+

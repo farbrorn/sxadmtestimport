@@ -222,7 +222,8 @@ public class SXUtil {
 		//Returnerar värdet avrundat till två decimaler
 		return Math.round(a*100.0) / 100.0;
 	}
-    
+
+
     public static Date addDate(Date d, int dagar) {
        Calendar calendar = Calendar.getInstance();
        calendar.setTime(d);
