@@ -13,11 +13,11 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  */
 public class SokResultKlase implements IsSerializable{
 	public ArtSidaKlase artSidaKlase;
-	public String plats;
+	//public String plats;
 	public SokResultKlase() {}
-	public SokResultKlase(ArtSidaKlase artSidaKlase, String plats) {
+	public SokResultKlase(ArtSidaKlase artSidaKlase) {
 		this.artSidaKlase=artSidaKlase;
-		this.plats=plats;
+		//this.plats=plats;
 	}
 
 }

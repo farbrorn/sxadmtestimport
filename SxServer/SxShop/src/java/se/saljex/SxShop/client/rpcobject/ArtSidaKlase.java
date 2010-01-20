@@ -17,6 +17,7 @@ public int klasid;
 public String rubrik=null;
 public String text=null;
 public String infourl=null;
+public String platsText=null;
 public ArrayList<ArtSidaKlaseArtikel> artiklar=new ArrayList();
 public ArtSidaKlase() {}
 public ArtSidaKlase(int klasid, String rubrik, String text, String infourl) {

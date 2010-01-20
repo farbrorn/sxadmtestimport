@@ -26,4 +26,8 @@ public interface SxShopRPCAsync {
 	public void getSokResult(String sokStr, int maxRader, AsyncCallback callback);
 	public void getSokArtikel(String sokStr, int maxRader, AsyncCallback callback);
 	public void getInloggadAnvandare(AsyncCallback callback);
+	public void autoLogin(String anvandare, String autoLogInId, AsyncCallback callback);
+	public void logIn(String anvandare, String losen, boolean stayLoggedIn, AsyncCallback callback);
+	public void logOut(AsyncCallback callback);
+
 }

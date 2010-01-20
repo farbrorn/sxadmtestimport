@@ -8,6 +8,7 @@
  */
 
 package se.saljex.SxShop.server;
+import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -16,7 +17,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
+import java.util.Date;
+import java.util.Random;
 import javax.ejb.EJB;
+import javax.persistence.EntityNotFoundException;
 import javax.sql.DataSource;
 import se.saljex.SxShop.client.rpcobject.ArtGrupp;
 import se.saljex.SxShop.client.rpcobject.ArtSida;
@@ -29,7 +33,13 @@ import se.saljex.SxShop.client.rpcobject.Anvandare;
 import se.saljex.SxShop.client.rpcobject.VaruKorgRad;
 import se.saljex.SxShop.client.rpcobject.NotLoggedInException;
 import se.saljex.SxShop.client.rpcobject.SxShopKreditSparrException;
+import se.saljex.SxShop.client.rpcobject.FelaktigtAntalException;
+
+
+import se.saljex.SxShop.client.rpcobject.IncorrectLogInException;
+import se.saljex.SxShop.client.rpcobject.ServerErrorException;
 import se.saljex.sxserver.KreditSparrException;
+import se.saljex.sxserver.SXUtil;
 import se.saljex.sxserver.SxServerMainLocal;
 import se.saljex.sxserver.websupport.SXSession;
 import se.saljex.sxserver.websupport.WebUtil;
@@ -44,6 +54,7 @@ public class SxShopRPCImpl extends RemoteServiceServlet implements
 	private SxServerMainLocal sxServerMainBean;
 	@javax.annotation.Resource(name = "sxadm")
 	private DataSource sxadm;
+
 
 	public String myMethod(String s) {
 		// Do something interesting with 's' here on the server.
@@ -90,9 +101,9 @@ public class SxShopRPCImpl extends RemoteServiceServlet implements
 					artSidaKlaseArtikel.namn=art.getString(2);
 					artSidaKlaseArtikel.katnamn=art.getString(3);
 					artSidaKlaseArtikel.enhet=anpassaEnhet(art.getString(4));
-					artSidaKlaseArtikel.utpris=art.getDouble(5);
-					artSidaKlaseArtikel.staf_pris1=art.getDouble(6);
-					artSidaKlaseArtikel.staf_pris2=art.getDouble(7);
+					artSidaKlaseArtikel.utpris=SXUtil.getRoundedDecimal(art.getDouble(5));
+					artSidaKlaseArtikel.staf_pris1=SXUtil.getRoundedDecimal(art.getDouble(6));
+					artSidaKlaseArtikel.staf_pris2=SXUtil.getRoundedDecimal(art.getDouble(7));
 					artSidaKlaseArtikel.staf_antal1=art.getDouble(8);
 					artSidaKlaseArtikel.staf_antal2=art.getDouble(9);
 					artSidaKlaseArtikel.rabkod=art.getString(10);
@@ -136,9 +147,9 @@ public class SxShopRPCImpl extends RemoteServiceServlet implements
 	public Anvandare getInloggadAnvandare() {
 
 		// *********** Inloggning för teständamål
-		try {
-		ensureLoggedIn();
-		} catch (Exception e) {}
+//		try {
+//		ensureLoggedIn();
+//		} catch (Exception e) {}
 
 		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
 		Anvandare anvandare=new Anvandare();
@@ -147,16 +158,77 @@ public class SxShopRPCImpl extends RemoteServiceServlet implements
 			sxSession.setKundKontaktId(null);
 			sxSession.setKundnamn(null);
 			sxSession.setKundKontaktNamn(null);
+			sxSession.setKundLoginNamn(null);
 		}
 		anvandare.gastlogin=sxSession.isGastLogin();
 		anvandare.kontaktnamn=sxSession.getKundKontaktNamn();
 		anvandare.kundnamn=sxSession.getKundnamn();
+		anvandare.gastlogin=sxSession.isGastLogin();
+		anvandare.loginnamn = sxSession.getKundLoginNamn();
+		anvandare.autoLoginId = sxSession.getKundAutoLogInId();
 		return anvandare;
+	}
+
+	public Anvandare autoLogin(String anvandare, String autoLogInId) throws IncorrectLogInException, ServerErrorException {
+		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
+		
+		if (!sxSession.getInloggad()) {	// Om vi redan är inloggad så ska vi inte försöka igen
+			if (anvandare!=null && autoLogInId!=null) {
+				if (!anvandare.isEmpty() && !autoLogInId.isEmpty()) {
+					Connection con=null;
+					try {
+						con = sxadm.getConnection();
+						//Autoinlogga om möjligt. Skulle det inte gå faller vi igenom och functionen returnerar gästlogin
+						WebUtil.autoLogInKund(getThreadLocalRequest(), con, anvandare, autoLogInId);
+
+					} catch (SQLException e) {
+						e.printStackTrace();
+						throw (new ServerErrorException());
+					} finally {
+						try { con.close(); } catch(Exception e) {}
+					}
+				}
+			}
+		}
+		return getInloggadAnvandare();
+	}
+
+	public Anvandare logIn(String anvandare, String losen, boolean stayLoggedIn) throws IncorrectLogInException, ServerErrorException {
+		Connection con=null;
+		try {
+			con = sxadm.getConnection();
+			if (WebUtil.logInKund(getThreadLocalRequest(), con, anvandare, losen, stayLoggedIn)) {
+				return getInloggadAnvandare();
+			} else {
+				throw new IncorrectLogInException("Felaktig användare/lösen");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw (new ServerErrorException());
+		} finally {
+			try { con.close(); } catch(Exception e) {}
+		}
+
+	}
+
+	public Anvandare logOut() {
+		Connection con=null;
+		try {
+			con = sxadm.getConnection();
+			WebUtil.logOutKund(getThreadLocalRequest(),con);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try { con.close(); } catch(Exception e) {}
+		}
+//		getThreadLocalRequest().getSession().invalidate();
+		return getInloggadAnvandare();
 	}
 
 	private void ensureLoggedIn() throws NotLoggedInException {
 		// Throw exception om inte inloggad, annars ingen åtgärd
-		//För testkörning - slipper login
+
+/*		//För testkörning - slipper login
 		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
 		sxSession.setKundKontaktId(1);
 		sxSession.setKundnr("055513915");
@@ -164,7 +236,7 @@ public class SxShopRPCImpl extends RemoteServiceServlet implements
 		sxSession.setKundLoginNamn("ulf");
 		sxSession.setKundnamn("Säljex A");
 		sxSession.setInloggad(true);
-
+*/
 		if (!WebUtil.getSXSession(getThreadLocalRequest().getSession()).checkBehorighetKund()) throw new NotLoggedInException();
 	}
 
@@ -185,7 +257,22 @@ public class SxShopRPCImpl extends RemoteServiceServlet implements
 		return null;
 	}
 
-	public ArrayList<VaruKorgRad> updateVaruKorg(String artnr, double antal) throws NotLoggedInException{
+
+	// Kollar om angiven artikel finns i artikelregistret och angivet antal stämmer mot minsäljpack
+	// Throws FelaktigtAntalException om antalet är felaktigt
+	// Throws EntityNotFoundException om artikeln inte finns
+	private void checkFelaktigtAntalAndThrowException(Connection con, String artnr, double antal) throws FelaktigtAntalException, EntityNotFoundException, SQLException {
+			PreparedStatement stm=con.prepareStatement("select namn, minsaljpack, enhet from artikel where nummer=?");
+			stm.setString(1, artnr);
+			ResultSet rs = stm.executeQuery();
+			double minSaljpack = 0;
+			if (rs.next()) {
+				minSaljpack = rs.getDouble(2);
+				if (minSaljpack!=0 && antal % minSaljpack > 0) throw new FelaktigtAntalException("Angivet antal för artikel " + artnr + " " + rs.getString(1) + " går inte jämt upp i minsta odelbara förpackning " + minSaljpack + " " + rs.getString(3) + ". Kontrollera antal och enhet.");
+			} else throw new EntityNotFoundException();
+	}
+
+	public ArrayList<VaruKorgRad> updateVaruKorg(String artnr, double antal) throws NotLoggedInException, FelaktigtAntalException{
 		ArrayList<VaruKorgRad> ar=null;
 		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
 
@@ -194,6 +281,7 @@ public class SxShopRPCImpl extends RemoteServiceServlet implements
 		Connection con=null;
 		try {
 			con = sxadm.getConnection();
+			try {		checkFelaktigtAntalAndThrowException(con, artnr, antal); }	catch (EntityNotFoundException e) {}
 
 			if (antal>0) {
 				//Spara nytt värde i varukorgen
@@ -212,7 +300,7 @@ public class SxShopRPCImpl extends RemoteServiceServlet implements
 	}
 
 
-	public ArrayList<VaruKorgRad> addVaruKorg(String artnr, double antal) throws NotLoggedInException {
+	public ArrayList<VaruKorgRad> addVaruKorg(String artnr, double antal) throws NotLoggedInException, FelaktigtAntalException {
 		ArrayList<VaruKorgRad> ar=null;
 		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
 
@@ -236,16 +324,9 @@ public class SxShopRPCImpl extends RemoteServiceServlet implements
 			rs.close();
 			stm.close();
 
-			//Kolla om artikeln finns i artikelregistret
-			stm=con.prepareStatement("select count(*) from artikel where nummer=?");
-			stm.setString(1, artnr);
-			rs = stm.executeQuery();
-			boolean artnrGiltigt=false;
-			if (rs.next()) {
-				if (rs.getInt(1)>0) artnrGiltigt=true;
-			}
-			rs.close();
-			stm.close();
+			//Kolla om antalet är giltigt samt om artikeln finns i artikelregistret
+			boolean artnrGiltigt=true;
+			try {		checkFelaktigtAntalAndThrowException(con, artnr, antal); }	catch (EntityNotFoundException e) { artnrGiltigt=false; }
 
 			//Spara nytt värde i varukorgen
 			if (artnrGiltigt) {
@@ -309,6 +390,8 @@ public class SxShopRPCImpl extends RemoteServiceServlet implements
 				r.pris=lagstaBrutto;
 				r.rab=bastaRab;
 			}
+			r.pris = SXUtil.getRoundedDecimal(r.pris); //Avrundat till 2 decimaler
+			r.rab = SXUtil.getRoundedDecimal(r.rab);
 			ar.add(r);
 
 		}
@@ -337,9 +420,19 @@ public class SxShopRPCImpl extends RemoteServiceServlet implements
 		//Returnerar null om inga rader finns i varukorgen
 		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
 		ensureLoggedIn();
+		Connection con=null;
+		ArrayList<Integer> orders=null;
 		try {
-			return sxServerMainBean.saveSxShopOrder(sxSession.getKundKontaktId(), sxSession.getKundnr(), sxSession.getKundKontaktNamn(), (short)0, marke);
+			con = sxadm.getConnection();
+			orders =	sxServerMainBean.saveSxShopOrder(sxSession.getKundKontaktId(), sxSession.getKundnr(), sxSession.getKundKontaktNamn(), (short)0, marke);
+			for (Integer o : orders) {
+				WebUtil.logAnvandarhandelse(getThreadLocalRequest(), con, sxSession.getKundLoginNamn(), "Sparad order: " + o);
+			}
 		} catch (KreditSparrException e) { throw new SxShopKreditSparrException(); }
+		catch (SQLException se) { se.printStackTrace(); }// I övrigt ingnorera denna eftersom ordrarna ändå är sparade
+		finally { try { con.close(); } catch (Exception ee) {}
+		}
+		return orders;
 
 	}
 
@@ -416,9 +509,9 @@ String qa3=" order by prio, a.nummer";
 					artSidaKlaseArtikel.namn=rsArtikel.getString(3);
 					artSidaKlaseArtikel.katnamn=rsArtikel.getString(3);
 					artSidaKlaseArtikel.enhet=anpassaEnhet(rsArtikel.getString(5));
-					artSidaKlaseArtikel.utpris=rsArtikel.getDouble(6);
-					artSidaKlaseArtikel.staf_pris1=rsArtikel.getDouble(7);
-					artSidaKlaseArtikel.staf_pris2=rsArtikel.getDouble(8);
+					artSidaKlaseArtikel.utpris=SXUtil.getRoundedDecimal(rsArtikel.getDouble(6));
+					artSidaKlaseArtikel.staf_pris1=SXUtil.getRoundedDecimal(rsArtikel.getDouble(7));
+					artSidaKlaseArtikel.staf_pris2=SXUtil.getRoundedDecimal(rsArtikel.getDouble(8));
 					artSidaKlaseArtikel.staf_antal1=rsArtikel.getDouble(9);
 					artSidaKlaseArtikel.staf_antal2=rsArtikel.getDouble(10);
 					artSidaKlaseArtikel.rabkod=rsArtikel.getString(11);
@@ -433,7 +526,7 @@ String qa3=" order by prio, a.nummer";
 					artSidaKlase.artiklar.add(artSidaKlaseArtikel);
 				}
 				if (raderArtikelCn>0) {
-					sokResult.sokResultKlasar.add(new SokResultKlase(artSidaKlase,""));
+					sokResult.sokResultKlasar.add(new SokResultKlase(artSidaKlase));
 				}
 
 			} catch (SQLException e) { System.out.print("Exception " + e.toString()); e.printStackTrace();
@@ -577,7 +670,7 @@ String q3=" ) as g"+
 					artSidaKlase.artiklar.add(artSidaKlaseArtikel);
 				}
 				if (raderArtikelCn>0) {
-					sokResult.sokResultKlasar.add(new SokResultKlase(artSidaKlase,""));
+					sokResult.sokResultKlasar.add(new SokResultKlase(artSidaKlase));
 				}
 
 				Integer tempKlasid=null;
@@ -590,15 +683,20 @@ String q3=" ) as g"+
 						sokResult.merRaderFinns=true;
 						break;
 					}
+					SokResultKlase sokResultKlase;
 					if (tempKlasid==null) {
 						//Första gången
 						artSidaKlase=new ArtSidaKlase(rsKatalog.getInt(5), rsKatalog.getString(6), rsKatalog.getString(7), rsKatalog.getString(8));
-						sokResult.sokResultKlasar.add(new SokResultKlase(artSidaKlase, rsKatalog.getString(1)));
+						sokResultKlase = new SokResultKlase(artSidaKlase);
+						sokResultKlase.artSidaKlase.platsText=rsKatalog.getString(1);
+						sokResult.sokResultKlasar.add(sokResultKlase);
 						tempKlasid=rsKatalog.getInt(5);
 					}
 					if (!tempKlasid.equals(rsKatalog.getInt(5))) {
 						artSidaKlase=new ArtSidaKlase(rsKatalog.getInt(5), rsKatalog.getString(6), rsKatalog.getString(7), rsKatalog.getString(8));
-						sokResult.sokResultKlasar.add(new SokResultKlase(artSidaKlase, rsKatalog.getString(1)));
+						sokResultKlase = new SokResultKlase(artSidaKlase);
+						sokResultKlase.artSidaKlase.platsText=rsKatalog.getString(1);
+						sokResult.sokResultKlasar.add(sokResultKlase);
 						tempKlasid=rsKatalog.getInt(5);
 					}
 					artSidaKlaseArtikel = new ArtSidaKlaseArtikel();

@@ -22,6 +22,7 @@ import se.saljex.SxShop.client.rpcobject.SxShopKreditSparrException;
  * @author ulf
  */
 public class ArtikelCheckout extends VerticalPanel {
+	final GlobalData globalData;
 	ArtikelPanel artikelPanel;
 	Button skickaOrderButton=new Button("Skicka order", new ClickHandler() {
 		public void onClick(ClickEvent event) {
@@ -32,7 +33,8 @@ public class ArtikelCheckout extends VerticalPanel {
 
 
 
-	public ArtikelCheckout(ArtikelPanel artikelPanel) {
+	public ArtikelCheckout(final GlobalData globalData, ArtikelPanel artikelPanel) {
+		this.globalData = globalData;
 		this.artikelPanel = artikelPanel;
 		Label rubrik = new Label("Skicka order");
 		rubrik.addStyleName("sx-huvudrubrik");
@@ -47,7 +49,7 @@ public class ArtikelCheckout extends VerticalPanel {
 
 	public void skickaOrder() {
 		artikelPanel.vantaDialogBox.show();
-		artikelPanel.getService().skickaOrder(markeTextBox.getValue(), callbackSkickaOrder);
+		globalData.service.skickaOrder(markeTextBox.getValue(), callbackSkickaOrder);
 	}
 
 	final AsyncCallback callbackSkickaOrder = new AsyncCallback() {

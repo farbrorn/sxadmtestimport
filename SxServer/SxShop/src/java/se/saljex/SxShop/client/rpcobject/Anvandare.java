@@ -16,6 +16,8 @@ public class Anvandare implements IsSerializable {
 	public boolean gastlogin=true;
 	public String kundnamn=null;
 	public String kontaktnamn=null;
+	public String loginnamn=null;
+	public String autoLoginId=null;	//id för automatisk inloggning
 	public Anvandare() {}
 
 }

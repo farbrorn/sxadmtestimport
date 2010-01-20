@@ -9,6 +9,10 @@ import se.saljex.SxShop.client.rpcobject.VaruKorgRad;
 import se.saljex.SxShop.client.rpcobject.SokResult;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.logical.shared.CloseEvent;
+import com.google.gwt.event.logical.shared.CloseHandler;
+import com.google.gwt.event.logical.shared.OpenEvent;
+import com.google.gwt.event.logical.shared.OpenHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -22,12 +26,14 @@ import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import java.util.ArrayList;
+import se.saljex.SxShop.client.rpcobject.SokResultKlase;
 
 /**
  *
  * @author ulf
  */
 public class ArtikelPanel extends DockPanel {
+		final GlobalData globalData;
 		VantaDialogBox vantaDialogBox = new VantaDialogBox(); //Modal dialog
 
 		DisclosurePanel varuKorgPanel=new DisclosurePanel("Varukorg");
@@ -41,16 +47,16 @@ public class ArtikelPanel extends DockPanel {
 		TextBox sokStr = new TextBox();
 		Button sokKnapp = new Button("Sök", new ClickHandler() {
 			public void onClick(ClickEvent event) {
-						getService().getSokResult(sokStr.getValue(), 100, callbackSok);
+						globalData.service.getSokResult(sokStr.getValue(), 100, callbackSok);
 			}
 			});
 		ArtikelMainPanel artSidaPanel;
 		ArtikelVarukorg artikelVarukorg;
 		ArtikelTrad at;
-		private SxShopRPCAsync service;
+		//private SxShopRPCAsync service;
 
-		public ArtikelPanel(SxShopRPCAsync service) {
-			this.service=service;
+		public ArtikelPanel(final GlobalData globalData) {
+			this.globalData = globalData;
 			sokKnapp.addStyleName("sx-sokknapp");
 			HorizontalPanel sokPanel = new HorizontalPanel();
 			sokPanel.setSpacing(4);
@@ -59,10 +65,10 @@ public class ArtikelPanel extends DockPanel {
 			topMenuPanel.add(sokPanel);
 
 			topMenuPanel.addStyleName("sx-submenutop");
-			artSidaPanel = new ArtikelMainPanel(this);
-			artikelVarukorg = new ArtikelVarukorg(this);
+			artSidaPanel = new ArtikelMainPanel(globalData,this);
+			artikelVarukorg = new ArtikelVarukorg(globalData,this);
 			//artSidaPanel.setVarukorg(artikelVarukorg);
-			at = new ArtikelTrad(service);
+			at = new ArtikelTrad(globalData);
 			mainScrollPanel.setSize("100%", "100%");
 			mainScrollPanel.addStyleName("sx-mainpanel");
 			mainScrollPanel.add(artSidaPanel);
@@ -76,7 +82,7 @@ public class ArtikelPanel extends DockPanel {
 						TreeItem item = event.getSelectedItem();
 						TradCallbackHandler tch = new TradCallbackHandler(item, artSidaPanel);
 						ArtTradUserObject userObject = (ArtTradUserObject)item.getUserObject();
-						getService().getArtSida(userObject.artGrupp.grpid, tch.callbackFillGrupp);
+						globalData.service.getArtSida(userObject.artGrupp.grpid, tch.callbackFillGrupp);
 					}
 				});
 			//varukorgScrollPanel.setSize("", "100px");
@@ -95,7 +101,9 @@ public class ArtikelPanel extends DockPanel {
 			add(varuKorgPanel, DockPanel.NORTH);
 			add(mainScrollPanel, DockPanel.CENTER);
 
-
+			sokStr.setFocus(true);
+			varuKorgPanel.addOpenHandler(new OpenHandler<DisclosurePanel>() {	public void onOpen(OpenEvent<DisclosurePanel> event) { artikelVarukorg.getSokTextBox().setFocus(true);	}	});
+			varuKorgPanel.addCloseHandler(new CloseHandler<DisclosurePanel>() {	public void onClose(CloseEvent<DisclosurePanel> event) {	sokStr.setFocus(true);	}	});
 
 
 		}
@@ -115,7 +123,7 @@ public class ArtikelPanel extends DockPanel {
 			artSidaPanel.fillWidget(w);
 		}
 		
-		public SxShopRPCAsync getService() { return service; }
+//		public SxShopRPCAsync getService() { return service; }
 
 		public void resize(int windowWidth, int windowHeight) {
 
@@ -137,6 +145,10 @@ public class ArtikelPanel extends DockPanel {
 
 	final AsyncCallback callbackSok = new AsyncCallback() {
 		public void onSuccess(Object result) {
+			SokResult sokResult = (SokResult)result;
+			for (SokResultKlase rk : sokResult.sokResultKlasar) {
+			}
+			//sokResult.sokResultKlasar.get(1).artSidaKlase.text =
 			artSidaPanel.fill((SokResult)result);
 		}
 
