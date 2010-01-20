@@ -105,31 +105,18 @@ public class Login extends HttpServlet {
 	private void setFelaktigAnvandare() {
 		f.anvandareErr = "Felaktig användare/lösenord";
 		request.setAttribute("loginformdata", f);
-		SXUtil.log("Felaktig inloggning Användare " + f.anvandare + " fråån ip " + request.getRemoteAddr());
+		SXUtil.log("Felaktig inloggning Användare " + f.anvandare + " från ip " + request.getRemoteAddr());
 	}
 
 	private boolean loginKund() throws SQLException {
-		if (f.anvandare != null) {
-			st = con.prepareStatement("select k.nummer, k.namn, kk.namn, kk.kontaktid, kl.loginnamn from kund k, kundkontakt kk, kundlogin kl where k.nummer = kk.kundnr and kk.kontaktid = kl.kontaktid and kl.loginnamn=? and kl.loginlosen=?");
-			st.setString(1, f.anvandare);
-			st.setString(2, request.getParameter("losen"));
-			ResultSet rs = st.executeQuery();
-			if (rs.next()) {
-				sxSession.setInloggad(true);
-				sxSession.setKundnr(rs.getString(1));
-				sxSession.setKundnamn(rs.getString(2));
-				sxSession.setKundKontaktNamn(rs.getString(3));
-				sxSession.setKundKontaktId(rs.getInt(4));
-				sxSession.setKundLoginNamn(rs.getString(5));
-				return true;
-			} else {
-				// LoginError
-				setFelaktigAnvandare();
-				return false;
-			}
+		if (WebUtil.logInKund(request, con, f.anvandare, request.getParameter("losen"))) {
+			return true;
+		} else {
+			setFelaktigAnvandare();
+			return false;
 		}
-		return false;
 	}
+	
 	private boolean loginIntra() throws SQLException {
 		if (f.anvandare != null) {
 			st = con.prepareStatement("select forkortning, namn, a.behorighet, lagernr from saljare s, anvbehorighet a where a.anvandare = s.namn " +
