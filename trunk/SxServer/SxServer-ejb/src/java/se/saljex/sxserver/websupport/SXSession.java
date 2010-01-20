@@ -29,6 +29,8 @@ public class SXSession {
 	private String kundKontaktNamn = null;
 	private Integer kundKontaktId = null;
 	private String kundLoginNamn = null;
+	private boolean kundStayLoggedIn=false;		//Om kunden vill ha autoinloggning
+	private String kundAutoLogInId=null;
 
 	private Integer inkopInloggatBestNr = null;
 
@@ -199,6 +201,17 @@ public class SXSession {
 
 	public void setGastLogin(boolean gastLoggin) {
 		this.gastLogin = gastLoggin;
+	}
+
+	public boolean isKundStayLoggedIn() { return kundStayLoggedIn; }
+	public void setKundStayLoggedIn(boolean kundStayLoggedIn) { this.kundStayLoggedIn = kundStayLoggedIn; }
+
+	public String getKundAutoLogInId() {
+		return kundAutoLogInId;
+	}
+
+	public void setKundAutoLogInId(String kundAutoLogInId) {
+		this.kundAutoLogInId = kundAutoLogInId;
 	}
 	
 }

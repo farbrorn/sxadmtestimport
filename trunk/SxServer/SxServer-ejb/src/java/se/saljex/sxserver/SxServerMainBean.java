@@ -456,16 +456,24 @@ public class SxServerMainBean implements SxServerMainLocal {
 	}
 
 	public ArrayList<Integer> saveSxShopOrder(int kontaktId, String kundnr, String kontaktNamn, short lagerNr, String marke) throws KreditSparrException {
+		//Spara angiven användares varukorg som en riktig order
+		//Returnerar en lista över de 'riktiga' order somskapas (om flera som t.ex. vid direktleverans)
+		//Returnerar null om ingen order registrerats (mest troligtom varukorgen var tom)
 		SimpleOrderHandler sord = new SimpleOrderHandler(em, kundnr, kontaktNamn, lagerNr, "00", marke);
 		Iterator i = em.createNamedQuery("TableVarukorg.findByKontaktidVK").setParameter("kontaktid", kontaktId).getResultList().iterator();
+		int antalRader=0;
 		while (i.hasNext()) {
+			antalRader++;
 			TableVarukorg v = (TableVarukorg)i.next();
 			sord.addRow(v.getTableVarukorgPK().getArtnr(),v.getAntal());
 		}
+		if (antalRader==0) return null;	//Vi har inga rader i varukorgen. returnera null. Bra att göra retur redan här så vi inte går vidare och försöker spara
 		if (sord.getOrdreg().size() < 0) return null;
 		ArrayList<Integer> orderList = sord.saveAsOrder();
-		em.createNamedQuery("TableVarukorg.deleteByKontaktidVK").setParameter("kontaktid", kontaktId).executeUpdate();
-		return orderList;
+		if (orderList.size()>0) {
+			em.createNamedQuery("TableVarukorg.deleteByKontaktidVK").setParameter("kontaktid", kontaktId).executeUpdate();
+			return orderList;
+		} else return null;
 	}
 	
 
