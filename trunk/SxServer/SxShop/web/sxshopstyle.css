@@ -86,6 +86,7 @@
 }
 .sx-anchor {
 	text-decoration:none;
+
 }
 
 .sx-tb-artnr {
@@ -114,12 +115,27 @@
 }
 
 .sx-tb-andra .sx-tb-tabort {
-	width: 44px;
+	width: 18px;
+	padding-left: 1px;
 }
 
 .sx-feltext {
 	color: red;
 }
+
+
+
+
+
+
+.sx-PushButton-up {
+  cursor: pointer;
+}
+
+.sx-PushButton-up-hovering {
+  cursor: pointer;
+}
+
 
 /**
  * Applied to the entire page.

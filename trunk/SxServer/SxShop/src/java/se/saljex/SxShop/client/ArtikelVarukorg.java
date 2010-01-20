@@ -6,6 +6,7 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.gen2.table.override.client.FlexTable;
+import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -33,6 +34,7 @@ public class ArtikelVarukorg extends VerticalPanel implements VarukorgCallbackIn
 	public static final int COL_TABORT=8;
 
 
+	private final GlobalData globalData;
 
 	ArtikelCheckout artikelCheckout;
 	Label errortext = new Label();
@@ -69,8 +71,8 @@ public class ArtikelVarukorg extends VerticalPanel implements VarukorgCallbackIn
 
 	final AsyncCallback callbackVarukorgAndra = new AsyncCallback() {
 		public void onSuccess(Object result) {
-			artikelPanel.updateVarukorg((ArrayList)result);
 			artikelPanel.vantaDialogBox.hide();
+			artikelPanel.updateVarukorg((ArrayList)result);
 		}
 
 		public void onFailure(Throwable caught) {
@@ -82,8 +84,8 @@ public class ArtikelVarukorg extends VerticalPanel implements VarukorgCallbackIn
 
 	final AsyncCallback callbackVarukorgTabort = new AsyncCallback() {
 		public void onSuccess(Object result) {
-			artikelPanel.updateVarukorg((ArrayList)result);
 			artikelPanel.vantaDialogBox.hide();
+			artikelPanel.updateVarukorg((ArrayList)result);
 		}
 
 		public void onFailure(Throwable caught) {
@@ -94,9 +96,10 @@ public class ArtikelVarukorg extends VerticalPanel implements VarukorgCallbackIn
 	};
 
 
-	public ArtikelVarukorg(ArtikelPanel artikelPanel) {
+	public ArtikelVarukorg(final GlobalData globalData, ArtikelPanel artikelPanel) {
 
-		artikelCheckout=new ArtikelCheckout(artikelPanel);
+		this.globalData=globalData;
+		artikelCheckout=new ArtikelCheckout(globalData, artikelPanel);
 
 		this.artikelPanel=artikelPanel;
 		errortext.addStyleName("sx-feltext");
@@ -119,8 +122,8 @@ public class ArtikelVarukorg extends VerticalPanel implements VarukorgCallbackIn
 		ft.setHTML(0, COL_ENHET, "Enh");
 		ft.setHTML(0, COL_PRIS, "Pris");
 		ft.setHTML(0, COL_RAB, "Rab");
-		ft.setHTML(0, COL_ANDRA, "Ändra");
-		ft.setHTML(0, COL_TABORT, "Ta bort");
+//		ft.setHTML(0, COL_ANDRA, "Ändra");
+//		ft.setHTML(0, COL_TABORT, "Ta bort");
 		rowFormatter.addStyleName(0, "sx-tablerubrik");
 		cellFormatter.addStyleName(0, COL_ARTNR, "sx-tb-artnr");
 		cellFormatter.addStyleName(0, COL_NAMN, "sx-tb-benamning");
@@ -141,13 +144,15 @@ public class ArtikelVarukorg extends VerticalPanel implements VarukorgCallbackIn
 
 		add(ftScrollPanel);
 		actionPanel.setSpacing(4);
-		actionPanel.add(new Label("Sök:"));
-		actionPanel.add(checkoutButton);
+		actionPanel.add(new Label("Snabbsök:"));
 		actionPanel.add(nyArtnr);
+		actionPanel.add(checkoutButton);
 		add(actionPanel);
-		artikelPanel.getService().getVaruKorg(callbackGetVarukorg);
+		globalData.service.getVaruKorg(callbackGetVarukorg);
 	}
 
+	public TextBox getSokTextBox() { return nyArtnr; }
+	
 	public void setVarukorg(ArrayList<VaruKorgRad> varukorg) {
 		int cn=1;
 		varukorgRader.clear();
@@ -177,7 +182,7 @@ public class ArtikelVarukorg extends VerticalPanel implements VarukorgCallbackIn
 	}
 
 	public void nyArtnrOnKeyUp() {
-		artikelPanel.getService().getSokArtikel(nyArtnr.getValue(), 10, artikelSokCallback);
+		globalData.service.getSokArtikel(nyArtnr.getValue(), 10, artikelSokCallback);
 	}
 
 	final AsyncCallback artikelSokCallback = new AsyncCallback() {
@@ -215,12 +220,12 @@ public class ArtikelVarukorg extends VerticalPanel implements VarukorgCallbackIn
 
 	public void varukorgAnchorClickCallback(VarukorgAnchor varukorgAnchor) {
 		if (varukorgAnchor.col==COL_ANDRA) {
-		double antal;
-		errortext.setVisible(false);
+			double antal;
+			errortext.setVisible(false);
 			try {
 				antal = Double.parseDouble(varukorgAnchor.varukorgRadWidgets.nyttAntal.getValue());
 				artikelPanel.vantaDialogBox.show();
-				artikelPanel.getService().updateVaruKorg(varukorgAnchor.varukorgRadWidgets.artnr.getText(), antal, callbackVarukorgAndra);
+				globalData.service.updateVaruKorg(varukorgAnchor.varukorgRadWidgets.artnr.getText(), antal, callbackVarukorgAndra);
 			} catch (NumberFormatException e) {
 				errortext.setText("Felaktigt angivet antal.");
 				errortext.setVisible(true);
@@ -229,7 +234,7 @@ public class ArtikelVarukorg extends VerticalPanel implements VarukorgCallbackIn
 
 		} else if (varukorgAnchor.col==COL_TABORT) {
 			artikelPanel.vantaDialogBox.show();
-			artikelPanel.getService().deleteVaruKorg(varukorgAnchor.varukorgRadWidgets.artnr.getText(), callbackVarukorgTabort);
+			globalData.service.deleteVaruKorg(varukorgAnchor.varukorgRadWidgets.artnr.getText(), callbackVarukorgTabort);
 		}
 
 	}
@@ -252,16 +257,20 @@ public class ArtikelVarukorg extends VerticalPanel implements VarukorgCallbackIn
 
 
 		public VarukorgRadWidgets(int row, VaruKorgRad varuKorgRad, VarukorgCallbackInterface callback) {
+			NumberFormat fmt = NumberFormat.getFormat("0.00");
+
 			artnr = new Label(noNull(varuKorgRad.artnr));
 			namn = new Label(noNull(varuKorgRad.namn));
 			antal= new Label(noNull(Double.toString(varuKorgRad.antal)));
 			nyttAntal = new VarukorgTextBox(row,COL_ANTAL, noNull(Double.toString(varuKorgRad.antal)), this, callback);
 			nyttAntal.addStyleName("sx-vktextbox");
-			pris = new Label(noNull(Double.toString(varuKorgRad.pris)));
+			pris = new Label(noNull(fmt.format(varuKorgRad.pris)));
 			rab= new Label(noNull(Double.toString(varuKorgRad.rab)));
 			enhet = new Label(noNull(varuKorgRad.enhet));
-			andra = new VarukorgAnchor(row, COL_ANDRA, "Ändra", this, callback);
-			tabort = new VarukorgAnchor(row, COL_TABORT, "Ta bort", this, callback);
+//			andra = new VarukorgAnchor(row, COL_ANDRA, "Ändra", this, callback);
+//			tabort = new VarukorgAnchor(row, COL_TABORT, "Ta bort", this, callback);
+			andra = new VarukorgAnchor(row, COL_ANDRA, VarukorgAnchor.BTN_ANDRA, this, callback);
+			tabort = new VarukorgAnchor(row, COL_TABORT, VarukorgAnchor.BTN_TABORT, this, callback);
 		}
 		
 		private String noNull(String s) { return s==null ? "":s; }

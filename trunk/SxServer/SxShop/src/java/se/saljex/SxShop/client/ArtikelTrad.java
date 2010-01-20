@@ -8,7 +8,6 @@ package se.saljex.SxShop.client;
 import se.saljex.SxShop.client.rpcobject.ArtGrupp;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.Tree;
 import com.google.gwt.user.client.ui.TreeItem;
 import java.util.ArrayList;
@@ -19,6 +18,7 @@ import java.util.ArrayList;
  */
 public class ArtikelTrad extends Tree {
 
+	final GlobalData globalData;
 	private ArrayList<ArtGrupp> grupper;
 
 	final AsyncCallback callback = new AsyncCallback() {
@@ -32,10 +32,12 @@ public class ArtikelTrad extends Tree {
 		}
 	};
 
-	public ArtikelTrad(SxShopRPCAsync service) {
-		service.getArtikelTrad(callback);
+	public ArtikelTrad(final GlobalData globalData) {
+		this.globalData = globalData;
+		globalData.service.getArtikelTrad(callback);
 
 	}
+
 
 
 	private void fillTree(int rootGrp) {
@@ -63,19 +65,4 @@ public class ArtikelTrad extends Tree {
 		}
 	}
 
-	/*
-  public void adjustSize(int windowWidth, int windowHeight) {
-//    int scrollWidth = windowWidth - getAbsoluteLeft() - 9;
-//    if (scrollWidth < 1) {
-//      scrollWidth = 1;
-//    }
-
-    int scrollHeight = windowHeight - getAbsoluteTop() - 9;
-    if (scrollHeight < 1) {
-      scrollHeight = 1;
-    }
-
-    setPixelSize(200, scrollHeight);
-  }
-*/
 }

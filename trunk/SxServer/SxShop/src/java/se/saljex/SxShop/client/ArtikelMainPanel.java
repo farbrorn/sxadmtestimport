@@ -12,6 +12,9 @@ import se.saljex.SxShop.client.rpcobject.ArtSida;
 import se.saljex.SxShop.client.rpcobject.SokResult;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.event.dom.client.KeyDownEvent;
+import com.google.gwt.event.dom.client.KeyDownHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -21,6 +24,7 @@ import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
@@ -33,6 +37,7 @@ import java.util.ArrayList;
  */
 public class ArtikelMainPanel extends VerticalPanel implements KopKnappCallback{
 
+	private final GlobalData globalData;
 	private NumberFormat numberFormat = NumberFormat.getFormat("0.00");
 	private NumberFormat numberFormatInt = NumberFormat.getFormat("0");
 	private ArtikelVarukorg varukorg=null;
@@ -41,7 +46,8 @@ public class ArtikelMainPanel extends VerticalPanel implements KopKnappCallback{
 	VantaDialogBox vantaDialogBox = new VantaDialogBox(); //Modal dialog
 	KopDialogBox kopDialogBox;
 
-	public ArtikelMainPanel(ArtikelPanel artikelPanel) {
+	public ArtikelMainPanel(final GlobalData globalData, ArtikelPanel artikelPanel) {
+		this.globalData=globalData;
 		addStyleName("sx-artikelmainpanel");
 		this.artikelPanel = artikelPanel;
 		kopDialogBox=new KopDialogBox(artikelPanel);
@@ -80,14 +86,13 @@ public class ArtikelMainPanel extends VerticalPanel implements KopKnappCallback{
 //		addVarukorgIfVisible();
 		add(new Label("Sökresultat för " + sokResult.sokStr));
 		for (SokResultKlase sk : sokResult.sokResultKlasar) {
-			add(new Label(sk.plats));
 			printKlase(sk.artSidaKlase);
 		}
 		if (sokResult.merRaderFinns) {
 			Anchor a=new Anchor("Fler rader finns i sökningen. Klicka här för att visa alla.");
 			a.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-						artikelPanel.getService().getSokResult(sokResult.sokStr, 100, artikelPanel.callbackSok);
+						globalData.service.getSokResult(sokResult.sokStr, 100, artikelPanel.callbackSok);
 			}
 			});
 			add(a);
@@ -219,6 +224,10 @@ public void printKlase(ArtSidaKlase ask) {
 					l = new Label(ask.rubrik);
 					l.addStyleName(KLASERUBRIK);
 					add(l);
+					if (ask.platsText!=null) {	//Visar sökvägen där klasen hittades vid sökning
+						l = new Label(ask.platsText);
+						add(l);
+					}
 					l = new Label(ask.text);
 					add(l);
 					l = new Label(ask.infourl);
@@ -254,14 +263,18 @@ public void kopKnappGetArtikelCallback(final ArtSidaKlaseArtikel artikel) {
 	//Anropas när en köpknapp trycks.
 	kopDialogBox.setArtikel(artikel);
 	kopDialogBox.center();
+	kopDialogBox.setFocusAntal();
 }
 
 
 
 
 public class KopDialogBox extends DialogBox {
+		Image cartImage = new Image("cart48.png");
+		FlexTable artFlexTable = new FlexTable();
 		ArtSidaKlaseArtikel artikel=null;
-		Label artikelText= new Label();
+		Label artNr= new Label();
+		Label artNamn= new Label();
 		final TextBox antal = new TextBox();
 		Label minsaljpack= new Label();
 		Label forpack= new Label();
@@ -291,7 +304,11 @@ public class KopDialogBox extends DialogBox {
 
 		errortext.addStyleName("sx-feltext");
 		vp.add(errortext);
-		vp.add(artikelText);
+		artFlexTable.setWidget(0, 0, cartImage);
+		artFlexTable.getFlexCellFormatter().setRowSpan(0, 0, 2);
+		artFlexTable.setWidget(0, 1, artNr);
+		artFlexTable.setWidget(1, 0, artNamn);
+		vp.add(artFlexTable);
 		hp.add(new Label("Antal: "));
 		hp.add(antal);
 		vp.add(hp);
@@ -314,16 +331,27 @@ public class KopDialogBox extends DialogBox {
 		hp.add(btnOk);
 		vp.add(hp);
 
+		antal.addKeyDownHandler(new KeyDownHandler() { public void onKeyDown(KeyDownEvent event) {
+			if (event.getNativeKeyCode()==KeyCodes.KEY_ENTER) btnOk.click();
+			else if (event.getNativeKeyCode()==KeyCodes.KEY_ESCAPE) btnAvbryt.click();
+		}	});
+
+
 		add(vp);
 //		center();
 
 	}
 
 
+	public void setFocusAntal() {
+		antal.setSelectionRange(0, antal.getValue().length());
+		antal.setFocus(true); 
+	}
 
 	public void setArtikel(ArtSidaKlaseArtikel artikel) {
 		this.artikel=artikel;
-		artikelText.setText(artikel.nummer + " " + artikel.namn);
+		artNr.setText(artikel.nummer);
+		artNamn.setText(artikel.namn);
 		antal.setValue(numberFormat.format(artikel.forpack));
 		forpack.setText(numberFormat.format(artikel.forpack)+ " " + artikel.enhet);
 		minsaljpack.setText(numberFormat.format(artikel.minsaljpack) + " " + artikel.enhet);
@@ -353,7 +381,7 @@ public class KopDialogBox extends DialogBox {
 				setErrorText("Antalet går ej jämt upp i minsta odelbara förpackning. Kontrollera antal och enhet.");
 			} else {
 				vantaDialogBox.show();
-				artikelPanel.getService().addVaruKorg(artikel.nummer, antalDouble, callbackVaruKorg );
+				globalData.service.addVaruKorg(artikel.nummer, antalDouble, callbackVaruKorg );
 			}
 		} else {
 			setErrorText("Felaktigt antal.");
