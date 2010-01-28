@@ -50,6 +50,10 @@ public class MainEntryPoint implements EntryPoint, ResizeHandler {
 	 * that declares an implementing class as an entry-point
 	 */
 //		VerticalPanel vp = new VerticalPanel();
+		Anchor katalogAnchor = new Anchor("Handla");
+		Anchor kontoAnchor = new Anchor("Mitt konto");
+		KontoPanel kontoPanel = null;
+
 		DockPanel dp = new DockPanel();
 		final GlobalData globalData = new GlobalData();
 		HorizontalPanel headerPanel = new HorizontalPanel();
@@ -64,6 +68,7 @@ public class MainEntryPoint implements EntryPoint, ResizeHandler {
 		Label anvandarStrang = new Label();
 		Anchor logInAnchor = new Anchor("Logga in");
 		Anchor logOutAnchor = new Anchor("Logga ut");
+		Anchor glomtLosenAnchor = new Anchor("Glömt lösen");
 		private final static String INLOGGADSOM=new String("Inloggad som ");
 		private final static String COOKIEAUTOINLOGANVANDARE="autokundloginnamn";
 		private final static String COOKIEAUTOINLOGID="autokundloginid";
@@ -73,27 +78,12 @@ public class MainEntryPoint implements EntryPoint, ResizeHandler {
 	final AsyncCallback callbackGetAnvandare = new AsyncCallback() {
 		public void onSuccess(Object result) {
 			setUpAnvandareWidget((Anvandare)result);
-		}
-
-		public void onFailure(Throwable caught) {
-			anvandarStrang.setText("Fel vi kommunikation. " + caught.toString());
-			anvandareGrid.setWidget(1, 0, null);
-		}
-	};
-
-	final AsyncCallback callbackLogIn = new AsyncCallback() {
-		public void onSuccess(Object result) {
-			setUpAnvandareWidget((Anvandare)result);
 			losen.setText("");
-//			if (stayLoggedIn.getValue()) {
-//				Cookies.setCookie(COOKIEAUTOINLOGANVANDARE, globalData.anvandare.loginnamn, new Date((new Date()).getTime() + COOKIE_TIMEOUT));
-//			} else {
-//				Cookies.removeCookie(COOKIEAUTOINLOGANVANDARE);
-//			}
+			anvandare.setText("");
 		}
 
 		public void onFailure(Throwable caught) {
-			anvandarStrang.setText(caught.getMessage() != null ? caught.getMessage() : "Okänt fel");
+			anvandarStrang.setText(caught.getMessage() != null ? caught.getMessage() : "Okänt fel: " + caught.toString());
 			anvandareGrid.setWidget(1, 0, null);
 		}
 	};
@@ -119,7 +109,6 @@ public class MainEntryPoint implements EntryPoint, ResizeHandler {
 	public void onModuleLoad() {
 		String autoInlogLoginNamn = Cookies.getCookie(COOKIEAUTOINLOGANVANDARE);
 		String autoInlogID = Cookies.getCookie(COOKIEAUTOINLOGID);
-//		anvandare.setText(AutoInloggLoginNamn);
 		anvandare.setPixelSize(80, 18);
 		losen.setPixelSize(80, 18);
 
@@ -139,31 +128,48 @@ public class MainEntryPoint implements EntryPoint, ResizeHandler {
 		logInPanel.add(losen);
 		logInPanel.add(stayLoggedIn);
 		logInPanel.add(logInAnchor);
+		logInPanel.add(glomtLosenAnchor);
 		logInPanel.setSpacing(8);
 		headerPanel.setSize("100%", "40px");
 		logInAnchor.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-						globalData.service.logIn(anvandare.getText(), losen.getText(), stayLoggedIn.getValue(), callbackLogIn);
+						globalData.service.logIn(anvandare.getText(), losen.getText(), stayLoggedIn.getValue(), callbackGetAnvandare);
 			}});
 		logOutAnchor.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
-	//test					Cookies.removeCookie(COOKIEAUTOINLOGANVANDARE);
-						losen.setText("");
-						anvandare.setText("");
 						globalData.service.logOut(callbackGetAnvandare);
 			}});
+		glomtLosenAnchor.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+						GlomtLosen glomtLosen = new GlomtLosen(globalData);
+						glomtLosen.show();
+			}});
+
+
 		anvandareGrid.setWidget(0, 0, anvandarStrang);
 		headerPanel.add(anvandareGrid);
+		katalogAnchor.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				contentPanel.clear();
+				contentPanel.add(artikelPanel);
+				onWindowResized();
+			}
+		});
+		kontoAnchor.addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				contentPanel.clear();
+				if (kontoPanel==null) kontoPanel = new KontoPanel(globalData);
+				contentPanel.add(kontoPanel);
+				onWindowResized();
+			}
+		});
 
-//		mainPanel.add(new Label("Teststräng"));
-//		mainPanel.add(new Label("tespen-"));
-//		mainPanel.setSize("100%", "100%");
-
+		headerPanel.add(katalogAnchor);
+		headerPanel.add(kontoAnchor);
 
 		dp.setBorderWidth(1);
 		dp.setSize("100%", "100%");
 		dp.add(headerPanel,DockPanel.NORTH);
-		//headerPanel.setHeight("50px");
 		dp.setCellHeight(headerPanel, "40px");
 
 		contentPanel.add(artikelPanel);
@@ -180,7 +186,7 @@ public class MainEntryPoint implements EntryPoint, ResizeHandler {
 				}
 		});
 
-		onWindowResized(Window.getClientWidth(), Window.getClientHeight());
+//		onWindowResized(Window.getClientWidth(), Window.getClientHeight());
 
 
 	
@@ -201,21 +207,14 @@ public void onResize(ResizeEvent event) {
   }
 
   public void onWindowResized(int windowWidth, int windowHeight) {
-/*    int scrollWidth = windowWidth - contentPanel.getAbsoluteLeft() - 9;
-    if (scrollWidth < 1) {
-      scrollWidth = 1;
-    }
-
-    int scrollHeight = windowHeight - contentPanel.getAbsoluteTop() - 9;
-    if (scrollHeight < 1) {
-      scrollHeight = 1;
-    }
-
-    contentPanel.setPixelSize(scrollWidth, scrollHeight);
-*/
-	  artikelPanel.resize(windowWidth, windowHeight);
-
-//    at.adjustSize(width, height);
+	  try {
+		((SxResizePanel)contentPanel.getWidget(0)).resize(windowWidth, windowHeight);
+	  } catch (ClassCastException e) {}
+	  //artikelPanel.resize(windowWidth, windowHeight );
+	  //if (kontoPanel!=null) kontoPanel.resize(windowWidth, windowHeight );
+  }
+  public void onWindowResized() {
+	  onWindowResized(Window.getClientWidth(), Window.getClientHeight());
   }
 
 

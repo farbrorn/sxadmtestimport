@@ -5,6 +5,8 @@
 
 package se.saljex.SxShop.client;
 
+import com.google.gwt.event.dom.client.ErrorEvent;
+import com.google.gwt.event.dom.client.LoadEvent;
 import se.saljex.SxShop.client.rpcobject.SokResultKlase;
 import se.saljex.SxShop.client.rpcobject.ArtSidaKlaseArtikel;
 import se.saljex.SxShop.client.rpcobject.ArtSidaKlase;
@@ -12,9 +14,11 @@ import se.saljex.SxShop.client.rpcobject.ArtSida;
 import se.saljex.SxShop.client.rpcobject.SokResult;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.ErrorHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.KeyDownHandler;
+import com.google.gwt.event.dom.client.LoadHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -23,6 +27,7 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.Grid;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
@@ -40,7 +45,8 @@ public class ArtikelMainPanel extends VerticalPanel implements KopKnappCallback{
 	private final GlobalData globalData;
 	private NumberFormat numberFormat = NumberFormat.getFormat("0.00");
 	private NumberFormat numberFormatInt = NumberFormat.getFormat("0");
-	private ArtikelVarukorg varukorg=null;
+
+	private static final int SMALL_IMMAGE_HEIGHT = 20;
 
 	private ArtikelPanel artikelPanel;
 	VantaDialogBox vantaDialogBox = new VantaDialogBox(); //Modal dialog
@@ -48,7 +54,7 @@ public class ArtikelMainPanel extends VerticalPanel implements KopKnappCallback{
 
 	public ArtikelMainPanel(final GlobalData globalData, ArtikelPanel artikelPanel) {
 		this.globalData=globalData;
-		addStyleName("sx-artikelmainpanel");
+		addStyleName(globalData.STYLE_MAINPANEL);
 		this.artikelPanel = artikelPanel;
 		kopDialogBox=new KopDialogBox(artikelPanel);
 	}
@@ -117,7 +123,7 @@ public class ArtikelMainPanel extends VerticalPanel implements KopKnappCallback{
 			l.addStyleName(GRPRUBRIK);
 			add(l);
 
-			l = new Label(artSida.text);
+			l = new HTML(artSida.text);
 			add(l);
 
 			l = new Label(artSida.infourl);
@@ -178,7 +184,7 @@ public class ArtikelMainPanel extends VerticalPanel implements KopKnappCallback{
 						cellFormatter.addStyleName(rowCn, 4, "sx-tb-pris");
 						KopKnapp kopKnapp = new KopKnapp(aska,this);
 						ft.setWidget(rowCn, 7,kopKnapp );
-						if (rowCn%2 > 0 ) rowFormatter.addStyleName(rowCn, "sx-highlite");
+						if (rowCn%2 > 0 ) rowFormatter.addStyleName(rowCn, "");
 						rowCn++;
 
 					}
@@ -188,7 +194,7 @@ public class ArtikelMainPanel extends VerticalPanel implements KopKnappCallback{
 	}
 
 
-public void printKlase(ArtSidaKlase ask) {
+public void printKlase(final ArtSidaKlase ask) {
 					String namn;
 
 					final String GRPRUBRIK = "sx-huvudrubrik";
@@ -209,6 +215,8 @@ public void printKlase(ArtSidaKlase ask) {
 					ft.setWidget(0, 5, new Label("Mängd"));
 					ft.setWidget(0, 6, new Label("Rab"));
 					ft.setWidget(0, 7, new Label(" "));
+					ft.setWidget(0, 8, new Label(" "));
+					ft.setWidget(0, 9, new Label(" "));
 					rowFormatter.addStyleName(0, "sx-tablerubrik");
 					cellFormatter.addStyleName(0, 0, "sx-tb-artnr");
 					cellFormatter.addStyleName(0, 1, "sx-tb-benamning");
@@ -218,6 +226,8 @@ public void printKlase(ArtSidaKlase ask) {
 					cellFormatter.addStyleName(0, 5, "sx-tb-mangd");
 					cellFormatter.addStyleName(0, 6, "sx-tb-rab");
 					cellFormatter.addStyleName(0, 7, "sx-tb-kop");
+					cellFormatter.addStyleName(0, 8, "sx-tb-info");
+					cellFormatter.addStyleName(0, 9, "sx-tb-bild");
 
 					int rowCn=1;
 
@@ -228,11 +238,11 @@ public void printKlase(ArtSidaKlase ask) {
 						l = new Label(ask.platsText);
 						add(l);
 					}
-					l = new Label(ask.text);
+					l = new HTML(ask.text);
 					add(l);
 					l = new Label(ask.infourl);
 					add(l);
-					for (ArtSidaKlaseArtikel aska : ask.artiklar) {
+					for (final ArtSidaKlaseArtikel aska : ask.artiklar) {
 						ft.setWidget(rowCn, 0,new Label(aska.nummer));
 						if (aska.katnamn==null || aska.katnamn.isEmpty()) namn=aska.namn; else namn=aska.katnamn;
 						ft.setWidget(rowCn, 1,new Label(namn));
@@ -250,7 +260,40 @@ public void printKlase(ArtSidaKlase ask) {
 						cellFormatter.addStyleName(rowCn, 4, "sx-tb-pris");
 						KopKnapp kopKnapp = new KopKnapp(aska,this);
 						ft.setWidget(rowCn, 7,kopKnapp );
-						if (rowCn%2 > 0 ) rowFormatter.addStyleName(rowCn, "sx-highlite");
+
+						final Image infoImage = new Image(globalData.IconInfoSmallURL);
+						infoImage.addStyleName("sx-clickicon");
+						infoImage.addClickHandler(new ClickHandler() {
+							public void onClick(ClickEvent event) {
+								ArtikelInfoDialogBox artikelInfoPanel = new ArtikelInfoDialogBox(globalData, aska, ask);
+								artikelInfoPanel.show();
+							}
+						});
+						ft.setWidget(rowCn, 8, infoImage);
+
+						final Image image = new Image(globalData.smallArtURL + aska.bildurl + globalData.ImageSuffix);
+						image.setHeight(SMALL_IMMAGE_HEIGHT + "px");
+						image.addLoadHandler(new LoadHandler() {
+							public void onLoad(LoadEvent event) {
+								int h = image.getHeight();
+								int w = image.getWidth();
+								if (w > SMALL_IMMAGE_HEIGHT) {
+									image.setHeight(Math.round(SMALL_IMMAGE_HEIGHT * h/w)+ "px");
+									image.setWidth(SMALL_IMMAGE_HEIGHT+"px");
+								}
+							}
+						});
+						image.addErrorHandler(new ErrorHandler() {
+
+							public void onError(ErrorEvent event) {
+								image.removeFromParent();
+							}
+						});
+
+
+						ft.setWidget(rowCn, 9, image );
+
+						if (rowCn%2 > 0 ) rowFormatter.addStyleName(rowCn, globalData.STYLE_TR_ODDROW);
 						rowCn++;
 
 					}
@@ -357,12 +400,12 @@ public class KopDialogBox extends DialogBox {
 		minsaljpack.setText(numberFormat.format(artikel.minsaljpack) + " " + artikel.enhet);
 		utpris.setText(numberFormat.format(artikel.utpris) + "/" + artikel.enhet);
 		if (!((Double)0.0).equals(artikel.staf_pris1)) {
-			staf_pris1.setText(numberFormat.format(artikel.staf_pris1) + "/" + artikel.enhet + " vid " + numberFormatInt.format(artikel.staf_antal1) + " " + artikel.enhet);
+			staf_pris1.setText(numberFormat.format(artikel.staf_pris1) + " /" + artikel.enhet + " vid " + numberFormatInt.format(artikel.staf_antal1) + " " + artikel.enhet);
 		} else {
 			staf_pris1.setText("");
 		}
-		prisdatum.setText(DateTimeFormat.getMediumDateFormat().format(artikel.prisdatum ));
-		rab.setText(artikel.rabkod + artikel.kod1!=null || artikel.kod1.isEmpty() ? " - " + artikel.kod1 : "");
+		prisdatum.setText(globalData.getDateString(artikel.prisdatum ));
+		rab.setText(artikel.rabkod + (artikel.kod1!=null && !artikel.kod1.isEmpty() ? " - " + artikel.kod1 : ""));
 		errortext.setText("");
 	}
 

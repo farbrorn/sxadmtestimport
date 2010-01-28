@@ -29,5 +29,13 @@ public interface SxShopRPCAsync {
 	public void autoLogin(String anvandare, String autoLogInId, AsyncCallback callback);
 	public void logIn(String anvandare, String losen, boolean stayLoggedIn, AsyncCallback callback);
 	public void logOut(AsyncCallback callback);
+	public void skickaInloggningsuppgifter(String anvandareOrEpost, AsyncCallback callback);
+	public void getLagerSaldon(String artnr, AsyncCallback callback);
+	public void getFakturaHeaders(int page, int pageSize, AsyncCallback callback);
+	public void getFakturaInfo(int faktnr, AsyncCallback callback);
+	public void getOrderHeaders(AsyncCallback callback);
+	public void getOrderInfo(int ordernr, AsyncCallback callback);
+	public void deleteOrder(int ordernr, AsyncCallback callback);
+	public void changeOrderRow(int ordernr, int pos, String antal, AsyncCallback callback);
 
 }
