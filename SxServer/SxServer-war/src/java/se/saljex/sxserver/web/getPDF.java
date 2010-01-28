@@ -50,10 +50,11 @@ public class getPDF extends HttpServlet {
 		fis.close();
 		
 */	
-        OutputStream out = response.getOutputStream();
+
+		 OutputStream out = response.getOutputStream();
         
-        try {
-            ByteArrayOutputStream bs = SxServerMainBean.getPDF(response);
+//        try {
+            ByteArrayOutputStream bs = SxServerMainBean.getPdfFaktura(0);
             response.setHeader("Expires", "0");
             response.setHeader("Cache-Control", "must-revalidate, post-check=0, pre-check=0");
             response.setHeader("Pragma", "public");
@@ -61,12 +62,7 @@ public class getPDF extends HttpServlet {
             response.setContentLength(bs.size());
             bs.writeTo(out);
             out.flush();
-        } catch (DocumentException ep) { 
-            throw new ServletException("Exception from PDF: DocumentException " + ep.toString());
-        }
-		catch (SQLException es) {
-			throw new ServletException("Exception from PDF: SQLException: " + es.toString());
-		}
+  //      }
  
     } 
 
