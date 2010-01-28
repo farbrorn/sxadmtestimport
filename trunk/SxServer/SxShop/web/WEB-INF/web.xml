@@ -4,9 +4,17 @@
         <servlet-name>SxShopRPC</servlet-name>
         <servlet-class>se.saljex.SxShop.server.SxShopRPCImpl</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>getdoc</servlet-name>
+        <servlet-class>se.saljex.SxShop.server.getdoc</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>SxShopRPC</servlet-name>
         <url-pattern>/se.saljex.SxShop.Main/sxshoprpc</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>getdoc</servlet-name>
+        <url-pattern>/getdoc</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

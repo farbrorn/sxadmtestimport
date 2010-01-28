@@ -15,6 +15,7 @@ import com.google.gwt.event.logical.shared.OpenEvent;
 import com.google.gwt.event.logical.shared.OpenHandler;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DisclosurePanel;
@@ -26,13 +27,12 @@ import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import java.util.ArrayList;
-import se.saljex.SxShop.client.rpcobject.SokResultKlase;
 
 /**
  *
  * @author ulf
  */
-public class ArtikelPanel extends DockPanel {
+public class ArtikelPanel extends DockPanel implements SxResizePanel{
 		final GlobalData globalData;
 		VantaDialogBox vantaDialogBox = new VantaDialogBox(); //Modal dialog
 
@@ -70,11 +70,14 @@ public class ArtikelPanel extends DockPanel {
 			//artSidaPanel.setVarukorg(artikelVarukorg);
 			at = new ArtikelTrad(globalData);
 			mainScrollPanel.setSize("100%", "100%");
-			mainScrollPanel.addStyleName("sx-mainpanel");
+//			mainScrollPanel.addStyleName(globalData.STYLE_MAINPANEL);
 			mainScrollPanel.add(artSidaPanel);
 			tradScrollPanel.addStyleName("sx-arttrad");
+			tradScrollPanel.setHeight("100%");
 //			leftPanel.add(new Label("Varukorg"));
 //			leftPanel.add(varukorgListBox);
+//			at.addStyleName("sx-arttrad");
+//			leftPanel.addStyleName("sx-arttrad");
 			leftPanel.add(at);
 			tradScrollPanel.add(leftPanel);
 			at.addSelectionHandler(new SelectionHandler<TreeItem>() {
@@ -102,8 +105,14 @@ public class ArtikelPanel extends DockPanel {
 			add(mainScrollPanel, DockPanel.CENTER);
 
 			sokStr.setFocus(true);
-			varuKorgPanel.addOpenHandler(new OpenHandler<DisclosurePanel>() {	public void onOpen(OpenEvent<DisclosurePanel> event) { artikelVarukorg.getSokTextBox().setFocus(true);	}	});
-			varuKorgPanel.addCloseHandler(new CloseHandler<DisclosurePanel>() {	public void onClose(CloseEvent<DisclosurePanel> event) {	sokStr.setFocus(true);	}	});
+			varuKorgPanel.addOpenHandler(new OpenHandler<DisclosurePanel>() {	public void onOpen(OpenEvent<DisclosurePanel> event) {
+				artikelVarukorg.getSokTextBox().setFocus(true);
+				resize(Window.getClientWidth(), Window.getClientHeight());
+			}	});
+			varuKorgPanel.addCloseHandler(new CloseHandler<DisclosurePanel>() {	public void onClose(CloseEvent<DisclosurePanel> event) {
+				sokStr.setFocus(true);
+				resize(Window.getClientWidth(), Window.getClientHeight());
+			}	});
 
 
 		}
@@ -125,11 +134,12 @@ public class ArtikelPanel extends DockPanel {
 		
 //		public SxShopRPCAsync getService() { return service; }
 
+		public Widget getThisWidget() { return (Widget)this;}
 		public void resize(int windowWidth, int windowHeight) {
 
-			int scrollHeight = windowHeight - at.getAbsoluteTop() - 9;
+			int scrollHeight = windowHeight - tradScrollPanel.getAbsoluteTop() - 9;
 			if (scrollHeight < 1) scrollHeight = 1;
-			at.setPixelSize(at.getOffsetWidth(), scrollHeight);
+			tradScrollPanel.setHeight(scrollHeight+"px");
 
 			int scrollWidth = windowWidth - mainScrollPanel.getAbsoluteLeft() - 9;
 			if (scrollWidth < 1) scrollWidth = 1;
@@ -145,10 +155,6 @@ public class ArtikelPanel extends DockPanel {
 
 	final AsyncCallback callbackSok = new AsyncCallback() {
 		public void onSuccess(Object result) {
-			SokResult sokResult = (SokResult)result;
-			for (SokResultKlase rk : sokResult.sokResultKlasar) {
-			}
-			//sokResult.sokResultKlasar.get(1).artSidaKlase.text =
 			artSidaPanel.fill((SokResult)result);
 		}
 

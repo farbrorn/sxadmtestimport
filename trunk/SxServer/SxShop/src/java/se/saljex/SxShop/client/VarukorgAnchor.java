@@ -34,7 +34,7 @@ public class VarukorgAnchor extends PushButton {
 		this.callback = callback;
 		this.varukorgRadWidgets=varukorgRadWidgets;
 		//addStyleName("sx-anchor");
-		setStylePrimaryName("sx-PushButton");
+		setStylePrimaryName("sx-pushbutton");
 
 		addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {

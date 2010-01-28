@@ -124,16 +124,16 @@ public class ArtikelVarukorg extends VerticalPanel implements VarukorgCallbackIn
 		ft.setHTML(0, COL_RAB, "Rab");
 //		ft.setHTML(0, COL_ANDRA, "Ändra");
 //		ft.setHTML(0, COL_TABORT, "Ta bort");
-		rowFormatter.addStyleName(0, "sx-tablerubrik");
-		cellFormatter.addStyleName(0, COL_ARTNR, "sx-tb-artnr");
-		cellFormatter.addStyleName(0, COL_NAMN, "sx-tb-benamning");
-		cellFormatter.addStyleName(0, COL_ANTAL, "sx-tb-mangd");
-		cellFormatter.addStyleName(0, COL_NYTTANTAL, "sx-tb-mangd");
-		cellFormatter.addStyleName(0, COL_ENHET, "sx-tb-enhet");
-		cellFormatter.addStyleName(0, COL_PRIS, "sx-tb-pris");
-		cellFormatter.addStyleName(0, COL_RAB, "sx-tb-rab");
-		cellFormatter.addStyleName(0, COL_ANDRA, "sx-tb-andra");
-		cellFormatter.addStyleName(0, COL_TABORT, "sx-tb-tabort");
+		rowFormatter.addStyleName(0, globalData.STYLE_TR_RUBRIK);
+		cellFormatter.addStyleName(0, COL_ARTNR, globalData.STYLE_TD_ARTNR);
+		cellFormatter.addStyleName(0, COL_NAMN, globalData.STYLE_TD_BENAMNING);
+		cellFormatter.addStyleName(0, COL_ANTAL, globalData.STYLE_TD_MANGD);
+		cellFormatter.addStyleName(0, COL_NYTTANTAL, globalData.STYLE_TD_MANGD);
+		cellFormatter.addStyleName(0, COL_ENHET, globalData.STYLE_TD_ENHET);
+		cellFormatter.addStyleName(0, COL_PRIS, globalData.STYLE_TD_PRIS);
+		cellFormatter.addStyleName(0, COL_RAB, globalData.STYLE_TD_RAB);
+		cellFormatter.addStyleName(0, COL_ANDRA, globalData.STYLE_TD_ANDRA);
+		cellFormatter.addStyleName(0, COL_TABORT, globalData.STYLE_TD_TABORT);
 
 		checkoutButton.addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
@@ -170,10 +170,10 @@ public class ArtikelVarukorg extends VerticalPanel implements VarukorgCallbackIn
 				ft.setWidget(cn, COL_RAB, currentRow.rab);
 				ft.setWidget(cn, COL_ANDRA, currentRow.andra);
 				ft.setWidget(cn, COL_TABORT, currentRow.tabort);
-				cellFormatter.addStyleName(cn, COL_ANTAL, "sx-tb-mangd");
-				cellFormatter.addStyleName(cn, COL_PRIS, "sx-tb-pris");
-				cellFormatter.addStyleName(cn, COL_RAB, "sx-tb-rab");
-				if (cn%2 > 0 ) rowFormatter.addStyleName(cn, "sx-highlite");
+				cellFormatter.addStyleName(cn, COL_ANTAL, globalData.STYLE_TD_MANGD);
+				cellFormatter.addStyleName(cn, COL_PRIS, globalData.STYLE_TD_PRIS);
+				cellFormatter.addStyleName(cn, COL_RAB, globalData.STYLE_TD_RAB);
+				if (cn%2 > 0 ) rowFormatter.addStyleName(cn, globalData.STYLE_TR_ODDROW);
 
 				cn++;
 				//add(new Label("Rad:" + currentRow.artnr.getText()));
@@ -263,7 +263,7 @@ public class ArtikelVarukorg extends VerticalPanel implements VarukorgCallbackIn
 			namn = new Label(noNull(varuKorgRad.namn));
 			antal= new Label(noNull(Double.toString(varuKorgRad.antal)));
 			nyttAntal = new VarukorgTextBox(row,COL_ANTAL, noNull(Double.toString(varuKorgRad.antal)), this, callback);
-			nyttAntal.addStyleName("sx-vktextbox");
+			nyttAntal.addStyleName(globalData.STYLE_ANTALTEXTBOX);
 			pris = new Label(noNull(fmt.format(varuKorgRad.pris)));
 			rab= new Label(noNull(Double.toString(varuKorgRad.rab)));
 			enhet = new Label(noNull(varuKorgRad.enhet));
