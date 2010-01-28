@@ -32,6 +32,7 @@ import javax.ejb.TransactionAttributeType;
 import javax.mail.MessagingException;
 import javax.naming.NamingException;
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.sql.DataSource;
@@ -304,15 +305,14 @@ public class SxServerMainBean implements SxServerMainLocal {
 	
 	
 
-	public ByteArrayOutputStream getPDF(HttpServletResponse response) throws IOException, DocumentException{
-		
+	public ByteArrayOutputStream getPdfFaktura(int faktnr) throws IOException {		
 		PdfFaktura sx;
-		sx = new PdfFaktura(em);
-
-		int faktnr = 149804;
-
-		
-		return sx.getPDF(faktnr);
+		try {
+			sx = new PdfFaktura(em);
+			return sx.getPDF(faktnr);
+		} catch (DocumentException e ) {e.printStackTrace();}
+		catch (NoResultException e) {}
+		return null;
 	}
 
 	public void main() {
@@ -474,6 +474,17 @@ public class SxServerMainBean implements SxServerMainLocal {
 			em.createNamedQuery("TableVarukorg.deleteByKontaktidVK").setParameter("kontaktid", kontaktId).executeUpdate();
 			return orderList;
 		} else return null;
+	}
+
+	//Returnerar true vid error
+	public boolean sendSimpleMail(String adress, String header, String bodytext) {
+		try {
+			SendMail m = new SendMail(mailsxmail, SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPUSER), SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPPASSWORD),
+									SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPSERVERPORT), SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPTRANSPORT));
+			m.sendSimpleMail(	em, adress, header, bodytext);
+		}
+		catch (Exception e) { e.printStackTrace(); return true; }
+		return false;
 	}
 	
 

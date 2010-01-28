@@ -26,7 +26,7 @@ public interface SxServerMainLocal {
     void handleTimer(Timer timer);
 
     void startTimers();
-    ByteArrayOutputStream getPDF(HttpServletResponse response) throws IOException, DocumentException, SQLException;
+    public ByteArrayOutputStream getPdfFaktura(int faktnr) throws IOException;
 
 	void main();
 
@@ -46,6 +46,8 @@ public interface SxServerMainLocal {
 	  ArrayList<Integer> saveWorder(int worderNr) throws SQLException, KreditSparrException;
 
 	ArrayList<Integer> saveSxShopOrder(int kontaktId, String kundnr, String kontaktNamn, short lagerNr, String marke) throws KreditSparrException;
+
+	boolean sendSimpleMail(String adress, String header, String bodytext);
 
 	
 }
