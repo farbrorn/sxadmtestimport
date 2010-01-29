@@ -30,7 +30,8 @@ import se.saljex.SxShop.client.rpcobject.SokResult;
 import se.saljex.SxShop.client.rpcobject.SokResultKlase;
 import se.saljex.SxShop.client.SxShopRPC;
 import se.saljex.SxShop.client.rpcobject.Anvandare;
-import se.saljex.SxShop.client.rpcobject.FakturaBetalning;
+import se.saljex.SxShop.client.rpcobject.BetalningList;
+import se.saljex.SxShop.client.rpcobject.BetalningRow;
 import se.saljex.SxShop.client.rpcobject.FakturaHeader;
 import se.saljex.SxShop.client.rpcobject.FakturaHeaderList;
 import se.saljex.SxShop.client.rpcobject.FakturaHeaderOrderMarke;
@@ -43,6 +44,7 @@ import se.saljex.SxShop.client.rpcobject.FelaktigtAntalException;
 
 
 import se.saljex.SxShop.client.rpcobject.IncorrectLogInException;
+import se.saljex.SxShop.client.rpcobject.KundresRow;
 import se.saljex.SxShop.client.rpcobject.LagerSaldo;
 import se.saljex.SxShop.client.rpcobject.LagerSaldoRad;
 import se.saljex.SxShop.client.rpcobject.OrderHeader;
@@ -50,7 +52,10 @@ import se.saljex.SxShop.client.rpcobject.OrderHeaderList;
 import se.saljex.SxShop.client.rpcobject.OrderInfo;
 import se.saljex.SxShop.client.rpcobject.OrderRow;
 import se.saljex.SxShop.client.rpcobject.ServerErrorException;
+import se.saljex.SxShop.client.rpcobject.UtlevList;
+import se.saljex.SxShop.client.rpcobject.UtlevRow;
 import se.saljex.sxserver.KreditSparrException;
+import se.saljex.sxserver.LocalWebSupportLocal;
 import se.saljex.sxserver.SXUtil;
 import se.saljex.sxserver.SxServerMainLocal;
 import se.saljex.sxserver.websupport.SXSession;
@@ -64,10 +69,12 @@ public class SxShopRPCImpl extends RemoteServiceServlet implements
 		  SxShopRPC {
 	@EJB
 	private SxServerMainLocal sxServerMainBean;
+	@EJB
+	private LocalWebSupportLocal localWebSupportBean;
 	@javax.annotation.Resource(name = "sxadm")
 	private DataSource sxadm;
 
-	private static final String SELECT_ORDERHEADER = "select ordernr, marke, datum, lagernr, status, levadr1, levadr2, levadr3, referens, direktlevnr from order1";
+	private static final String SELECT_ORDERHEADER = "select ordernr, marke, datum, lagernr, status, levadr1, levadr2, levadr3, referens, direktlevnr, lastdatum from order1";
 
 	public String myMethod(String s) {
 		// Do something interesting with 's' here on the server.
@@ -877,15 +884,14 @@ String q3=" ) as g"+
 	
 	
 	//Get fakturalista med start från offset om pageSize antal rader
-	public FakturaHeaderList getFakturaHeaders(int page, int pageSize) throws ServerErrorException, NotLoggedInException {
+	public FakturaHeaderList getFakturaHeaders(int startRow, int pageSize) throws ServerErrorException, NotLoggedInException {
 		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
 		ensureLoggedIn();
 
 		FakturaHeaderList list = new FakturaHeaderList();
-		list.page=page;
+		if (startRow<0) startRow=0;
+		if (pageSize<1) pageSize=30;
 		list.pageSize=pageSize;
-		if (page<1) page=1;
-		if (pageSize<1) pageSize=20;
 
 		Connection con=null;
 		try {
@@ -893,15 +899,15 @@ String q3=" ) as g"+
 			PreparedStatement stm = con.prepareStatement("select faktnr, datum, datum+ktid, t_attbetala, ordernr, marke from faktura1 where kundnr=? order by faktnr desc offset ? limit ?");
 //			PreparedStatement stmo = con.prepareStatement("select distinct u1.ordernr, u1.marke from faktura2 f2, utlev1 u1 where f2.faktnr=? and u1.ordernr=f2.ordernr order by ordernr desc");
 			stm.setString(1, sxSession.getKundnr());
-			stm.setInt(2, (page-1)*(pageSize+1));	//Limit till 1 mer rad än pagesize för att se om det finns fler rader efter sista
-			stm.setInt(3, pageSize);
+			stm.setInt(2, startRow);
+			stm.setInt(3, pageSize+1);//Limit till 1 mer rad än pagesize för att se om det finns fler rader efter sista
 			ResultSet rs = stm.executeQuery();
 			ResultSet rso;
 			FakturaHeader fh;
 			int cn=0;
 			while (rs.next()) {
 				cn++;
-				if(cn>pageSize) { list.hasMoreRows=true; break; }
+				if(cn>pageSize) { list.hasMoreRows=true; cn--; break; }	//Minska cn eftersom vi använder den till att räkna fram näsat rads offset
 				fh=new FakturaHeader();
 				fh.faktnr=rs.getInt(1);
 				fh.datum=rs.getDate(2);
@@ -909,23 +915,8 @@ String q3=" ) as g"+
 				fh.t_attbetala=rs.getDouble(4);
 				list.rader.add(fh);
 				fh.orderMarken = getFakturaHeaderOrderMarken(con, rs.getInt(1));
-//				stmo.setInt(1, rs.getInt(1));
-//				rso=stmo.executeQuery();
-//				FakturaHeaderOrderMarke fom;
-//				while(rso.next()) {
-//					fom = new FakturaHeaderOrderMarke();
-//					fom.ordernr=rso.getInt(1);
-//					fom.marke=rso.getString(2);
-//					fh.orderMarken.add(fom);
-//				}
-				//Har vi ordermärke på själva fakturan så lägger vi till det också
-//				if (rs.getInt(5) != 0 || (rs.getString(6) != null && !rs.getString(6).isEmpty())) {
-//					fom = new FakturaHeaderOrderMarke();
-//					fom.ordernr=rs.getInt(5);
-//					fom.marke=rs.getString(6);
-//					fh.orderMarken.add(fom);
-//				}
 			}
+			list.nextRow = startRow+cn;
 		} catch (SQLException e) { e.printStackTrace(); throw(new ServerErrorException("Fel vid kommunikation med databasen"));
 		} finally {
 			try { con.close(); } catch (Exception e) {}
@@ -985,16 +976,13 @@ String q3=" ) as g"+
 				stm = con.prepareStatement("select faktnr, betdat, bet, betsatt from betjour where faktnr=? order by betdat");
 				stm.setInt(1, fakturaInfo.header.faktnr);
 				rs = stm.executeQuery();
-				FakturaBetalning fakturaBetalning;
+				BetalningRow fakturaBetalning;
 				while (rs.next()) {
-					fakturaBetalning = new FakturaBetalning();
+					fakturaBetalning = new BetalningRow();
 					fakturaBetalning.faktnr = rs.getInt(1);
-					fakturaBetalning.betDat = rs.getDate(2);
+					fakturaBetalning.betdat = rs.getDate(2);
 					fakturaBetalning.summa = rs.getDouble(3);
-					fakturaBetalning.betSatt = rs.getString(4);
-					if ("K".equals(fakturaBetalning.betSatt)) fakturaBetalning.betSatt = "Kontant";
-					else if ("B".equals(fakturaBetalning.betSatt)) fakturaBetalning.betSatt = "BankGiro";
-					else if ("P".equals(fakturaBetalning.betSatt)) fakturaBetalning.betSatt = "Plusgiro";
+					fakturaBetalning.betsatt = getBetalningBetsattString(rs.getString(4));
 					fakturaInfo.betalningar.add(fakturaBetalning);
 				}
 			}
@@ -1013,17 +1001,17 @@ String q3=" ) as g"+
 	}
 	private boolean isOrderDeletable(Connection con, int ordernr) throws SQLException{
 		PreparedStatement stm = con.prepareStatement(
-			"select o1.status, count(s.stjid) "+
+			"select o1.status, o1.lastdatum, count(s.stjid) "+
 			" from order1 o1 left outer join order2 o2 on o1.ordernr=o2.ordernr and o2.artnr like '*%' "+
 			" left outer join stjarnrad s on s.stjid=o2.stjid and s.stjid>0 and (s.bestdat is not null or s.finnsilager<>0) "+
 			" where o1.ordernr=? "+
-			" group by o1.status"
+			" group by o1.status, o1.lastdatum"
 		);
 		stm.setInt(1, ordernr);
 		ResultSet rs = stm.executeQuery();
 		if(rs.next()) {
 			if (doesOrderstatusPermitChange(rs.getString(1))) {
-				if (rs.getInt(2)==0) return true;
+				if (rs.getInt(3)==0 && rs.getDate(2)==null) return true;
 			}
 		}
 		return false;
@@ -1080,7 +1068,7 @@ String q3=" ) as g"+
 		ArrayList<OrderRow> rows = new ArrayList();
 		OrderRow row;
 		PreparedStatement stm = con.prepareStatement(
-			" select o2.pos, o2.artnr, o2.namn, o2.best, o2.enh, o2.pris, o2.rab, o2.summa, o2.text, o1.status, l.ilager-l.iorder+o2.best, s.bestdat, s.finnsilager "+
+			" select o2.pos, o2.artnr, o2.namn, o2.best, o2.enh, o2.pris, o2.rab, o2.summa, o2.text, o1.status, l.ilager-l.iorder+o2.best, s.bestdat, s.finnsilager, o2.ordernr "+
 			" from order1 o1 left outer join order2 o2 on o1.ordernr=o2.ordernr "+
 			" left outer join lager l on l.artnr=o2.artnr and l.lagernr=o1.lagernr and o2.artnr not like '*%' "+
 			" left outer join stjarnrad s on s.stjid=o2.stjid and o2.stjid>0 "+
@@ -1089,26 +1077,29 @@ String q3=" ) as g"+
 		);
 		stm.setInt(1, ordernr);
 		ResultSet rs = stm.executeQuery();
+		//Om det inte finns några rader i ett tomt orderhuvud så kommer en tom rad att läggas till
+		// Detta förhindrar vi genom att kolla så att det verkligen finns ett ordernummer i order2-tabellen
+		//Vi kan inte kolla mot null, så ordernumret måste vara > 0 för att raden ska läggas till
 		while(rs.next()) {
-			row = new OrderRow();
-			row.ordernr=ordernr;
-			row.pos = rs.getInt(1);
-			row.artnr = rs.getString(2);
-			row.namn = rs.getString(3);
-			row.antal = rs.getDouble(4);
-			row.enh = rs.getString(5);
-			row.pris = rs.getDouble(6);
-			row.rab = rs.getDouble(7);
-			row.summa = rs.getDouble(8);
-			row.text = rs.getString(9);
-			row.tillgangligtAntal=rs.getDouble(11);
-			row.isDeletable=false;
-			row.isChangeable=false;
-			if (doesOrderstatusPermitChange(rs.getString(10))) {
-				if (rs.getDate(12)==null) row.isDeletable=true;
-				if (!row.artnr.startsWith("*")) row.isChangeable=true;
+			if (rs.getInt(14)!=0) {	//order2.ordernr
+				row = new OrderRow();
+				row.ordernr=ordernr;
+				row.pos = rs.getInt(1);
+				row.artnr = rs.getString(2);
+				row.namn = rs.getString(3);
+				row.antal = rs.getDouble(4);
+				row.enh = rs.getString(5);
+				row.pris = rs.getDouble(6);
+				row.rab = rs.getDouble(7);
+				row.summa = rs.getDouble(8);
+				row.text = rs.getString(9);
+				row.tillgangligtAntal=rs.getDouble(11);
+				row.isChangeable=false;
+				if (doesOrderstatusPermitChange(rs.getString(10))) {
+					if (rs.getDate(12)==null && rs.getInt(13)==0) row.isChangeable=true;
+				}
+				rows.add(row);
 			}
-			rows.add(row);
 		}
 		return rows;
 	}
@@ -1153,7 +1144,8 @@ String q3=" ) as g"+
 		Connection con=null;
 		try {
 			con = sxadm.getConnection();
-throw new ServerErrorException("Not implemented");
+			if (isOrderBehorigAndDeletable(con, ordernr)) localWebSupportBean.deleteOrder(ordernr);
+			else throw new ServerErrorException("Kunde inte radera ordern. Antingen har du ingen behörighet eller så är ordern låst för ändringar.");
 		} catch (SQLException e) { e.printStackTrace(); throw(new ServerErrorException("Fel vid kommunikation med databasen"));
 		} finally {
 			try { con.close(); } catch (Exception e) {}
@@ -1164,9 +1156,14 @@ throw new ServerErrorException("Not implemented");
 		ensureLoggedIn();
 		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
 		Connection con=null;
+		double antalD;
+		try {
+			antalD = Double.parseDouble(antal);
+		} catch (Exception e) { throw new ServerErrorException("Felaktigt antal.");}
 		try {
 			con = sxadm.getConnection();
-throw new ServerErrorException("Not implemented");
+			if (isOrderRowBehorigAndChangable(con, ordernr, pos))	localWebSupportBean.changeOrderRowAntal(ordernr, (short)pos, antalD);
+			else throw new ServerErrorException("Kunde inte ändra raden. Antingen har du ingen behörighet eller så är ordern låst för ändringar.");
 		} catch (SQLException e) { e.printStackTrace(); throw(new ServerErrorException("Fel vid kommunikation med databasen"));
 		} finally {
 			try { con.close(); } catch (Exception e) {}
@@ -1174,8 +1171,165 @@ throw new ServerErrorException("Not implemented");
 	}
 
 
+	private boolean isOrderRowBehorigAndChangable(Connection con, int ordernr, int pos) throws SQLException {
+		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
+		PreparedStatement stm = con.prepareStatement("select status, lastdatum from order1 where ordernr=? and kundnr=?");
+		stm.setInt(1, ordernr);
+		stm.setString(2, sxSession.getKundnr());
+		ResultSet rs = stm.executeQuery();
+		if (rs.next()) {
+			if (rs.getDate(2)==null) {	//Om ordern inte är låst
+				if (doesOrderstatusPermitChange(rs.getString(1))) {
+					stm = con.prepareStatement("select o2.artnr, o2.stjid, s.bestdat from order2 o2 left outer join stjarnrad s on s.stjid=o2.stjid where o2.ordernr=? and o2.pos=?");
+					stm.setInt(1, ordernr);
+					stm.setInt(2, pos);
+					rs = stm.executeQuery();
+					if (rs.next()) {
+						if (rs.getDate(3)==null) return true;
+					}
+				}
+			}
+		}
+		
+		return false;
+	}
+	private boolean isOrderBehorigAndDeletable(Connection con, int ordernr) throws SQLException {
+		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
+		OrderHeader oh = doGetOrderHeader(con, ordernr, sxSession.getKundnr());
+		if (oh!=null && oh.isDeletable) return true;
+		return false;
+	}
+
+
+	public ArrayList<KundresRow> getKundresLista() throws ServerErrorException, NotLoggedInException {
+		ensureLoggedIn();
+		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
+
+		ArrayList<KundresRow> arr = new ArrayList();
+		KundresRow row;
+		Connection con=null;
+		try {
+			con = sxadm.getConnection();
+			PreparedStatement stm = con.prepareStatement("select faktnr, tot, datum, falldat, pdat1, pdat2, pdat3, inkassodatum from kundres where kundnr=? order by faktnr");
+			stm.setString(1, sxSession.getKundnr());
+			ResultSet rs = stm.executeQuery();
+			while (rs.next()) {
+				row = new KundresRow();
+				row.kundnr = sxSession.getKundnr();
+				row.faktnr=rs.getInt(1);
+				row.tot = rs.getDouble(2);
+				row.datum = rs.getDate(3);
+				row.falldat = rs.getDate(4);
+				row.pdat1 = rs.getDate(5);
+				row.pdat2 = rs.getDate(6);
+				row.pdat3 = rs.getDate(7);
+				row.inkassodatum = rs.getDate(8);
+				arr.add(row);
+			}
+			if (arr.isEmpty()) arr=null;
+		} catch (SQLException e) { e.printStackTrace(); throw(new ServerErrorException("Fel vid kommunikation med databasen"));
+		} finally {
+			try { con.close(); } catch (Exception e) {}
+		}
+		return arr;
+	}
+
+	private String getBetalningBetsattString(String b) {
+		if ("K".equals(b)) return  "Kontant";
+		else if ("B".equals(b)) return  "BankGiro";
+		else if ("P".equals(b)) return  "Plusgiro";
+		else return b;
+	}
+
+	public BetalningList getBetalningList(int startRow, int pageSize) throws ServerErrorException, NotLoggedInException {
+		ensureLoggedIn();
+		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
+
+		BetalningList list = new BetalningList();
+		if (startRow<0) startRow=0;
+		if (pageSize<1) pageSize=30;
+		list.pageSize=pageSize;
+
+		Connection con=null;
+		try {
+			con = sxadm.getConnection();
+			PreparedStatement stm = con.prepareStatement("select faktnr, betdat, bet, betsatt from betjour where kundnr=? order by betdat desc, faktnr desc offset ? limit ?");
+			stm.setString(1, sxSession.getKundnr());
+			stm.setInt(2, startRow);
+			stm.setInt(3, pageSize+1);//Limit till 1 mer rad än pagesize för att se om det finns fler rader efter sista
+			ResultSet rs = stm.executeQuery();
+			BetalningRow br;
+			int cn=0;
+			while (rs.next()) {
+				cn++;
+				if(cn>pageSize) { list.hasMoreRows=true; cn--; break; }	//Minska cn eftersom vi använder den till att räkna fram näsat rads offset
+				br=new BetalningRow();
+				br.faktnr=rs.getInt(1);
+				br.betdat=rs.getDate(2);
+				br.summa=rs.getDouble(3);
+				br.betsatt = getBetalningBetsattString(rs.getString(4));
+				list.rader.add(br);
+			}
+			list.nextRow = startRow+cn;
+		} catch (SQLException e) { e.printStackTrace(); throw(new ServerErrorException("Fel vid kommunikation med databasen"));
+		} finally {
+			try { con.close(); } catch (Exception e) {}
+		}
+		return list;
+	}
+
+
+	public UtlevList getUtlevList(int startRow, int pageSize, String frdat, String tidat, String sokstr) throws ServerErrorException, NotLoggedInException {
+		ensureLoggedIn();
+		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
+
+		UtlevList list = new UtlevList();
+		if (startRow<0) startRow=0;
+		if (pageSize<1) pageSize=30;
+		list.pageSize=pageSize;
+
+		Connection con=null;
+		try {
+			con = sxadm.getConnection();
+			PreparedStatement stm = con.prepareStatement(
+				"select u1.ordernr, u1.datum, u1.marke, u1.referens, u1.levadr1, u1.levadr2, u1.levadr3, u1.lagernr, f1.faktnr, f1.datum " +
+				" from utlev1 u1 left outer join faktura1 f1 on f1.faktnr = u1.faktnr " +
+				" where u1.kundnr=? " +
+				" order by u1.ordernr offset ? limit ?"
+			);
+			stm.setString(1, sxSession.getKundnr());
+			stm.setInt(2, startRow);
+			stm.setInt(3, pageSize+1);//Limit till 1 mer rad än pagesize för att se om det finns fler rader efter sista
+			ResultSet rs = stm.executeQuery();
+			UtlevRow ur;
+			int cn=0;
+			while (rs.next()) {
+				cn++;
+				if(cn>pageSize) { list.hasMoreRows=true; cn--; break; }	//Minska cn eftersom vi använder den till att räkna fram näsat rads offset
+				ur=new UtlevRow();
+				ur.ordernr = rs.getInt(1);
+				ur.orderdatum = rs.getDate(2);
+				ur.marke = rs.getString(3);
+				ur.referens = rs.getString(4);
+				ur.lavadr1 = rs.getString(5);
+				ur.lavadr2 = rs.getString(6);
+				ur.lavadr3 = rs.getString(7);
+				ur.lagernr = rs.getInt(8);
+				ur.faktnr = rs.getInt(9);
+				ur.faktdatum = rs.getDate(10);
+				list.rader.add(ur);
+			}
+			list.nextRow = startRow+cn;
+		} catch (SQLException e) { e.printStackTrace(); throw(new ServerErrorException("Fel vid kommunikation med databasen"));
+		} finally {
+			try { con.close(); } catch (Exception e) {}
+		}
+		return list;
+	}
+
 	public void dummyFunctionToHoldSkelton() throws ServerErrorException, NotLoggedInException {
 		ensureLoggedIn();
+		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
 
 		Connection con=null;
 		try {

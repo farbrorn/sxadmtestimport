@@ -11,11 +11,11 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  *
  * @author ulf
  */
-public class FakturaBetalning implements IsSerializable {
+public class BetalningRow implements IsSerializable {
 	public int faktnr;
 	public double summa;
-	public java.sql.Date betDat = null;
-	public String betSatt=null;
-	public FakturaBetalning() {}
+	public java.sql.Date betdat = null;
+	public String betsatt=null;
+	public BetalningRow() {}
 
 }

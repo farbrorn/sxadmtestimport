@@ -24,7 +24,6 @@ public class OrderRow implements IsSerializable{
 	public double rab;
 	public double summa;
 	public double tillgangligtAntal;
-	public boolean isDeletable=false;
 	public boolean isChangeable=false;
 
 

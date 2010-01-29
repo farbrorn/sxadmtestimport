@@ -12,13 +12,8 @@ import java.util.ArrayList;
  *
  * @author ulf
  */
-public class FakturaHeaderList implements IsSerializable {
-
-	public ArrayList<FakturaHeader> rader = new ArrayList();
-	public int nextRow;
-	public int pageSize;
-	public boolean hasMoreRows;
-	public FakturaHeaderList() {}
-
-
+public class UtlevInfo implements IsSerializable{
+	public UtlevInfo() {}
+	public UtlevRow utlev;
+	public ArrayList<FakturaRow> artikelrader;
 }

@@ -75,7 +75,9 @@ public class OrderInfoWidget extends VerticalPanel{
 		ft.getCellFormatter().addStyleName(0, 4, globalData.STYLE_TD_PRIS);
 		ft.getCellFormatter().addStyleName(0, 5, globalData.STYLE_TD_RAB);
 		ft.getCellFormatter().addStyleName(0, 6, globalData.STYLE_TD_PRIS);
-		ft.getCellFormatter().addStyleName(0, 7, globalData.STYLE_TD_ANDRA);
+		ft.getCellFormatter().addStyleName(0, 7, globalData.STYLE_TD_MANGD);
+		ft.getCellFormatter().addStyleName(0, 8, globalData.STYLE_TD_TABORT);
+		ft.getCellFormatter().addStyleName(0, 9, globalData.STYLE_TD_TABORT);
 		ft.setText(0, 0, "Art.Nr");
 		ft.setText(0, 1, "Benämning");
 		ft.setText(0, 2, "Antal");
@@ -110,15 +112,25 @@ public class OrderInfoWidget extends VerticalPanel{
 					nyttAntal.addStyleName(globalData.STYLE_ANTALTEXTBOX);
 					ft.setWidget(row, 7, nyttAntal);
 
-					PushButton btn = new PushButton(new Image(globalData.IMG_BTN_TICK));
-					btn.setStylePrimaryName(globalData.STYLE_PUSHBUTTON);
-					btn.setTitle("Ändra antal");
-					btn.addClickHandler(new ClickHandler() {
+					PushButton btnTick = new PushButton(new Image(globalData.IMG_BTN_TICK));
+					btnTick.setStylePrimaryName(globalData.STYLE_PUSHBUTTON);
+					btnTick.setTitle("Ändra antal");
+					btnTick.addClickHandler(new ClickHandler() {
 						public void onClick(ClickEvent event) {
 							clickChangeRow(finalOrdernr, finalPos, nyttAntal.getText());
 						}
 					});
+					ft.setWidget(row, 8, btnTick);
 
+					PushButton btnTrash = new PushButton(new Image(globalData.IMG_BTN_TRASH));
+					btnTrash.setStylePrimaryName(globalData.STYLE_PUSHBUTTON);
+					btnTrash.setTitle("Ta bort rad");
+					btnTrash.addClickHandler(new ClickHandler() {
+						public void onClick(ClickEvent event) {
+							clickChangeRow(finalOrdernr, finalPos, "0");
+						}
+					});
+					ft.setWidget(row, 9, btnTrash);
 				}
 			}
 			row++;

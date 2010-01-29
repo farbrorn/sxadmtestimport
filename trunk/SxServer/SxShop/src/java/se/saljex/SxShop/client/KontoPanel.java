@@ -68,10 +68,10 @@ public class KontoPanel extends DockPanel implements SxResizePanel{
 					  , new SxWidget.SxWidgetConstructor() { public SxWidget getWidget() {return new FakturaListaWidget(globalData,"Fakturor");}}
 					  ).getMenyWidget());
 			add(new MenyRad("Obetalda fakturor"
-					  , new SxWidget.SxWidgetConstructor() { public SxWidget getWidget() {return new SxWidget(globalData,"Obetalda fakturor");}}
+					  , new SxWidget.SxWidgetConstructor() { public SxWidget getWidget() {return new KundresListaWidget(globalData,"Obetalda fakturor");}}
 					  ).getMenyWidget());
-			add(new MenyRad("Bokföringsorder"
-					  , new SxWidget.SxWidgetConstructor() { public SxWidget getWidget() {return new SxWidget(globalData,"Bokföringsorder");}}
+			add(new MenyRad("Betalningar"
+					  , new SxWidget.SxWidgetConstructor() { public SxWidget getWidget() {return new BetalningListaWidget(globalData,"Betalningar");}}
 					  ).getMenyWidget());
 
 			l = new Label("Statistik");
