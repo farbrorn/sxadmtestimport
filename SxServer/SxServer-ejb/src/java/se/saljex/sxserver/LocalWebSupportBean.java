@@ -33,6 +33,11 @@ import javax.persistence.PersistenceUnit;
 import javax.persistence.Query;
 import javax.sql.DataSource;
 import javax.transaction.UserTransaction;
+import se.saljex.sxserver.tables.TableArtikel;
+import se.saljex.sxserver.tables.TableLager;
+import se.saljex.sxserver.tables.TableLagerPK;
+import se.saljex.sxserver.tables.TableOrder2PK;
+import se.saljex.sxserver.tables.TableStjarnrad;
 
 /**
  *
@@ -200,6 +205,67 @@ public class LocalWebSupportBean implements LocalWebSupportLocal {
 		if (id==null) return null;
 		PdfSteServiceorder pdf = new PdfSteServiceorder(em);
 		return pdf.getPDF(id);
+	}
+
+	//Innan anrop måste säkerhetsspärrar utföras - behörighet, är ordern lås osv
+	public void deleteOrder(int ordernr) {
+		TableOrder1 o1 = em.find(TableOrder1.class, ordernr);
+		if (o1!=null) {
+			List<TableOrder2> l = em.createNamedQuery("TableOrder2.findByOrdernr").setParameter("ordernr", ordernr).getResultList();
+			TableArtikel art;
+			for (TableOrder2 o2 :  l) {
+				if (o2.getArtnr().startsWith("*") && o2.getStjid()>0) {
+					TableStjarnrad stj = em.find(TableStjarnrad.class, o2.getStjid());
+					if (stj != null) {
+						stj.setAutobestall((short)0);
+					}
+				} else {
+					art = em.find(TableArtikel.class, ordernr);
+					if (art!=null) {
+						TableLager lag = em.find(TableLager.class, new TableLagerPK(art.getNummer(), o1.getLagernr()));
+						if (lag!=null) {
+							lag.setIorder(lag.getIorder()-o2.getBest());
+						}
+					}
+				}
+			}
+			em.createNamedQuery("TableOrder2.deleteByOrdernr").setParameter("ordernr", o1.getOrdernr()).executeUpdate();
+			em.remove(o1);
+			em.flush();
+		}
+	}
+
+	//Innan anrop måste säkerhetsspärrar utföras - behörighet, är ordern lås osv
+	public void changeOrderRowAntal(int ordernr,short pos, double antal) {
+		TableOrder1 o1 = em.find(TableOrder1.class, ordernr);
+		if (o1!=null) {
+			TableOrder2 o2 = em.find(TableOrder2.class, new TableOrder2PK(ordernr, pos));
+			if (o2!=null) {
+				if (o2.getArtnr().startsWith("*") && o2.getStjid()>0) {
+					TableStjarnrad stj = em.find(TableStjarnrad.class, o2.getStjid());
+					if (stj != null) {
+						stj.setAntal(antal);
+						if (antal==0.0) stj.setAutobestall((short)0);
+					}
+				} else {
+					TableLager lag = em.find(TableLager.class, new TableLagerPK(o2.getArtnr(), o1.getLagernr()));
+					if (lag!=null) {
+						lag.setIorder(lag.getIorder()-o2.getBest()+antal);
+					}
+				}
+				if (antal==0.0) {			//Om antaket är noll så tar vi bort raden.
+					em.remove(o2);			//Förmodligen behöver inte pos-kolumnn i databasen uppdateras för övriga rader
+					em.flush();
+					//Har vi tagit bort sista raden på ordern så tar vi också bort huvudet
+					Long kvaravarandeRader = (Long)(em.createQuery("select count(o) from TableOrder2 o where o.tableOrder2PK.ordernr=:ordernr").setParameter("ordernr", ordernr).getSingleResult());
+					if (kvaravarandeRader!=null && kvaravarandeRader.equals((long)0)) em.remove(o1);
+				} else {
+					o2.setBest(antal);
+					o2.setLev(antal);
+				}
+				em.flush();
+			}
+		}
 	}
 
 

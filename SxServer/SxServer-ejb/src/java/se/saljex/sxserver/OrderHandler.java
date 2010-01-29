@@ -423,7 +423,7 @@ public class OrderHandler {
 					}
 				}
 			}
-			em.createNamedQuery("TableOrder2.deleteByOrdernr").setParameter("ordernr", or1.getOrdernr()).executeUpdate();	// Radera alla rader på best2
+			em.createNamedQuery("TableOrder2.deleteByOrdernr").setParameter("ordernr", or1.getOrdernr()).executeUpdate();	// Radera alla rader 
 	  }
 
 	

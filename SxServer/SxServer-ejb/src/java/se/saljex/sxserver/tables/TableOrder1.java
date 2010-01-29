@@ -24,7 +24,8 @@ import javax.persistence.TemporalType;
 @Table(name = "ORDER1")
 @NamedQueries({
 	@NamedQuery(name = "TableOrder1.findAll", query = "SELECT o FROM TableOrder1 o order by o.ordernr desc"), 
-	@NamedQuery(name = "TableOrder1.findByKundnr", query = "SELECT o FROM TableOrder1 o where o.kundnr = :kundnr order by o.ordernr desc")
+	@NamedQuery(name = "TableOrder1.findByKundnr", query = "SELECT o FROM TableOrder1 o where o.kundnr = :kundnr order by o.ordernr desc"),
+	@NamedQuery(name = "TableOrder1.findByOrdernr", query = "SELECT o FROM TableOrder1 o where o.ordernr = :ordernr")
 })
 public class TableOrder1 implements Serializable {
 	private static final long serialVersionUID = 1L;
