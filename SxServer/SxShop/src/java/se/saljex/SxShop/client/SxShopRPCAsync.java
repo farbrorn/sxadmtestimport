@@ -37,5 +37,6 @@ public interface SxShopRPCAsync {
 	public void getOrderInfo(int ordernr, AsyncCallback callback);
 	public void deleteOrder(int ordernr, AsyncCallback callback);
 	public void changeOrderRow(int ordernr, int pos, String antal, AsyncCallback callback);
-
+	public void getKundresLista(AsyncCallback callback);
+	public void getBetalningList(int startRow, int pageSize, AsyncCallback callback);
 }

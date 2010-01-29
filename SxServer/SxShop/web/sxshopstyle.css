@@ -27,7 +27,8 @@
 	padding-top:4px;
 }
 .sx-dropdownwidget {
-	padding: 0px 0px 10px 0px;
+	padding: 0px 0px 2px 0px;
+	margin: 0px 0px 8px 0px;
 	border-bottom: 1px solid;
 	border-left: 1px solid;
 	border-right: 1px solid;

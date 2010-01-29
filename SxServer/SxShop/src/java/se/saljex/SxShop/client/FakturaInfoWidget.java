@@ -13,7 +13,7 @@ import com.google.gwt.user.client.ui.TabPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import java.util.ArrayList;
-import se.saljex.SxShop.client.rpcobject.FakturaBetalning;
+import se.saljex.SxShop.client.rpcobject.BetalningRow;
 import se.saljex.SxShop.client.rpcobject.FakturaHeader;
 import se.saljex.SxShop.client.rpcobject.FakturaInfo;
 import se.saljex.SxShop.client.rpcobject.FakturaRow;
@@ -50,7 +50,7 @@ import se.saljex.SxShop.client.rpcobject.FakturaRow;
 		}
 	};
 
-	private Widget getBetalningWidget(ArrayList<FakturaBetalning> a) {
+	private Widget getBetalningWidget(ArrayList<BetalningRow> a) {
 		DisclosurePanel dp = new DisclosurePanel("Visa betalningar");
 		FlexTable ft = new FlexTable();
 		dp.setWidth("100%");
@@ -68,11 +68,11 @@ import se.saljex.SxShop.client.rpcobject.FakturaRow;
 			ft.setText(0, 1, "Belopp");
 			ft.setText(0, 2, "Betalsätt");
 			ft.getRowFormatter().addStyleName(0, globalData.STYLE_TR_RUBRIK);
-			for (FakturaBetalning fb : a) {
+			for (BetalningRow fb : a) {
 				ft.getCellFormatter().addStyleName(row, 1, globalData.STYLE_TD_PRIS);
-				ft.setText(row, 0, globalData.getDateString(fb.betDat));
+				ft.setText(row, 0, globalData.getDateString(fb.betdat));
 				ft.setText(row, 1, globalData.numberFormat.format(fb.summa));
-				ft.setWidget(row, 2, new Label(fb.betSatt));
+				ft.setWidget(row, 2, new Label(fb.betsatt));
 				row++;
 			}
 		}

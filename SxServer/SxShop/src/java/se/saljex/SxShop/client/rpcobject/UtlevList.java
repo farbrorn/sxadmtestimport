@@ -12,13 +12,14 @@ import java.util.ArrayList;
  *
  * @author ulf
  */
-public class FakturaHeaderList implements IsSerializable {
-
-	public ArrayList<FakturaHeader> rader = new ArrayList();
+public class UtlevList implements IsSerializable{
+	public UtlevList() {}
+	public ArrayList<UtlevRow> rader = new ArrayList();
 	public int nextRow;
 	public int pageSize;
 	public boolean hasMoreRows;
-	public FakturaHeaderList() {}
-
+	public String frdat;
+	public String tidat;
+	public String sokstr;
 
 }

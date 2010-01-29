@@ -15,6 +15,6 @@ import java.util.ArrayList;
 public class FakturaInfo implements IsSerializable {
 	public FakturaHeader header = new FakturaHeader();
 	public ArrayList<FakturaRow> rows = new ArrayList();
-	public ArrayList<FakturaBetalning> betalningar = new ArrayList();
+	public ArrayList<BetalningRow> betalningar = new ArrayList();
 	public FakturaInfo() {}
 }

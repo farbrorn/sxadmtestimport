@@ -16,10 +16,12 @@ import com.google.gwt.user.client.rpc.RemoteService;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import se.saljex.SxShop.client.rpcobject.Anvandare;
+import se.saljex.SxShop.client.rpcobject.BetalningList;
 import se.saljex.SxShop.client.rpcobject.FakturaHeaderList;
 import se.saljex.SxShop.client.rpcobject.FakturaInfo;
 import se.saljex.SxShop.client.rpcobject.FelaktigtAntalException;
 import se.saljex.SxShop.client.rpcobject.IncorrectLogInException;
+import se.saljex.SxShop.client.rpcobject.KundresRow;
 import se.saljex.SxShop.client.rpcobject.LagerSaldo;
 import se.saljex.SxShop.client.rpcobject.NotLoggedInException;
 import se.saljex.SxShop.client.rpcobject.OrderHeader;
@@ -55,4 +57,6 @@ public interface SxShopRPC extends RemoteService{
 	public OrderInfo getOrderInfo(int ordernr) throws ServerErrorException, NotLoggedInException;
 	public void deleteOrder(int ordernr) throws ServerErrorException, NotLoggedInException;
 	public void changeOrderRow(int ordernr, int pos, String antal) throws ServerErrorException, NotLoggedInException;
+	public ArrayList<KundresRow> getKundresLista() throws ServerErrorException, NotLoggedInException;
+	public BetalningList getBetalningList(int startRow, int pageSize) throws ServerErrorException, NotLoggedInException;
 }
