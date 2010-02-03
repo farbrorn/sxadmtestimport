@@ -15,6 +15,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.ParseException;
 import java.util.ArrayList;
 
 import java.util.Date;
@@ -52,6 +53,10 @@ import se.saljex.SxShop.client.rpcobject.OrderHeaderList;
 import se.saljex.SxShop.client.rpcobject.OrderInfo;
 import se.saljex.SxShop.client.rpcobject.OrderRow;
 import se.saljex.SxShop.client.rpcobject.ServerErrorException;
+import se.saljex.SxShop.client.rpcobject.StatArtikelFakturaRow;
+import se.saljex.SxShop.client.rpcobject.StatArtikelList;
+import se.saljex.SxShop.client.rpcobject.StatArtikelRow;
+import se.saljex.SxShop.client.rpcobject.UtlevInfo;
 import se.saljex.SxShop.client.rpcobject.UtlevList;
 import se.saljex.SxShop.client.rpcobject.UtlevRow;
 import se.saljex.sxserver.KreditSparrException;
@@ -60,6 +65,7 @@ import se.saljex.sxserver.SXUtil;
 import se.saljex.sxserver.SxServerMainLocal;
 import se.saljex.sxserver.websupport.SXSession;
 import se.saljex.sxserver.websupport.WebUtil;
+import sun.tools.jar.resources.jar_de;
 
 /**
  *
@@ -75,6 +81,12 @@ public class SxShopRPCImpl extends RemoteServiceServlet implements
 	private DataSource sxadm;
 
 	private static final String SELECT_ORDERHEADER = "select ordernr, marke, datum, lagernr, status, levadr1, levadr2, levadr3, referens, direktlevnr, lastdatum from order1";
+	private static final String SELECT_UTLEVROW = "select u1.ordernr, u1.datum, u1.marke, u1.referens, u1.levadr1, u1.levadr2, u1.levadr3, u1.lagernr, f1.faktnr, f1.datum " +
+													" from utlev1 u1 left outer join faktura1 f1 on f1.faktnr = u1.faktnr ";
+
+	private static final String SELECT_FAKTURA = 	"select f1.faktnr, f1.datum, f1.datum+f1.ktid, f1.t_attbetala, f1.ordernr, f1.marke " +
+														", f2.pos, f2.artnr, f2.namn, f2.text, f2.lev, f2.enh, f2.pris, f2.rab, f2.ordernr, f2.summa " +
+														"from faktura2 f2 left outer join faktura1 f1 on f1.faktnr=f2.faktnr";
 
 	public String myMethod(String s) {
 		// Do something interesting with 's' here on the server.
@@ -925,6 +937,20 @@ String q3=" ) as g"+
 
 	}
 
+	private FakturaRow getNewFakturaRow(ResultSet rs) throws SQLException{
+				FakturaRow fakturaRow = new FakturaRow();
+				fakturaRow.pos = rs.getInt(7);
+				fakturaRow.artnr = rs.getString(8);
+				fakturaRow.namn = rs.getString(9);
+				fakturaRow.text = rs.getString(10);
+				fakturaRow.lev = rs.getDouble(11);
+				fakturaRow.enh = rs.getString(12);
+				fakturaRow.pris = rs.getDouble(13);
+				fakturaRow.rab = rs.getDouble(14);
+				fakturaRow.ordernr = rs.getInt(15);
+				fakturaRow.summa=rs.getDouble(16);
+				return fakturaRow;
+	}
 
 
 	public FakturaInfo getFakturaInfo(int faktnr) throws ServerErrorException, NotLoggedInException {
@@ -937,9 +963,8 @@ String q3=" ) as g"+
 		try {
 			con = sxadm.getConnection();
 			//PreparedStatement stm = con.prepareStatement("select faktnr, datum, datum+ktid, t_attbetala, ordernr, marke from faktura1 where kundnr=? order by faktnr desc offset ? limit ?");
-			PreparedStatement stm = con.prepareStatement("select f1.faktnr, f1.datum, f1.datum+f1.ktid, f1.t_attbetala, f1.ordernr, f1.marke " +
-					  ", f2.pos, f2.artnr, f2.namn, f2.text, f2.lev, f2.enh, f2.pris, f2.rab, f2.ordernr, f2.summa " +
-					  "from faktura2 f2, faktura1 f1 where f1.faktnr=f2.faktnr and f2.faktnr=? and f1.kundnr=? order by f2.pos");
+			PreparedStatement stm = con.prepareStatement( SELECT_FAKTURA +
+					  " where f2.faktnr=? and f1.kundnr=? order by f2.pos");
 			stm.setInt(1, faktnr);
 			stm.setString(2, sxSession.getKundnr());
 			ResultSet rs = stm.executeQuery();
@@ -954,18 +979,7 @@ String q3=" ) as g"+
 					fakturaInfo.header.fallDatum=rs.getDate(3);
 					fakturaInfo.header.t_attbetala=rs.getDouble(4);
 				}
-				fakturaRow = new FakturaRow();
-				fakturaRow.pos = rs.getInt(7);
-				fakturaRow.artnr = rs.getString(8);
-				fakturaRow.namn = rs.getString(9);
-				fakturaRow.text = rs.getString(10);
-				fakturaRow.lev = rs.getDouble(11);
-				fakturaRow.enh = rs.getString(12);
-				fakturaRow.pris = rs.getDouble(13);
-				fakturaRow.rab = rs.getDouble(14);
-				fakturaRow.ordernr = rs.getInt(15);
-				fakturaRow.summa=rs.getDouble(16);
-				fakturaInfo.rows.add(fakturaRow);
+				fakturaInfo.rows.add(getNewFakturaRow(rs));
 				firstRun=false;
 			}
 
@@ -1279,6 +1293,25 @@ String q3=" ) as g"+
 	}
 
 
+
+
+	private UtlevRow getNewUtlevRow(ResultSet rs) throws SQLException{
+		UtlevRow ur = new UtlevRow();
+		ur.ordernr = rs.getInt(1);
+		ur.orderdatum = rs.getDate(2);
+		ur.marke = rs.getString(3);
+		ur.referens = rs.getString(4);
+		ur.lavadr1 = rs.getString(5);
+		ur.lavadr2 = rs.getString(6);
+		ur.lavadr3 = rs.getString(7);
+		ur.lagernr = rs.getInt(8);
+		ur.faktnr = rs.getInt(9);
+		ur.faktdatum = rs.getDate(10);
+		return ur;
+	}
+
+
+
 	public UtlevList getUtlevList(int startRow, int pageSize, String frdat, String tidat, String sokstr) throws ServerErrorException, NotLoggedInException {
 		ensureLoggedIn();
 		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
@@ -1286,38 +1319,61 @@ String q3=" ) as g"+
 		UtlevList list = new UtlevList();
 		if (startRow<0) startRow=0;
 		if (pageSize<1) pageSize=30;
+
+		String sokStrinSQL="";
+		java.sql.Date frDate = null;
+		java.sql.Date tiDate = null;
+
+		try {
+			if (frdat!=null && !frdat.isEmpty()) {
+				frDate = new java.sql.Date(SXUtil.parseDateStringToDate(frdat).getTime());
+			} else {
+				frDate = new java.sql.Date((new Date().getTime()) - (1000*60*60*24*365)); // 1 år bakåt
+			}
+			sokStrinSQL = sokStrinSQL + " and u1.datum >= ?";
+		} catch (ParseException e) { throw new ServerErrorException("Felaktigt angivet startdatum"); }
+
+		try {
+			if (tidat!=null && !tidat.isEmpty()) {
+				tiDate = new java.sql.Date(SXUtil.parseDateStringToDate(tidat).getTime());
+			} else {
+				tiDate = new java.sql.Date(new java.util.Date().getTime());
+			}
+			sokStrinSQL = sokStrinSQL + " and u1.datum <= ?";
+		} catch (ParseException e) { throw new ServerErrorException("Felaktigt angivet slutdatum"); }
+
+		if (sokstr!=null && !sokstr.isEmpty()) {
+			sokStrinSQL = sokStrinSQL + " and upper(u1.marke) like upper(?)";
+		}
+
+		list.frdat=SXUtil.getFormatDate(frDate);
+		list.tidat=SXUtil.getFormatDate(tiDate);
 		list.pageSize=pageSize;
+		list.sokstr=sokstr;
 
 		Connection con=null;
 		try {
+			int paramCn=1;
 			con = sxadm.getConnection();
-			PreparedStatement stm = con.prepareStatement(
-				"select u1.ordernr, u1.datum, u1.marke, u1.referens, u1.levadr1, u1.levadr2, u1.levadr3, u1.lagernr, f1.faktnr, f1.datum " +
-				" from utlev1 u1 left outer join faktura1 f1 on f1.faktnr = u1.faktnr " +
-				" where u1.kundnr=? " +
-				" order by u1.ordernr offset ? limit ?"
+			PreparedStatement stm = con.prepareStatement( SELECT_UTLEVROW +
+				" where u1.kundnr=? " +sokStrinSQL +
+				" order by u1.ordernr desc offset ? limit ?"
 			);
-			stm.setString(1, sxSession.getKundnr());
-			stm.setInt(2, startRow);
-			stm.setInt(3, pageSize+1);//Limit till 1 mer rad än pagesize för att se om det finns fler rader efter sista
+			stm.setString(paramCn++, sxSession.getKundnr());
+			stm.setDate(paramCn++, frDate);
+			stm.setDate(paramCn++, tiDate);
+			if (sokstr!=null && !sokstr.isEmpty()) {
+				stm.setString(paramCn++, "%"+sokstr.replaceAll(" ", "%")+"%");
+			}
+			stm.setInt(paramCn++, startRow);
+			stm.setInt(paramCn++, pageSize+1);//Limit till 1 mer rad än pagesize för att se om det finns fler rader efter sista
 			ResultSet rs = stm.executeQuery();
 			UtlevRow ur;
 			int cn=0;
 			while (rs.next()) {
 				cn++;
 				if(cn>pageSize) { list.hasMoreRows=true; cn--; break; }	//Minska cn eftersom vi använder den till att räkna fram näsat rads offset
-				ur=new UtlevRow();
-				ur.ordernr = rs.getInt(1);
-				ur.orderdatum = rs.getDate(2);
-				ur.marke = rs.getString(3);
-				ur.referens = rs.getString(4);
-				ur.lavadr1 = rs.getString(5);
-				ur.lavadr2 = rs.getString(6);
-				ur.lavadr3 = rs.getString(7);
-				ur.lagernr = rs.getInt(8);
-				ur.faktnr = rs.getInt(9);
-				ur.faktdatum = rs.getDate(10);
-				list.rader.add(ur);
+				list.rader.add(getNewUtlevRow(rs));
 			}
 			list.nextRow = startRow+cn;
 		} catch (SQLException e) { e.printStackTrace(); throw(new ServerErrorException("Fel vid kommunikation med databasen"));
@@ -1326,6 +1382,190 @@ String q3=" ) as g"+
 		}
 		return list;
 	}
+
+	public UtlevInfo getUtlevInfo(int  ordernr) throws ServerErrorException, NotLoggedInException {
+		ensureLoggedIn();
+		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
+
+		UtlevInfo utlevInfo = new UtlevInfo();
+		Connection con=null;
+		try {
+			con = sxadm.getConnection();
+			PreparedStatement stm = con.prepareStatement(SELECT_UTLEVROW +
+					  " where u1.kundnr=? and u1.ordernr=?"
+					  );
+			stm.setString(1, sxSession.getKundnr());
+			stm.setInt(2, ordernr);
+			ResultSet rs = stm.executeQuery();
+			if (rs.next()) {
+				utlevInfo.utlev=getNewUtlevRow(rs);
+			}
+			stm = con.prepareStatement( SELECT_FAKTURA +
+					  " where f2.ordernr=? and f1.kundnr=? order by f2.pos");
+			stm.setInt(1, ordernr);
+			stm.setString(2, sxSession.getKundnr());
+			rs = stm.executeQuery();
+			while (rs.next()) {
+				utlevInfo.artikelrader.add(getNewFakturaRow(rs));
+			}
+
+		} catch (SQLException e) { e.printStackTrace(); throw(new ServerErrorException("Fel vid kommunikation med databasen"));
+		} finally {
+			try { con.close(); } catch (Exception e) {}
+		}
+		return utlevInfo;
+	}
+
+
+	public StatArtikelList getStatArtikelList(int startRow, int pageSize, String frdat, String tidat, String sokstr, String orderBy) throws ServerErrorException, NotLoggedInException {
+		ensureLoggedIn();
+		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
+
+		StatArtikelList list = new StatArtikelList();
+		if (startRow<0) startRow=0;
+		if (pageSize<1) pageSize=30;
+
+		String sokStringSQL=null;
+		String orderByStringSQL;
+		java.sql.Date frDate = null;
+		java.sql.Date tiDate = null;
+		try {
+			if (frdat!=null && !frdat.isEmpty()) {
+				frDate = new java.sql.Date(SXUtil.parseDateStringToDate(frdat).getTime());
+			} else {
+				frDate = new java.sql.Date(SXUtil.addDate(new java.util.Date(), -365).getTime());
+			}
+		} catch (ParseException e) { throw new ServerErrorException("Felaktigt angivet startdatum"); }
+
+		try {
+			if (tidat!=null && !tidat.isEmpty()) {
+				tiDate = new java.sql.Date(SXUtil.parseDateStringToDate(tidat).getTime());
+			} else {
+				tiDate = new java.sql.Date(new java.util.Date().getTime());
+			}
+		} catch (ParseException e) { throw new ServerErrorException("Felaktigt angivet slutdatum"); }
+
+		if (sokstr!=null && !sokstr.isEmpty()) {
+			sokStringSQL = " and upper(f2.artnr) like upper(?)";
+		}
+
+		if (StatArtikelList.ORDER_BY_ARTNR.equals(orderBy)) orderByStringSQL = "artnr";
+		else if (StatArtikelList.ORDER_BY_ANTAL.equals(orderBy)) orderByStringSQL = "sum(f2.lev) desc";
+		else if (StatArtikelList.ORDER_BY_KOPTILLFALLEN.equals(orderBy)) orderByStringSQL = "count(*) desc";
+		else orderByStringSQL = "sum(f2.summa) desc";
+
+		list.frdat=SXUtil.getFormatDate(frDate);
+		list.tidat=SXUtil.getFormatDate(tiDate);
+		list.pageSize=pageSize;
+		list.sokstr=sokstr;
+		list.orderBy=orderBy;
+
+		Connection con=null;
+		try {
+			con = sxadm.getConnection();
+			PreparedStatement stm = con.prepareStatement(
+				"select f2.artnr, max(f2.namn), sum(f2.lev), max(f2.enh), sum(f2.summa), count(*) "+
+				" from faktura1 f1, faktura2 f2 "+
+				" where f1.faktnr=f2.faktnr and f1.kundnr=? and f1.datum between ? and ? "+
+				" and f2.artnr<>'*BONUS*' and f2.artnr<>'*RÄNTA*' "+
+				" and f2.lev <> 0 " + (sokStringSQL != null ? sokStringSQL : "") +
+				" group by f2.artnr "+
+				" order by " + orderByStringSQL
+			);
+			stm.setString(1, sxSession.getKundnr());
+			stm.setDate(2, frDate);
+			stm.setDate(3, tiDate);
+			if (sokStringSQL != null) stm.setString(4, sokstr+"%");
+
+			ResultSet rs = stm.executeQuery();
+			StatArtikelRow sr;
+			int cn=0;
+			while (rs.next()) {
+				cn++;
+				if(cn>pageSize) { list.hasMoreRows=true; cn--; break; }	//Minska cn eftersom vi använder den till att räkna fram näsat rads offset
+				sr = new StatArtikelRow();
+				sr.artnr = rs.getString(1);
+				sr.namn = rs.getString(2);
+				sr.antal = rs.getDouble(3);
+				sr.enh = rs.getString(4);
+				sr.summa = rs.getDouble(5);
+				sr.koptillfallen=rs.getInt(6);
+				list.rader.add(sr);
+			}
+			list.nextRow = startRow+cn;
+		} catch (SQLException e) { e.printStackTrace(); throw(new ServerErrorException("Fel vid kommunikation med databasen"));
+		} finally {
+			try { con.close(); } catch (Exception e) {}
+		}
+		return list;
+
+	}
+
+	public ArrayList<StatArtikelFakturaRow> getStatArtikelFakturaRows(String artnr, String frdat, String tidat) throws ServerErrorException, NotLoggedInException {
+		ensureLoggedIn();
+		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
+
+		ArrayList<StatArtikelFakturaRow> rader = new ArrayList();
+
+		java.sql.Date frDate = null;
+		java.sql.Date tiDate = null;
+		try {
+			if (frdat!=null && !frdat.isEmpty()) {
+				frDate = new java.sql.Date(SXUtil.parseDateStringToDate(frdat).getTime());
+			} else {
+				frDate = new java.sql.Date(SXUtil.addDate(new java.util.Date(), -365).getTime());
+			}
+		} catch (ParseException e) { throw new ServerErrorException("Felaktigt angivet startdatum"); }
+
+		try {
+			if (tidat!=null && !tidat.isEmpty()) {
+				tiDate = new java.sql.Date(SXUtil.parseDateStringToDate(tidat).getTime());
+			} else {
+				tiDate = new java.sql.Date(new java.util.Date().getTime());
+			}
+		} catch (ParseException e) { throw new ServerErrorException("Felaktigt angivet slutdatum"); }
+
+
+		Connection con=null;
+		try {
+			con = sxadm.getConnection();
+			PreparedStatement stm = con.prepareStatement(
+				"select f1.faktnr, f1.datum, f2.artnr, f2.namn, f2.lev, f2.enh, f2.pris, f2.rab, f2.summa, f2.ordernr "+
+				" from faktura1 f1, faktura2 f2 "+
+				" where f1.faktnr=f2.faktnr and f1.kundnr=? and f1.datum between ? and ? "+
+				" and f2.lev <> 0 and f2.artnr=? " +
+				" order by f1.faktnr desc, f2.pos"
+			);
+			stm.setString(1, sxSession.getKundnr());
+			stm.setDate(2, frDate);
+			stm.setDate(3, tiDate);
+			stm.setString(4, artnr);
+
+			ResultSet rs = stm.executeQuery();
+			StatArtikelFakturaRow sr;
+			while (rs.next()) {
+				sr = new StatArtikelFakturaRow();
+				sr.faktnr=rs.getInt(1);
+				sr.datum=rs.getDate(2);
+				sr.artnr=rs.getString(3);
+				sr.namn=rs.getString(4);
+				sr.lev=rs.getDouble(5);
+				sr.enh=rs.getString(6);
+				sr.pris=rs.getDouble(7);
+				sr.rab=rs.getDouble(8);
+				sr.summa=rs.getDouble(9);
+				sr.ordernr=rs.getInt(10);
+				rader.add(sr);
+			}
+		} catch (SQLException e) { e.printStackTrace(); throw(new ServerErrorException("Fel vid kommunikation med databasen"));
+		} finally {
+			try { con.close(); } catch (Exception e) {}
+		}
+		return rader;
+
+	}
+
+
 
 	public void dummyFunctionToHoldSkelton() throws ServerErrorException, NotLoggedInException {
 		ensureLoggedIn();
@@ -1345,6 +1585,7 @@ String q3=" ) as g"+
 		}
 
 	}
+
 
 }
 

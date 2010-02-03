@@ -4,81 +4,64 @@
  */
 
 package se.saljex.SxShop.client;
-
 import com.google.gwt.gen2.table.override.client.FlexTable;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.DisclosurePanel;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.TabPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import java.util.ArrayList;
-import se.saljex.SxShop.client.rpcobject.BetalningRow;
-import se.saljex.SxShop.client.rpcobject.FakturaHeader;
-import se.saljex.SxShop.client.rpcobject.FakturaInfo;
 import se.saljex.SxShop.client.rpcobject.FakturaRow;
+import se.saljex.SxShop.client.rpcobject.UtlevInfo;
+import se.saljex.SxShop.client.rpcobject.UtlevRow;
 
 /**
  *
  * @author ulf
  */
-	public class FakturaInfoWidget extends VerticalPanel {
+public class UtlevInfoWidget extends VerticalPanel{
 		final GlobalData globalData;
-		private int faktnr;
-		public FakturaInfoWidget(final GlobalData globalData, int faktnr) {
+		private int ordernr;
+		public UtlevInfoWidget(final GlobalData globalData, int ordernr) {
 			this.globalData=globalData;
-			this.faktnr=faktnr;
-			globalData.service.getFakturaInfo(faktnr, callbackFakturaInfo);
+			this.ordernr=ordernr;
+			globalData.service.getUtlevInfo(ordernr, callbackUtlevInfo);
 			setSpacing(0);
 
 		}
 
-		AsyncCallback callbackFakturaInfo  = new AsyncCallback() {
+		AsyncCallback callbackUtlevInfo  = new AsyncCallback() {
 
 		public void onFailure(Throwable caught) {
 			add(new Label("Fel:" + caught.getMessage()));
 		}
 
 		public void onSuccess(Object result) {
-			FakturaInfo fakturaInfo = (FakturaInfo)result;
-			if (fakturaInfo==null) {
-				add(new Label("Angiven faktura saknas."));
+			UtlevInfo utlevInfo = (UtlevInfo)result;
+			if (utlevInfo==null) {
+				add(new Label("Angiven utleverans saknas."));
 			} else {
-				if (fakturaInfo.rows!=null) add(getRaderWidget(fakturaInfo.rows));
-				if (fakturaInfo.betalningar!=null) add(getBetalningWidget(fakturaInfo.betalningar));
+				if (utlevInfo.utlev!=null) add(getInfoWidget(utlevInfo.utlev));
+				if (utlevInfo.artikelrader!=null) add(getRaderWidget(utlevInfo.artikelrader));
 			}
 		}
 	};
 
-	private Widget getBetalningWidget(ArrayList<BetalningRow> a) {
-		DisclosurePanel dp = new DisclosurePanel("Visa betalningar");
+
+	private Widget getInfoWidget(UtlevRow ur) {
 		FlexTable ft = new FlexTable();
-		dp.setWidth("100%");
 		ft.setWidth("100%");
 		ft.setCellPadding(1);
 		ft.setCellSpacing(0);
-		int row=1;
-		if (a.size() < 1) {
-			ft.setText(0, 0, "Det finns inga betalningar");
-		} else {
-			ft.getCellFormatter().addStyleName(0, 0, globalData.STYLE_TD_DATUM);
-			ft.getCellFormatter().addStyleName(0, 1, globalData.STYLE_TD_PRIS);
-			ft.getCellFormatter().addStyleName(0, 2, globalData.STYLE_TD_S15);
-			ft.setText(0, 0, "Datum");
-			ft.setText(0, 1, "Belopp");
-			ft.setText(0, 2, "Betalsätt");
-			ft.getRowFormatter().addStyleName(0, globalData.STYLE_TR_RUBRIK);
-			for (BetalningRow fb : a) {
-				ft.getCellFormatter().addStyleName(row, 1, globalData.STYLE_TD_PRIS);
-				ft.setText(row, 0, globalData.getDateString(fb.betdat));
-				ft.setText(row, 1, globalData.numberFormat.format(fb.summa));
-				ft.setWidget(row, 2, new Label(fb.betsatt));
-				row++;
-			}
-		}
-
-		dp.add(ft);
-		return dp;
+		FlexTable.FlexCellFormatter cf = ft.getFlexCellFormatter();
+		ft.setText(0, 0, "Fakturanr:");
+		ft.setText(1, 0, "Leveransadress:");
+		cf.addStyleName(0, 0, globalData.STYLE_PROMPT);
+		cf.addStyleName(1, 0, globalData.STYLE_PROMPT);
+		ft.setText(0, 1, globalData.numberFormatInt.format(ur.faktnr));
+		ft.setWidget(1, 1, new Label(ur.lavadr1));
+		ft.setWidget(2, 1, new Label(ur.lavadr2));
+		ft.setWidget(3, 1, new Label(ur.lavadr3));
+		return ft;
 	}
 
 	private Widget getRaderWidget(ArrayList<FakturaRow> a) {
@@ -91,7 +74,7 @@ import se.saljex.SxShop.client.rpcobject.FakturaRow;
 		ft.getCellFormatter().addStyleName(0, 2, globalData.STYLE_TD_PRIS);
 		ft.getCellFormatter().addStyleName(0, 4, globalData.STYLE_TD_PRIS);
 		ft.getCellFormatter().addStyleName(0, 5, globalData.STYLE_TD_RAB);
-		ft.getCellFormatter().addStyleName(0, 6, globalData.STYLE_TD_PRIS);
+		ft.getCellFormatter().addStyleName(0, 4, globalData.STYLE_TD_PRIS);
 		ft.setText(0, 0, "Art.Nr");
 		ft.setText(0, 1, "Benämning");
 		ft.setText(0, 2, "Antal");
@@ -122,4 +105,5 @@ import se.saljex.SxShop.client.rpcobject.FakturaRow;
 		}
 		return ft;
 	}
-	}
+
+}

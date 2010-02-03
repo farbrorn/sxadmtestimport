@@ -39,4 +39,8 @@ public interface SxShopRPCAsync {
 	public void changeOrderRow(int ordernr, int pos, String antal, AsyncCallback callback);
 	public void getKundresLista(AsyncCallback callback);
 	public void getBetalningList(int startRow, int pageSize, AsyncCallback callback);
+	public void getUtlevList(int startRow, int pageSize, String frdat, String tidat, String sokstr, AsyncCallback callback);
+	public void getUtlevInfo(int  ordernr, AsyncCallback callback);
+	public void getStatArtikelList(int startRow, int pageSize, String frdat, String tidat, String sokstr, String orderBy, AsyncCallback callback);
+	public void getStatArtikelFakturaRows(String artnr, String frdat, String tidat, AsyncCallback callback);
 }

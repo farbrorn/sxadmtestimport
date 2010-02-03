@@ -38,12 +38,12 @@ public class FakturaListaWidget extends SxWidget {
 		ft.setCellPadding(1);
 		ft.setCellSpacing(0);
 		ft.addStyleName(globalData.STYLE_TABLE_INFO);
-		ftColFormatter.addStyleName(0, globalData.STYLE_TD_ACTION);
-		ftColFormatter.addStyleName(1, globalData.STYLE_TD_ACTION);
-		ftColFormatter.addStyleName(2, globalData.STYLE_TD_IDNR);
-		ftColFormatter.addStyleName(3, globalData.STYLE_TD_DATUM);
-		ftColFormatter.addStyleName(4, globalData.STYLE_TD_PRIS);
-		ftColFormatter.addStyleName(5, globalData.STYLE_TD_MARKEINFO);
+		ftCellFormatter.addStyleName(0,0, globalData.STYLE_TD_ACTION);
+		ftCellFormatter.addStyleName(0,1, globalData.STYLE_TD_ACTION);
+		ftCellFormatter.addStyleName(0,2, globalData.STYLE_TD_IDNR);
+		ftCellFormatter.addStyleName(0,3, globalData.STYLE_TD_DATUM);
+		ftCellFormatter.addStyleName(0,4, globalData.STYLE_TD_PRIS);
+		ftCellFormatter.addStyleName(0,5, globalData.STYLE_TD_MARKEINFO);
 		ft.setWidget(0, 0, new Label("Visa"));
 		ft.setWidget(0, 1, new Label("PDF"));
 		ft.setWidget(0, 2, new Label("Fakturanr"));

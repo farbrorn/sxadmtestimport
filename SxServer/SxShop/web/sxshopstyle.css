@@ -258,6 +258,14 @@ a, a:visited, a:hover {
   color: #0000AA;
 }
 
+input {
+	width: 80px;
+	margin:0px;
+	padding:0px;
+	height: 18px;
+}
+
+
 /**
  * Applied to buttons.
  */

@@ -21,7 +21,7 @@ public class  SxWidget extends VerticalPanel {
 	private Label errorLabel = new Label();
 	protected Anchor visaFlerRaderAnchor = new Anchor("Visa fler rader");
 	protected  int currentRow=1;
-	private  boolean blockTillFinishedLoading=false;
+	protected  boolean blockTillFinishedLoading=false;
 	protected  static final int pageSize=20;
 	protected  boolean currentRowHighlite = true;
 

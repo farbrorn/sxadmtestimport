@@ -82,7 +82,7 @@ public class KontoPanel extends DockPanel implements SxResizePanel{
 					  , new SxWidget.SxWidgetConstructor() { public SxWidget getWidget() {return new SxWidget(globalData,"Inköpsstatistik");}}
 					  ).getMenyWidget());
 			add(new MenyRad("Köpta produkter"
-					  , new SxWidget.SxWidgetConstructor() { public SxWidget getWidget() {return new SxWidget(globalData,"Köpta produkter");}}
+					  , new SxWidget.SxWidgetConstructor() { public SxWidget getWidget() {return new StatArtikelWidget(globalData,"Köpta produkter");}}
 					  ).getMenyWidget());
 
 			l = new Label("Order");
@@ -92,8 +92,8 @@ public class KontoPanel extends DockPanel implements SxResizePanel{
 			add(new MenyRad("Inneliggande order"
 					  , new SxWidget.SxWidgetConstructor() { public SxWidget getWidget() {return new OrderListaWidget(globalData,"Inneliggande order");}}
 					  ).getMenyWidget());
-			add(new MenyRad("Fakturerade order"
-					  , new SxWidget.SxWidgetConstructor() { public SxWidget getWidget() {return new SxWidget(globalData,"Fakturerade order");}}
+			add(new MenyRad("Levererade order"
+					  , new SxWidget.SxWidgetConstructor() { public SxWidget getWidget() {return new UtlevListWidget(globalData,"Levererade order");}}
 					  ).getMenyWidget());
 
 			l = new Label("Konto");
