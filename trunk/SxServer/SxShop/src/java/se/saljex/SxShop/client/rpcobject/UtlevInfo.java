@@ -15,5 +15,5 @@ import java.util.ArrayList;
 public class UtlevInfo implements IsSerializable{
 	public UtlevInfo() {}
 	public UtlevRow utlev;
-	public ArrayList<FakturaRow> artikelrader;
+	public ArrayList<FakturaRow> artikelrader = new ArrayList();
 }

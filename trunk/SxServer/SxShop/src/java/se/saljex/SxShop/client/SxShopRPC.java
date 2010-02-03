@@ -28,7 +28,11 @@ import se.saljex.SxShop.client.rpcobject.OrderHeader;
 import se.saljex.SxShop.client.rpcobject.OrderHeaderList;
 import se.saljex.SxShop.client.rpcobject.OrderInfo;
 import se.saljex.SxShop.client.rpcobject.ServerErrorException;
+import se.saljex.SxShop.client.rpcobject.StatArtikelFakturaRow;
+import se.saljex.SxShop.client.rpcobject.StatArtikelList;
 import se.saljex.SxShop.client.rpcobject.SxShopKreditSparrException;
+import se.saljex.SxShop.client.rpcobject.UtlevInfo;
+import se.saljex.SxShop.client.rpcobject.UtlevList;
 
 /**
  *
@@ -59,4 +63,8 @@ public interface SxShopRPC extends RemoteService{
 	public void changeOrderRow(int ordernr, int pos, String antal) throws ServerErrorException, NotLoggedInException;
 	public ArrayList<KundresRow> getKundresLista() throws ServerErrorException, NotLoggedInException;
 	public BetalningList getBetalningList(int startRow, int pageSize) throws ServerErrorException, NotLoggedInException;
+	public UtlevList getUtlevList(int startRow, int pageSize, String frdat, String tidat, String sokstr) throws ServerErrorException, NotLoggedInException;
+	public UtlevInfo getUtlevInfo(int  ordernr) throws ServerErrorException, NotLoggedInException;
+	public StatArtikelList getStatArtikelList(int startRow, int pageSize, String frdat, String tidat, String sokstr, String orderBy) throws ServerErrorException, NotLoggedInException;
+	public ArrayList<StatArtikelFakturaRow> getStatArtikelFakturaRows(String artnr, String frdat, String tidat) throws ServerErrorException, NotLoggedInException;
 }
