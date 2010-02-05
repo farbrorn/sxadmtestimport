@@ -96,6 +96,9 @@ public class WebUtil {
 	}
 
 	//Loggar in kund
+	public static boolean logInKund(HttpServletRequest request, Connection con, String anvandare, String losen) throws java.sql.SQLException {
+		return logInKund(request, con, anvandare, losen, false);
+	}
 	public static boolean logInKund(HttpServletRequest request, Connection con, String anvandare, String losen, boolean stayLogggedin) throws java.sql.SQLException {
 		if (anvandare != null) {
 			clearSxSession(request.getSession());
