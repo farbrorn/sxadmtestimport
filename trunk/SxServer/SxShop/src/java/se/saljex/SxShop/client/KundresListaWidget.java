@@ -7,7 +7,6 @@ package se.saljex.SxShop.client;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HTMLTable.CellFormatter;
@@ -22,9 +21,7 @@ import se.saljex.SxShop.client.rpcobject.KundresRow;
  * @author ulf
  */
 public class KundresListaWidget extends SxWidget {
-	private Label errorLabel = new Label();
 	private FlexTable ft = new FlexTable();
-	private ColumnFormatter ftColFormatter = ft.getColumnFormatter();
 	private CellFormatter ftCellFormatter = ft.getCellFormatter();
 	private RowFormatter ftRowFormatter = ft.getRowFormatter();
 

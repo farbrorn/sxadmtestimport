@@ -16,6 +16,7 @@ import com.google.gwt.user.client.rpc.RemoteService;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import se.saljex.SxShop.client.rpcobject.Anvandare;
+import se.saljex.SxShop.client.rpcobject.AnvandareUppgifter;
 import se.saljex.SxShop.client.rpcobject.BetalningList;
 import se.saljex.SxShop.client.rpcobject.FakturaHeaderList;
 import se.saljex.SxShop.client.rpcobject.FakturaInfo;
@@ -30,6 +31,8 @@ import se.saljex.SxShop.client.rpcobject.OrderInfo;
 import se.saljex.SxShop.client.rpcobject.ServerErrorException;
 import se.saljex.SxShop.client.rpcobject.StatArtikelFakturaRow;
 import se.saljex.SxShop.client.rpcobject.StatArtikelList;
+import se.saljex.SxShop.client.rpcobject.StatInkopHeader;
+import se.saljex.SxShop.client.rpcobject.StatInkopRow;
 import se.saljex.SxShop.client.rpcobject.SxShopKreditSparrException;
 import se.saljex.SxShop.client.rpcobject.UtlevInfo;
 import se.saljex.SxShop.client.rpcobject.UtlevList;
@@ -67,4 +70,8 @@ public interface SxShopRPC extends RemoteService{
 	public UtlevInfo getUtlevInfo(int  ordernr) throws ServerErrorException, NotLoggedInException;
 	public StatArtikelList getStatArtikelList(int startRow, int pageSize, String frdat, String tidat, String sokstr, String orderBy) throws ServerErrorException, NotLoggedInException;
 	public ArrayList<StatArtikelFakturaRow> getStatArtikelFakturaRows(String artnr, String frdat, String tidat) throws ServerErrorException, NotLoggedInException;
+	public StatInkopHeader getStatInkopRows(int antalArBakat) throws ServerErrorException, NotLoggedInException;
+	public void updateAnvandareUppgifter(AnvandareUppgifter a) throws ServerErrorException, NotLoggedInException;
+	public AnvandareUppgifter getAnvandareUppgifter() throws ServerErrorException, NotLoggedInException;
+	public void updateLosen(String nyttLosen, String upprepaLosen, String gammaltLosen) throws ServerErrorException, NotLoggedInException;
 }
