@@ -5,6 +5,7 @@
 --%>
 
 <%@ page import="se.saljex.sxserver.SXUtil" %>
+<%@ page import="se.saljex.sxserver.websupport.GoogleChartHandler" %>
 <%@ page import="se.saljex.sxserver.web.*" %>
 <%@ page import="java.sql.*" %>
 <%@ page import="java.util.*" %>
