@@ -32,7 +32,6 @@ import com.google.gwt.user.client.ui.PasswordTextBox;
 import com.google.gwt.user.client.ui.TextBox;
 import java.util.Date;
 import se.saljex.SxShop.client.rpcobject.Anvandare;
-import se.saljex.sxserver.SXUtil;
 
 
 /**
@@ -85,6 +84,9 @@ public class MainEntryPoint implements EntryPoint, ResizeHandler {
 		public void onFailure(Throwable caught) {
 			anvandarStrang.setText(caught.getMessage() != null ? caught.getMessage() : "Okänt fel: " + caught.toString());
 			anvandareGrid.setWidget(1, 0, null);
+			contentPanel.clear();
+			contentPanel.add(artikelPanel);
+			kontoAnchor.setVisible(false);
 		}
 	};
 
@@ -96,12 +98,16 @@ public class MainEntryPoint implements EntryPoint, ResizeHandler {
 				anvandareGrid.setWidget(1, 0, logInPanel);
 				Cookies.removeCookie(COOKIEAUTOINLOGANVANDARE);
 				Cookies.removeCookie(COOKIEAUTOINLOGID);
+				contentPanel.clear();
+				contentPanel.add(artikelPanel);
+				kontoAnchor.setVisible(false);
 			} else {
 				anvandarStrang.setText(INLOGGADSOM+globalData.anvandare.kontaktnamn+", "+globalData.anvandare.kundnamn);
 				anvandareGrid.setWidget(1, 0, logOutAnchor);
 				Date cookieExpire = new Date((new Date()).getTime() + COOKIE_TIMEOUT);
 				Cookies.setCookie(COOKIEAUTOINLOGANVANDARE, globalData.anvandare.loginnamn, cookieExpire );
 				Cookies.setCookie(COOKIEAUTOINLOGID, globalData.anvandare.autoLoginId, cookieExpire);
+				kontoAnchor.setVisible(true);
 			}
 		
 	}
@@ -121,6 +127,8 @@ public class MainEntryPoint implements EntryPoint, ResizeHandler {
 
 		Label anvandareLabel = new Label("Användare: ");
 		Label losenLabel = new Label("Lösen:");
+
+		kontoAnchor.setVisible(false);
 
 		logInPanel.add(anvandareLabel);
 		logInPanel.add(anvandare);

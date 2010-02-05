@@ -38,9 +38,11 @@ public class GlobalData {
 	public  final String STYLE_ERROR = "sx-feltext";
 	public  final String STYLE_HUVUDRUBRIK = "sx-huvudrubrik";
 	public  final String STYLE_UNDERRUBRIK = "sx-underrubrik";
+	public  final String STYLE_MENYUNDERRUBRIK = "sx-menyunderrubrik";
 	public  final String STYLE_KLASERUBRIK = "sx-klaserubrik";
 	public  final String STYLE_MAINPANEL = "sx-mainpanel";
 	public  final String STYLE_PROMPT = "sx-prompt";
+	public  final String STYLE_INPUTDATA = "sx-inputdata";
 	public  final String STYLE_TR_RUBRIK = "sx-tablerubrik";
 	public  final String STYLE_TR_ODDROW = "sx-tr-oddrow";
 	public  final String STYLE_TD_DROPDOWNWIDGET = "sx-tb-dropdownwidget";
@@ -61,6 +63,7 @@ public class GlobalData {
 	public  final String STYLE_TD_S15 = "sx-tb-s15";
 	public  final String STYLE_TD_S20 = "sx-tb-s20";
 	public  final String STYLE_TD_S30 = "sx-tb-s30";
+	public  final String STYLE_TD_N5 = "sx-tb-n5";
 	public  final String STYLE_TD_ANDRA = "sx-tb-andra";
 	public  final String STYLE_TD_TABORT = "sx-tb-tabort";
 	public  final String STYLE_TABLE_INFO = "sx-tableinfo";

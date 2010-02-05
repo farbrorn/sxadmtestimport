@@ -9,6 +9,7 @@
 
 package se.saljex.SxShop.client;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import se.saljex.SxShop.client.rpcobject.AnvandareUppgifter;
 
 /**
  *
@@ -43,4 +44,8 @@ public interface SxShopRPCAsync {
 	public void getUtlevInfo(int  ordernr, AsyncCallback callback);
 	public void getStatArtikelList(int startRow, int pageSize, String frdat, String tidat, String sokstr, String orderBy, AsyncCallback callback);
 	public void getStatArtikelFakturaRows(String artnr, String frdat, String tidat, AsyncCallback callback);
+	public void getStatInkopRows(int antalArBakat, AsyncCallback callback);
+	public void updateAnvandareUppgifter(AnvandareUppgifter a, AsyncCallback callback);
+	public void getAnvandareUppgifter(AsyncCallback callback);
+	public void updateLosen(String nyttLosen, String upprepaLosen, String gammaltLosen, AsyncCallback callback);
 }

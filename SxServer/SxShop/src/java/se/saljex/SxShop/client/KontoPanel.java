@@ -60,8 +60,20 @@ public class KontoPanel extends DockPanel implements SxResizePanel{
 			l.addStyleName(globalData.STYLE_HUVUDRUBRIK);
 			add((new MenyRad(l)).getMenyWidget());
 
+			l = new Label("Order");
+			l.addStyleName(globalData.STYLE_MENYUNDERRUBRIK);
+			add((new MenyRad(l)).getMenyWidget());
+
+			add(new MenyRad("Inneliggande order"
+					  , new SxWidget.SxWidgetConstructor() { public SxWidget getWidget() {return new OrderListaWidget(globalData,"Inneliggande order");}}
+					  ).getMenyWidget());
+			add(new MenyRad("Levererade order"
+					  , new SxWidget.SxWidgetConstructor() { public SxWidget getWidget() {return new UtlevListWidget(globalData,"Levererade order");}}
+					  ).getMenyWidget());
+
+
 			l = new Label("Ekonomi");
-			l.addStyleName(globalData.STYLE_UNDERRUBRIK);
+			l.addStyleName(globalData.STYLE_MENYUNDERRUBRIK);
 			add((new MenyRad(l)).getMenyWidget());
 
 			add(new MenyRad("Fakturor"
@@ -75,32 +87,21 @@ public class KontoPanel extends DockPanel implements SxResizePanel{
 					  ).getMenyWidget());
 
 			l = new Label("Statistik");
-			l.addStyleName(globalData.STYLE_UNDERRUBRIK);
+			l.addStyleName(globalData.STYLE_MENYUNDERRUBRIK);
 			add((new MenyRad(l)).getMenyWidget());
 
-			add(new MenyRad("Inköpsstatistik"
-					  , new SxWidget.SxWidgetConstructor() { public SxWidget getWidget() {return new SxWidget(globalData,"Inköpsstatistik");}}
+			add(new MenyRad("Statistik"
+					  , new SxWidget.SxWidgetConstructor() { public SxWidget getWidget() {return new StatInkopWidget(globalData,"Statistik");}}
 					  ).getMenyWidget());
 			add(new MenyRad("Köpta produkter"
 					  , new SxWidget.SxWidgetConstructor() { public SxWidget getWidget() {return new StatArtikelWidget(globalData,"Köpta produkter");}}
 					  ).getMenyWidget());
 
-			l = new Label("Order");
-			l.addStyleName(globalData.STYLE_UNDERRUBRIK);
-			add((new MenyRad(l)).getMenyWidget());
-
-			add(new MenyRad("Inneliggande order"
-					  , new SxWidget.SxWidgetConstructor() { public SxWidget getWidget() {return new OrderListaWidget(globalData,"Inneliggande order");}}
-					  ).getMenyWidget());
-			add(new MenyRad("Levererade order"
-					  , new SxWidget.SxWidgetConstructor() { public SxWidget getWidget() {return new UtlevListWidget(globalData,"Levererade order");}}
-					  ).getMenyWidget());
-
 			l = new Label("Konto");
-			l.addStyleName(globalData.STYLE_UNDERRUBRIK);
+			l.addStyleName(globalData.STYLE_MENYUNDERRUBRIK);
 			add((new MenyRad(l)).getMenyWidget());
-			add(new MenyRad("Kontoinställningar"
-					  , new SxWidget.SxWidgetConstructor() { public SxWidget getWidget() {return new SxWidget(globalData,"Kontoinställningar");}}
+			add(new MenyRad("Inställningar"
+					  , new SxWidget.SxWidgetConstructor() { public SxWidget getWidget() {return new KontoAnvandareUppgifterWidget(globalData,"Inställningar");}}
 					  ).getMenyWidget());
 
 		}

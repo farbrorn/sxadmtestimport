@@ -8,7 +8,6 @@
  */
 
 package se.saljex.SxShop.server;
-import com.google.gwt.user.client.Cookies;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -18,8 +17,8 @@ import java.sql.Statement;
 import java.text.ParseException;
 import java.util.ArrayList;
 
+import java.util.Calendar;
 import java.util.Date;
-import java.util.Random;
 import javax.ejb.EJB;
 import javax.persistence.EntityNotFoundException;
 import javax.sql.DataSource;
@@ -31,6 +30,7 @@ import se.saljex.SxShop.client.rpcobject.SokResult;
 import se.saljex.SxShop.client.rpcobject.SokResultKlase;
 import se.saljex.SxShop.client.SxShopRPC;
 import se.saljex.SxShop.client.rpcobject.Anvandare;
+import se.saljex.SxShop.client.rpcobject.AnvandareUppgifter;
 import se.saljex.SxShop.client.rpcobject.BetalningList;
 import se.saljex.SxShop.client.rpcobject.BetalningRow;
 import se.saljex.SxShop.client.rpcobject.FakturaHeader;
@@ -56,6 +56,8 @@ import se.saljex.SxShop.client.rpcobject.ServerErrorException;
 import se.saljex.SxShop.client.rpcobject.StatArtikelFakturaRow;
 import se.saljex.SxShop.client.rpcobject.StatArtikelList;
 import se.saljex.SxShop.client.rpcobject.StatArtikelRow;
+import se.saljex.SxShop.client.rpcobject.StatInkopHeader;
+import se.saljex.SxShop.client.rpcobject.StatInkopRow;
 import se.saljex.SxShop.client.rpcobject.UtlevInfo;
 import se.saljex.SxShop.client.rpcobject.UtlevList;
 import se.saljex.SxShop.client.rpcobject.UtlevRow;
@@ -63,9 +65,9 @@ import se.saljex.sxserver.KreditSparrException;
 import se.saljex.sxserver.LocalWebSupportLocal;
 import se.saljex.sxserver.SXUtil;
 import se.saljex.sxserver.SxServerMainLocal;
+import se.saljex.sxserver.websupport.GoogleChartHandler;
 import se.saljex.sxserver.websupport.SXSession;
 import se.saljex.sxserver.websupport.WebUtil;
-import sun.tools.jar.resources.jar_de;
 
 /**
  *
@@ -1565,6 +1567,63 @@ String q3=" ) as g"+
 
 	}
 
+	public StatInkopHeader getStatInkopRows(int antalArBakat) throws ServerErrorException, NotLoggedInException {
+		ensureLoggedIn();
+		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
+		StatInkopHeader st = new StatInkopHeader();
+		StatInkopRow row=null;
+		Connection con=null;
+		if (antalArBakat<0) antalArBakat=antalArBakat*(-1);
+		if(antalArBakat > 100) antalArBakat=100;	//Bara så vi inte får in orinligt stora tal
+		int startAr;
+		Calendar c = Calendar.getInstance();
+		c.setTime(new Date());
+		startAr = c.get(Calendar.YEAR) - antalArBakat;
+
+		GoogleChartHandler gch = new GoogleChartHandler();
+		gch.setEtiketterJanToDec();
+		gch.setSize(350, 200);
+		gch.clearSerier();
+
+
+
+
+		try {
+			con = sxadm.getConnection();
+			PreparedStatement stm = con.prepareStatement(
+				"select year(f1.datum), month(f1.datum), round(cast(sum(t_netto/1000) as numeric),0) from faktura1 f1 "+
+				" where f1.kundnr=? and year(f1.datum)>=? "+
+				" group by year(f1.datum), month(f1.datum) "+
+				" order by year(f1.datum) desc, month(f1.datum)"
+			);
+			stm.setString(1, sxSession.getKundnr());
+			stm.setInt(2, startAr);
+			ResultSet rs = stm.executeQuery();
+			int currentAr=0;
+
+
+			while (rs.next()) {
+				if (rs.getInt(1) != currentAr) {
+					if (row!=null) { //Om vi har data för ett år så sparar vi det//Om vi har data för ett år så sparar vi det
+						st.rows.add(row);
+						gch.addSerie(""+row.ar, row.summa);
+					}
+					row=new StatInkopRow();
+					currentAr=rs.getInt(1);
+				}
+				row.ar=rs.getInt(1);
+				row.summa[rs.getInt(2)-1] = rs.getDouble(3);
+			}
+			st.rows.add(row);						//Lägg till den siata raden
+			gch.addSerie(""+row.ar, row.summa);
+			st.chartUrl=gch.getURL();
+		} catch (SQLException e) { e.printStackTrace(); throw(new ServerErrorException("Fel vid kommunikation med databasen"));}
+		catch (Exception ee) {ee.printStackTrace();throw(new ServerErrorException("Okänt fel"));}
+		finally {
+			try { con.close(); } catch (Exception e) {}
+		}
+		return st;
+	}
 
 
 	public void dummyFunctionToHoldSkelton() throws ServerErrorException, NotLoggedInException {
@@ -1586,6 +1645,89 @@ String q3=" ) as g"+
 
 	}
 
+	public void updateAnvandareUppgifter(AnvandareUppgifter a) throws ServerErrorException, NotLoggedInException {
+		ensureLoggedIn();
+		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
 
+		Connection con=null;
+		try {
+			con = sxadm.getConnection();
+			PreparedStatement stm = con.prepareStatement("update kundkontakt set namn=?, tel=?, mobil=?, fax=?, adr1=?, adr2=?, adr3=?, epost=?, ekonomi=?, info=? " +
+					  " where kontaktid=?");
+			stm.setString(1, a.kontaktNamn);
+			stm.setString(2, a.kontaktTel);
+			stm.setString(3, a.kontaktMobil);
+			stm.setString(4, a.kontaktFax);
+			stm.setString(5, a.kontaktAdr1);
+			stm.setString(6, a.kontaktAdr2);
+			stm.setString(7, a.kontaktAdr3);
+			stm.setString(8, a.kontaktEpost);
+			stm.setInt(9, a.kontaktEkonomiFlagga ? 1 : 0);
+			stm.setInt(10, a.kontaktInfoFlagga ? 1 : 0);
+			stm.setInt(11, sxSession.getKundKontaktId());
+			if (stm.executeUpdate()==0) throw new ServerErrorException("Kunde inte spara");
+		} catch (SQLException e) { e.printStackTrace(); throw(new ServerErrorException("Fel vid kommunikation med databasen"));
+		} finally {
+			try { con.close(); } catch (Exception e) {}
+		}
+	}
+
+	public AnvandareUppgifter getAnvandareUppgifter() throws ServerErrorException, NotLoggedInException {
+		ensureLoggedIn();
+		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
+
+		AnvandareUppgifter a =new AnvandareUppgifter();
+
+		Connection con=null;
+		try {
+			con = sxadm.getConnection();
+			PreparedStatement stm = con.prepareStatement("select namn, tel, mobil, fax, adr1, adr2, adr3, epost, ekonomi, info " +
+					  " from kundkontakt " +
+					  " where kontaktid=?");
+			stm.setInt(1, sxSession.getKundKontaktId());
+			ResultSet rs = stm.executeQuery();
+			if (rs.next()) {
+				a.kontaktNamn = rs.getString(1);
+				a.kontaktTel = rs.getString(2);
+				a.kontaktMobil = rs.getString(3);
+				a.kontaktFax = rs.getString(4);
+				a.kontaktAdr1 = rs.getString(5);
+				a.kontaktAdr2 = rs.getString(6);
+				a.kontaktAdr3 = rs.getString(7);
+				a.kontaktEpost = rs.getString(8);
+				a.kontaktEkonomiFlagga = rs.getInt(9) != 0 ? true : false;
+				a.kontaktInfoFlagga = rs.getInt(10) != 0 ? true : false;
+			} else {
+				throw new ServerErrorException("Kan inte hitta uppgifter");
+			}
+		} catch (SQLException e) { e.printStackTrace(); throw(new ServerErrorException("Fel vid kommunikation med databasen"));
+		} finally {
+			try { con.close(); } catch (Exception e) {}
+		}
+		return a;
+	}
+
+
+	public void updateLosen(String nyttLosen, String upprepaLosen, String gammaltLosen) throws ServerErrorException, NotLoggedInException {
+		ensureLoggedIn();
+		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
+
+		if (nyttLosen==null) throw new ServerErrorException("Inget lösenord angivet");
+		if (nyttLosen.length() < 5) throw new ServerErrorException("Lösenordet är för kort");
+		if (!nyttLosen.equals(upprepaLosen)) throw new ServerErrorException("Din upprepning av lösenordet stämmer inte");
+		Connection con=null;
+		try {
+			con = sxadm.getConnection();
+			PreparedStatement stm = con.prepareStatement("update kundlogin set loginlosen=? " +
+					  " where kontaktid=? and loginlosen=?");
+			stm.setString(1, nyttLosen);
+			stm.setInt(2, sxSession.getKundKontaktId());
+			stm.setString(3, gammaltLosen);
+			if (stm.executeUpdate()==0) throw new ServerErrorException("Gammalt lösenord är felaktigt");
+		} catch (SQLException e) { e.printStackTrace(); throw(new ServerErrorException("Fel vid kommunikation med databasen"));
+		} finally {
+			try { con.close(); } catch (Exception e) {}
+		}
+	}
 }
 

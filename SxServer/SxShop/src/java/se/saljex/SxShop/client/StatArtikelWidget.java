@@ -14,6 +14,7 @@ import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DisclosurePanel;
 import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RadioButton;
@@ -154,7 +155,7 @@ public class StatArtikelWidget extends SxWidget {
 				if (currentRowHighlite ) {
 					ft.getRowFormatter().addStyleName(currentRow, globalData.STYLE_TR_ODDROW);
 				}
-				ft.getFlexCellFormatter().setColSpan((currentRow+1), 0, 6);
+				ft.getFlexCellFormatter().setColSpan((currentRow+1), 0, 7);
 				currentRow = currentRow+2;
 				currentRowHighlite=!currentRowHighlite;
 			}
@@ -181,8 +182,19 @@ public class StatArtikelWidget extends SxWidget {
 			add(sokPanel);
 			DisclosurePanel alternativPanel = new DisclosurePanel("Alternativ");
 			add(alternativPanel);
-			HorizontalPanel alternativHP = new HorizontalPanel();
-			alternativPanel.add(alternativHP);
+			FlexTable alternativFT = new FlexTable();
+			HorizontalPanel alternativDatumHP = new HorizontalPanel();
+			HorizontalPanel alternativRadioHP = new HorizontalPanel();
+			Label l;
+			l = new Label("Datumintervall:");
+			l.addStyleName(globalData.STYLE_PROMPT);
+			alternativFT.setWidget(0, 0, l);
+			alternativFT.setWidget(0,1, alternativDatumHP);
+			l = new Label("Sortera efter:");
+			l.addStyleName(globalData.STYLE_PROMPT);
+			alternativFT.setWidget(1, 0, l);
+			alternativFT.setWidget(1, 1, alternativRadioHP);
+			alternativPanel.add(alternativFT);
 
 			radioOrderBySumma.setValue(true);
 			radioOrderBySumma.addValueChangeHandler(new ValueChangeHandler<Boolean>() {
@@ -221,16 +233,16 @@ public class StatArtikelWidget extends SxWidget {
 			sokPanel.add(btnSok);
 			sokPanel.setSpacing(4);
 
-			alternativHP.add(new Label("Datumintervall: "));
-			alternativHP.add(frDat);
-			alternativHP.add(new Label(" - "));
-			alternativHP.add(tiDat);
+			alternativDatumHP.add(frDat);
+			alternativDatumHP.add(new Label(" - "));
+			alternativDatumHP.add(tiDat);
+			//alternativDatumHP.setSpacing(4);
 
-			alternativHP.add(radioOrderBySumma);
-			alternativHP.add(radioOrderByAntal);
-			alternativHP.add(radioOrderByKoptillfallen);
-			alternativHP.add(radioOrderByArtNr);
-			alternativHP.setSpacing(4);
+			alternativRadioHP.add(radioOrderBySumma);
+			alternativRadioHP.add(radioOrderByAntal);
+			alternativRadioHP.add(radioOrderByKoptillfallen);
+			alternativRadioHP.add(radioOrderByArtNr);
+			//alternativRadioHP.setSpacing(4);
 		}
 
 
