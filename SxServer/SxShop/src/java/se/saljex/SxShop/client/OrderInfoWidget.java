@@ -127,7 +127,13 @@ public class OrderInfoWidget extends VerticalPanel{
 					btnTrash.setTitle("Ta bort rad");
 					btnTrash.addClickHandler(new ClickHandler() {
 						public void onClick(ClickEvent event) {
-							clickChangeRow(finalOrdernr, finalPos, "0");
+							new SxPopUpPanel("Annullera?", new Label("Vill du annullera ordern?"), true, true, new OkAvbrytHandler() {
+								public void onOk() {
+									clickChangeRow(finalOrdernr, finalPos, "0");
+								}
+
+								public void onAvbryt() {	}
+							});
 						}
 					});
 					ft.setWidget(row, 9, btnTrash);

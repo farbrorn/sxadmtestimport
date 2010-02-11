@@ -17,7 +17,9 @@ public ArtGrupp artGrupp=null;
 public  ArtSidaKlase artSidaKlase = null;
 public Integer cashId=null;//Id i array om sidan är cachad hos klienten
 public boolean klasarTillGrpIsScanned=false; //Om klasarna till noden är scannade
-
+public boolean isKampanjNod=false;
+public ArtTradUserObject() {
+}
 public ArtTradUserObject(ArtGrupp artGrupp) {
 	this.artGrupp=artGrupp;
 }

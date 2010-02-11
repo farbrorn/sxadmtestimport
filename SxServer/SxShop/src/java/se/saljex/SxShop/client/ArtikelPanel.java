@@ -39,11 +39,11 @@ public class ArtikelPanel extends DockPanel implements SxResizePanel{
 		DisclosurePanel varuKorgPanel=new DisclosurePanel("Varukorg");
 		//VerticalSplitPanel mainSplitPanel = new VerticalSplitPanel();
 		ScrollPanel varukorgScrollPanel=new ScrollPanel();
-		ArrayList<VaruKorgRad> varuKorg= new ArrayList();
+		//ArrayList<VaruKorgRad> varuKorg= new ArrayList();
 		ScrollPanel mainScrollPanel = new ScrollPanel();
 		ScrollPanel tradScrollPanel = new ScrollPanel();
 		VerticalPanel leftPanel = new VerticalPanel();
-		HorizontalPanel topMenuPanel = new HorizontalPanel();
+//		HorizontalPanel topMenuPanel = new HorizontalPanel();
 		TextBox sokStr = new TextBox();
 		Button sokKnapp = new Button("Sök", new ClickHandler() {
 			public void onClick(ClickEvent event) {
@@ -57,14 +57,15 @@ public class ArtikelPanel extends DockPanel implements SxResizePanel{
 
 		public ArtikelPanel(final GlobalData globalData) {
 			this.globalData = globalData;
-			sokKnapp.addStyleName("sx-sokknapp");
+			sokKnapp.addStyleName(globalData.STYLE_SOKKNAPP);
+			sokStr.addStyleName(globalData.STYLE_SOKINPUT);
 			HorizontalPanel sokPanel = new HorizontalPanel();
 			sokPanel.setSpacing(4);
 			sokPanel.add(sokStr);
 			sokPanel.add(sokKnapp);
-			topMenuPanel.add(sokPanel);
+//			topMenuPanel.add(sokPanel);
 
-			topMenuPanel.addStyleName("sx-submenutop");
+//			topMenuPanel.addStyleName("sx-submenutop");
 			artSidaPanel = new ArtikelMainPanel(globalData,this);
 			artikelVarukorg = new ArtikelVarukorg(globalData,this);
 			//artSidaPanel.setVarukorg(artikelVarukorg);
@@ -78,14 +79,19 @@ public class ArtikelPanel extends DockPanel implements SxResizePanel{
 //			leftPanel.add(varukorgListBox);
 //			at.addStyleName("sx-arttrad");
 //			leftPanel.addStyleName("sx-arttrad");
+			leftPanel.add(sokPanel);
 			leftPanel.add(at);
 			tradScrollPanel.add(leftPanel);
 			at.addSelectionHandler(new SelectionHandler<TreeItem>() {
 					public void onSelection(SelectionEvent<TreeItem> event) {
 						TreeItem item = event.getSelectedItem();
-						TradCallbackHandler tch = new TradCallbackHandler(item, artSidaPanel);
 						ArtTradUserObject userObject = (ArtTradUserObject)item.getUserObject();
-						globalData.service.getArtSida(userObject.artGrupp.grpid, tch.callbackFillGrupp);
+						if (userObject!=null && userObject.isKampanjNod) {
+							globalData.service.getKampanjartiklar(callbackKampanj);
+						} else {
+							TradCallbackHandler tch = new TradCallbackHandler(item, artSidaPanel);
+							globalData.service.getArtSida(userObject.artGrupp.grpid, tch.callbackFillGrupp);
+						}
 					}
 				});
 			//varukorgScrollPanel.setSize("", "100px");
@@ -98,8 +104,8 @@ public class ArtikelPanel extends DockPanel implements SxResizePanel{
 			//varuKorgPanel.setSize("100%", "100px");
 			varuKorgPanel.add(artikelVarukorg);
 			//artikelVarukorg.setHeight("100px");
-			artikelVarukorg.ftScrollPanel.setHeight("80px");
-			add(topMenuPanel, DockPanel.NORTH);
+			artikelVarukorg.ftScrollPanel.setHeight("100px");
+			//add(topMenuPanel, DockPanel.NORTH);
 			add(tradScrollPanel, DockPanel.WEST);
 			add(varuKorgPanel, DockPanel.NORTH);
 			add(mainScrollPanel, DockPanel.CENTER);
@@ -116,9 +122,11 @@ public class ArtikelPanel extends DockPanel implements SxResizePanel{
 
 
 		}
-		
+
+		public void hideVarukorgPanel() { varuKorgPanel.setVisible(false); }
+		public void showVarukorgPanel() { varuKorgPanel.setVisible(true); }
 		public void updateVarukorg(ArrayList<VaruKorgRad> varuKorg) {
-			this.varuKorg=varuKorg;
+			//this.varuKorg=varuKorg;
 			artikelVarukorg.setVarukorg(varuKorg);
 		}
 
@@ -152,6 +160,17 @@ public class ArtikelPanel extends DockPanel implements SxResizePanel{
 				//mainScrollPanel.setWidth("50%");
 			//}
 		}
+
+	final AsyncCallback callbackKampanj = new AsyncCallback() {
+
+		public void onFailure(Throwable caught) {
+			printError("Fel " + caught.getMessage());
+		}
+
+		public void onSuccess(Object result) {
+			printSokResult((SokResult)result);
+		}
+	};
 
 	final AsyncCallback callbackSok = new AsyncCallback() {
 		public void onSuccess(Object result) {

@@ -48,4 +48,7 @@ public interface SxShopRPCAsync {
 	public void updateAnvandareUppgifter(AnvandareUppgifter a, AsyncCallback callback);
 	public void getAnvandareUppgifter(AsyncCallback callback);
 	public void updateLosen(String nyttLosen, String upprepaLosen, String gammaltLosen, AsyncCallback callback);
+	public void getOffertInfo(int offertnr, AsyncCallback callback);
+	public void getOffertHeaders(int startRow, int pageSize, AsyncCallback callback);
+	public void getKampanjartiklar(AsyncCallback callback);
 }

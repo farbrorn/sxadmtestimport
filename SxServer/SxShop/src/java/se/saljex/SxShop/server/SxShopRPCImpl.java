@@ -48,6 +48,10 @@ import se.saljex.SxShop.client.rpcobject.IncorrectLogInException;
 import se.saljex.SxShop.client.rpcobject.KundresRow;
 import se.saljex.SxShop.client.rpcobject.LagerSaldo;
 import se.saljex.SxShop.client.rpcobject.LagerSaldoRad;
+import se.saljex.SxShop.client.rpcobject.OffertHeader;
+import se.saljex.SxShop.client.rpcobject.OffertHeaderList;
+import se.saljex.SxShop.client.rpcobject.OffertInfo;
+import se.saljex.SxShop.client.rpcobject.OffertRow;
 import se.saljex.SxShop.client.rpcobject.OrderHeader;
 import se.saljex.SxShop.client.rpcobject.OrderHeaderList;
 import se.saljex.SxShop.client.rpcobject.OrderInfo;
@@ -63,6 +67,7 @@ import se.saljex.SxShop.client.rpcobject.UtlevList;
 import se.saljex.SxShop.client.rpcobject.UtlevRow;
 import se.saljex.sxserver.KreditSparrException;
 import se.saljex.sxserver.LocalWebSupportLocal;
+import se.saljex.sxserver.SXConstant;
 import se.saljex.sxserver.SXUtil;
 import se.saljex.sxserver.SxServerMainLocal;
 import se.saljex.sxserver.websupport.GoogleChartHandler;
@@ -89,6 +94,8 @@ public class SxShopRPCImpl extends RemoteServiceServlet implements
 	private static final String SELECT_FAKTURA = 	"select f1.faktnr, f1.datum, f1.datum+f1.ktid, f1.t_attbetala, f1.ordernr, f1.marke " +
 														", f2.pos, f2.artnr, f2.namn, f2.text, f2.lev, f2.enh, f2.pris, f2.rab, f2.ordernr, f2.summa " +
 														"from faktura2 f2 left outer join faktura1 f1 on f1.faktnr=f2.faktnr";
+	private static final String SELECT_OFFERT = "select o2.offertnr, o1.datum, o1.marke, o2.pos, o2.artnr, o2.namn, o2.text, o2.best, o2.enh, o2.pris, o2.rab, o2.summa "+
+														" from offert1 o1 left outer join offert2 o2 on o1.offertnr=o2.offertnr";
 
 	public String myMethod(String s) {
 		// Do something interesting with 's' here on the server.
@@ -285,15 +292,20 @@ public class SxShopRPCImpl extends RemoteServiceServlet implements
 	// Kollar om angiven artikel finns i artikelregistret och angivet antal stämmer mot minsäljpack
 	// Throws FelaktigtAntalException om antalet är felaktigt
 	// Throws EntityNotFoundException om artikeln inte finns
-	private void checkFelaktigtAntalAndThrowException(Connection con, String artnr, double antal) throws FelaktigtAntalException, EntityNotFoundException, SQLException {
-			PreparedStatement stm=con.prepareStatement("select namn, minsaljpack, enhet from artikel where nummer=?");
+	// Returnerar strukturnr om det är en strukturartikel, annars null
+	private String checkFelaktigtAntalAndThrowException(Connection con, String artnr, double antal) throws FelaktigtAntalException, EntityNotFoundException, SQLException {
+			String struktnr = null;
+			PreparedStatement stm=con.prepareStatement("select namn, minsaljpack, enhet, struktnr from artikel where nummer=?");
 			stm.setString(1, artnr);
 			ResultSet rs = stm.executeQuery();
 			double minSaljpack = 0;
 			if (rs.next()) {
 				minSaljpack = rs.getDouble(2);
+				struktnr = rs.getString(4);
+				if (struktnr!=null && struktnr.isEmpty()) struktnr=null;	//Sätt till null om tom sträng
 				if (minSaljpack!=0 && antal % minSaljpack > 0) throw new FelaktigtAntalException("Angivet antal för artikel " + artnr + " " + rs.getString(1) + " går inte jämt upp i minsta odelbara förpackning " + minSaljpack + " " + rs.getString(3) + ". Kontrollera antal och enhet.");
 			} else throw new EntityNotFoundException();
+			return struktnr;
 	}
 
 	public ArrayList<VaruKorgRad> updateVaruKorg(String artnr, double antal) throws NotLoggedInException, FelaktigtAntalException{
@@ -324,7 +336,7 @@ public class SxShopRPCImpl extends RemoteServiceServlet implements
 	}
 
 
-	public ArrayList<VaruKorgRad> addVaruKorg(String artnr, double antal) throws NotLoggedInException, FelaktigtAntalException {
+	public ArrayList<VaruKorgRad> addVaruKorg(String artnr, double antal) throws NotLoggedInException, FelaktigtAntalException, ServerErrorException {
 		ArrayList<VaruKorgRad> ar=null;
 		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
 
@@ -350,19 +362,27 @@ public class SxShopRPCImpl extends RemoteServiceServlet implements
 
 			//Kolla om antalet är giltigt samt om artikeln finns i artikelregistret
 			boolean artnrGiltigt=true;
-			try {		checkFelaktigtAntalAndThrowException(con, artnr, antal); }	catch (EntityNotFoundException e) { artnrGiltigt=false; }
+			String struktnr=null;
+			try {		struktnr=checkFelaktigtAntalAndThrowException(con, artnr, antal); }	catch (EntityNotFoundException e) { artnrGiltigt=false; }
 
 			//Spara nytt värde i varukorgen
 			if (artnrGiltigt) {
 				if (artikelFinnsIVarukorg) {	// Artikeln finns i varukorgen med detta antal
 					doUpdateVarukorg(con, sxSession, artnr, gammaltAntal+antal);
 				} else {
-					stm=con.prepareStatement("insert into varukorg (kontaktid, typ, artnr, antal) values (?,?,?,?)");
-					stm.setInt(1, sxSession.getKundKontaktId());
-					stm.setString(2, "VK");
-					stm.setString(3, artnr);
-					stm.setDouble(4, antal);
-					stm.executeUpdate();
+					//Kolla nu om det är en struktur, och i så fall lägg till varje rad i strukturen
+					
+					if (struktnr!=null && !struktnr.isEmpty()) {
+						stm=con.prepareStatement("select artnr, antal from artstrukt where nummer=?");
+						stm.setString(1, struktnr);
+						rs = stm.executeQuery();
+						while (rs.next()) {
+							try { checkFelaktigtAntalAndThrowException(con, rs.getString(1), rs.getDouble(2)); }	catch (Exception e) { throw new ServerErrorException("Fel i strukturen"); }
+							doInsertVarukorg(con, sxSession.getKundKontaktId(), rs.getString(1), rs.getDouble(2));
+						}
+					} else {		//Annars lägg till aritkeln
+						doInsertVarukorg(con, sxSession.getKundKontaktId(), artnr, antal);
+					}
 				}
 			}
 			ar= getVaruKorg(con,sxSession);
@@ -372,6 +392,15 @@ public class SxShopRPCImpl extends RemoteServiceServlet implements
 			try { con.close(); } catch (Exception e) {}
 		}
 		return ar;
+	}
+
+	private void doInsertVarukorg(Connection con, int kontaktid, String artnr, double antal) throws SQLException {
+		PreparedStatement stm=con.prepareStatement("insert into varukorg (kontaktid, typ, artnr, antal) values (?,?,?,?)");
+		stm.setInt(1, kontaktid);
+		stm.setString(2, "VK");
+		stm.setString(3, artnr);
+		stm.setDouble(4, antal);
+		stm.executeUpdate();
 	}
 
 	private ArrayList<VaruKorgRad> getVaruKorg(Connection con, SXSession sxSession) throws SQLException{
@@ -807,6 +836,77 @@ String q3=" ) as g"+
 
 
 
+	//Returnerar alla artiklar som ligger på kampanj
+	public SokResult getKampanjartiklar() throws ServerErrorException, NotLoggedInException{
+		ensureLoggedIn();
+		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
+		Connection con=null;
+		SokResult sokResult = new SokResult();
+		sokResult.maxRader=0;
+			try {
+				con = sxadm.getConnection();
+				PreparedStatement stmKund = con.prepareStatement("select elkund, vvskund, vakund, golvkund, fastighetskund, installator, butik, industri, oem, industri from kund where nummer=?");
+				stmKund.setString(1, sxSession.getKundnr());
+				ResultSet rsKund = stmKund.executeQuery();
+				if (rsKund.next()) {
+					PreparedStatement stmArtikel = con.prepareStatement(
+						 "select 0, a.nummer, a.namn, a.katnamn, a.enhet, a.kamppris, a.kampprisstaf1, a.kampprisstaf2, a.staf_antal1, a.staf_antal2, 'Netto', '', a.prisdatum, a.forpack, a.minsaljpack, a.prisgiltighetstid, a.bildartnr, a.kampkundgrp, a.kampkundartgrp"+
+						 " from artikel a " +
+						" where current_date between kampfrdat and kamptidat" +
+						" order by a.nummer"
+					);
+					ArtSidaKlase artSidaKlase = new ArtSidaKlase(0, "Kampanjartiklar", "", "");
+					ArtSidaKlaseArtikel artSidaKlaseArtikel=null;
+					ResultSet rsArtikel = stmArtikel.executeQuery();
+					int raderArtikelCn=0;
+					int q1;
+					int q2;
+					while (rsArtikel.next()) {
+						q1 = rsKund.getInt(1)*SXConstant.KAMPBIT_ELKUND + rsKund.getInt(2)*SXConstant.KAMPBIT_VVSKUND + rsKund.getInt(3)*SXConstant.KAMPBIT_VAKUND + rsKund.getInt(4)*SXConstant.KAMPBIT_GOLVKUND + rsKund.getInt(5)*SXConstant.KAMPBIT_FASTIGHETSKUND;
+						q2 = rsKund.getInt(6)*SXConstant.KAMPBIT_INSTALLATOR + rsKund.getInt(7)*SXConstant.KAMPBIT_BUTIK + rsKund.getInt(8)*SXConstant.KAMPBIT_INDUSTRI + rsKund.getInt(9)*SXConstant.KAMPBIT_OEM + rsKund.getInt(10)*SXConstant.KAMPBIT_GROSSIST;
+						if (			(rsArtikel.getInt(18) == 0 && rsArtikel.getInt(19)==0) ||
+										((rsArtikel.getInt(19) & q1) > 0 && (rsArtikel.getInt(18) & q2) > 0)	  ) {
+							artSidaKlaseArtikel = new ArtSidaKlaseArtikel();
+							artSidaKlaseArtikel.nummer=rsArtikel.getString(2);
+							artSidaKlaseArtikel.namn=rsArtikel.getString(3);
+							artSidaKlaseArtikel.katnamn=rsArtikel.getString(3);
+							artSidaKlaseArtikel.enhet=anpassaEnhet(rsArtikel.getString(5));
+							artSidaKlaseArtikel.utpris=SXUtil.getRoundedDecimal(rsArtikel.getDouble(6));
+							artSidaKlaseArtikel.staf_pris1=SXUtil.getRoundedDecimal(rsArtikel.getDouble(7));
+							artSidaKlaseArtikel.staf_pris2=SXUtil.getRoundedDecimal(rsArtikel.getDouble(8));
+							artSidaKlaseArtikel.staf_antal1=rsArtikel.getDouble(9);
+							artSidaKlaseArtikel.staf_antal2=rsArtikel.getDouble(10);
+							artSidaKlaseArtikel.rabkod=rsArtikel.getString(11);
+							artSidaKlaseArtikel.kod1=rsArtikel.getString(12);
+							artSidaKlaseArtikel.prisdatum=rsArtikel.getDate(13);
+							artSidaKlaseArtikel.forpack=rsArtikel.getDouble(14);
+							artSidaKlaseArtikel.minsaljpack=rsArtikel.getDouble(15);
+							artSidaKlaseArtikel.prisgiltighetstid=rsArtikel.getInt(16);
+							String bild = rsArtikel.getString(17);
+							if (bild==null || bild.isEmpty()) bild=artSidaKlaseArtikel.nummer;
+							artSidaKlaseArtikel.bildurl=bild;
+							artSidaKlase.artiklar.add(artSidaKlaseArtikel);
+							raderArtikelCn++;
+						}
+					}
+					if (raderArtikelCn>0) {
+						sokResult.sokResultKlasar.add(new SokResultKlase(artSidaKlase));
+					}
+				}
+
+			} catch (SQLException e) { System.out.print("Exception " + e.toString()); e.printStackTrace();
+			} finally {
+				try { con.close(); } catch (Exception e) {}
+			}
+
+		return sokResult;
+	}
+
+
+
+
+
+
 	public String anpassaEnhet(String enhet)  {
 		if ("M".equals(enhet)) return "m";
 		if ("ST".equals(enhet)) return "st";
@@ -1009,6 +1109,89 @@ String q3=" ) as g"+
 		return fakturaInfo;
 	}
 
+
+	//Get offertlista med start från offset om pageSize antal rader
+	public OffertHeaderList getOffertHeaders(int startRow, int pageSize) throws ServerErrorException, NotLoggedInException {
+		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
+		ensureLoggedIn();
+
+		OffertHeaderList list = new OffertHeaderList();
+		if (startRow<0) startRow=0;
+		if (pageSize<1) pageSize=30;
+		list.pageSize=pageSize;
+
+		Connection con=null;
+		try {
+			con = sxadm.getConnection();
+			PreparedStatement stm = con.prepareStatement("select offertnr, datum, marke from offert1 where kundnr=? order by offertnr desc offset ? limit ?");
+			stm.setString(1, sxSession.getKundnr());
+			stm.setInt(2, startRow);
+			stm.setInt(3, pageSize+1);//Limit till 1 mer rad än pagesize för att se om det finns fler rader efter sista
+			ResultSet rs = stm.executeQuery();
+			OffertHeader oh;
+			int cn=0;
+			while (rs.next()) {
+				cn++;
+				if(cn>pageSize) { list.hasMoreRows=true; cn--; break; }	//Minska cn eftersom vi använder den till att räkna fram näsat rads offset
+				oh=new OffertHeader();
+				oh.offertnr=rs.getInt(1);
+				oh.datum=rs.getDate(2);
+				oh.marke=rs.getString(3);
+				list.rader.add(oh);
+			}
+			list.nextRow = startRow+cn;
+		} catch (SQLException e) { e.printStackTrace(); throw(new ServerErrorException("Fel vid kommunikation med databasen"));
+		} finally {
+			try { con.close(); } catch (Exception e) {}
+		}
+		return list;
+	}
+
+
+	//private static final String SELECT_OFFERT = "select o2.offertnr, o1.datum, o1.marke, o2.pos, o2.artnr, o2.namn, o2.text, o2.best, o2.enh, o2.pris, o2.rab, o2.summa "+
+	//													" from offert1 o1 left outer join offert2 o2 on o1.offertnr=o2.offertnr";
+
+	public OffertInfo getOffertInfo(int offertnr) throws ServerErrorException, NotLoggedInException {
+		OffertInfo info=null;
+		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
+		ensureLoggedIn();
+		Connection con=null;
+		try {
+			con = sxadm.getConnection();
+			PreparedStatement stm = con.prepareStatement(SELECT_OFFERT + " where o1.kundnr=? and o1.offertnr=?");
+			stm.setString(1, sxSession.getKundnr());
+			stm.setInt(2, offertnr);
+			ResultSet rs = stm.executeQuery();
+			OffertRow or;
+			boolean firstRun=true;
+			while (rs.next()) {
+				if (firstRun) {
+					info = new OffertInfo();
+					OffertHeader oh = new OffertHeader();
+					info.offertHeader = oh;
+					oh.offertnr = rs.getInt(1);
+					oh.datum=rs.getDate(2);
+					oh.marke=rs.getString(3);
+				}
+				or=new OffertRow();
+				or.offertnr=rs.getInt(1);
+				or.pos = rs.getInt(4);
+				or.artnr=rs.getString(5);
+				or.namn=rs.getString(6);
+				or.text=rs.getString(7);
+				or.antal=rs.getDouble(8);
+				or.enh=rs.getString(9);
+				or.pris=rs.getDouble(10);
+				or.rab=rs.getDouble(11);
+				or.summa=rs.getDouble(12);
+				info.artikelrader.add(or);
+			}
+		} catch (SQLException e) { e.printStackTrace(); throw(new ServerErrorException("Fel vid kommunikation med databasen"));
+		} finally {
+			try { con.close(); } catch (Exception e) {}
+		}
+		return info;
+	}
 
 
 	private boolean doesOrderstatusPermitChange(String status) {
@@ -1729,5 +1912,6 @@ String q3=" ) as g"+
 			try { con.close(); } catch (Exception e) {}
 		}
 	}
+
 }
 
