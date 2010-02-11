@@ -220,7 +220,7 @@ public class LocalWebSupportBean implements LocalWebSupportLocal {
 						stj.setAutobestall((short)0);
 					}
 				} else {
-					art = em.find(TableArtikel.class, ordernr);
+					art = em.find(TableArtikel.class, o2.getArtnr());
 					if (art!=null) {
 						TableLager lag = em.find(TableLager.class, new TableLagerPK(art.getNummer(), o1.getLagernr()));
 						if (lag!=null) {
