@@ -105,8 +105,16 @@ public class OrderListaWidget extends SxWidget {
 
 	}
 
-	private void clickDeleteOrder(int ordernr) {
-		globalData.service.deleteOrder(ordernr, callbackDeleteOrder);
+	private void clickDeleteOrder(final int ordernr) {
+		new SxPopUpPanel("Annullera?", new Label("Vill du annullera ordern?"), true, true, new OkAvbrytHandler() {
+			public void onOk() {
+				globalData.service.deleteOrder(ordernr, callbackDeleteOrder);
+			}
+
+			public void onAvbryt() {
+			}
+		});
+		
 	}
 
 	AsyncCallback callbackDeleteOrder = new AsyncCallback() {

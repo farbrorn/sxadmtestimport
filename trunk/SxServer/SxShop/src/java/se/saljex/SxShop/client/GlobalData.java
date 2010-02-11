@@ -31,6 +31,7 @@ public class GlobalData {
 
 	public  final String IMG_BTN_TICK = "kn-tick.png";
 	public  final String IMG_BTN_TRASH = "kn-trash.png";
+	public  final String IMG_LOGO = "logo.png";
 
 
 	public  final String STYLE_ANTALTEXTBOX = "sx-antaltextbox";
@@ -42,7 +43,13 @@ public class GlobalData {
 	public  final String STYLE_KLASERUBRIK = "sx-klaserubrik";
 	public  final String STYLE_MAINPANEL = "sx-mainpanel";
 	public  final String STYLE_PROMPT = "sx-prompt";
+	public  final String STYLE_HORIZONTALPANEL = "sx-horizontalpanel";
+	public  final String STYLE_MARGINRIGHT4 = "sx-marginright4";
+	public  final String STYLE_SOKKNAPP = "sx-sokknapp";
+	public  final String STYLE_SOKINPUT = "sx-sokinput";
 	public  final String STYLE_INPUTDATA = "sx-inputdata";
+	public  final String STYLE_HEADERPANEL = "sx-headerpanel";
+	public  final String STYLE_HEADERSCROLLPANEL = "sx-headerscrollpanel";
 	public  final String STYLE_TR_RUBRIK = "sx-tablerubrik";
 	public  final String STYLE_TR_ODDROW = "sx-tr-oddrow";
 	public  final String STYLE_TD_DROPDOWNWIDGET = "sx-tb-dropdownwidget";

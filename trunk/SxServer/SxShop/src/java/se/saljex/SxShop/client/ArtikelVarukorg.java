@@ -9,6 +9,7 @@ import com.google.gwt.gen2.table.override.client.FlexTable;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ScrollPanel;
@@ -52,7 +53,7 @@ public class ArtikelVarukorg extends VerticalPanel implements VarukorgCallbackIn
 	FlexTable.FlexCellFormatter cellFormatter = ft.getFlexCellFormatter();
 	FlexTable.RowFormatter rowFormatter=ft.getRowFormatter();
 	ScrollPanel ftScrollPanel=new ScrollPanel(ft);
-	HorizontalPanel actionPanel = new HorizontalPanel();
+	Grid actionPanel = new Grid(1,2);
 	Button checkoutButton = new Button("Till kassan");
 
 
@@ -65,7 +66,7 @@ public class ArtikelVarukorg extends VerticalPanel implements VarukorgCallbackIn
 		}
 
 		public void onFailure(Throwable caught) {
-
+			artikelPanel.updateVarukorg(null);
 		}
 	};
 
@@ -103,7 +104,7 @@ public class ArtikelVarukorg extends VerticalPanel implements VarukorgCallbackIn
 
 		this.artikelPanel=artikelPanel;
 		errortext.addStyleName("sx-feltext");
-		setSpacing(4);
+		setSpacing(0);
 
 
 		nyArtnr.addStyleName("sx-vkartnr");
@@ -143,10 +144,16 @@ public class ArtikelVarukorg extends VerticalPanel implements VarukorgCallbackIn
 
 
 		add(ftScrollPanel);
-		actionPanel.setSpacing(4);
-		actionPanel.add(new Label("Snabbsök:"));
-		actionPanel.add(nyArtnr);
-		actionPanel.add(checkoutButton);
+//		actionPanel.setSpacing(4);
+		HorizontalPanel actionSokPanel = new HorizontalPanel();
+		actionSokPanel.add(new Label("Snabbsök:"));
+		actionSokPanel.add(nyArtnr);
+		actionPanel.setCellPadding(0);
+		actionPanel.setCellSpacing(0);
+		actionPanel.setWidget(0,0,actionSokPanel);
+		actionPanel.setWidget(0,1,checkoutButton);
+		actionPanel.getCellFormatter().setHorizontalAlignment(0, 1, ALIGN_RIGHT);
+		actionPanel.setWidth("100%");
 		add(actionPanel);
 		globalData.service.getVaruKorg(callbackGetVarukorg);
 	}
@@ -154,10 +161,11 @@ public class ArtikelVarukorg extends VerticalPanel implements VarukorgCallbackIn
 	public TextBox getSokTextBox() { return nyArtnr; }
 	
 	public void setVarukorg(ArrayList<VaruKorgRad> varukorg) {
+
 		int cn=1;
 		varukorgRader.clear();
 		ft.clear();
-		for (VaruKorgRad rad : varukorg) {
+		if (varukorg!=null) for (VaruKorgRad rad : varukorg) {
 			if (rad!=null){
 				currentRow = new VarukorgRadWidgets(cn,rad,this);
 				varukorgRader.add(currentRow);
@@ -191,7 +199,7 @@ public class ArtikelVarukorg extends VerticalPanel implements VarukorgCallbackIn
 		}
 
 		public void onFailure(Throwable caught) {
-			fillArtikelSokError("Fel " + caught.toString());
+			fillArtikelSokError("Fel " + caught.getMessage());
 		}
 	};
 

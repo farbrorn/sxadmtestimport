@@ -70,6 +70,9 @@ public class KontoPanel extends DockPanel implements SxResizePanel{
 			add(new MenyRad("Levererade order"
 					  , new SxWidget.SxWidgetConstructor() { public SxWidget getWidget() {return new UtlevListWidget(globalData,"Levererade order");}}
 					  ).getMenyWidget());
+			add(new MenyRad("Offerter"
+					  , new SxWidget.SxWidgetConstructor() { public SxWidget getWidget() {return new OffertListWidget(globalData,"Offerter");}}
+					  ).getMenyWidget());
 
 
 			l = new Label("Ekonomi");

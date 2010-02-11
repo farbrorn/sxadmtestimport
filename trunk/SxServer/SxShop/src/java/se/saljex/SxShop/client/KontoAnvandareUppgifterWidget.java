@@ -147,7 +147,7 @@ public class KontoAnvandareUppgifterWidget extends SxWidget{
 		}
 
 		public void onSuccess(Object result) {
-			new SxPopUpPanel("Uppgifterna sparade", new Label(""));
+			new SxPopUpPanel("Uppgifterna sparade", new Label(""), true, false);
 		}
 	};
 
@@ -186,7 +186,7 @@ public class KontoAnvandareUppgifterWidget extends SxWidget{
 
 					public void onSuccess(Object result) {
 						errLabel.setText("");
-						new SxPopUpPanel("Lösenordet ändrat", new Label(""));
+						new SxPopUpPanel("Lösenordet ändrat", new Label(""), true, false);
 						andraLosen.hide();
 					}
 				});

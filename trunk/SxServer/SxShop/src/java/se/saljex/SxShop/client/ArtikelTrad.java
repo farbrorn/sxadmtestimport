@@ -41,17 +41,25 @@ public class ArtikelTrad extends Tree {
 
 
 	private void fillTree(int rootGrp) {
+		TreeItem item;
 		// Först, hämta alla rootgrupper
 		for(ArtGrupp a : grupper) {
 			if (a.prevgrpid==rootGrp) {
-				TreeItem item = new TreeItem(a.rubrik);
+				item = new TreeItem(a.rubrik);
 				item.setUserObject(a);
 				fillTreeNode(item, a.grpid);
 				item.addStyleName("sx-arttrad-grp");
 				addItem(item);
 			}
 		}
+		//Lägg till kampanjnodem
+		item = new TreeItem("Mina kampanjer");
+		ArtTradUserObject au = new ArtTradUserObject();
+		au.isKampanjNod=true;
+		item.setUserObject(au);
+		addItem(item);
 	}
+	
 	private void fillTreeNode(TreeItem parent, int grp) {
 		// Metod för att iterera genom samtliga grupper och skapa nya noder för varje
 		for(ArtGrupp a : grupper) {

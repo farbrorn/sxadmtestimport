@@ -13,7 +13,7 @@ import java.util.ArrayList;
  * @author ulf
  */
 public class SokResult implements IsSerializable{
-public String sokStr;
+public String sokStr=null;
 public ArrayList<ArtSidaKlaseArtikel> artiklar=new ArrayList();
 public ArrayList<SokResultKlase> sokResultKlasar = new ArrayList();
 public boolean merRaderFinns=false;

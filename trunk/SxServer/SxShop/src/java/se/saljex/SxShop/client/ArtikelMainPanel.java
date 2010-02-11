@@ -90,7 +90,7 @@ public class ArtikelMainPanel extends VerticalPanel implements KopKnappCallback{
 	public void fill(final SokResult sokResult) {
 		clear();
 //		addVarukorgIfVisible();
-		add(new Label("Sökresultat för " + sokResult.sokStr));
+		if (sokResult.sokStr!=null) add(new Label("Sökresultat för " + sokResult.sokStr));
 		for (SokResultKlase sk : sokResult.sokResultKlasar) {
 			printKlase(sk.artSidaKlase);
 		}
@@ -258,8 +258,10 @@ public void printKlase(final ArtSidaKlase ask) {
 						ft.setWidget(rowCn, 6, new Label(aska.rabkod));
 						cellFormatter.addStyleName(rowCn, 2, "sx-tb-pris");
 						cellFormatter.addStyleName(rowCn, 4, "sx-tb-pris");
-						KopKnapp kopKnapp = new KopKnapp(aska,this);
-						ft.setWidget(rowCn, 7,kopKnapp );
+						if (globalData.isLoggedIn()) {
+							KopKnapp kopKnapp = new KopKnapp(aska,this);
+							ft.setWidget(rowCn, 7,kopKnapp );
+						}
 
 						final Image infoImage = new Image(globalData.IconInfoSmallURL);
 						infoImage.addStyleName("sx-clickicon");

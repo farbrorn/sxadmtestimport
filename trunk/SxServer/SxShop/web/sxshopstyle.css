@@ -54,10 +54,22 @@
 	width: 200px;
 }
 .sx-sokknapp {
-	width: 50px;
+	width: 60px;
+	height: 20px;
 }
 .sx-sokinput {
-	width: 100px;
+	width: 110px;
+	margin:0px;
+	padding:0px;
+	height: 18px;
+}
+
+.sx-marginright4 {
+	margin-right:4px;
+}
+.sx-horizontalpanel td {
+	margin: 20px;
+	padding: 0px 4px 0px 0px;
 }
 
 .sx-antaltextbox {
@@ -104,6 +116,25 @@ table.sx-tableinfo td {
 .sx-mainpanel {
 	width: 700px;
 }
+.sx-headerpanel {
+	background-color:#cccccc;
+	margin: 0px;
+	padding: 0px 4px 0px 4px;
+	width:100%;
+
+}
+.sx-headerpanel td {
+	margin: 0px;
+	padding: 0px;
+}
+.sx-headerscrollpanel {
+	width:100%;
+	height: 42px;
+	width: 100%;
+	margin: 0px;
+	padding: 0px;
+}
+
 .sx-tr-highlite {
 	background-color: #3030f0;
 }
@@ -248,7 +279,7 @@ table.sx-tableinfo td {
 sx-inputdata {
 	width: 120px;
 	margin:1px;
-	padding:0xpx;
+	padding:0px;
 	height: 18px;
 }
 
@@ -290,7 +321,7 @@ input {
  * Applied to buttons.
  */
 .gwt-Button {
-  width: 10em;
+  /*width: 10em;*/
 }
 
 .gwt-Button:active {
