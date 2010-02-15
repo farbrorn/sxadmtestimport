@@ -38,6 +38,12 @@ ArtikelMainPanel artSidaPanel;
 					item.addItem(newItem);
 				}
 			}
+			artSidaPanel.clear();
+			artSidaPanel.fillSokVag(item);
+			artSidaPanel.fillRubrik(userObject.artGrupp.rubrik);
+			if (item.getChildCount() > 0) {			//Vi har childenoder och visar dem
+				artSidaPanel.fillTreeNodes(item);
+			}
 			if (userObject.artSidaKlase==null) { //Vanlig sida
 				artSidaPanel.fill(artSida);
 			} else { //Filtrerad på en klase

@@ -51,4 +51,6 @@ public interface SxShopRPCAsync {
 	public void getOffertInfo(int offertnr, AsyncCallback callback);
 	public void getOffertHeaders(int startRow, int pageSize, AsyncCallback callback);
 	public void getKampanjartiklar(AsyncCallback callback);
-}
+	public void getBilderForArtGrpNodes(int grpid, int maxbilder, AsyncCallback callback);
+
+	}

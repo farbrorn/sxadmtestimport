@@ -31,6 +31,7 @@ import se.saljex.SxShop.client.rpcobject.SokResultKlase;
 import se.saljex.SxShop.client.SxShopRPC;
 import se.saljex.SxShop.client.rpcobject.Anvandare;
 import se.saljex.SxShop.client.rpcobject.AnvandareUppgifter;
+import se.saljex.SxShop.client.rpcobject.ArtGrpBilder;
 import se.saljex.SxShop.client.rpcobject.BetalningList;
 import se.saljex.SxShop.client.rpcobject.BetalningRow;
 import se.saljex.SxShop.client.rpcobject.FakturaHeader;
@@ -1809,24 +1810,6 @@ String q3=" ) as g"+
 	}
 
 
-	public void dummyFunctionToHoldSkelton() throws ServerErrorException, NotLoggedInException {
-		ensureLoggedIn();
-		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
-
-		Connection con=null;
-		try {
-			con = sxadm.getConnection();
-			PreparedStatement stm = con.prepareStatement("");
-			stm.setString(1, null);
-			ResultSet rs = stm.executeQuery();
-			while (rs.next()) {
-			}
-		} catch (SQLException e) { e.printStackTrace(); throw(new ServerErrorException("Fel vid kommunikation med databasen"));
-		} finally {
-			try { con.close(); } catch (Exception e) {}
-		}
-
-	}
 
 	public void updateAnvandareUppgifter(AnvandareUppgifter a) throws ServerErrorException, NotLoggedInException {
 		ensureLoggedIn();
@@ -1912,6 +1895,76 @@ String q3=" ) as g"+
 			try { con.close(); } catch (Exception e) {}
 		}
 	}
+
+
+	public ArrayList<ArtGrpBilder> getBilderForArtGrpNodes(int grpid, int maxbilder) throws ServerErrorException {
+		ArrayList<ArtGrpBilder> arr = new ArrayList();
+		ArtGrpBilder bilder;
+		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
+
+		Connection con=null;
+		try {
+			con = sxadm.getConnection();
+			PreparedStatement stmGrupper = con.prepareStatement("select grpid from artgrp where prevgrpid=?");
+			stmGrupper.setInt(1, grpid);
+			ResultSet rsGrupper = stmGrupper.executeQuery();
+			PreparedStatement stm = con.prepareStatement(
+							"select a.nummer, a.bildartnr from "+
+							" ( "+
+							" select min(akl.artnr) as artnr from "+
+								" ( "+
+								" select ag1.grpid as grpid1, ag2.grpid as grpid2, ag3.grpid as grpid3, ag4.grpid as grpid4 " +
+								" from artgrp ag1  "+
+									 " left outer join artgrp ag2 on ag2.prevgrpid = ag1.grpid "+
+									" left outer join artgrp ag3 on ag3.prevgrpid = ag2.grpid "+
+									" left outer join artgrp ag4 on ag4.prevgrpid = ag3.grpid "+
+								" where ag1.grpid=? "+
+								" ) g "+
+								" left outer join artgrplank agl on agl.grpid=g.grpid1 or agl.grpid=g.grpid2 or agl.grpid=g.grpid3 or agl.grpid=g.grpid4 "+
+								" left outer join artklaselank akl on akl.klasid=agl.klasid "+
+								" group by akl.klasid "+
+							" ) a1 "+
+							" join artikel a on a.nummer=a1.artnr "+
+							" order by random() limit ?"
+					  );
+			while (rsGrupper.next()) {
+				bilder = new ArtGrpBilder();
+				stm.setInt(1, rsGrupper.getInt(1));
+				stm.setInt(2, maxbilder);
+				ResultSet rs = stm.executeQuery();
+				while (rs.next()) {
+					bilder.bilder.add((rs.getString(2)==null || rs.getString(2).isEmpty()) ? rs.getString(1) : rs.getString(2));
+				}
+				bilder.grpid=rsGrupper.getInt(1);
+				arr.add(bilder);
+			}
+		} catch (SQLException e) { e.printStackTrace(); throw(new ServerErrorException("Fel vid kommunikation med databasen"));
+		} finally {
+			try { con.close(); } catch (Exception e) {}
+		}
+		return arr;
+
+	}
+	public void dummyFunctionToHoldSkelton() throws ServerErrorException, NotLoggedInException {
+		ensureLoggedIn();
+		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
+
+		Connection con=null;
+		try {
+			con = sxadm.getConnection();
+			PreparedStatement stm = con.prepareStatement("");
+			stm.setString(1, null);
+			ResultSet rs = stm.executeQuery();
+			while (rs.next()) {
+			}
+		} catch (SQLException e) { e.printStackTrace(); throw(new ServerErrorException("Fel vid kommunikation med databasen"));
+		} finally {
+			try { con.close(); } catch (Exception e) {}
+		}
+
+	}
+
+
 
 }
 

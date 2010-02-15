@@ -25,6 +25,7 @@ public class GlobalData {
 	public final String IconInfoSmallURL = "info16.png";
 	public final String IconInfoBigURL = "info32.png";
 	public final String ImageSuffix = ".png";
+	public final int SmallImageHeight = 30;
 
 	public final NumberFormat numberFormat = NumberFormat.getFormat("0.00");
 	public final NumberFormat numberFormatInt = NumberFormat.getFormat("0");
