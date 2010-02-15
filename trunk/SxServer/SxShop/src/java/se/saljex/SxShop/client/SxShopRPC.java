@@ -16,6 +16,7 @@ import com.google.gwt.user.client.rpc.RemoteService;
 import java.util.ArrayList;
 import se.saljex.SxShop.client.rpcobject.Anvandare;
 import se.saljex.SxShop.client.rpcobject.AnvandareUppgifter;
+import se.saljex.SxShop.client.rpcobject.ArtGrpBilder;
 import se.saljex.SxShop.client.rpcobject.BetalningList;
 import se.saljex.SxShop.client.rpcobject.FakturaHeaderList;
 import se.saljex.SxShop.client.rpcobject.FakturaInfo;
@@ -76,5 +77,5 @@ public interface SxShopRPC extends RemoteService{
 	public OffertInfo getOffertInfo(int offertnr) throws ServerErrorException, NotLoggedInException;
 	public OffertHeaderList getOffertHeaders(int startRow, int pageSize) throws ServerErrorException, NotLoggedInException;
 	public SokResult getKampanjartiklar() throws ServerErrorException, NotLoggedInException;
-
+	public ArrayList<ArtGrpBilder> getBilderForArtGrpNodes(int grpid, int maxbilder) throws ServerErrorException;
 }

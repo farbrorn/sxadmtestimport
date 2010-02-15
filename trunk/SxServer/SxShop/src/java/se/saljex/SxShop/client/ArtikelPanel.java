@@ -131,6 +131,7 @@ public class ArtikelPanel extends DockPanel implements SxResizePanel{
 		}
 
 		public void printSokResult(SokResult sokResult) {
+			artSidaPanel.clear();
 			artSidaPanel.fill(sokResult);
 		}
 		public void printError(String s) {
@@ -174,6 +175,7 @@ public class ArtikelPanel extends DockPanel implements SxResizePanel{
 
 	final AsyncCallback callbackSok = new AsyncCallback() {
 		public void onSuccess(Object result) {
+			artSidaPanel.clear();
 			artSidaPanel.fill((SokResult)result);
 		}
 

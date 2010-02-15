@@ -19,7 +19,7 @@ import java.util.ArrayList;
 public class ArtikelTrad extends Tree {
 
 	final GlobalData globalData;
-	private ArrayList<ArtGrupp> grupper;
+	public ArrayList<ArtGrupp> grupper;
 
 	final AsyncCallback callback = new AsyncCallback() {
 		public void onSuccess(Object result) {
@@ -46,7 +46,7 @@ public class ArtikelTrad extends Tree {
 		for(ArtGrupp a : grupper) {
 			if (a.prevgrpid==rootGrp) {
 				item = new TreeItem(a.rubrik);
-				item.setUserObject(a);
+				item.setUserObject(new ArtTradUserObject(a));
 				fillTreeNode(item, a.grpid);
 				item.addStyleName("sx-arttrad-grp");
 				addItem(item);

@@ -28,13 +28,17 @@ import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import java.util.ArrayList;
+import se.saljex.SxShop.client.rpcobject.ArtGrpBilder;
 
 /**
  *
@@ -46,11 +50,11 @@ public class ArtikelMainPanel extends VerticalPanel implements KopKnappCallback{
 	private NumberFormat numberFormat = NumberFormat.getFormat("0.00");
 	private NumberFormat numberFormatInt = NumberFormat.getFormat("0");
 
-	private static final int SMALL_IMMAGE_HEIGHT = 20;
 
 	private ArtikelPanel artikelPanel;
 	VantaDialogBox vantaDialogBox = new VantaDialogBox(); //Modal dialog
 	KopDialogBox kopDialogBox;
+	private final static int ARTGRPKOLUMNER = 3;
 
 	public ArtikelMainPanel(final GlobalData globalData, ArtikelPanel artikelPanel) {
 		this.globalData=globalData;
@@ -87,9 +91,93 @@ public class ArtikelMainPanel extends VerticalPanel implements KopKnappCallback{
 		add(w);
 	}
 
+	private void doFillTreeNodesBilder(TreeItem item, FlexTable ft) {
+		ArtTradUserObject userObject;
+		ArtImage image;
+		HorizontalPanel hp;
+		int row=0;
+		int col=0;
+		for (int cn=0; cn<item.getChildCount(); cn++) {
+			userObject = (ArtTradUserObject)item.getChild(cn).getUserObject();
+			if(userObject.artSidaKlase==null) {					//Om det är en slutnod (med en klase) så gör vi inget
+				hp = new HorizontalPanel();
+				for (String url : userObject.grpBilder) {
+					image = new ArtImage(globalData.smallArtURL + url + globalData.ImageSuffix, globalData.SmallImageHeight);
+					hp.add(image);
+				}
+				ft.setWidget(row, col, hp);
+				ft.getCellFormatter().setHorizontalAlignment(row, col, HasHorizontalAlignment.ALIGN_CENTER);
+				if (col++ > ARTGRPKOLUMNER-1) { col=0; row=row+2; }			//Begränsa antalet kolumner, och mata fram ny rad
+			}
+		}
+
+	}
+
+	private void doSetTreeNodesBilder(TreeItem item, ArrayList<ArtGrpBilder> artGrpBilderArr) {
+		ArtTradUserObject userObject;
+		for (int cn=0; cn<item.getChildCount(); cn++) {
+			userObject = (ArtTradUserObject)item.getChild(cn).getUserObject();
+			if(userObject.artSidaKlase==null) {					//Om det är en slutnod (med en klase) så gör vi inget
+				for (ArtGrpBilder bilder : artGrpBilderArr) {
+					if (bilder.grpid == userObject.artGrupp.grpid) {
+						userObject.grpBilder = bilder.bilder;
+					}
+				}
+			}
+		}
+	}
+
+	public void fillTreeNodes(final TreeItem item) {
+
+		Anchor childAnchor;
+		final FlexTable ft = new  FlexTable();
+		int row=1;
+		int col=0;
+		int antalRubriker=0;
+		ArtTradUserObject uo = (ArtTradUserObject)item.getUserObject();
+//		final ArtikelMainPanel thisRef = this;
+		if (!uo.isKampanjNod && uo.artSidaKlase==null) {
+			if (!uo.childGruppBilderInlasta) {	//Läs in bilder till denna grupps childgrupper
+				uo.childGruppBilderInlasta=true;
+				globalData.service.getBilderForArtGrpNodes(uo.artGrupp.grpid, 2, new AsyncCallback() {
+					public void onFailure(Throwable caught) {
+						ft.setWidget(0, 0, new Label(caught.toString()));
+					}
+
+					public void onSuccess(Object result) {
+						doSetTreeNodesBilder(item, (ArrayList<ArtGrpBilder>)result);
+						doFillTreeNodesBilder(item,ft);
+					}
+				});
+			} else {
+				doFillTreeNodesBilder(item,ft);
+			}
+		}
+		for (int cn=0; cn<item.getChildCount(); cn++) {
+			final TreeItem childItem = item.getChild(cn);
+			final ArtTradUserObject userObject = (ArtTradUserObject)childItem.getUserObject();
+			if (!userObject.isKampanjNod && userObject.artSidaKlase==null) { //Om det är en kampanj eller en klase så fyller vi inte
+				childAnchor = new Anchor(userObject.artGrupp.rubrik);
+				childAnchor.addClickHandler(new ClickHandler() {
+					public void onClick(ClickEvent event) {
+						childItem.getTree().setSelectedItem(childItem,true);
+						childItem.getTree().ensureSelectedItemVisible();
+						//childItem.setSelected(true);
+						//TradCallbackHandler tch = new TradCallbackHandler(childItem, thisRef);
+						//globalData.service.getArtSida(userObject.artGrupp.grpid, tch.callbackFillGrupp);
+					}
+				});
+				ft.setWidget(row, col, childAnchor);
+				ft.getCellFormatter().setHorizontalAlignment(row, col, HasHorizontalAlignment.ALIGN_CENTER);
+				if (col++ > ARTGRPKOLUMNER-1) { col=0; row=row+2; }			//Begränsa antalet kolumner, och mata fram ny rad
+				antalRubriker++;
+			}
+		}
+		if (antalRubriker > 0) add(ft);
+
+	}
+
 	public void fill(final SokResult sokResult) {
-		clear();
-//		addVarukorgIfVisible();
 		if (sokResult.sokStr!=null) add(new Label("Sökresultat för " + sokResult.sokStr));
 		for (SokResultKlase sk : sokResult.sokResultKlasar) {
 			printKlase(sk.artSidaKlase);
@@ -105,23 +193,52 @@ public class ArtikelMainPanel extends VerticalPanel implements KopKnappCallback{
 		}
 	}
 
+	public void fillSokVag(TreeItem item) {
+		Anchor a;
+		HorizontalPanel hp = new HorizontalPanel();
+		//hp.addStyleName(globalData.STYLE_MARGINRIGHT4);
+		fillSokVagIterator(hp, item, true);
+		add(hp);
+	}
+
+	private void fillSokVagIterator(HorizontalPanel hp, TreeItem item, boolean firstIteration) {
+		final TreeItem prevItem = item.getParentItem();
+		final Anchor a;
+		final	ArtTradUserObject userObject;
+		if (prevItem != null) {
+			fillSokVagIterator(hp, prevItem, false);
+			userObject = (ArtTradUserObject)prevItem.getUserObject();
+			if (userObject.artGrupp!=null) {
+				a = new Anchor(userObject.artGrupp.rubrik);
+				a.addClickHandler(new ClickHandler() {
+					public void onClick(ClickEvent event) {
+							prevItem.getTree().setSelectedItem(prevItem,true);
+							prevItem.getTree().ensureSelectedItemVisible();
+					}
+				});
+				hp.add(a);
+				if (!firstIteration) hp.add(new HTML("&nbsp;»&nbsp;"));
+			}
+		}
+	}
+
+	public void fillRubrik(String rubrik) {
+			Label l = new Label(rubrik);
+			l.addStyleName(globalData.STYLE_HUVUDRUBRIK);
+			add(l);
+
+	}
+
 	public void fill(ArtSida artSida) {
 		fill(artSida, null);
 	}
-	public void fill(ArtSida artSida, Integer filterKlasid) {
-			clear();
-//			addVarukorgIfVisible();
 
+	public void fill(ArtSida artSida, Integer filterKlasid) {
 			String namn;
 			Grid klaseTextGrid;
 
-			final String GRPRUBRIK = "sx-huvudrubrik";
-			final String KLASERUBRIK = "sx-klaserubrik";
 			Label l;
 
-			l = new Label(artSida.rubrik);
-			l.addStyleName(GRPRUBRIK);
-			add(l);
 
 			l = new HTML(artSida.text);
 			add(l);
@@ -132,63 +249,6 @@ public class ArtikelMainPanel extends VerticalPanel implements KopKnappCallback{
 			for (ArtSidaKlase ask : artSida.klasar) {
 				if (filterKlasid==null || filterKlasid.equals(ask.klasid)) {
 					printKlase(ask);
-/*					FlexTable ft;
-					ft = new FlexTable();
-					FlexTable.FlexCellFormatter cellFormatter = ft.getFlexCellFormatter();
-					FlexTable.RowFormatter rowFormatter=ft.getRowFormatter();
-					//ft.setWidth("100%");
-					ft.setCellPadding(1);
-					ft.setCellSpacing(0);
-					ft.setWidget(0, 0, new Label("Art.nr"));
-					ft.setWidget(0, 1, new Label("Benämning"));
-					ft.setWidget(0, 2, new Label("Pris"));
-					ft.setWidget(0, 3, new Label("Enh"));
-					ft.setWidget(0, 4, new Label("Mängdpris"));
-					ft.setWidget(0, 5, new Label("Mängd"));
-					ft.setWidget(0, 6, new Label("Rab"));
-					ft.setWidget(0, 7, new Label(" "));
-					rowFormatter.addStyleName(0, "sx-tablerubrik");
-					cellFormatter.addStyleName(0, 0, "sx-tb-artnr");
-					cellFormatter.addStyleName(0, 1, "sx-tb-benamning");
-					cellFormatter.addStyleName(0, 2, "sx-tb-pris");
-					cellFormatter.addStyleName(0, 3, "sx-tb-enhet");
-					cellFormatter.addStyleName(0, 4, "sx-tb-pris");
-					cellFormatter.addStyleName(0, 5, "sx-tb-mangd");
-					cellFormatter.addStyleName(0, 6, "sx-tb-rab");
-					cellFormatter.addStyleName(0, 7, "sx-tb-kop");
-
-					int rowCn=1;
-
-					l = new Label(ask.rubrik);
-					l.addStyleName(KLASERUBRIK);
-					add(l);
-					l = new Label(ask.text);
-					add(l);
-					l = new Label(ask.infourl);
-					add(l);
-					for (ArtSidaKlaseArtikel aska : ask.artiklar) {
-						ft.setWidget(rowCn, 0,new Label(aska.nummer));
-						if (aska.katnamn==null || aska.katnamn.isEmpty()) namn=aska.namn; else namn=aska.katnamn;
-						ft.setWidget(rowCn, 1,new Label(namn));
-						ft.setWidget(rowCn, 2,new Label(numberFormat.format(aska.utpris)));
-						ft.setWidget(rowCn, 3, new Label(aska.enhet));
-						if (aska.staf_pris1.equals(0.0)) {
-							ft.setHTML(rowCn, 4,"");
-							ft.setHTML(rowCn, 5,"");
-						} else {
-							ft.setWidget(rowCn, 4,new Label(numberFormat.format(aska.staf_pris1)));
-							ft.setWidget(rowCn, 5,new Label(numberFormatInt.format(aska.staf_antal1)+ " " + aska.enhet));
-						}
-						ft.setWidget(rowCn, 6, new Label(aska.rabkod));
-						cellFormatter.addStyleName(rowCn, 2, "sx-tb-pris");
-						cellFormatter.addStyleName(rowCn, 4, "sx-tb-pris");
-						KopKnapp kopKnapp = new KopKnapp(aska,this);
-						ft.setWidget(rowCn, 7,kopKnapp );
-						if (rowCn%2 > 0 ) rowFormatter.addStyleName(rowCn, "");
-						rowCn++;
-
-					}
-					add(ft); */
 				}
 			}
 	}
@@ -273,26 +333,7 @@ public void printKlase(final ArtSidaKlase ask) {
 						});
 						ft.setWidget(rowCn, 8, infoImage);
 
-						final Image image = new Image(globalData.smallArtURL + aska.bildurl + globalData.ImageSuffix);
-						image.setHeight(SMALL_IMMAGE_HEIGHT + "px");
-						image.addLoadHandler(new LoadHandler() {
-							public void onLoad(LoadEvent event) {
-								int h = image.getHeight();
-								int w = image.getWidth();
-								if (w > SMALL_IMMAGE_HEIGHT) {
-									image.setHeight(Math.round(SMALL_IMMAGE_HEIGHT * h/w)+ "px");
-									image.setWidth(SMALL_IMMAGE_HEIGHT+"px");
-								}
-							}
-						});
-						image.addErrorHandler(new ErrorHandler() {
-
-							public void onError(ErrorEvent event) {
-								image.removeFromParent();
-							}
-						});
-
-
+						final ArtImage image = new ArtImage(globalData.smallArtURL + aska.bildurl + globalData.ImageSuffix, globalData.SmallImageHeight);
 						ft.setWidget(rowCn, 9, image );
 
 						if (rowCn%2 > 0 ) rowFormatter.addStyleName(rowCn, globalData.STYLE_TR_ODDROW);
