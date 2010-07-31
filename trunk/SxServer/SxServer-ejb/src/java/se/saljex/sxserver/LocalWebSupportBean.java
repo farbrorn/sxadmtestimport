@@ -52,10 +52,10 @@ public class LocalWebSupportBean implements LocalWebSupportLocal {
 	@Resource TimerService timerService;
 	@Resource EJBContext context;
 	@Resource(name="sxmail", mappedName="sxmail") private Session mailsxmail;
-	@PersistenceContext private EntityManager em;
+	@PersistenceContext(unitName="SxServer-ejbPU") private EntityManager em;
 	@Resource private UserTransaction utx;
 
-	@PersistenceUnit private EntityManagerFactory emf;
+	@PersistenceUnit(unitName="SxServer-ejbPU") private EntityManagerFactory emf;
 
 	  public TableKund getTableKund(String kundnr) {
 			 if (kundnr != null) return em.find(TableKund.class, kundnr); else return null;

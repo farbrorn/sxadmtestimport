@@ -2274,3 +2274,8 @@ ip varchar(100),
 cr timestamp default current_timestamp
 )
 
+/* Ändringar 2010-06-15 */
+alter table artikel add inp_enh varchar(3);	/*Leverantörens enhet */
+alter table artikel add inp_enhetsfaktor numeric(12,6) not null default 0.0;	/* Hur många av leverantörens enheter som motsvarar försäljningsenheten 
+																											ex. leverantör har 6 m rör och säljer som m, men vi har enhet st så blir faktorn 6
+																												*/

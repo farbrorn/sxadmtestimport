@@ -19,7 +19,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "FDORDERNR")
-@NamedQueries({@NamedQuery(name = "TableFdordernr.findAll", query = "SELECT f FROM TableFdordernr f"),@NamedQuery(name = "TableFdordernr.updateOrdernrBy1", query =  "UPDATE TableFdordernr f SET f.ordernr = f.ordernr+1 where f.ordernr = :ordernr")})
+@NamedQueries({@NamedQuery(name = "TableFdordernr.findAll", query = "SELECT f FROM TableFdordernr f order by f.ordernr"),@NamedQuery(name = "TableFdordernr.updateOrdernrBy1", query =  "UPDATE TableFdordernr f SET f.ordernr = f.ordernr+1 where f.ordernr = :ordernr")})
 public class TableFdordernr implements Serializable {
 	  private static final long serialVersionUID = 1L;
 	  @Id

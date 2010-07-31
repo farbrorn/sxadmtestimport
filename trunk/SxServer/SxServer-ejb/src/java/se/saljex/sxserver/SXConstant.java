@@ -15,6 +15,8 @@ public class SXConstant {
 	public static final  String ORDER_STATUS_DIREKTLEV = "Direkt";
 	public static final  String ORDER_STATUS_SIMPLEORDER = "Simple";
 	public static final  String ORDER_STATUS_VANTAR = "Väntar";
+	public static final  String ORDER_STATUS_AVVAKT = "Avvakt";
+	public static final  String ORDER_STATUS_OVERFORD = "Överf";
 	
 	public static final  String ORDERHAND_SKAPAD = "Skapad";
 

@@ -79,6 +79,15 @@ public class SXSession {
 		}
 		return false;
 	}
+
+	public boolean checkIntraBehorighetIntraWebApp() {
+		if (inloggad) {
+			if (superuser || adminuser) return true;
+			if (intrauser) return true;
+		}
+		return false;
+
+	}
 	
 	public boolean getInloggad() {
 		return inloggad;

@@ -49,5 +49,7 @@ public interface SxServerMainLocal {
 
 	boolean sendSimpleMail(String adress, String header, String bodytext);
 
+	int overforBVOrder(String sxKundnr, int bvOrdernr, String bvAnvandare, String sxAnvandare, short sxLagernr) throws SXEntityNotFoundException;
+	void overforBVOrderSaveSxOrder(BvOrder bvOrder) throws SXEntityNotFoundException;
 	
 }
