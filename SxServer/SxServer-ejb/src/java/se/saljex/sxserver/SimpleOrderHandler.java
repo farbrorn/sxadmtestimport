@@ -175,7 +175,9 @@ public SimpleOrderHandler(EntityManager e, String kundNr, String kontaktNamn, sh
 		// Vi behöver inte sätta huvudet (Order1) till denna order, utan nya huvuden skapas löpande för varje delorder
 		OrderHandler mainOrh = new OrderHandler(em, sor1.getKundnr(),  sor1.getLagernr(), anvandare);
 		for (OrderHandlerRad or : ordreg) {
-			mainOrh.addRow(or.artnr, or.best);
+			try {
+				mainOrh.addRow(or.artnr, or.best);
+			} catch (SXEntityNotFoundException e) {SXUtil.log("Kunde inte spara rad. " + or.artnr + " Radden hoppas över. Fel: " + e.getMessage()); e.printStackTrace();}
 		}
 		//Nu är alla rader från SimpleOrder inlästa i main-ordern med korrekta priser
 		//Nu fortsätter vi med att skanna igenom ordern och delqa den ifall det finns direkleveransartiklar
@@ -233,7 +235,10 @@ public SimpleOrderHandler(EntityManager e, String kundNr, String kontaktNamn, sh
 		// Vi behöver inte sätta huvudet (Order1) till denna order, utan nya huvuden skapas löpande för varje delorder
 		OrderHandler mainOrh = new OrderHandler(em, sor1.getKundnr(),  sor1.getLagernr(), anvandare);
 		for (OrderHandlerRad or : ordreg) {
-			mainOrh.addRow(or.artnr, or.best);
+			try {
+				mainOrh.addRow(or.artnr, or.best);
+			} catch (SXEntityNotFoundException e) {}
+
 		}
 		mainOrh.sortLevNr();				// Sortera efter leverantörsordning för att kolla varje leverantör för direktleverans
 		return mainOrh;
@@ -279,9 +284,11 @@ public SimpleOrderHandler(EntityManager e, String kundNr, String kontaktNamn, sh
 		}
 		
 		if (fraktTillkommer) {
-			OrderHandlerRad delOrhRad = delOrh.addRow(SXUtil.getSXReg(em, SXConstant.SXREG_ARTNRFRAKT, SXConstant.SXREG_ARTNRFRAKT_DEFAULT),1);
+			try {
+				delOrh.addRow(SXUtil.getSXReg(em, SXConstant.SXREG_ARTNRFRAKT, SXConstant.SXREG_ARTNRFRAKT_DEFAULT),1);
+			} catch (SXEntityNotFoundException e) { SXUtil.log("Kunde inte hitta artikel för frakt. Raden hoppas över. Fel: " + e.getMessage()); e.printStackTrace(); }
 			if (direktlevLev != null) {
-				delOrhRad.levnr = direktlevLev;
+				delOrh.getLastRow().levnr = direktlevLev;
 			}			
 			if (direktlevLev == null) {
 				 delOrh.setStatus(SXConstant.ORDER_STATUS_SPARAD);

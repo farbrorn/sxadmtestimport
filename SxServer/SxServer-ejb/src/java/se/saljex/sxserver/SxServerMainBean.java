@@ -69,7 +69,8 @@ public class SxServerMainBean implements SxServerMainLocal {
 	@Resource TimerService timerService;
 	@Resource EJBContext context;
 	@Resource(name="sxmail", mappedName="sxmail") private Session mailsxmail;
-    @PersistenceContext private EntityManager em;  
+    @PersistenceContext(unitName="SxServer-ejbPU") private EntityManager em;
+    @PersistenceContext(unitName="SxServer-ejbPU-BV") private EntityManager embv;
 	
 		@EJB		SxServerMainLocal sxServerMainBean;// = new JobbHandlerBean();
 	
@@ -476,6 +477,8 @@ public class SxServerMainBean implements SxServerMainLocal {
 		} else return null;
 	}
 
+
+
 	//Returnerar true vid error
 	public boolean sendSimpleMail(String adress, String header, String bodytext) {
 		try {
@@ -486,11 +489,21 @@ public class SxServerMainBean implements SxServerMainLocal {
 		catch (Exception e) { e.printStackTrace(); return true; }
 		return false;
 	}
-	
 
 
+	//Utför sparandet av SxOrder i ny transaktion eftersom det inte gåår att göra uppdateringar i emSx och emBv i samma transaktion
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+	public void overforBVOrderSaveSxOrder(BvOrder bvOrder) throws SXEntityNotFoundException {
+		bvOrder.saveSxOrder();
+	}
 
-
-	
-
+	// Hämtar en BV order till SX order
+	//Returnerar SX ordernr
+	public int overforBVOrder(String sxKundnr, int bvOrdernr, String bvAnvandare, String sxAnvandare, short sxLagernr) throws SXEntityNotFoundException {
+		BvOrder bvOrder = new BvOrder(em, embv, bvOrdernr, sxKundnr, bvAnvandare, sxAnvandare, sxLagernr );
+		bvOrder.loadBvOrder();
+		sxServerMainBean.overforBVOrderSaveSxOrder(bvOrder);
+		bvOrder.updateBvOrder();
+		return bvOrder.getSxOrdernr();
+	}
 }

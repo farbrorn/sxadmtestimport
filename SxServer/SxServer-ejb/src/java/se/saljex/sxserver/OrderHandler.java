@@ -22,9 +22,11 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceException;
+import se.saljex.sxserver.tables.TableArtstrukt;
 
 /**
  *
@@ -94,120 +96,244 @@ public class OrderHandler {
 	public void setWordernr(int wordernr) {
 		or1.setWordernr(wordernr);
 	}
-	
-	public OrderHandlerRad addRow(String artnr, double antal) {
+
+	private void getStruktur(ArtikelStruktur strukt, String struktnr, double antal, int iteratorCnt) throws SXToManyIterationsException {
+		TableArtikel art;
+		ArtikelForStruktur afs;
+		iteratorCnt++;
+		if (iteratorCnt > 100) {			//Vi itererar för mycket, måste vara fel
+			throw new SXToManyIterationsException("För många iterationer vid hämtning av struktur");
+		}
+		List<TableArtstrukt> rader = em.createNamedQuery("TableArtstrukt.findByNummer").setParameter("nummer", struktnr).getResultList();
+		for (TableArtstrukt rad : rader){
+			art = em.find(TableArtikel.class, rad.getTableArtstruktPK().getArtnr());
+			if (!SXUtil.isEmpty(art.getStruktnr())) {		//Det finns struktur på artikeln
+				getStruktur(strukt, art.getStruktnr(), rad.getAntal(), iteratorCnt);
+			} else {
+				strukt.sumInpris = strukt.sumInpris+art.getKalkyleratInprisNetto()*antal*rad.getAntal();
+				afs = new ArtikelForStruktur();
+				afs.artnr = art.getNummer();
+				afs.antal = antal*rad.getAntal();
+				afs.inpris = art.getKalkyleratInprisNetto();
+				strukt.strukt.add(afs);
+			}
+
+		}
+
+	}
+
+
+	public void addStjRow(String artnr, String namn, String levnr, double antal, String enh, double inpris, double utpris, double utrab) {
+		ord = new OrderHandlerRad();
+		if (!artnr.startsWith("*")) artnr="*"+artnr;
+		ord.best = antal;
+		ord.lev = antal;
+		ord.artnr = artnr;
+		ord.namn = namn;
+		ord.konto = "3011";
+		ord.enh = enh;
+		ord.levnr = levnr;
+		ord.artDirektlev = 0;
+		ord.artFraktvillkor = 0;
+		ord.prisnr = (short)1;
+
+		ord.pris = utpris;
+		ord.rab = utrab;
+
+		ord.summa = ord.pris * antal * (1-ord.rab/100);
+		ord.netto = inpris;
+
+		//Gör iordning TableStjrad
+		TableStjarnrad stj;
+		Integer maxstjid = (Integer)em.createNamedQuery("TableStjarnrad.getMaxId").getSingleResult();
+		maxstjid++;
+		stj = new TableStjarnrad(maxstjid);
+		stj.setAnvandare(anvandare);
+		stj.setRegdatum(new Date());
+		stj.setAntal(antal);
+		stj.setArtnr(artnr);
+		stj.setAutobestall((short)0);
+		stj.setFinnsilager((short)0);
+		stj.setEnh(enh);
+		stj.setInpris(inpris);
+		stj.setKundnr(or1.getKundnr());
+		stj.setLagernr(or1.getLagernr());
+		stj.setLevnr(levnr);
+		stj.setNamn(namn);
+		em.persist(stj);
+
+		ord.stjid=stj.getStjid();
+
+		ordreg.add(ord);
+
+
+	}
+
+
+	public void addRow(String artnr, double antal, double pris, double rab) throws SXEntityNotFoundException {
+		ord = new OrderHandlerRad();
+		art = em.find(TableArtikel.class, artnr);
+		if (art == null) {
+			SXUtil.log("OrderHandler-addRow-Kan inte hitta artikel " + artnr + " för order.");
+			throw new SXEntityNotFoundException("Kan inte hitta artikel  " + artnr );
+		}
+		if (!SXUtil.isEmpty(art.getStruktnr())) {		//Det finns struktur på artikeln
+			ArtikelStruktur strukt = new ArtikelStruktur();
+			try {
+				getStruktur(strukt, art.getStruktnr(), antal, 0);
+				for (ArtikelForStruktur a : strukt.strukt) {
+					addRow(a.artnr, a.antal, SXUtil.getRoundedDecimal(a.inpris/strukt.sumInpris*pris), rab);
+				}
+			} catch (SXToManyIterationsException e) { throw new SXEntityNotFoundException("För många iterationer på strukturartikel " + artnr); }
+
+		} else {
+			ord.best = antal;
+			ord.lev = antal;
+			ord.artnr = art.getNummer();
+			ord.namn = art.getNamn();
+			ord.konto = art.getKonto();
+			ord.enh = art.getEnhet();
+			ord.levnr = art.getLev();
+			ord.artDirektlev = art.getDirektlev();
+			ord.artFraktvillkor = art.getFraktvillkor();
+			ord.prisnr = (short)1;
+
+			setLagerToOrderRad(ord); // Sätt lagersaldon
+
+			ord.pris = pris;
+			ord.rab = rab;
+
+			ord.summa = ord.pris * antal * (1-ord.rab/100);
+			ord.netto = (art.getInpris() * (1-art.getRab()/100) * (1+art.getInpFraktproc()/100)) + art.getInpFrakt() + art.getInpMiljo();
+			ordreg.add(ord);
+		}
+
+	}
+
+
+	public void addRow(String artnr, double antal) throws SXEntityNotFoundException{
 		ord = new OrderHandlerRad();
 		art = em.find(TableArtikel.class, artnr); 
 		if (art == null) { 
 			SXUtil.log("OrderHandler-addRow-Kan inte hitta artikel " + artnr + " för order."); 
-			return null;
+			throw new SXEntityNotFoundException("Kan inte hitta artikel  " + artnr );
 		}
-		ord.best = antal;
-		ord.lev = antal;
-		ord.artnr = art.getNummer();
-		ord.namn = art.getNamn();
-		ord.konto = art.getKonto();
-		ord.enh = art.getEnhet();
-		ord.levnr = art.getLev();
-		ord.artDirektlev = art.getDirektlev();
-		ord.artFraktvillkor = art.getFraktvillkor();
-		ord.prisnr = (short)1;
-		
-		setLagerToOrderRad(ord); // Sätt lagersaldon
-		
-		// Börja ta fram det bästa priset
-		
-		// Ta fram bästa rabatten
-		double bastaRab = 0.0;
-		double bastaBruttoPris = 0.0;
-		double bastaNettoPris = 0.0;
-		TableKunrab kra;
-		if (!SXUtil.isEmpty(art.getRabkod())) {	// Om rabkoden är tom så gäller ingen rabatt
-			if (!"NTO".equals(art.getRabkod())) {	// Vi kan inte ha rabatter för hela NTO-gruppen
-				kra = em.find(TableKunrab.class, new TableKunrabPK(kun.getNummer(),art.getRabkod(),""));	// Ta först fram rabatten för huvudgruppen
-				if (kra != null) { if (kra.getRab() > bastaRab) { bastaRab = kra.getRab(); } }
+		if (!SXUtil.isEmpty(art.getStruktnr())) {		//Det finns struktur på artikeln
+			ArtikelStruktur strukt = new ArtikelStruktur();
+			try {
+				getStruktur(strukt, art.getStruktnr(), antal, 0);
+				for (ArtikelForStruktur a : strukt.strukt) {
+					addRow(a.artnr, a.antal);
+				}
+			} catch (SXToManyIterationsException e) { throw new SXEntityNotFoundException("För många iterationer på strukturartikel " + artnr); }
+
+		} else {
+			ord.best = antal;
+			ord.lev = antal;
+			ord.artnr = art.getNummer();
+			ord.namn = art.getNamn();
+			ord.konto = art.getKonto();
+			ord.enh = art.getEnhet();
+			ord.levnr = art.getLev();
+			ord.artDirektlev = art.getDirektlev();
+			ord.artFraktvillkor = art.getFraktvillkor();
+			ord.prisnr = (short)1;
+
+			setLagerToOrderRad(ord); // Sätt lagersaldon
+
+			// Börja ta fram det bästa priset
+
+			// Ta fram bästa rabatten
+			double bastaRab = 0.0;
+			double bastaBruttoPris = 0.0;
+			double bastaNettoPris = 0.0;
+			TableKunrab kra;
+			if (!SXUtil.isEmpty(art.getRabkod())) {	// Om rabkoden är tom så gäller ingen rabatt
+				if (!"NTO".equals(art.getRabkod())) {	// Vi kan inte ha rabatter för hela NTO-gruppen
+					kra = em.find(TableKunrab.class, new TableKunrabPK(kun.getNummer(),art.getRabkod(),""));	// Ta först fram rabatten för huvudgruppen
+					if (kra != null) { if (kra.getRab() > bastaRab) { bastaRab = kra.getRab(); } }
+				}
+				if (!SXUtil.isEmpty(art.getKod1())) {				// KOlla nu om vi har undergrupp, och ta fram rabatten till den
+															//  Här tillåter vi att huvudgruppen är av NTO, så vi kan få rabatt på undergrupp till den
+					kra = em.find(TableKunrab.class, new TableKunrabPK(kun.getNummer(),art.getRabkod(),art.getKod1()));
+					if (kra != null) { if (kra.getRab() > bastaRab) { bastaRab = kra.getRab(); } }
+				}
+				// Kolla nu hur det är med basrabatten, ändra inte om det är frågan om nettopris
+				// Vi tillåter inte basrabatt på NTO-Gruppen
+				if (kun.getBasrab() > bastaRab && !"NTO".equals(art.getRabkod())) { bastaRab = kun.getBasrab(); }
 			}
-			if (!SXUtil.isEmpty(art.getKod1())) {				// KOlla nu om vi har undergrupp, och ta fram rabatten till den
-														//  Här tillåter vi att huvudgruppen är av NTO, så vi kan få rabatt på undergrupp till den
-				kra = em.find(TableKunrab.class, new TableKunrabPK(kun.getNummer(),art.getRabkod(),art.getKod1()));
-				if (kra != null) { if (kra.getRab() > bastaRab) { bastaRab = kra.getRab(); } }
-			}
-			// Kolla nu hur det är med basrabatten, ändra inte om det är frågan om nettopris
-			// Vi tillåter inte basrabatt på NTO-Gruppen
-			if (kun.getBasrab() > bastaRab && !"NTO".equals(art.getRabkod())) { bastaRab = kun.getBasrab(); }
-		}
-		// Nu ska vi ha bastaRab laddat och klart
+			// Nu ska vi ha bastaRab laddat och klart
 
-		// Kolla om vi har en kampanj, och i så fall om den gäller för kunde
+			// Kolla om vi har en kampanj, och i så fall om den gäller för kunde
 
-		boolean kampanj = false;
+			boolean kampanj = false;
 
-		try {	// Fångar null-pointer ifall något kampanjdatum är felaktigt
+			try {	// Fångar null-pointer ifall något kampanjdatum är felaktigt
 
-			//Skapa ett datum i SQL.Date format
-			Calendar idag = SXUtil.getTodaySQLDate();  // Returns a calendar with time set  to 0
-			// Skapa calendarobjekt med kampanjperioden
-			Calendar kampfrdat = Calendar.getInstance();
-			kampfrdat.setTime(art.getKampfrdat());
-			Calendar kamptidat = Calendar.getInstance();
-			kamptidat.setTime(art.getKamptidat());
+				//Skapa ett datum i SQL.Date format
+				Calendar idag = SXUtil.getTodaySQLDate();  // Returns a calendar with time set  to 0
+				// Skapa calendarobjekt med kampanjperioden
+				Calendar kampfrdat = Calendar.getInstance();
+				kampfrdat.setTime(art.getKampfrdat());
+				Calendar kamptidat = Calendar.getInstance();
+				kamptidat.setTime(art.getKamptidat());
 
-		
-			if (idag.compareTo(kampfrdat) >= 0 && idag.compareTo(kamptidat) <= 0) {	// Det finns kampanj på artikeln, nu ska vi kolla om den gäller för kunden
-				if (art.getKampkundartgrp() == 0 && art.getKampkundgrp() == 0) {
-					kampanj = true;
-				} else {
-					int q1 = kun.getElkund()*SXConstant.KAMPBIT_ELKUND + kun.getVvskund()*SXConstant.KAMPBIT_VVSKUND + kun.getVakund()*SXConstant.KAMPBIT_VAKUND + kun.getGolvkund()*SXConstant.KAMPBIT_GOLVKUND + kun.getFastighetskund()*SXConstant.KAMPBIT_FASTIGHETSKUND;
-					int q2 = kun.getInstallator()*SXConstant.KAMPBIT_INSTALLATOR + kun.getButik()*SXConstant.KAMPBIT_BUTIK + kun.getIndustri()*SXConstant.KAMPBIT_INDUSTRI + kun.getOem()*SXConstant.KAMPBIT_OEM + kun.getGrossist()*SXConstant.KAMPBIT_GROSSIST;
-					if ((art.getKampkundartgrp() & q1) > 0 && (art.getKampkundgrp() & q2) > 0) {
+
+				if (idag.compareTo(kampfrdat) >= 0 && idag.compareTo(kamptidat) <= 0) {	// Det finns kampanj på artikeln, nu ska vi kolla om den gäller för kunden
+					if (art.getKampkundartgrp() == 0 && art.getKampkundgrp() == 0) {
 						kampanj = true;
+					} else {
+						int q1 = kun.getElkund()*SXConstant.KAMPBIT_ELKUND + kun.getVvskund()*SXConstant.KAMPBIT_VVSKUND + kun.getVakund()*SXConstant.KAMPBIT_VAKUND + kun.getGolvkund()*SXConstant.KAMPBIT_GOLVKUND + kun.getFastighetskund()*SXConstant.KAMPBIT_FASTIGHETSKUND;
+						int q2 = kun.getInstallator()*SXConstant.KAMPBIT_INSTALLATOR + kun.getButik()*SXConstant.KAMPBIT_BUTIK + kun.getIndustri()*SXConstant.KAMPBIT_INDUSTRI + kun.getOem()*SXConstant.KAMPBIT_OEM + kun.getGrossist()*SXConstant.KAMPBIT_GROSSIST;
+						if ((art.getKampkundartgrp() & q1) > 0 && (art.getKampkundgrp() & q2) > 0) {
+							kampanj = true;
+						}
 					}
 				}
+			} catch (NullPointerException e) {}
+
+
+			// Dax att ta fram bästa bruttopris och nettopris med avseende på antal
+			bastaBruttoPris = art.getUtpris();
+			bastaNettoPris  = bastaBruttoPris; // Sätter startv'rde för b'sta netto
+
+			if (kampanj && art.getKamppris() != 0 && art.getKamppris() < bastaNettoPris) { bastaNettoPris = art.getKamppris(); }
+			if (art.getStafAntal1() > 0.0 && antal >= art.getStafAntal1())  {
+				 if (art.getStafPris1() != 0.0) {
+					 if (art.getStafPris1() < bastaBruttoPris ) { bastaBruttoPris = art.getStafPris1(); }
+				 }
+				 if (kampanj && art.getKampprisstaf1() != 0.0 && art.getKampprisstaf1() < bastaNettoPris) { bastaNettoPris = art.getKampprisstaf1(); }
 			}
-		} catch (NullPointerException e) {}
-		
-		
-		// Dax att ta fram bästa bruttopris och nettopris med avseende på antal
-		bastaBruttoPris = art.getUtpris();
-		bastaNettoPris  = bastaBruttoPris; // Sätter startv'rde för b'sta netto
-		
-		if (kampanj && art.getKamppris() != 0 && art.getKamppris() < bastaNettoPris) { bastaNettoPris = art.getKamppris(); }
-		if (art.getStafAntal1() > 0.0 && antal >= art.getStafAntal1())  {
-		    if (art.getStafPris1() != 0.0) {
-			    if (art.getStafPris1() < bastaBruttoPris ) { bastaBruttoPris = art.getStafPris1(); }
-		    }
-		    if (kampanj && art.getKampprisstaf1() != 0.0 && art.getKampprisstaf1() < bastaNettoPris) { bastaNettoPris = art.getKampprisstaf1(); }
-		}
-		if (art.getStafAntal2() > 0.0 && antal >= art.getStafAntal2())  {
-		    if (art.getStafPris2() != 0.0) {
-			    if (art.getStafPris2() < bastaBruttoPris ) { bastaBruttoPris = art.getStafPris2(); }
-		    }
-		    if (kampanj && art.getKampprisstaf2() != 0.0 && art.getKampprisstaf2() < bastaNettoPris) { bastaNettoPris = art.getKampprisstaf2(); }
-		}
+			if (art.getStafAntal2() > 0.0 && antal >= art.getStafAntal2())  {
+				 if (art.getStafPris2() != 0.0) {
+					 if (art.getStafPris2() < bastaBruttoPris ) { bastaBruttoPris = art.getStafPris2(); }
+				 }
+				 if (kampanj && art.getKampprisstaf2() != 0.0 && art.getKampprisstaf2() < bastaNettoPris) { bastaNettoPris = art.getKampprisstaf2(); }
+			}
 
-		// Kolla om det finns ett nettopris som offert
-		if (!SXUtil.isEmpty(kun.getNettolst())) {
-			net = em.find(TableNettopri.class, new TableNettopriPK(kun.getNettolst(), artnr));
-			if (net != null) {
-				if (net.getPris() > 0.0 && 
-					net.getPris() < bastaNettoPris) { bastaNettoPris = net.getPris(); }				
-		    }
-		}
+			// Kolla om det finns ett nettopris som offert
+			if (!SXUtil.isEmpty(kun.getNettolst())) {
+				net = em.find(TableNettopri.class, new TableNettopriPK(kun.getNettolst(), artnr));
+				if (net != null) {
+					if (net.getPris() > 0.0 &&
+						net.getPris() < bastaNettoPris) { bastaNettoPris = net.getPris(); }
+				 }
+			}
 
-		// Kolla vilket pris som är läögst - brutto-rab eller netto
-		if (bastaNettoPris != 0.0 && bastaNettoPris < bastaBruttoPris * (1-bastaRab/100)) {	//Vi har ett nettopris
-		    ord.pris = bastaNettoPris;
-		    ord.rab = 0.0;
-		} else {	    //Vi har brutto - rabatt
-		    ord.pris = bastaBruttoPris;
-		    ord.rab = bastaRab;
-		}
-		// Nu ska bästa priset vara satt
+			// Kolla vilket pris som är läögst - brutto-rab eller netto
+			if (bastaNettoPris != 0.0 && bastaNettoPris < bastaBruttoPris * (1-bastaRab/100)) {	//Vi har ett nettopris
+				 ord.pris = bastaNettoPris;
+				 ord.rab = 0.0;
+			} else {	    //Vi har brutto - rabatt
+				 ord.pris = bastaBruttoPris;
+				 ord.rab = bastaRab;
+			}
+			// Nu ska bästa priset vara satt
 
-		ord.summa = ord.pris * antal * (1-ord.rab/100);
-		ord.netto = (art.getInpris() * (1-art.getRab()/100) * (1+art.getInpFraktproc()/100)) + art.getInpFrakt() + art.getInpMiljo();
-		ordreg.add(ord);
-		return ord;
+			ord.summa = ord.pris * antal * (1-ord.rab/100);
+			ord.netto = (art.getInpris() * (1-art.getRab()/100) * (1+art.getInpFraktproc()/100)) + art.getInpFrakt() + art.getInpMiljo();
+			ordreg.add(ord);
+		}
 	}
 	
 	
@@ -217,6 +343,14 @@ public class OrderHandler {
 			or = ordreg.get(rad);
 		} catch (IndexOutOfBoundsException e) { or = null; }
 		return or;
+	}
+	public int getRowCount() {
+		int rows = 0;
+		if (ordreg!=null) rows=ordreg.size();
+		return rows;
+	}
+	public OrderHandlerRad getLastRow() {
+		return getRow(getRowCount()-1);
 	}
 
 	public ArrayList getOrdreg() {
@@ -483,6 +617,7 @@ public class OrderHandler {
 					// Så var försiktig vid ändringar
 					if (stj == null) {
 						Integer maxstjid = (Integer)em.createNamedQuery("TableStjarnrad.getMaxId").getSingleResult();
+						maxstjid++;
 						stj = new TableStjarnrad(maxstjid);
 						stj.setAnvandare(anvandare);
 						stj.setRegdatum(new Date());
@@ -556,6 +691,16 @@ public class OrderHandler {
 				}
 			} catch (Exception e) { return 0; }
 		}
+	}
+
+	class ArtikelStruktur {
+		ArrayList<ArtikelForStruktur> strukt = new ArrayList();
+		double sumInpris=0;
+	}
+	class ArtikelForStruktur {
+		String artnr = null;
+		Double antal=null;
+		Double inpris=null;
 	}
 
 

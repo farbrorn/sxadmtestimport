@@ -33,12 +33,14 @@ public class SXTester {
 			System.out.println("tester OrderHandler startad");
 			ret = ret + "Skapar OrderHandler instans<br>";
 			OrderHandler oh = new OrderHandler(em,"0555",(short)0,"tes");
-			oh.addRow("EA153", 1.0);
-			oh.addRow("Q006", 2.0);
-			oh.addRow("Q001", 2.0);
-			oh.addRow("Q055", 2.0);
-			oh.addRow("EG1021", 2.0);
-			oh.addRow("99SB210", 2.0);
+			try {
+				oh.addRow("EA153", 1.0);
+				oh.addRow("Q006", 2.0);
+				oh.addRow("Q001", 2.0);
+				oh.addRow("Q055", 2.0);
+				oh.addRow("EG1021", 2.0);
+				oh.addRow("99SB210", 2.0);
+			} catch (SXEntityNotFoundException e) {}
 			
 			ret = ret + "hämtar tillbaka rader<br>";
 			System.out.println("tester OrderHandler rader adderade ");

@@ -5,4 +5,11 @@
     <exclude-unlisted-classes>false</exclude-unlisted-classes>
     <properties/>
   </persistence-unit>
+  <persistence-unit name="SxServer-ejbPU-BV" transaction-type="JTA">
+    <provider>oracle.toplink.essentials.PersistenceProvider</provider>
+    <jta-data-source>sxadmkundbv</jta-data-source>
+    <exclude-unlisted-classes>false</exclude-unlisted-classes>
+    <properties>
+    </properties>
+  </persistence-unit>
 </persistence>

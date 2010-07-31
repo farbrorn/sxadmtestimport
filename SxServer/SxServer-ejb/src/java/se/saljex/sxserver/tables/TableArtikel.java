@@ -179,6 +179,12 @@ public class TableArtikel implements Serializable {
 	private String bildartnr;
 	@Column(name = "PLOCKINSTRUKTION")
 	private String plockinstruktion;
+	@Column(name = "INP_ENH")
+	private String inpEnh;
+	@Column(name = "INP_ENHETSFAKTOR")
+	private java.math.BigDecimal inpEnhetsfaktor;			/* Hur många av leverantörens enheter som motsvarar försäljningsenheten
+														ex. leverantör har 6 m rör och säljer som m, men vi har enhet st så blir faktorn 6
+														*/
 
 	public TableArtikel() {
 	}
@@ -581,6 +587,9 @@ public class TableArtikel implements Serializable {
 	public double getInprisnyrab() {
 		return inprisnyrab;
 	}
+	public double getKalkyleratInprisNetto() {
+		return inpris * (1-rab/100) * (1+inpFraktproc/100) + inpFrakt + inpMiljo;
+	}
 
 	public void setInprisnyrab(double inprisnyrab) {
 		this.inprisnyrab = inprisnyrab;
@@ -768,6 +777,22 @@ public class TableArtikel implements Serializable {
 
 	public void setPlockinstruktion(String plockinstruktion) {
 		this.plockinstruktion = plockinstruktion;
+	}
+
+	public String getInpEnh() {
+		return inpEnh;
+	}
+
+	public void setInpEnh(String inpEnh) {
+		this.inpEnh = inpEnh;
+	}
+
+	public java.math.BigDecimal getInpEnhetsfaktor() {
+		return inpEnhetsfaktor;
+	}
+
+	public void setInpEnhetsfaktor(java.math.BigDecimal inpEnhetsfaktor) {
+		this.inpEnhetsfaktor = inpEnhetsfaktor;
 	}
 
 	@Override
