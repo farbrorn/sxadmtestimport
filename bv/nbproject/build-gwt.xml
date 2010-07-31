@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- WARNING: Any manual modifications to this file may be automatically overriden -->
 <!-- Created with GWT4NB 2.6 -->
-<project name="bv_1-gwt" default="-post-compile" basedir="..">
-    <description>Generates Javascript for bv_1.</description>
+<project name="bv-gwt" default="-post-compile" basedir="..">
+    <description>Generates Javascript for bv.</description>
     <property file="./nbproject/gwt.properties"/>
 
     <!--
