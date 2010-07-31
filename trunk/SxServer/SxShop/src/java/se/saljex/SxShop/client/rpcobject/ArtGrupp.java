@@ -6,6 +6,7 @@
 package se.saljex.SxShop.client.rpcobject;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
+import java.util.ArrayList;
 
 /**
  *
@@ -15,6 +16,7 @@ public class ArtGrupp implements IsSerializable {
 	public int grpid;
 	public int prevgrpid;
 	public String rubrik;
+	public ArrayList<String> bilder = new ArrayList();
 
 	public ArtGrupp() {}
 	public ArtGrupp(int grpid, int prevgrpid, String rubrik) {

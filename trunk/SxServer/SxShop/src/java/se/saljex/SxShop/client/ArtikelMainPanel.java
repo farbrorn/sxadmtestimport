@@ -5,8 +5,6 @@
 
 package se.saljex.SxShop.client;
 
-import com.google.gwt.event.dom.client.ErrorEvent;
-import com.google.gwt.event.dom.client.LoadEvent;
 import se.saljex.SxShop.client.rpcobject.SokResultKlase;
 import se.saljex.SxShop.client.rpcobject.ArtSidaKlaseArtikel;
 import se.saljex.SxShop.client.rpcobject.ArtSidaKlase;
@@ -14,12 +12,9 @@ import se.saljex.SxShop.client.rpcobject.ArtSida;
 import se.saljex.SxShop.client.rpcobject.SokResult;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.ErrorHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.KeyDownHandler;
-import com.google.gwt.event.dom.client.LoadHandler;
-import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Anchor;
@@ -29,7 +24,6 @@ import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
@@ -38,7 +32,6 @@ import com.google.gwt.user.client.ui.TreeItem;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import java.util.ArrayList;
-import se.saljex.SxShop.client.rpcobject.ArtGrpBilder;
 
 /**
  *
@@ -91,28 +84,29 @@ public class ArtikelMainPanel extends VerticalPanel implements KopKnappCallback{
 		add(w);
 	}
 
+	/*
 	private void doFillTreeNodesBilder(TreeItem item, FlexTable ft) {
 		ArtTradUserObject userObject;
 		ArtImage image;
-		HorizontalPanel hp;
+		HorizontalPanel hpBild;
 		int row=0;
 		int col=0;
 		for (int cn=0; cn<item.getChildCount(); cn++) {
 			userObject = (ArtTradUserObject)item.getChild(cn).getUserObject();
-			if(userObject.artSidaKlase==null) {					//Om det är en slutnod (med en klase) så gör vi inget
-				hp = new HorizontalPanel();
-				for (String url : userObject.grpBilder) {
+			if(userObject.artSidaKlase==null && userObject.artGrupp!=null) {					//Om det är en slutnod (med en klase) så gör vi inget
+				hpBild = new HorizontalPanel();
+				for (String url : userObject.artGrupp.bilder) {
 					image = new ArtImage(globalData.smallArtURL + url + globalData.ImageSuffix, globalData.SmallImageHeight);
-					hp.add(image);
+					hpBild.add(image);
 				}
-				ft.setWidget(row, col, hp);
+				ft.setWidget(row, col, hpBild);
 				ft.getCellFormatter().setHorizontalAlignment(row, col, HasHorizontalAlignment.ALIGN_CENTER);
 				if (col++ > ARTGRPKOLUMNER-1) { col=0; row=row+2; }			//Begränsa antalet kolumner, och mata fram ny rad
 			}
 		}
 
-	}
-
+	}*/
+/*
 	private void doSetTreeNodesBilder(TreeItem item, ArrayList<ArtGrpBilder> artGrpBilderArr) {
 		ArtTradUserObject userObject;
 		for (int cn=0; cn<item.getChildCount(); cn++) {
@@ -126,50 +120,44 @@ public class ArtikelMainPanel extends VerticalPanel implements KopKnappCallback{
 			}
 		}
 	}
-
+*/
 	public void fillTreeNodes(final TreeItem item) {
 
 		Anchor childAnchor;
+		ArtImage image;
+		HorizontalPanel hpBild;
 		final FlexTable ft = new  FlexTable();
 		int row=1;
 		int col=0;
 		int antalRubriker=0;
 		ArtTradUserObject uo = (ArtTradUserObject)item.getUserObject();
-//		final ArtikelMainPanel thisRef = this;
-		if (!uo.isKampanjNod && uo.artSidaKlase==null) {
-			if (!uo.childGruppBilderInlasta) {	//Läs in bilder till denna grupps childgrupper
-				uo.childGruppBilderInlasta=true;
-				globalData.service.getBilderForArtGrpNodes(uo.artGrupp.grpid, 2, new AsyncCallback() {
-					public void onFailure(Throwable caught) {
-						ft.setWidget(0, 0, new Label(caught.toString()));
-					}
 
-					public void onSuccess(Object result) {
-						doSetTreeNodesBilder(item, (ArrayList<ArtGrpBilder>)result);
-						doFillTreeNodesBilder(item,ft);
-					}
-				});
-			} else {
-				doFillTreeNodesBilder(item,ft);
-			}
-		}
+		ft.setWidth("100%");
 		for (int cn=0; cn<item.getChildCount(); cn++) {
 			final TreeItem childItem = item.getChild(cn);
 			final ArtTradUserObject userObject = (ArtTradUserObject)childItem.getUserObject();
-			if (!userObject.isKampanjNod && userObject.artSidaKlase==null) { //Om det är en kampanj eller en klase så fyller vi inte
+			if (!userObject.isKampanjNod && userObject.artSidaKlase==null && userObject.artGrupp!=null) { //Om det är en kampanj eller en klase så fyller vi inte
 				childAnchor = new Anchor(userObject.artGrupp.rubrik);
 				childAnchor.addClickHandler(new ClickHandler() {
 					public void onClick(ClickEvent event) {
 						childItem.getTree().setSelectedItem(childItem,true);
 						childItem.getTree().ensureSelectedItemVisible();
-						//childItem.setSelected(true);
-						//TradCallbackHandler tch = new TradCallbackHandler(childItem, thisRef);
-						//globalData.service.getArtSida(userObject.artGrupp.grpid, tch.callbackFillGrupp);
 					}
 				});
 				ft.setWidget(row, col, childAnchor);
+				hpBild = new HorizontalPanel();
+				for (String url : userObject.artGrupp.bilder) {
+					image = new ArtImage(globalData.smallArtURL + url + globalData.ImageSuffix, globalData.SmallImageHeight);
+					hpBild.add(image);
+				}
+				ft.setWidget(row-1, col, hpBild);
+				ft.getCellFormatter().setWidth(row-1, col, "33%");
+				ft.getCellFormatter().setHorizontalAlignment(row-1, col, HasHorizontalAlignment.ALIGN_CENTER);
 				ft.getCellFormatter().setHorizontalAlignment(row, col, HasHorizontalAlignment.ALIGN_CENTER);
-				if (col++ > ARTGRPKOLUMNER-1) { col=0; row=row+2; }			//Begränsa antalet kolumner, och mata fram ny rad
+				if (col++ > ARTGRPKOLUMNER-1) { //Begränsa antalet kolumner, och mata fram ny rad
+					col=0;
+					row=row+2;
+				}
 				antalRubriker++;
 			}
 		}
@@ -447,7 +435,7 @@ public class KopDialogBox extends DialogBox {
 		} else {
 			staf_pris1.setText("");
 		}
-		prisdatum.setText(globalData.getDateString(artikel.prisdatum ));
+		prisdatum.setText(artikel.prisdatum != null ? globalData.getDateString(artikel.prisdatum ) : "");
 		rab.setText(artikel.rabkod + (artikel.kod1!=null && !artikel.kod1.isEmpty() ? " - " + artikel.kod1 : ""));
 		errortext.setText("");
 	}

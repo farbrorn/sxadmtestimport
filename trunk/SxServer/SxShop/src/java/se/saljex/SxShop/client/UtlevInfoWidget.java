@@ -4,7 +4,7 @@
  */
 
 package se.saljex.SxShop.client;
-import com.google.gwt.gen2.table.override.client.FlexTable;
+import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;

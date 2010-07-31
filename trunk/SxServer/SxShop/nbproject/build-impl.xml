@@ -522,20 +522,20 @@ exists or setup the property manually. For example like this:
     </target>
     <target depends="init,compile,compile-jsps,-pre-dist,-do-dist-with-manifest,-do-dist-without-manifest" name="do-dist"/>
     <target depends="init" if="dist.ear.dir" name="library-inclusion-in-manifest">
-        <copyfiles files="${libs.GWT1.7.0.classpath}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.libs.GWT1.7.0.classpath" todir="${dist.ear.dir}"/>
-        <copyfiles files="${file.reference.gwt-dev-windows.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.gwt-dev-windows.jar" todir="${dist.ear.dir}"/>
-        <copyfiles files="${file.reference.gwt-servlet.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.gwt-servlet.jar" todir="${dist.ear.dir}"/>
         <copyfiles files="${reference.SxServer-ejb.dist}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.reference.SxServer-ejb.dist" todir="${dist.ear.dir}"/>
+        <copyfiles files="${libs.GWT2.0.3.classpath}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.libs.GWT2.0.3.classpath" todir="${dist.ear.dir}"/>
+        <copyfiles files="${file.reference.gwt-dev.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.gwt-dev.jar" todir="${dist.ear.dir}"/>
+        <copyfiles files="${file.reference.gwt-servlet.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.file.reference.gwt-servlet.jar" todir="${dist.ear.dir}"/>
         <mkdir dir="${build.web.dir}/META-INF"/>
         <manifest file="${build.web.dir}/META-INF/MANIFEST.MF" mode="update">
-            <attribute name="Class-Path" value="${manifest.libs.GWT1.7.0.classpath} ${manifest.file.reference.gwt-dev-windows.jar} ${manifest.file.reference.gwt-servlet.jar} ${manifest.reference.SxServer-ejb.dist} "/>
+            <attribute name="Class-Path" value="${manifest.reference.SxServer-ejb.dist} ${manifest.libs.GWT2.0.3.classpath} ${manifest.file.reference.gwt-dev.jar} ${manifest.file.reference.gwt-servlet.jar} "/>
         </manifest>
     </target>
     <target depends="init" name="library-inclusion-in-archive" unless="dist.ear.dir">
-        <copyfiles files="${libs.GWT1.7.0.classpath}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copyfiles files="${file.reference.gwt-dev-windows.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
-        <copyfiles files="${file.reference.gwt-servlet.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${reference.SxServer-ejb.dist}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${libs.GWT2.0.3.classpath}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${file.reference.gwt-dev.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${file.reference.gwt-servlet.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
     </target>
     <target depends="init,compile,compile-jsps,-pre-dist,library-inclusion-in-manifest" if="do.tmp.war.package" name="do-ear-dist">
         <dirname file="${dist.ear.war}" property="dist.jar.dir"/>
