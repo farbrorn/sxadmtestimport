@@ -1,0 +1,71 @@
+10
+
+dir
+0
+http://sxadm.googlecode.com/svn/trunk/SxServer/bv
+http://sxadm.googlecode.com/svn
+add
+
+
+
+
+
+has-props
+has-prop-mods
+
+
+
+
+
+
+
+
+
+
+
+
+5eed21e7-064c-0410-8c3d-51462c4d707e
+
+
+
+
+
+
+
+empty
+
+test
+dir
+
+
+
+add
+
+nbproject
+dir
+
+
+
+add
+
+src
+dir
+
+
+
+add
+
+web
+dir
+
+
+
+add
+
+build.xml
+file
+
+
+
+add
+
