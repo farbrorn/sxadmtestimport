@@ -16,7 +16,6 @@ import com.google.gwt.user.client.rpc.RemoteService;
 import java.util.ArrayList;
 import se.saljex.SxShop.client.rpcobject.Anvandare;
 import se.saljex.SxShop.client.rpcobject.AnvandareUppgifter;
-import se.saljex.SxShop.client.rpcobject.ArtGrpBilder;
 import se.saljex.SxShop.client.rpcobject.BetalningList;
 import se.saljex.SxShop.client.rpcobject.FakturaHeaderList;
 import se.saljex.SxShop.client.rpcobject.FakturaInfo;
@@ -42,8 +41,7 @@ import se.saljex.SxShop.client.rpcobject.UtlevList;
  * @author ulf
  */
 public interface SxShopRPC extends RemoteService{
-	public String myMethod(String s);
-	public ArrayList<ArtGrupp> getArtikelTrad();
+	public ArrayList<ArtGrupp> getArtikelTrad(int maxBilder);
 	public ArtSida getArtSida(int grpid);
 	public ArrayList<VaruKorgRad> updateVaruKorg(String artnr, double antal) throws NotLoggedInException, FelaktigtAntalException;
 	public ArrayList<VaruKorgRad> addVaruKorg(String artnr, double antal) throws NotLoggedInException, FelaktigtAntalException, ServerErrorException;
@@ -77,5 +75,5 @@ public interface SxShopRPC extends RemoteService{
 	public OffertInfo getOffertInfo(int offertnr) throws ServerErrorException, NotLoggedInException;
 	public OffertHeaderList getOffertHeaders(int startRow, int pageSize) throws ServerErrorException, NotLoggedInException;
 	public SokResult getKampanjartiklar() throws ServerErrorException, NotLoggedInException;
-	public ArrayList<ArtGrpBilder> getBilderForArtGrpNodes(int grpid, int maxbilder) throws ServerErrorException;
+//	public ArrayList<ArtGrpBilder> getBilderForArtGrpNodes(int grpid, int maxbilder) throws ServerErrorException;
 }

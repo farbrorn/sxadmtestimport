@@ -34,7 +34,7 @@ public class ArtikelTrad extends Tree {
 
 	public ArtikelTrad(final GlobalData globalData) {
 		this.globalData = globalData;
-		globalData.service.getArtikelTrad(callback);
+		globalData.service.getArtikelTrad(2,callback);
 
 	}
 

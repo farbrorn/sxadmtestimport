@@ -16,8 +16,7 @@ import se.saljex.SxShop.client.rpcobject.AnvandareUppgifter;
  * @author ulf
  */
 public interface SxShopRPCAsync {
-	public void myMethod(String s, AsyncCallback callback);
-	public void getArtikelTrad(AsyncCallback callback);
+	public void getArtikelTrad(int maxBilder, AsyncCallback callback);
 	public void getArtSida(int grpid,AsyncCallback callback);
 	public void updateVaruKorg(String artnr, double antal,AsyncCallback callback);
 	public void addVaruKorg(String artnr, double antal,AsyncCallback callback);
@@ -51,6 +50,6 @@ public interface SxShopRPCAsync {
 	public void getOffertInfo(int offertnr, AsyncCallback callback);
 	public void getOffertHeaders(int startRow, int pageSize, AsyncCallback callback);
 	public void getKampanjartiklar(AsyncCallback callback);
-	public void getBilderForArtGrpNodes(int grpid, int maxbilder, AsyncCallback callback);
+//	public void getBilderForArtGrpNodes(int grpid, int maxbilder, AsyncCallback callback);
 
 	}

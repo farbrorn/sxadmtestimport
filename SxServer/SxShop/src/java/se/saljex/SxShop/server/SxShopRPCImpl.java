@@ -31,7 +31,6 @@ import se.saljex.SxShop.client.rpcobject.SokResultKlase;
 import se.saljex.SxShop.client.SxShopRPC;
 import se.saljex.SxShop.client.rpcobject.Anvandare;
 import se.saljex.SxShop.client.rpcobject.AnvandareUppgifter;
-import se.saljex.SxShop.client.rpcobject.ArtGrpBilder;
 import se.saljex.SxShop.client.rpcobject.BetalningList;
 import se.saljex.SxShop.client.rpcobject.BetalningRow;
 import se.saljex.SxShop.client.rpcobject.FakturaHeader;
@@ -98,21 +97,87 @@ public class SxShopRPCImpl extends RemoteServiceServlet implements
 	private static final String SELECT_OFFERT = "select o2.offertnr, o1.datum, o1.marke, o2.pos, o2.artnr, o2.namn, o2.text, o2.best, o2.enh, o2.pris, o2.rab, o2.summa "+
 														" from offert1 o1 left outer join offert2 o2 on o1.offertnr=o2.offertnr";
 
-	public String myMethod(String s) {
-		// Do something interesting with 's' here on the server.
-		return "Server says: " + s;
-	}
-	public ArrayList getArtikelTrad() {
+	public ArrayList getArtikelTrad(int maxBilder) {
 		ArrayList<ArtGrupp> ar = new ArrayList();
+		ArtGrupp ag;
 
 
 		Connection con=null;
 		try {
 			con = sxadm.getConnection();
 			Statement stm = con.createStatement();
-			ResultSet rs = stm.executeQuery("select grpid, prevgrpid, rubrik from artgrp order by prevgrpid, sortorder, grpid");
+
+//			ResultSet rs = stm.executeQuery("select grpid, prevgrpid, rubrik from artgrp order by prevgrpid, sortorder, grpid");
+
+			//Jag vill ändra denna sql-sats så att den direkt filtrerar ut maxBilder antal rader per grupp
+			//men kan inet komma på hur. Tills vidare får filtreringen ske programeringsmässigt
+			ResultSet rs = stm.executeQuery(
+							"select  ag.grpid, ag.prevgrpid, ag.rubrik, g2.artnr, g2.bildartnr "+
+							" from artgrp ag  left outer join "+
+							" ( "+
+								" select a.nummer as artnr, a.bildartnr as bildartnr, a1.grpid1 as grpid1 from "+
+								 " ( "+
+									 " select min(akl.artnr) as artnr, g.grpid1 as grpid1 from "+
+									 " ( "+
+										 " select ag1.grpid as grpid1, ag2.grpid as grpid2, ag3.grpid as grpid3, ag4.grpid as grpid4 "+
+										 " from artgrp ag1 "+
+										 " left outer join artgrp ag2 on ag2.prevgrpid = ag1.grpid "+
+										 " left outer join artgrp ag3 on ag3.prevgrpid = ag2.grpid "+
+										 " left outer join artgrp ag4 on ag4.prevgrpid = ag3.grpid "+
+									 " ) g "+
+									 " left outer join artgrplank agl on agl.grpid=g.grpid1 or agl.grpid=g.grpid2 or agl.grpid=g.grpid3 or agl.grpid=g.grpid4 "+
+									 " left outer join artklaselank akl on akl.klasid=agl.klasid "+
+									 " group by g.grpid1, akl.klasid "+
+								 " ) a1 "+
+								 " join artikel a on a.nummer=a1.artnr "+
+								 " order by random() "+
+							" ) g2 on g2.grpid1=ag.grpid "+
+							" order by ag.prevgrpid, ag.sortorder, ag.grpid"
+					  );
+
+
+/*			PreparedStatement stmBilder = con.prepareStatement(
+							"select a.nummer, a.bildartnr from "+
+							" ( "+
+							" select min(akl.artnr) as artnr from "+
+								" ( "+
+								" select ag1.grpid as grpid1, ag2.grpid as grpid2, ag3.grpid as grpid3, ag4.grpid as grpid4 " +
+								" from artgrp ag1  "+
+									 " left outer join artgrp ag2 on ag2.prevgrpid = ag1.grpid "+
+									" left outer join artgrp ag3 on ag3.prevgrpid = ag2.grpid "+
+									" left outer join artgrp ag4 on ag4.prevgrpid = ag3.grpid "+
+								" where ag1.grpid=? "+
+								" ) g "+
+								" left outer join artgrplank agl on agl.grpid=g.grpid1 or agl.grpid=g.grpid2 or agl.grpid=g.grpid3 or agl.grpid=g.grpid4 "+
+								" left outer join artklaselank akl on akl.klasid=agl.klasid "+
+								" group by akl.klasid "+
+							" ) a1 "+
+							" join artikel a on a.nummer=a1.artnr "+
+							" order by random() limit ?"
+					  ); */
+			int tempGrp=0;
+			int rowCn=0;
+			boolean firstRun=true;
+			ag=null;
 			while (rs.next()) {
-				ar.add(new ArtGrupp(rs.getInt(1), rs.getInt(2), rs.getString(3)));
+				if (tempGrp != rs.getInt(1) || firstRun) {
+					ag=new  ArtGrupp(rs.getInt(1), rs.getInt(2), rs.getString(3));
+					ar.add(ag);
+					tempGrp = rs.getInt(1);
+					rowCn=0;
+					firstRun=false;
+				}
+				if (rowCn < maxBilder)	{
+					rowCn++;
+					ag.bilder.add((rs.getString(5)==null || rs.getString(5).isEmpty()) ? rs.getString(4) : rs.getString(5));
+				}
+//				stmBilder.setInt(1, rs.getInt(1));
+//				stmBilder.setInt(2, maxBilder);
+//				ResultSet rsBilder = stmBilder.executeQuery();
+//				while (rsBilder.next()) {
+//					ag.bilder.add((rsBilder.getString(2)==null || rsBilder.getString(2).isEmpty()) ? rsBilder.getString(1) : rsBilder.getString(2));
+//				}
+//				ar.add(ag);
 			}
 		} catch (SQLException e) { System.out.print("Exception " + e.toString()); e.printStackTrace();
 		} finally {
@@ -1897,6 +1962,7 @@ String q3=" ) as g"+
 	}
 
 
+	/*
 	public ArrayList<ArtGrpBilder> getBilderForArtGrpNodes(int grpid, int maxbilder) throws ServerErrorException {
 		ArrayList<ArtGrpBilder> arr = new ArrayList();
 		ArtGrpBilder bilder;
@@ -1961,8 +2027,8 @@ String q3=" ) as g"+
 		} finally {
 			try { con.close(); } catch (Exception e) {}
 		}
-
 	}
+*/
 
 
 
