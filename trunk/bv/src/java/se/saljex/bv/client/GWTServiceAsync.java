@@ -13,6 +13,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
  */
 public interface GWTServiceAsync {
     public void myMethod(String s, AsyncCallback<String> callback);
- 	 public void getOrder1ListForOverforing(AsyncCallback<Order1List> callback);
- 	 public void overforBVOrder(int bvOrdernr, short lagernr, AsyncCallback<OverforBVOrderResponse> callback);
+ 	 public void getOrder1List(int filter, AsyncCallback<Order1List> callback);
+ 	 public void overforBVOrder(int bvOrdernr, short lagernr, Integer callerId, AsyncCallback<OverforBVOrderResponse> callback);
+	 public void getOrderLookup(int bvOrdernr, AsyncCallback<OrderLookupResponse> callback) ;
 }

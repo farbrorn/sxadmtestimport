@@ -28,19 +28,8 @@ public class MainEntryPoint implements EntryPoint {
      * that declares an implementing class as an entry-point
      */
     public void onModuleLoad() {
-        final Label label = new Label("Hello, GWT!!!");
-        final Button button = new Button("Click me!");
-        
-        button.addClickHandler(new ClickHandler() {
-            public void onClick(ClickEvent event) {
-                label.setVisible(!label.isVisible());
-            }
-        });
 		  OverforOrderPanel overforOrderPanel = new OverforOrderPanel();
 
-        RootPanel.get().add(button);
-        RootPanel.get().add(label);
 		  RootPanel.get().add(overforOrderPanel);
-		  RootPanel.get().add(new Label("test"));
     }
 }
