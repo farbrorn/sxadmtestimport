@@ -390,6 +390,38 @@ public class OrderHandler {
 	public String getAdr3() {
 		return or1.getAdr3();
 	}
+
+	public String getBetalsatt() {
+		return or1.getBetalsatt();
+	}
+
+	public void setBetalsatt(String betalsatt) {
+		or1.setBetalsatt(betalsatt);
+	}
+
+	public boolean getForskatt() {
+		return or1.getForskatt();
+	}
+
+	public void setForskatt(boolean forskatt) {
+		or1.setForskatt(forskatt);
+	}
+
+	public boolean getForskattbetald() {
+		return or1.getForskattbetald();
+	}
+
+	public void setForskattbetald(boolean forskattbetald) {
+		or1.setForskattbetald(forskattbetald);
+	}
+
+	public int getKundordernr() {
+		return or1.getKundordernr();
+	}
+
+	public void setKundordernr(int kundordernr) {
+		or1.setKundordernr(kundordernr);
+	}
 	
 	
 	

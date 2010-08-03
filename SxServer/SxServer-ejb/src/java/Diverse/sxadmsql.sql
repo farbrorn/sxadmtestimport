@@ -2278,4 +2278,14 @@ cr timestamp default current_timestamp
 alter table artikel add inp_enh varchar(3);	/*Leverantörens enhet */
 alter table artikel add inp_enhetsfaktor numeric(12,6) not null default 0.0;	/* Hur många av leverantörens enheter som motsvarar försäljningsenheten 
 																											ex. leverantör har 6 m rör och säljer som m, men vi har enhet st så blir faktorn 6
-																												*/
+/* Ändringar 2010-08-01 */
+alter table order1 add kundordernr integer not null default 0;
+alter table order1 add forskatt smallint not null default 0;
+alter table order1 add forskattbetald smallint not null default 0;
+alter table order1 add betalsatt varchar(20);
+
+alter table utlev1 add kundordernr integer not null default 0;
+alter table utlev1 add forskatt smallint not null default 0;
+alter table utlev1 add forskattbetald smallint not null default 0;
+alter table utlev1 add betalsatt varchar(20);
+
