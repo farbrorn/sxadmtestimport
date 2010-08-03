@@ -42,11 +42,13 @@ public class BvOrder {
 
 	public void loadBvOrder() throws SXEntityNotFoundException  {
 		// Kolla så att vi inte har sparat en order oh inte avslutat hanteringe av bvordern
-		if (bvOrder1!=null) throw new SXEntityNotFoundException("loadBvOrder är redan utförd, och kan inte utföras igen.");
+		if (bvOrder1!=null) throw new SXEntityNotFoundException("Internt fel: loadBvOrder är redan utförd, och kan inte utföras igen.");
 
 		bvOrderRader = new ArrayList();
 		bvOrder1 = emBv.find(TableOrder1.class, bvOrdernr);
-		if (bvOrder1==null) { throw new SXEntityNotFoundException("Ordernr " + bvOrdernr + " finns inte"); }
+		if (bvOrder1==null) { throw new SXEntityNotFoundException("Ordernr " + bvOrdernr + " finns inte."); }
+		if (bvOrder1.getLastdatum()!=null) { throw new SXEntityNotFoundException("Ordernr " + bvOrdernr + " är låst av användare '" + bvOrder1.getLastav() + "' " + bvOrder1.getLastdatum() + " " + bvOrder1.getLasttid() + " och kan inte behandlas." ); }
+		if (!SXConstant.ORDER_STATUS_SPARAD.equals(bvOrder1.getStatus())) { throw new SXEntityNotFoundException("Ordernr " + bvOrdernr + " har statusen " + bvOrder1.getStatus() + " som inte medger överföring. Du måste ändra orderns status till 'Sparad'."); }
 		List<TableOrder2> bvOrder2List = emBv.createNamedQuery("TableOrder2.findByOrdernr").setParameter("ordernr", bvOrdernr).getResultList();
 		TableArtikel bvArtikel;
 
@@ -77,7 +79,7 @@ public class BvOrder {
 
 	public int saveSxOrder() throws SXEntityNotFoundException{
 		// Kolla om loadbvorder är utförd korrekt innan denna funktion körs
-		if (bvOrder1==null) throw new SXEntityNotFoundException("BV Order är inte laddad vid försök att spara. Är loadBvOrder()utförd korrekt?");
+		if (bvOrder1==null) throw new SXEntityNotFoundException("Internt fel: BV Order är inte laddad vid försök att spara. Är loadBvOrder()utförd korrekt?");
 
 		OrderHandler sxOrderHandler = new OrderHandler(emSx, sxKundnr, sxLagernr, sxAnvandare);
 		if (!SXUtil.isEmpty(bvOrder1.getLevadr1())) {
@@ -87,7 +89,9 @@ public class BvOrder {
 		}
 		sxOrderHandler.setMarke(bvOrder1.getMarke());
 		sxOrderHandler.setStatus(SXConstant.ORDER_STATUS_AVVAKT);
-		sxOrderHandler.setWordernr(bvOrder1.getOrdernr());
+		sxOrderHandler.setKundordernr(bvOrder1.getOrdernr());
+		sxOrderHandler.setForskatt(bvOrder1.getForskatt());
+		sxOrderHandler.setForskattbetald(bvOrder1.getForskattbetald());
 		for (BvOrderRad bvOrderRad : bvOrderRader) {
 			try {
 				sxOrderHandler.addRow(bvOrderRad.sxArtnr, bvOrderRad.nyttAntal, bvOrderRad.nyttPris, bvOrderRad.order2.getRab());
@@ -104,7 +108,7 @@ public class BvOrder {
 
 	public void updateBvOrder() throws SXEntityNotFoundException{
 		// Kolla så att vi har fått ett sxordernr innan denna funktion körs
-		if (sxOrdernr==0) throw new SXEntityNotFoundException("SXordernr finns inte vid försök att uppdatera bvorder. Är saveSxOrder()utförd korrekt?");
+		if (sxOrdernr==0) throw new SXEntityNotFoundException("Internt fel: SXordernr finns inte vid försök att uppdatera bvorder. Är saveSxOrder()utförd korrekt?");
 
 		bvOrder1.setWordernr(sxOrdernr);
 		bvOrder1.setStatus(SXConstant.ORDER_STATUS_OVERFORD);

@@ -15,7 +15,7 @@ import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-
+ 
 /**
  *
  * @author Ulf
@@ -123,6 +123,14 @@ public class TableOrder1 implements Serializable {
 	private String linjenr2 = "";
 	@Column(name = "LINJENR3", nullable = false)
 	private String linjenr3 = "";
+	@Column(name = "KUNDORDERNR", nullable = false)
+	private int kundordernr;
+	@Column(name = "FORSKATT", nullable = false)
+	private short forskatt;
+	@Column(name = "FORSKATTBETALD", nullable = false)
+	private short forskattbetald;
+	@Column(name = "BETALSATT")
+	private String betalsatt;
 
 	public TableOrder1() {
 	}
@@ -477,6 +485,38 @@ public class TableOrder1 implements Serializable {
 	public void setLinjenr3(String linjenr3) {
 		if (linjenr3 == null) { linjenr3 = ""; }
 		this.linjenr3 = linjenr3;
+	}
+
+	public String getBetalsatt() {
+		return betalsatt;
+	}
+
+	public void setBetalsatt(String betalsatt) {
+		this.betalsatt = betalsatt;
+	}
+
+	public boolean getForskatt() {
+		return forskatt!=0;
+	}
+
+	public void setForskatt(boolean forskatt) {
+		if (forskatt) this.forskatt = 1; else this.forskatt = 0;
+	}
+
+	public boolean getForskattbetald() {
+		return forskattbetald!=0;
+	}
+
+	public void setForskattbetald(boolean forskattbetald) {
+		if (forskattbetald) this.forskattbetald = 1; else this.forskattbetald=0;
+	}
+
+	public int getKundordernr() {
+		return kundordernr;
+	}
+
+	public void setKundordernr(int kundordernr) {
+		this.kundordernr = kundordernr;
 	}
 
 	@Override
