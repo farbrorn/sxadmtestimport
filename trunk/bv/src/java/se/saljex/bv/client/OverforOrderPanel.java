@@ -9,6 +9,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
@@ -165,7 +166,7 @@ public class OverforOrderPanel extends VerticalPanel{
 		for (Order1 order1 : order1List.orderLista) {
 			orderTable.setWidget(row, COL_ORDERNR, new SxIntegerLabel(order1.ordernr));
 			orderTable.setWidget(row, COL_LEVORDERNR, new SxIntegerLabel(null));
-			orderTable.setWidget(row, COL_DATUM, new Label(""+order1.datum));
+			orderTable.setWidget(row, COL_DATUM, new Label(""+getDateString(order1.datum)));
 			orderTable.setWidget(row, COL_KUNDNAMN, new Label(order1.namn));
 			orderTable.setWidget(row, COL_STATUS, new Label(order1.status));
 			orderTable.setWidget(row, COL_SUMMAINKMOMS, new Label(numberFormat.format(order1.summaInkMoms)));
@@ -204,14 +205,18 @@ public class OverforOrderPanel extends VerticalPanel{
 	}
 	final AsyncCallback<OrderLookupResponse> callbackInfo = new AsyncCallback<OrderLookupResponse>() {
 		public void onSuccess(OrderLookupResponse result) {
+			Label infoLabel;
 			clearErrorLabel();
 			if (result.errorMessage==null) {
 				rightPanel.clear();
 				if (result.bvOrder!=null) {
+					infoLabel = new Label("Vår order");
+					infoLabel.getElement().getStyle().setProperty("color", "blue");
+					rightPanel.add(infoLabel);
 					if (result.bvOrder.order1!=null) {
 						FlexTable bvOrderHeaderTable = new FlexTable();
 						bvOrderHeaderTable.setWidget(0, 0, new Label("Ordernr: "+result.bvOrder.order1.ordernr));
-						bvOrderHeaderTable.setWidget(0, 1, new Label("Datum: "));
+						bvOrderHeaderTable.setWidget(0, 1, new Label("Datum: "+getDateString(result.bvOrder.order1.datum)));
 						bvOrderHeaderTable.setWidget(1, 0, new Label("Kund: "+result.bvOrder.order1.kundnr));
 						bvOrderHeaderTable.setWidget(1, 1, new Label(result.bvOrder.order1.namn));
 						rightPanel.add(bvOrderHeaderTable);
@@ -232,6 +237,70 @@ public class OverforOrderPanel extends VerticalPanel{
 						}
 						rightPanel.add(bvOrder2Table);
 					}
+					infoLabel = new Label("Händelser");
+					infoLabel.getElement().getStyle().setProperty("color", "blue");
+					rightPanel.add(infoLabel);
+					if (result.bvOrder.orderHandList!=null) {
+						FlexTable table = new FlexTable();
+						int row=0;
+						for(OrderHand orderHand : result.bvOrder.orderHandList) {
+							table.setWidget(row, 0, new Label(getDateTimeString(orderHand.datum)));
+							table.setWidget(row, 1, new Label(orderHand.anvandare));
+							table.setWidget(row, 2, new Label (orderHand.handelse));
+							table.setWidget(row, 3, new Label(orderHand.transportor));
+							table.setWidget(row, 4, new Label(orderHand.fraktsedelnr));
+							row++;
+						}
+						rightPanel.add(table);
+					}
+				}
+
+				infoLabel = new Label("Leverantörs order");
+				infoLabel.getElement().getStyle().setProperty("color", "blue");
+				rightPanel.add(infoLabel);
+				if (result.sxOrderList!=null) {
+					for(Order order : result.sxOrderList) {
+						if(order.order1!=null) {
+							FlexTable bvOrderHeaderTable = new FlexTable();
+							bvOrderHeaderTable.setWidget(0, 0, new Label("Ordernr: "+order.order1.ordernr));
+							bvOrderHeaderTable.setWidget(0, 1, new Label("Datum: "+getDateString(order.order1.datum)));
+							bvOrderHeaderTable.setWidget(1, 0, new Label("Kund: "+order.order1.kundnr));
+							bvOrderHeaderTable.setWidget(1, 1, new Label(order.order1.namn));
+							rightPanel.add(bvOrderHeaderTable);
+						}
+						if (order.order2List!=null) {
+							FlexTable bvOrder2Table = new FlexTable();
+							int row=0;
+							for (Order2 o2 : order.order2List) {
+								bvOrder2Table.setWidget(row, 0, new Label(o2.artnr));
+								bvOrder2Table.setWidget(row, 1, new Label(o2.namn));
+								bvOrder2Table.setWidget(row, 2, new Label(numberFormat.format(o2.antal)));
+								bvOrder2Table.setWidget(row, 3, new Label(o2.enh));
+								bvOrder2Table.setWidget(row, 4, new Label(numberFormat.format(o2.pris)));
+								bvOrder2Table.setWidget(row, 5, new Label(numberFormat.format(o2.rab)));
+								bvOrder2Table.setWidget(row, 6, new Label(numberFormat.format(o2.lagerTillgangliga)));
+								bvOrder2Table.setWidget(row, 7, new Label(numberFormat.format(o2.lagerTillgangligaFilialer)));
+								row++;
+							}
+							rightPanel.add(bvOrder2Table);
+						}
+						infoLabel = new Label("Händelser");
+						infoLabel.getElement().getStyle().setProperty("color", "blue");
+						rightPanel.add(infoLabel);
+						if (order.orderHandList!=null) {
+							FlexTable table = new FlexTable();
+							int row=0;
+							for(OrderHand orderHand : order.orderHandList) {
+								table.setWidget(row, 0, new Label(getDateTimeString(orderHand.datum)));
+								table.setWidget(row, 1, new Label(orderHand.anvandare));
+								table.setWidget(row, 2, new Label (orderHand.handelse));
+								table.setWidget(row, 3, new Label(orderHand.transportor));
+								table.setWidget(row, 4, new Label(orderHand.fraktsedelnr));
+								row++;
+							}
+							rightPanel.add(table);
+						}
+					}
 				}
 			} else {
 				setErrorLabel("Fel vid hämta orderinfo: " + result.errorMessage);
@@ -242,6 +311,12 @@ public class OverforOrderPanel extends VerticalPanel{
 		}
 	};
 
+	private String getDateTimeString(java.util.Date date) {
+		return DateTimeFormat.getFormat("yyy-MM-dd HH:mm:ss").format(date);
+	}
+	private String getDateString(java.util.Date date) {
+		return DateTimeFormat.getFormat("yyy-MM-dd").format(date);
+	}
 	public static GWTServiceAsync getService() {
 		return GWT.create(GWTService.class);
 	}
