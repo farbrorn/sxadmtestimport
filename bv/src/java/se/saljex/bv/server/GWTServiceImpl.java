@@ -154,7 +154,7 @@ public class GWTServiceImpl extends RemoteServiceServlet implements GWTService {
 			response.sxOrderList = new ArrayList();
 			while (sxRs.next()) {
 				sxOrder = new Order();
-				sxOrder.order1 = getOrder1FromResultset(bvRs);
+				sxOrder.order1 = getOrder1FromResultset(sxRs);
 				sxOrder.order2List = fillOrder2(sxCon, sxOrder.order1.ordernr);
 				sxOrder.orderHandList = fillOrderHand(sxCon, sxOrder.order1.ordernr);
 				response.sxOrderList.add(sxOrder);
@@ -189,7 +189,7 @@ public class GWTServiceImpl extends RemoteServiceServlet implements GWTService {
 		order1.status = rs.getString(3);
 		order1.kundnr = rs.getString(4);
 		order1.namn = rs.getString(5);
-		order1.datum = rs.getDate(6);
+		order1.datum = new java.util.Date(rs.getDate(6).getTime());
 		order1.summaInkMoms = rs.getDouble(7);
 		if (SXConstant.ORDER_STATUS_SPARAD.equals(order1.status)) order1.isOverforbar=true; else order1.isOverforbar=false;
 		return order1;
