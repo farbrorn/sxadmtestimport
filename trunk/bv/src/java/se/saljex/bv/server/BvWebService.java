@@ -5,7 +5,6 @@
 
 package se.saljex.bv.server;
 
-import java.util.ArrayList;
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.jws.WebMethod;
@@ -13,6 +12,8 @@ import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.sql.DataSource;
 import se.saljex.bv.client.Order1List;
+import se.saljex.bv.client.OrderLookupResponse;
+import se.saljex.bv.client.OverforBVOrderResponse;
 import se.saljex.sxserver.SxServerMainLocal;
 import se.saljex.bv.client.ServerErrorException;
 
@@ -24,8 +25,6 @@ import se.saljex.bv.client.ServerErrorException;
 public class BvWebService {
 	@EJB
 	private SxServerMainLocal sxServerMainBean;
-//	@EJB
-//	private LocalWebSupportLocal localWebSupportBean;
 	@javax.annotation.Resource(name = "sxadmkundbv")
 	private DataSource bvDataSource;
 	@javax.annotation.Resource(name = "sxadm")
@@ -46,37 +45,19 @@ public class BvWebService {
 		  return serviceImpl.getOrder1List(filter);
 	}
 
-	/**
-	 * Web service operation
-	 */
-	@WebMethod(operationName = "testString")
-	public String testString(@WebParam(name = "id")
-	int testId) {
-		if(testId==1)
-			return "testar svenska tecken -å-ä-ö-Å-Ä-Ö";
-		else if (testId==2)
-			return "testar högerhake - > ";
-		else if (testId==3)
-			return "testar vänsterhake - < ";
-		else if (testId==4)
-			return "testar en h1-tag - <h1> ";
-		else if (testId==5)
-			return "testar en h1-tag - <h1> ";
-		else
-			return "Testa med olika filter fran 1 och uppat och fa olika teststringar";	}
 
-	/**
-	 * Web service operation
-	 */
-	@WebMethod(operationName = "testStringArray")
-	public ArrayList<String> testStringArray() {
-		ArrayList<String> a = new ArrayList();
-		a.add("Rad 1");
-		a.add("Rad 2");
-		a.add("Rad 3");
+	@WebMethod(operationName = "getOrderLookup")
+	 public OrderLookupResponse getOrderLookup(@WebParam(name = "bvOrdernr") int bvOrdernr)  {
+		 return serviceImpl.getOrderLookup(bvOrdernr);
+	 }
 
-		return a;
+
+
+	@WebMethod(operationName = "overforBVOrder")
+	public OverforBVOrderResponse overforBVOrder(@WebParam(name = "bvOrdernr")int bvOrdernr, @WebParam(name = "sxLagernr") short sxLagernr,  @WebParam(name = "callerId") Integer callerId)  {
+		return serviceImpl.overforBVOrder(bvOrdernr, sxLagernr, callerId);
 	}
+
 
 	
 }

@@ -12,12 +12,13 @@ import java.util.ArrayList;
  *
  * @author ulf
  */
-public class Order implements IsSerializable{
-	public  Order() {}
+public class Faktura implements IsSerializable{
 
-	public Order1 order1=null;											//Orderhuvud
-	public ArrayList<Order2> order2List = null;					//Orderrader
-	public ArrayList<OrderHand> orderHandList = null;			//
+	public Faktura() {
+	}
 
+	public Faktura1 faktura1;									//Fakturahuvud
+	public ArrayList<Faktura2> faktura2List = null;		//Fakturarader
+	
 
 }
