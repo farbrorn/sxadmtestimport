@@ -16,13 +16,14 @@ import java.util.Date;
 public class Order1 implements IsSerializable, Serializable{
 	public Order1() {}
 
-	public short lagernr;
-	public int ordernr;
-	public String kundnr = null;
-	public String namn = null;
-	public String status=null;
-	public Date datum=null;
-	public double summaInkMoms;
+	public short lagernr;					//Vilket lager ordern avser. Lager 0 är default
+	public int ordernr;						// ordernr
+	public int dellev;						//Anger vilken delleverans ordern avser. Varje delleverans får ett nytt ordernr men behåller räknaren
+	public String kundnr = null;			//Kundnummer
+	public String namn = null;				//Kundens namn
+	public String status=null;				//Orderstatus
+	public Date datum=null;					//Orer skapad datum
+	public double summaInkMoms;			//Ordersumma inkl. moms
 	public boolean isOverforbar=false;	//Är ordern tillgänglig för överföring till sx?
 
 }
