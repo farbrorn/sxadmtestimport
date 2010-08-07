@@ -15,11 +15,9 @@
                 </library>
                 <library dirs="200">
                     <file>${file.reference.gwt-dev.jar}</file>
-                    <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library dirs="200">
                     <file>${file.reference.gwt-servlet.jar}</file>
-                    <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library dirs="100">
                     <file>${reference.SxServer-ejb-1.dist}</file>

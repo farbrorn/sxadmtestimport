@@ -126,8 +126,8 @@ public class OverforOrderPanel extends VerticalPanel{
 		}
   };
 
-	final AsyncCallback<OverforBVOrderResponse> callbackOverforBvOrder = new AsyncCallback<OverforBVOrderResponse>() {
-		public void onSuccess(OverforBVOrderResponse result) {
+	final AsyncCallback<OverforBVOrderResp> callbackOverforBvOrder = new AsyncCallback<OverforBVOrderResp>() {
+		public void onSuccess(OverforBVOrderResp result) {
 			clearErrorLabel();
 			if (result.overfordOK) {
 				Integer ordernr=null;
@@ -203,8 +203,8 @@ public class OverforOrderPanel extends VerticalPanel{
 	private void doBtnInfo(int ordernr) {
 		getService().getOrderLookup(ordernr, callbackInfo);
 	}
-	final AsyncCallback<OrderLookupResponse> callbackInfo = new AsyncCallback<OrderLookupResponse>() {
-		public void onSuccess(OrderLookupResponse result) {
+	final AsyncCallback<OrderLookupResp> callbackInfo = new AsyncCallback<OrderLookupResp>() {
+		public void onSuccess(OrderLookupResp result) {
 			Label infoLabel;
 			clearErrorLabel();
 			if (result.errorMessage==null) {

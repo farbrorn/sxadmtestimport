@@ -22,6 +22,6 @@ public interface GWTService extends RemoteService {
 
     public String myMethod(String s);
  	 public Order1List getOrder1List(int filter)  throws ServerErrorException;
- 	 public OverforBVOrderResponse overforBVOrder(int bvOrdernr, short lagernr, Integer callerId);
-	 public OrderLookupResponse getOrderLookup(int bvOrdernr);
+ 	 public OverforBVOrderResp overforBVOrder(int bvOrdernr, short lagernr, Integer callerId);
+	 public OrderLookupResp getOrderLookup(int bvOrdernr);
 }

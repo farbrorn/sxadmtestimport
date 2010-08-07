@@ -12,8 +12,8 @@ import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.sql.DataSource;
 import se.saljex.bv.client.Order1List;
-import se.saljex.bv.client.OrderLookupResponse;
-import se.saljex.bv.client.OverforBVOrderResponse;
+import se.saljex.bv.client.OrderLookupResp;
+import se.saljex.bv.client.OverforBVOrderResp;
 import se.saljex.sxserver.SxServerMainLocal;
 import se.saljex.bv.client.ServerErrorException;
 
@@ -47,17 +47,15 @@ public class BvWebService {
 
 
 	@WebMethod(operationName = "getOrderLookup")
-	 public OrderLookupResponse getOrderLookup(@WebParam(name = "bvOrdernr") int bvOrdernr)  {
+	 public OrderLookupResp getOrderLookup(@WebParam(name = "bvOrdernr") int bvOrdernr)  {
 		 return serviceImpl.getOrderLookup(bvOrdernr);
 	 }
 
 
-
 	@WebMethod(operationName = "overforBVOrder")
-	public OverforBVOrderResponse overforBVOrder(@WebParam(name = "bvOrdernr")int bvOrdernr, @WebParam(name = "sxLagernr") short sxLagernr,  @WebParam(name = "callerId") Integer callerId)  {
+	public OverforBVOrderResp overforBVOrder(@WebParam(name = "bvOrdernr")int bvOrdernr, @WebParam(name = "sxLagernr") short sxLagernr,  @WebParam(name = "callerId") Integer callerId)  {
 		return serviceImpl.overforBVOrder(bvOrdernr, sxLagernr, callerId);
 	}
-
 
 	
 }

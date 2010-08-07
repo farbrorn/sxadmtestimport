@@ -12,8 +12,8 @@ import java.util.ArrayList;
  *
  * @author ulf
  */
-public class OrderLookupResponse implements IsSerializable{
-	public OrderLookupResponse() {}
+public class OrderLookupResp implements IsSerializable{
+	public OrderLookupResp() {}
 
 	public Order bvOrder;
 	public ArrayList<Order> sxOrderList=null;
