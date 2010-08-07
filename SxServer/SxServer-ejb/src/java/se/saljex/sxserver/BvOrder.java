@@ -94,7 +94,7 @@ public class BvOrder {
 		sxOrderHandler.setForskattbetald(bvOrder1.getForskattbetald());
 		for (BvOrderRad bvOrderRad : bvOrderRader) {
 			try {
-				sxOrderHandler.addRow(bvOrderRad.sxArtnr, bvOrderRad.nyttAntal, bvOrderRad.nyttPris, bvOrderRad.order2.getRab());
+				sxOrderHandler.addRow(bvOrderRad.sxArtnr, bvOrderRad.nyttAntal);
 			} catch (SXEntityNotFoundException e) {
 				//Artikeln finns inte. Vi måste lägga in en *-rad
 				sxOrderHandler.addStjRow(bvOrderRad.order2.getArtnr(), bvOrderRad.order2.getNamn(), bvOrderRad.order2.getLevnr(), bvOrderRad.nyttAntal, bvOrderRad.order2.getEnh(), bvOrderRad.order2.getNetto(), bvOrderRad.order2.getPris(), bvOrderRad.order2.getRab());
