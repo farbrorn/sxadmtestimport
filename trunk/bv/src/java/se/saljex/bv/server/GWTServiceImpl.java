@@ -23,12 +23,13 @@ import se.saljex.bv.client.Order1;
 import se.saljex.bv.client.Order1List;
 import se.saljex.bv.client.Order2;
 import se.saljex.bv.client.OrderHand;
-import se.saljex.bv.client.OrderLookupResponse;
-import se.saljex.bv.client.OverforBVOrderResponse;
+import se.saljex.bv.client.OrderLookupResp;
+import se.saljex.bv.client.OverforBVOrderResp;
 import se.saljex.bv.client.ServerErrorException;
 import se.saljex.sxserver.SXConstant;
 import se.saljex.sxserver.SXEntityNotFoundException;
 import se.saljex.sxserver.SxServerMainLocal;
+import se.saljex.sxserver.websupport.WebUtil;
 
 /**
  *
@@ -65,8 +66,9 @@ public class GWTServiceImpl extends RemoteServiceServlet implements GWTService {
 
 
 
-	 public OrderLookupResponse getOrderLookup(int bvOrdernr)  {
-		 return serviceImpl.getOrderLookup(bvOrdernr);
+	 public OrderLookupResp getOrderLookup(int bvOrdernr)  {
+		 if (isLoggedIn()) return serviceImpl.getOrderLookup(bvOrdernr);
+		 return null;
 	 }
 
 
@@ -74,8 +76,14 @@ public class GWTServiceImpl extends RemoteServiceServlet implements GWTService {
 		 return serviceImpl.getOrder1List(filter);
 	 }
 
-	public OverforBVOrderResponse overforBVOrder(int bvOrdernr, short lagernr, Integer callerId)  {
-		return serviceImpl.overforBVOrder(bvOrdernr, lagernr, callerId);
+	public OverforBVOrderResp overforBVOrder(int bvOrdernr, short lagernr, Integer callerId)  {
+		if (isLoggedIn())	return serviceImpl.overforBVOrder(bvOrdernr, lagernr, callerId);
+		return null;
 	}
+
+	private boolean isLoggedIn() {
+		return (!WebUtil.getSXSession(getThreadLocalRequest().getSession()).checkIntraBehorighetIntraWebApp());
+	}
+
 
 }

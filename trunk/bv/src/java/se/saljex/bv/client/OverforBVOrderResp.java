@@ -11,8 +11,8 @@ import com.google.gwt.user.client.rpc.IsSerializable;
  *
  * @author ulf
  */
-public class OverforBVOrderResponse implements IsSerializable {
-	public OverforBVOrderResponse() {}
+public class OverforBVOrderResp implements IsSerializable {
+	public OverforBVOrderResp() {}
 
 	public Integer sxOrdernr=null;
 	public Integer bvOrdernr=null;

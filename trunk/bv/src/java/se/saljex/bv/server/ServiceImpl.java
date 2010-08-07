@@ -17,8 +17,8 @@ import se.saljex.bv.client.Order1;
 import se.saljex.bv.client.Order1List;
 import se.saljex.bv.client.Order2;
 import se.saljex.bv.client.OrderHand;
-import se.saljex.bv.client.OrderLookupResponse;
-import se.saljex.bv.client.OverforBVOrderResponse;
+import se.saljex.bv.client.OrderLookupResp;
+import se.saljex.bv.client.OverforBVOrderResp;
 import se.saljex.bv.client.ServerErrorException;
 import se.saljex.sxserver.SXConstant;
 import se.saljex.sxserver.SxServerMainLocal;
@@ -103,8 +103,8 @@ public class ServiceImpl {
 	 }
 
 
-	 public OrderLookupResponse getOrderLookup(int bvOrdernr)  {
-		 OrderLookupResponse response=new OrderLookupResponse();
+	 public OrderLookupResp getOrderLookup(int bvOrdernr)  {
+		 OrderLookupResp response=new OrderLookupResp();
 		 Connection sxCon=null;
 		 Connection bvCon=null;
 
@@ -236,8 +236,8 @@ public class ServiceImpl {
 		 return order1List;
 	 }
 
-	 public OverforBVOrderResponse overforBVOrder(int bvOrdernr, short lagernr, Integer callerId)  {
-		OverforBVOrderResponse resp= new OverforBVOrderResponse();
+	 public OverforBVOrderResp overforBVOrder(int bvOrdernr, short lagernr, Integer callerId)  {
+		OverforBVOrderResp resp= new OverforBVOrderResp();
 		resp.callerId=callerId;
 		try {
 			resp.sxOrdernr = sxServerMainBean.overforBVOrder(BVKUNDNR, bvOrdernr, "BV", "00", lagernr);
