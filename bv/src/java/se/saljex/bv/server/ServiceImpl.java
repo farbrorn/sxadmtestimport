@@ -12,8 +12,12 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import javax.ejb.EJB;
 import javax.sql.DataSource;
+import se.saljex.bv.client.Betaljournal;
+import se.saljex.bv.client.BetaljournalList;
 import se.saljex.bv.client.Faktura1;
 import se.saljex.bv.client.Faktura1List;
+import se.saljex.bv.client.Fakturajournal;
+import se.saljex.bv.client.FakturajournalList;
 import se.saljex.bv.client.Order;
 import se.saljex.bv.client.Order1;
 import se.saljex.bv.client.Order1List;
@@ -34,7 +38,7 @@ public class ServiceImpl {
 	private DataSource bvDataSource;
 	private DataSource sxDataSource;
 
-	private final static String BVKUNDNR="0855115290";
+	private final static String BVKUNDNR="0855115291";
 	 public final static int FILTER_ALLA=0;
 	 public final static int FILTER_FOROVERFORING=1;
 	 public final static int FILTER_OVERFORDA=2;
@@ -350,7 +354,7 @@ public class ServiceImpl {
 		Connection con=null;
 		Order1List order1List = new Order1List();
 		try {
-			con = bvDataSource.getConnection();
+			con = sxDataSource.getConnection();
 			PreparedStatement stm = con.prepareStatement(
 "select f1.lagernr, f2.ordernr, u1.status, f1.kundnr, f1.namn, u1.datum, u1.dellev, f1.faktnr, u1.levadr1, u1.levadr2, u1.levadr3, u1.kundordernr, "+
 " sum(f2.summa), sum(f2.summa)*(1+f1.momsproc/100) "+
@@ -398,12 +402,12 @@ public class ServiceImpl {
 		Connection con=null;
 		Faktura1List faktura1List = new Faktura1List();
 		try {
-			con = bvDataSource.getConnection();
+			con = sxDataSource.getConnection();
 			PreparedStatement stm = con.prepareStatement(
 "select faktnr, datum, namn, adr1, adr2, adr3, saljare, referens, momsproc, ktid, "+
 " ranta, bonus, t_netto, t_moms, t_orut, t_attbetala "+
 " from faktura1 f1 "+
-" where kundnr=?"	+
+" where kundnr=? "	+
 " order by f1.faktnr desc"
 					  );
 			stm.setString(1, BVKUNDNR);
@@ -412,6 +416,7 @@ public class ServiceImpl {
 
 			Faktura1 faktura1;
 			while (rs.next()) {
+		System.out.print("**********************H3");
 				faktura1 = new Faktura1();
 				faktura1.faktnr = rs.getInt(1);
 				faktura1.datum = rs.getDate(2);
@@ -440,5 +445,90 @@ public class ServiceImpl {
 		 return faktura1List;
 
 	 }
+
+
+
+
+
+
+
+
+	// Betaljournal för angiven bokföringsperiod, endast betalningar som bv har gjort
+	public BetaljournalList getSxBetaljournalList(int bokforingsar, int bokforingsmanad) throws ServerErrorException {
+		Connection con=null;
+		BetaljournalList betaljournalList = new BetaljournalList();
+		try {
+			con = sxDataSource.getConnection();
+			PreparedStatement stm = con.prepareStatement(
+"select faktnr, kundnr, bet, betdat, betsatt, ar, man from sxfakt.betjour " +
+" where kundnr=? and ar=? and man=? order by betdat, betsatt, faktnr"
+
+					  );
+			stm.setString(1, BVKUNDNR);
+			stm.setInt(2, bokforingsar);
+			stm.setInt(3, bokforingsmanad);
+
+			ResultSet rs = stm.executeQuery();
+			Betaljournal betaljournal;
+			while (rs.next()) {
+				betaljournal = new Betaljournal();
+				betaljournal.faktnr = rs.getInt(1);
+				betaljournal.kundnr= rs.getString(2);
+				betaljournal.betalt = rs.getDouble(3);
+				betaljournal.betaldatum = rs.getDate(4);
+				betaljournal.betalsatt = rs.getString(5);
+				betaljournal.bokforingsar = rs.getShort(6);
+				betaljournal.bokforinsmanad = rs.getShort(7);
+				betaljournalList.betaljournalList.add(betaljournal);
+			}
+
+		} catch (SQLException e) { e.printStackTrace(); throw(new ServerErrorException("Fel vid kommunikation med databasen"));}
+		catch (Exception ee) {ee.printStackTrace();throw(new ServerErrorException("Okänt fel"));}
+		finally {
+			try { con.close(); } catch (Exception e) {}
+		}
+		 return betaljournalList;
+
+	 }
+
+
+
+	// Betaljournal för angiven bokföringsperiod, endast betalningar som bv har gjort
+	public FakturajournalList getSxFakturajurnalList(int bokforingsar, int bokforingsmanad) throws ServerErrorException {
+		Connection con=null;
+		FakturajournalList fakturajournalList = new FakturajournalList();
+		try {
+			con = sxDataSource.getConnection();
+			PreparedStatement stm = con.prepareStatement(
+"select faktnr, kundnr, t_netto, t_moms, t_orut, t_attbetala from faktura1  " +
+" where kundnr=? and year(datum)=? and mont(datum)=? order by faktnr"
+					  );
+			stm.setString(1, BVKUNDNR);
+			stm.setInt(2, bokforingsar);
+			stm.setInt(3, bokforingsmanad);
+
+			ResultSet rs = stm.executeQuery();
+			Fakturajournal fakturajournal;
+			while (rs.next()) {
+				fakturajournal = new Fakturajournal();
+				fakturajournal.faktnr = rs.getInt(1);
+				fakturajournal.kundnr = rs.getString(2);
+				fakturajournal.nettobelopp = rs.getDouble(3);
+				fakturajournal.momsbelopp = rs.getDouble(4);
+				fakturajournal.oresutjamningsbelopp = rs.getDouble(5);
+				fakturajournal.attbetalabelopp = rs.getDouble(6);
+				fakturajournalList.fakturajournalList.add(fakturajournal);
+			}
+
+		} catch (SQLException e) { e.printStackTrace(); throw(new ServerErrorException("Fel vid kommunikation med databasen"));}
+		catch (Exception ee) {ee.printStackTrace();throw(new ServerErrorException("Okänt fel"));}
+		finally {
+			try { con.close(); } catch (Exception e) {}
+		}
+		 return fakturajournalList;
+
+	 }
+
+
 
 }
