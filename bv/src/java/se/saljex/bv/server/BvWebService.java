@@ -12,6 +12,7 @@ import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.sql.DataSource;
 import se.saljex.bv.client.BetaljournalList;
+import se.saljex.bv.client.BokordList;
 import se.saljex.bv.client.Faktura1List;
 import se.saljex.bv.client.FakturajournalList;
 import se.saljex.bv.client.Order1List;
@@ -105,6 +106,15 @@ public class BvWebService {
 	short bokforingsmanad) throws ServerErrorException {
 		 return serviceImpl.getBvFakturajurnalList(bokforingsar, bokforingsmanad);
 	}
+
+	// Bokföringsorder för angiven bokföringsperiod i bv avseende kundfakturor och kundbetalningar
+	@WebMethod(operationName = "getBvBokordList")
+	public BokordList getBvBokordList(@WebParam(name = "bokforingsar")
+	short bokforingsar, @WebParam(name = "bokforingsmanad")
+	short bokforingsmanad) throws ServerErrorException {
+		 return serviceImpl.getBvBokordList(bokforingsar, bokforingsmanad);
+	}
+
 
 /*
 	@WebMethod(operationName = "overforBVOrder")

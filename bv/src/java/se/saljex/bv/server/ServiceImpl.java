@@ -10,10 +10,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import javax.ejb.EJB;
 import javax.sql.DataSource;
 import se.saljex.bv.client.Betaljournal;
 import se.saljex.bv.client.BetaljournalList;
+import se.saljex.bv.client.Bokord;
+import se.saljex.bv.client.BokordList;
 import se.saljex.bv.client.Faktura1;
 import se.saljex.bv.client.Faktura1List;
 import se.saljex.bv.client.Fakturajournal;
@@ -553,6 +554,45 @@ public class ServiceImpl {
 	public FakturajournalList getBvFakturajurnalList(int bokforingsar, int bokforingsmanad) throws ServerErrorException {
 		return getFakturajournalList(bvDataSource, BVKUNDNR, bokforingsar, bokforingsmanad);
 	 }
+
+
+
+	public BokordList getBvBokordList(int bokforingsar, int bokforingsmanad) throws ServerErrorException {
+		Connection con=null;
+		BokordList bokordList = new BokordList();
+
+		try {
+			con = bvDataSource.getConnection();
+			PreparedStatement stm = con.prepareStatement(
+"select konto, faktnr, typ, summa, datum from bokord " +
+" where year(datum)=? and month(datum)=?"+
+" order by faktnr, typ, konto"
+					  );
+
+			stm.setInt(1, bokforingsar);
+			stm.setInt(2, bokforingsmanad);
+
+			ResultSet rs = stm.executeQuery();
+			Bokord bokord;
+			while (rs.next()) {
+				bokord = new Bokord();
+				bokord.konto = rs.getString(1);
+				bokord.faktnr = rs.getInt(2);
+				bokord.typ = rs.getString(3);
+				bokord.summa = rs.getDouble(4);
+				bokord.datum = rs.getDate(5);
+				bokordList.bokordList.add(bokord);
+			}
+
+		} catch (SQLException e) { e.printStackTrace(); throw(new ServerErrorException("Fel vid kommunikation med databasen"));}
+		catch (Exception ee) {ee.printStackTrace();throw(new ServerErrorException("Okänt fel"));}
+		finally {
+			try { con.close(); } catch (Exception e) {}
+		}
+		 return bokordList;
+	}
+
+
 
 
 }
