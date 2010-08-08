@@ -91,6 +91,20 @@ public class BvWebService {
 		 return serviceImpl.getSxFakturajurnalList(bokforingsar, bokforingsmanad);
 	}
 
+	// Betaljournal för angiven bokföringsperiod, alla betalningar i bv
+	@WebMethod(operationName = "getBvBetaljournalList")
+	public BetaljournalList getBvBetaljournalList(@WebParam(name = "bokforingsar")
+	short bokforingsar, @WebParam(name = "bokforingsmanad")
+	short bokforingsmanad) throws ServerErrorException {
+		 return serviceImpl.getBvBetaljournalList(bokforingsar, bokforingsmanad);
+	}
+	// Fakturajournal för angiven bokföringsperiod, alla fakturor i bv
+	@WebMethod(operationName = "getBvFakturajurnalList")
+	public FakturajournalList getBvFakturajurnalList(@WebParam(name = "bokforingsar")
+	short bokforingsar, @WebParam(name = "bokforingsmanad")
+	short bokforingsmanad) throws ServerErrorException {
+		 return serviceImpl.getBvFakturajurnalList(bokforingsar, bokforingsmanad);
+	}
 
 /*
 	@WebMethod(operationName = "overforBVOrder")
