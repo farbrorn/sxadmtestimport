@@ -170,7 +170,7 @@ public class ServiceImpl {
 "select o1.lagernr, o1.ordernr, o1.status, o1.kundnr, o1.namn, o1.datum, o3.summa, " +
 " case when o1.moms=1 then (1+f.moms1/100)*o3.summa else case when o1.moms=2 then (1+f.moms2/100)*o3.summa else case when o1.moms=3 then (1+f.moms3/100)*o3.summa else o3.summa end end end "+
 " , o1.dellev, null " +
-" o1.adr1, o1.adr2, o1.adr3, o1.levadr1, o1.levadr2, o1.levadr3 "	+
+" , o1.adr1, o1.adr2, o1.adr3, o1.levadr1, o1.levadr2, o1.levadr3 "	+
 " from order1 o1 left outer join " +
 " (select ordernr as ordernr, sum(o2.summa) as summa from order2 o2 group by ordernr) o3 on o3.ordernr=o1.ordernr "+
 " left outer join fuppg f on 1=1 "+
@@ -187,7 +187,7 @@ public class ServiceImpl {
 "select o1.lagernr, o1.ordernr, o1.status, o1.kundnr, o1.namn, o1.datum, o3.summaexmoms, " +
 " o3.summainkmoms "+
 " , o1.dellev, o1.faktnr " +
-" o1.adr1, o1.adr2, o1.adr3, o1.levadr1, o1.levadr2, o1.levadr3 "	+
+" , o1.adr1, o1.adr2, o1.adr3, o1.levadr1, o1.levadr2, o1.levadr3 "	+
 " from utlev1 o1 left outer join " +
 " (select f2.ordernr as ordernr, f2.faktnr as faktnr, sum(f2.summa) as summaexmoms, sum(f2.summa*(1+f1.momsproc/100)) as summainkmoms from faktura2 f2 join faktura1 f1 on f1.faktnr=f2.faktnr group by f2.faktnr, f2.ordernr) o3 on o3.ordernr=o1.ordernr and o3.faktnr=o1.faktnr "+
 " where " + sqlWhere +
@@ -344,6 +344,51 @@ public class ServiceImpl {
 		return resp;
 	}
 
+	 public Order1List getSxOrder1ListFromFaktnr(int sxFaktnr) throws ServerErrorException {
+		Connection con=null;
+		Order1List order1List = new Order1List();
+		try {
+			con = bvDataSource.getConnection();
+			PreparedStatement stm = con.prepareStatement(
+"select f1.lagernr, f2.ordernr, u1.status, f1.kundnr, f1.namn, u1.datum, u1.dellev, f1.faktnr, u1.levadr1, u1.levadr2, u1.levadr3, u1.kundordernr, "+
+" sum(f2.summa), sum(f2.summa)*(1+f1.momsproc/100) "+
+" from faktura1 f1 join faktura2 f2 on f1.faktnr=f2.faktnr left outer join utlev1 u1 on u1.ordernr=f2.ordernr "+
+" where f2.faktnr = ? and f1.kundnr=? " +
+" group by f1.lagernr, f2.ordernr, u1.status, f1.kundnr, f1.namn, u1.datum, u1.dellev, f1.faktnr, u1.levadr1, u1.levadr2, u1.levadr3, u1.kundordernr "+
+" order by f2.ordernr");
+
+			stm.setInt(1, sxFaktnr);
+			stm.setString(2, BVKUNDNR);
+
+			ResultSet rs = stm.executeQuery();
+
+			Order1 order1;
+			while (rs.next()) {
+				order1 = new Order1();
+				order1.lagernr = rs.getShort(1);
+				order1.ordernr = rs.getInt(2);
+				order1.status = rs.getString(3);
+				order1.kundnr = rs.getString(4);
+				order1.namn = rs.getString(5);
+				order1.datum = rs.getDate(6);
+				order1.dellev = rs.getInt(7);
+				order1.faktnr = rs.getInt(8);
+				order1.levadr1 = rs.getString(9);
+				order1.levadr2 = rs.getString(10);
+				order1.levadr3 = rs.getString(11);
+				order1.kundordernr = rs.getInt(12);
+				order1.summaInkMoms = rs.getDouble(14);
+				order1List.orderLista.add(order1);
+			}
+
+		} catch (SQLException e) { e.printStackTrace(); throw(new ServerErrorException("Fel vid kommunikation med databasen"));}
+		catch (Exception ee) {ee.printStackTrace();throw(new ServerErrorException("Okänt fel"));}
+		finally {
+			try { con.close(); } catch (Exception e) {}
+		}
+		 return order1List;
+
+	 }
 
 
 }
