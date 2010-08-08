@@ -64,6 +64,10 @@ public class BvWebService {
 	 public OrderLookupResp getBvOrderLookup(@WebParam(name = "bvOrdernr") int bvOrdernr)  {
 		 return serviceImpl.getBvOrderLookup(bvOrdernr);
 	 }
+	@WebMethod(operationName = "getSxOrder1ListFromFaktnr")
+	 public Order1List getSxOrder1ListFromFaktnr(@WebParam(name = "sxFaktnr") int sxFaktnr) throws ServerErrorException  {
+		 return serviceImpl.getSxOrder1ListFromFaktnr(sxFaktnr);
+	 }
 
 
 /*

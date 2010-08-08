@@ -19,6 +19,7 @@ public class Order1 implements IsSerializable, Serializable{
 	public short lagernr;					//Vilket lager ordern avser. Lager 0 är default
 	public int ordernr;						// ordernr
 	public int dellev;						//Anger vilken delleverans ordern avser. Varje delleverans får ett nytt ordernr men behåller räknaren
+	public int kundordernr;					//Anger kundens ordernummer. Avsett för länkning mellan SX och BV
 	public Integer faktnr=null;				// Fakturanummer om ordern är fakturerad, och därmed fysiskt, i databasen, är flyttad från ordertabellen till utleveranstabellen
 	public String kundnr = null;			//Kundnummer
 	public String namn = null;				//Kundens namn
