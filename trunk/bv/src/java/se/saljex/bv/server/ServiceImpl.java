@@ -417,7 +417,6 @@ public class ServiceImpl {
 
 			Faktura1 faktura1;
 			while (rs.next()) {
-		System.out.print("**********************H3");
 				faktura1 = new Faktura1();
 				faktura1.faktnr = rs.getInt(1);
 				faktura1.datum = rs.getDate(2);
@@ -462,7 +461,7 @@ public class ServiceImpl {
 		try {
 			con = dataSource.getConnection();
 			PreparedStatement stm = con.prepareStatement(
-"select faktnr, kundnr, bet, betdat, betsatt, ar, man from sxfakt.betjour " +
+"select faktnr, kundnr, bet, betdat, betsatt, ar, man from betjour " +
 " where " + sqlWhere +
 " order by betdat, betsatt, faktnr"
 					  );
@@ -497,7 +496,7 @@ public class ServiceImpl {
 		Connection con=null;
 		FakturajournalList fakturajournalList = new FakturajournalList();
 
-		String sqlWhere = "year(datum)=? and mont(datum)=?";
+		String sqlWhere = "year(datum)=? and month(datum)=?";
 		if (!SXUtil.isEmpty(kundnr)) sqlWhere = sqlWhere + " and kundnr=?";
 
 		try {
