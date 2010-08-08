@@ -38,24 +38,39 @@ public class BvWebService {
 	/**
 	 * Web service operation
 	 */
-
-	@WebMethod(operationName = "getOrder1List")
-	public Order1List getOrder1List(@WebParam(name = "filter")
+	@WebMethod(operationName = "test")
+	public String test() {
+		//TODO write your implementation code here:
+		return "Testresult";
+	}
+	/**
+	 * Web service operation
+	 */
+	
+	@WebMethod(operationName = "getBvOrder1List")
+	public Order1List getBvOrder1List(@WebParam(name = "filter")
 	int filter) throws ServerErrorException {
-		  return serviceImpl.getOrder1List(filter);
+		  return serviceImpl.getBvOrder1List(filter);
+	}
+
+	@WebMethod(operationName = "getBvOrder1ListByLevAdr")
+	public Order1List getBvOrder1ListByLevAdr(@WebParam(name = "levAdr")
+	String levAdr) throws ServerErrorException {
+		  return serviceImpl.getBvOrder1ListByLevAdr(levAdr);
 	}
 
 
-	@WebMethod(operationName = "getOrderLookup")
-	 public OrderLookupResp getOrderLookup(@WebParam(name = "bvOrdernr") int bvOrdernr)  {
-		 return serviceImpl.getOrderLookup(bvOrdernr);
+	@WebMethod(operationName = "getBvOrderLookup")
+	 public OrderLookupResp getBvOrderLookup(@WebParam(name = "bvOrdernr") int bvOrdernr)  {
+		 return serviceImpl.getBvOrderLookup(bvOrdernr);
 	 }
 
 
+/*
 	@WebMethod(operationName = "overforBVOrder")
 	public OverforBVOrderResp overforBVOrder(@WebParam(name = "bvOrdernr")int bvOrdernr, @WebParam(name = "sxLagernr") short sxLagernr,  @WebParam(name = "callerId") Integer callerId)  {
 		return serviceImpl.overforBVOrder(bvOrdernr, sxLagernr, callerId);
 	}
+*/
 
-	
 }
