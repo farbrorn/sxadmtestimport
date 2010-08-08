@@ -27,6 +27,7 @@ import se.saljex.bv.client.OrderLookupResp;
 import se.saljex.bv.client.OverforBVOrderResp;
 import se.saljex.bv.client.ServerErrorException;
 import se.saljex.sxserver.SXConstant;
+import se.saljex.sxserver.SXUtil;
 import se.saljex.sxserver.SxServerMainLocal;
 
 /**
@@ -452,21 +453,22 @@ public class ServiceImpl {
 
 
 
-
-	// Betaljournal för angiven bokföringsperiod, endast betalningar som bv har gjort
-	public BetaljournalList getSxBetaljournalList(int bokforingsar, int bokforingsmanad) throws ServerErrorException {
+	 private BetaljournalList getBetaljournalList(DataSource dataSource, String kundnr, int bokforingsar, int bokforingsmanad) throws ServerErrorException {
 		Connection con=null;
 		BetaljournalList betaljournalList = new BetaljournalList();
+		String sqlWhere = "ar=? and man=?";
+		if (!SXUtil.isEmpty(kundnr)) sqlWhere = sqlWhere + " and kundnr=?";
+
 		try {
-			con = sxDataSource.getConnection();
+			con = dataSource.getConnection();
 			PreparedStatement stm = con.prepareStatement(
 "select faktnr, kundnr, bet, betdat, betsatt, ar, man from sxfakt.betjour " +
-" where kundnr=? and ar=? and man=? order by betdat, betsatt, faktnr"
-
+" where " + sqlWhere +
+" order by betdat, betsatt, faktnr"
 					  );
-			stm.setString(1, BVKUNDNR);
-			stm.setInt(2, bokforingsar);
-			stm.setInt(3, bokforingsmanad);
+			stm.setInt(1, bokforingsar);
+			stm.setInt(2, bokforingsmanad);
+			if (!SXUtil.isEmpty(kundnr)) stm.setString(3, BVKUNDNR);
 
 			ResultSet rs = stm.executeQuery();
 			Betaljournal betaljournal;
@@ -488,24 +490,27 @@ public class ServiceImpl {
 			try { con.close(); } catch (Exception e) {}
 		}
 		 return betaljournalList;
-
 	 }
 
 
-
-	// Betaljournal för angiven bokföringsperiod, endast betalningar som bv har gjort
-	public FakturajournalList getSxFakturajurnalList(int bokforingsar, int bokforingsmanad) throws ServerErrorException {
+	private FakturajournalList getFakturajournalList(DataSource dataSource, String kundnr, int bokforingsar, int bokforingsmanad) throws ServerErrorException {
 		Connection con=null;
 		FakturajournalList fakturajournalList = new FakturajournalList();
+
+		String sqlWhere = "year(datum)=? and mont(datum)=?";
+		if (!SXUtil.isEmpty(kundnr)) sqlWhere = sqlWhere + " and kundnr=?";
+
 		try {
-			con = sxDataSource.getConnection();
+			con = dataSource.getConnection();
 			PreparedStatement stm = con.prepareStatement(
 "select faktnr, kundnr, t_netto, t_moms, t_orut, t_attbetala from faktura1  " +
-" where kundnr=? and year(datum)=? and mont(datum)=? order by faktnr"
+" where " + sqlWhere +
+" order by faktnr"
 					  );
-			stm.setString(1, BVKUNDNR);
-			stm.setInt(2, bokforingsar);
-			stm.setInt(3, bokforingsmanad);
+
+			stm.setInt(1, bokforingsar);
+			stm.setInt(2, bokforingsmanad);
+			if (!SXUtil.isEmpty(kundnr)) stm.setString(3, BVKUNDNR);
 
 			ResultSet rs = stm.executeQuery();
 			Fakturajournal fakturajournal;
@@ -526,9 +531,29 @@ public class ServiceImpl {
 			try { con.close(); } catch (Exception e) {}
 		}
 		 return fakturajournalList;
+	}
 
+	// Betaljournal för angiven bokföringsperiod, endast betalningar som bv har gjort
+	public BetaljournalList getSxBetaljournalList(int bokforingsar, int bokforingsmanad) throws ServerErrorException {
+		return getBetaljournalList(sxDataSource, BVKUNDNR, bokforingsar, bokforingsmanad);
+	}
+
+
+	// Fakturajournal för angiven bokföringsperiod, endast fakturor som bv har fått
+	public FakturajournalList getSxFakturajurnalList(int bokforingsar, int bokforingsmanad) throws ServerErrorException {
+		return getFakturajournalList(sxDataSource, BVKUNDNR, bokforingsar, bokforingsmanad);
 	 }
 
+	// Betaljournal för angiven bokföringsperiod, alla betalningar i bv
+	public BetaljournalList getBvBetaljournalList(int bokforingsar, int bokforingsmanad) throws ServerErrorException {
+		return getBetaljournalList(bvDataSource, BVKUNDNR, bokforingsar, bokforingsmanad);
+	}
+
+
+	// Fakturajournal för angiven bokföringsperiod, alla fakturor i bv
+	public FakturajournalList getBvFakturajurnalList(int bokforingsar, int bokforingsmanad) throws ServerErrorException {
+		return getFakturajournalList(bvDataSource, BVKUNDNR, bokforingsar, bokforingsmanad);
+	 }
 
 
 }
