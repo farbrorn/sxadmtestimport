@@ -11,6 +11,7 @@ import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.sql.DataSource;
+import se.saljex.bv.client.Faktura1List;
 import se.saljex.bv.client.Order1List;
 import se.saljex.bv.client.OrderLookupResp;
 import se.saljex.bv.client.OverforBVOrderResp;
@@ -67,6 +68,10 @@ public class BvWebService {
 	@WebMethod(operationName = "getSxOrder1ListFromFaktnr")
 	 public Order1List getSxOrder1ListFromFaktnr(@WebParam(name = "sxFaktnr") int sxFaktnr) throws ServerErrorException  {
 		 return serviceImpl.getSxOrder1ListFromFaktnr(sxFaktnr);
+	 }
+	@WebMethod(operationName = "getSxFaktura1List")
+	 public Faktura1List getSxFaktura1List() throws ServerErrorException  {
+		 return serviceImpl.getSxFaktura1List();
 	 }
 
 
