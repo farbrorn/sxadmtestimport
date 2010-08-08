@@ -11,7 +11,9 @@ import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.sql.DataSource;
+import se.saljex.bv.client.BetaljournalList;
 import se.saljex.bv.client.Faktura1List;
+import se.saljex.bv.client.FakturajournalList;
 import se.saljex.bv.client.Order1List;
 import se.saljex.bv.client.OrderLookupResp;
 import se.saljex.bv.client.OverforBVOrderResp;
@@ -73,6 +75,21 @@ public class BvWebService {
 	 public Faktura1List getSxFaktura1List() throws ServerErrorException  {
 		 return serviceImpl.getSxFaktura1List();
 	 }
+
+	// Betaljournal för angiven bokföringsperiod, endast betalningar som bv har gjort
+	@WebMethod(operationName = "getSxBetaljournalList")
+	public BetaljournalList getSxBetaljournalList(@WebParam(name = "bokforingsar")
+	short bokforingsar, @WebParam(name = "bokforingsmanad")
+	short bokforingsmanad) throws ServerErrorException {
+		 return serviceImpl.getSxBetaljournalList(bokforingsar, bokforingsmanad);
+	}
+	// Fakturajournal för angiven bokföringsperiod, endast fakturor som bv har fått
+	@WebMethod(operationName = "getSxFakturajurnalList")
+	public FakturajournalList getSxFakturajurnalList(@WebParam(name = "bokforingsar")
+	short bokforingsar, @WebParam(name = "bokforingsmanad")
+	short bokforingsmanad) throws ServerErrorException {
+		 return serviceImpl.getSxFakturajurnalList(bokforingsar, bokforingsmanad);
+	}
 
 
 /*
