@@ -40,7 +40,7 @@ public class ServiceImpl {
  	 public final static int FILTER_FORSKOTT=4;
 
 
-	public ServiceImpl(SxServerMainLocal sxServerMainBean, DataSource bvDataSource, DataSource sxDataSource) {
+	public ServiceImpl(SxServerMainLocal sxServerMainBean, DataSource sxDataSource, DataSource bvDataSource) {
 		this.sxServerMainBean = sxServerMainBean;
 		this.sxDataSource=sxDataSource;
 		this.bvDataSource=bvDataSource;
@@ -103,7 +103,7 @@ public class ServiceImpl {
 	 }
 
 
-	 public OrderLookupResp getOrderLookup(int bvOrdernr)  {
+	 public OrderLookupResp getBvOrderLookup(int bvOrdernr)  {
 		 OrderLookupResp response=new OrderLookupResp();
 		 Connection sxCon=null;
 		 Connection bvCon=null;
@@ -163,12 +163,14 @@ public class ServiceImpl {
 
 
 
+	 //OBS Håll selectsatsenn i synk mellan getOrder1PreparedStatement och getUtlev1PreparedStatement
 	 private PreparedStatement getOrder1PreparedStatement(Connection con, String sqlWhere) throws SQLException{
 		if (sqlWhere==null) sqlWhere="1=1";
 		return con.prepareStatement(
 "select o1.lagernr, o1.ordernr, o1.status, o1.kundnr, o1.namn, o1.datum, o3.summa, " +
 " case when o1.moms=1 then (1+f.moms1/100)*o3.summa else case when o1.moms=2 then (1+f.moms2/100)*o3.summa else case when o1.moms=3 then (1+f.moms3/100)*o3.summa else o3.summa end end end "+
-" , o1.dellev " +
+" , o1.dellev, null " +
+" o1.adr1, o1.adr2, o1.adr3, o1.levadr1, o1.levadr2, o1.levadr3 "	+
 " from order1 o1 left outer join " +
 " (select ordernr as ordernr, sum(o2.summa) as summa from order2 o2 group by ordernr) o3 on o3.ordernr=o1.ordernr "+
 " left outer join fuppg f on 1=1 "+
@@ -177,6 +179,25 @@ public class ServiceImpl {
 		  );
 
 	 }
+
+	 //OBS Håll selectsatsenn i synk mellan getOrder1PreparedStatement och getUtlev1PreparedStatement
+	 private PreparedStatement getUtlev1PreparedStatement(Connection con, String sqlWhere) throws SQLException{
+		if (sqlWhere==null) sqlWhere="1=1";
+		return con.prepareStatement(
+"select o1.lagernr, o1.ordernr, o1.status, o1.kundnr, o1.namn, o1.datum, o3.summaexmoms, " +
+" o3.summainkmoms "+
+" , o1.dellev, o1.faktnr " +
+" o1.adr1, o1.adr2, o1.adr3, o1.levadr1, o1.levadr2, o1.levadr3 "	+
+" from utlev1 o1 left outer join " +
+" (select f2.ordernr as ordernr, f2.faktnr as faktnr, sum(f2.summa) as summaexmoms, sum(f2.summa*(1+f1.momsproc/100)) as summainkmoms from faktura2 f2 join faktura1 f1 on f1.faktnr=f2.faktnr group by f2.faktnr, f2.ordernr) o3 on o3.ordernr=o1.ordernr and o3.faktnr=o1.faktnr "+
+" where " + sqlWhere +
+" order by o1.ordernr"
+		  );
+
+	 }
+
+
+
 	 private Order1 getOrder1FromResultset(ResultSet rs) throws SQLException{
 		Order1 order1 = new Order1();
 		order1.lagernr = rs.getShort(1);
@@ -185,13 +206,24 @@ public class ServiceImpl {
 		order1.kundnr = rs.getString(4);
 		order1.namn = rs.getString(5);
 		order1.datum = new java.util.Date(rs.getDate(6).getTime());
-		order1.summaInkMoms = rs.getDouble(7);
-		order1.dellev = rs.getInt(8);
+		order1.summaInkMoms = rs.getDouble(8);
+		order1.dellev = rs.getInt(9);
+		order1.faktnr=rs.getInt(10);
+		order1.adr1 = rs.getString(11);
+		order1.adr2 = rs.getString(12);
+		order1.adr3 = rs.getString(13);
+		order1.levadr1 = rs.getString(14);
+		order1.levadr2 = rs.getString(15);
+		order1.levadr3 = rs.getString(16);
+		if (order1.faktnr==0) order1.faktnr=null;
 		if (SXConstant.ORDER_STATUS_SPARAD.equals(order1.status)) order1.isOverforbar=true; else order1.isOverforbar=false;
 		return order1;
 	 }
 
-	 public Order1List getOrder1List(int filter) throws ServerErrorException {
+
+
+
+	 public Order1List getBvOrder1List(int filter) throws ServerErrorException {
 		 Order1List order1List = new Order1List();
 		 Connection con=null;
 		 String sqlWhere=null;
@@ -235,6 +267,68 @@ public class ServiceImpl {
 		}
 		 return order1List;
 	 }
+
+
+
+
+
+
+	 	 public Order1List getBvOrder1ListByLevAdr(String levAdr) throws ServerErrorException {
+		 Order1List order1List = new Order1List();
+		 Connection con=null;
+		 if (levAdr==null) levAdr="";
+		 String sokStr="%" + levAdr.toUpperCase().replace(' ', '%') + "%";
+		 String sqlWhere="(upper(o1.levadr1) like ? or upper(o1.levadr2) like ? or upper(o1.levadr3) like ?"
+					+ " or upper(o1.namn) like ? or upper(o1.adr1) like ? or upper(o1.adr2) like ? or upper(o1.adr3) like ?)";
+		try {
+			con = bvDataSource.getConnection();
+			PreparedStatement stm;
+			ResultSet rs;
+
+			stm = getOrder1PreparedStatement(con, sqlWhere);
+			stm.setString(1, sokStr);
+			stm.setString(2, sokStr);
+			stm.setString(3, sokStr);
+			stm.setString(4, sokStr);
+			stm.setString(5, sokStr);
+			stm.setString(6, sokStr);
+			stm.setString(7, sokStr);
+			rs = stm.executeQuery();
+			while (rs.next()) {
+				order1List.orderLista.add(getOrder1FromResultset(rs));
+			}
+
+			stm = getUtlev1PreparedStatement(con, sqlWhere);
+			stm.setString(1, sokStr);
+			stm.setString(2, sokStr);
+			stm.setString(3, sokStr);
+			stm.setString(4, sokStr);
+			stm.setString(5, sokStr);
+			stm.setString(6, sokStr);
+			stm.setString(7, sokStr);
+			rs = stm.executeQuery();
+			while (rs.next()) {
+				order1List.orderLista.add(getOrder1FromResultset(rs));
+			}
+
+		} catch (SQLException e) { e.printStackTrace(); throw(new ServerErrorException("Fel vid kommunikation med databasen"));}
+		catch (Exception ee) {ee.printStackTrace();throw(new ServerErrorException("Okänt fel"));}
+		finally {
+			try { con.close(); } catch (Exception e) {}
+		}
+		 return order1List;
+	 }
+
+
+
+
+
+
+
+
+
+
+
 
 	 public OverforBVOrderResp overforBVOrder(int bvOrdernr, short lagernr, Integer callerId)  {
 		OverforBVOrderResp resp= new OverforBVOrderResp();

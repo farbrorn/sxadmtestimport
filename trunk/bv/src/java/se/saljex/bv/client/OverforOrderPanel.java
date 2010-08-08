@@ -110,7 +110,7 @@ public class OverforOrderPanel extends VerticalPanel{
 		else if (rbFilterForskott.getValue()) filter=GWTService.FILTER_FORSKOTT;
 		else if (rbFilterOverfforda.getValue()) filter=GWTService.FILTER_OVERFORDA;
 		else filter=GWTService.FILTER_ALLA;
-		getService().getOrder1List(filter, callbackOrder1List);
+		getService().getBvOrder1List(filter, callbackOrder1List);
 	}
 
 	final AsyncCallback<Order1List> callbackOrder1List = new AsyncCallback<Order1List>() {
@@ -201,7 +201,7 @@ public class OverforOrderPanel extends VerticalPanel{
 		getService().overforBVOrder(ordernr, (short)0, row,  callbackOverforBvOrder);
 	}
 	private void doBtnInfo(int ordernr) {
-		getService().getOrderLookup(ordernr, callbackInfo);
+		getService().getBvOrderLookup(ordernr, callbackInfo);
 	}
 	final AsyncCallback<OrderLookupResp> callbackInfo = new AsyncCallback<OrderLookupResp>() {
 		public void onSuccess(OrderLookupResp result) {

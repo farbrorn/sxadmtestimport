@@ -66,14 +66,14 @@ public class GWTServiceImpl extends RemoteServiceServlet implements GWTService {
 
 
 
-	 public OrderLookupResp getOrderLookup(int bvOrdernr)  {
-		 if (isLoggedIn()) return serviceImpl.getOrderLookup(bvOrdernr);
+	 public OrderLookupResp getBvOrderLookup(int bvOrdernr)  {
+		 if (isLoggedIn()) return serviceImpl.getBvOrderLookup(bvOrdernr);
 		 return null;
 	 }
 
 
-	 public Order1List getOrder1List(int filter) throws ServerErrorException {
-		 return serviceImpl.getOrder1List(filter);
+	 public Order1List getBvOrder1List(int filter) throws ServerErrorException {
+		 return serviceImpl.getBvOrder1List(filter);
 	 }
 
 	public OverforBVOrderResp overforBVOrder(int bvOrdernr, short lagernr, Integer callerId)  {
@@ -82,7 +82,7 @@ public class GWTServiceImpl extends RemoteServiceServlet implements GWTService {
 	}
 
 	private boolean isLoggedIn() {
-		return (!WebUtil.getSXSession(getThreadLocalRequest().getSession()).checkIntraBehorighetIntraWebApp());
+		return (WebUtil.getSXSession(getThreadLocalRequest().getSession()).checkIntraBehorighetIntraWebApp());
 	}
 
 
