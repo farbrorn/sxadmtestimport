@@ -12,6 +12,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import javax.ejb.EJB;
 import javax.sql.DataSource;
+import se.saljex.bv.client.Faktura1;
+import se.saljex.bv.client.Faktura1List;
 import se.saljex.bv.client.Order;
 import se.saljex.bv.client.Order1;
 import se.saljex.bv.client.Order1List;
@@ -390,5 +392,53 @@ public class ServiceImpl {
 
 	 }
 
+
+
+	 public Faktura1List getSxFaktura1List() throws ServerErrorException {
+		Connection con=null;
+		Faktura1List faktura1List = new Faktura1List();
+		try {
+			con = bvDataSource.getConnection();
+			PreparedStatement stm = con.prepareStatement(
+"select faktnr, datum, namn, adr1, adr2, adr3, saljare, referens, momsproc, ktid, "+
+" ranta, bonus, t_netto, t_moms, t_orut, t_attbetala "+
+" from faktura1 f1 "+
+" where kundnr=?"	+
+" order by f1.faktnr desc"
+					  );
+			stm.setString(1, BVKUNDNR);
+
+			ResultSet rs = stm.executeQuery();
+
+			Faktura1 faktura1;
+			while (rs.next()) {
+				faktura1 = new Faktura1();
+				faktura1.faktnr = rs.getInt(1);
+				faktura1.datum = rs.getDate(2);
+				faktura1.namn = rs.getString(3);
+				faktura1.adr1 = rs.getString(4);
+				faktura1.adr2 = rs.getString(5);
+				faktura1.adr3 = rs.getString(6);
+				faktura1.saljare = rs.getString(7);
+				faktura1.referens = rs.getString(8);
+				faktura1.momsprocent = rs.getShort(9);
+				faktura1.ktid = rs.getShort(10);
+				faktura1.ranta = rs.getDouble(11);
+				faktura1.bonus = rs.getShort(12)!=0;
+				faktura1.nettobelopp = rs.getDouble(13);
+				faktura1.momsbelopp = rs.getDouble(14);
+				faktura1.oresutjamning = rs.getDouble(15);
+				faktura1.attbetala = rs.getDouble(16);
+				faktura1List.faktura1List.add(faktura1);
+			}
+
+		} catch (SQLException e) { e.printStackTrace(); throw(new ServerErrorException("Fel vid kommunikation med databasen"));}
+		catch (Exception ee) {ee.printStackTrace();throw(new ServerErrorException("Okänt fel"));}
+		finally {
+			try { con.close(); } catch (Exception e) {}
+		}
+		 return faktura1List;
+
+	 }
 
 }

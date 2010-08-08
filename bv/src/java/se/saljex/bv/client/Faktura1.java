@@ -24,10 +24,10 @@ public class Faktura1 implements IsSerializable{
 	public String adr3;
 	public String saljare;						//Vår kontaktperson
 	public String referens;						//Kundens kontaktperson
-	public short momsprocent;					//Momssats på fakturan 25% = 25 (ej 0,25)
+	public double momsprocent;					//Momssats på fakturan 25% = 25 (ej 0,25)
 	public short ktid;							//Kredittid
 	public double ranta;							//Ränta i procent uttrykt som 20% = 20 (ej 0,20)
-	public short bonus;
+	public boolean bonus;						//Är det bonus på fakturan? Används förmodligen aldrig i BV
 	public double nettobelopp;					//Nettobelopp exkl. moms
 	public double momsbelopp;					//Momsbelopp
 	public double oresutjamning;				//Belopp för öresutjämning
