@@ -11,6 +11,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import javax.sql.DataSource;
+import se.saljex.bv.client.Artikel;
+import se.saljex.bv.client.ArtikelList;
 import se.saljex.bv.client.Betaljournal;
 import se.saljex.bv.client.BetaljournalList;
 import se.saljex.bv.client.Bokord;
@@ -41,11 +43,11 @@ public class ServiceImpl {
 	private DataSource sxDataSource;
 
 	private final static String BVKUNDNR="0855115291";
-	 public final static int FILTER_ALLA=0;
-	 public final static int FILTER_FOROVERFORING=1;
-	 public final static int FILTER_OVERFORDA=2;
-	 public final static int FILTER_AVVAKTANDE=3;
- 	 public final static int FILTER_FORSKOTT=4;
+	 public final static int FILTER_ALLA=0;				//Alla order
+	 public final static int FILTER_FOROVERFORING=1;	//Order som är klara att föras över till sx
+	 public final static int FILTER_OVERFORDA=2;			//Order som är överförda till sx
+	 public final static int FILTER_AVVAKTANDE=3;		//Order med status avvaktande
+ 	 public final static int FILTER_FORSKOTT=4;			//Order som skall betalas förskott
 
 
 	public ServiceImpl(SxServerMainLocal sxServerMainBean, DataSource sxDataSource, DataSource bvDataSource) {
@@ -359,7 +361,7 @@ public class ServiceImpl {
 			con = sxDataSource.getConnection();
 			PreparedStatement stm = con.prepareStatement(
 "select f1.lagernr, f2.ordernr, u1.status, f1.kundnr, f1.namn, u1.datum, u1.dellev, f1.faktnr, u1.levadr1, u1.levadr2, u1.levadr3, u1.kundordernr, "+
-" sum(f2.summa), sum(f2.summa)*(1+f1.momsproc/100) "+
+" sum(f2.summa), sum(f2.summa*(1+f1.momsproc/100)) "+
 " from faktura1 f1 join faktura2 f2 on f1.faktnr=f2.faktnr left outer join utlev1 u1 on u1.ordernr=f2.ordernr "+
 " where f2.faktnr = ? and f1.kundnr=? " +
 " group by f1.lagernr, f2.ordernr, u1.status, f1.kundnr, f1.namn, u1.datum, u1.dellev, f1.faktnr, u1.levadr1, u1.levadr2, u1.levadr3, u1.kundordernr "+
@@ -546,13 +548,13 @@ public class ServiceImpl {
 
 	// Betaljournal för angiven bokföringsperiod, alla betalningar i bv
 	public BetaljournalList getBvBetaljournalList(int bokforingsar, int bokforingsmanad) throws ServerErrorException {
-		return getBetaljournalList(bvDataSource, BVKUNDNR, bokforingsar, bokforingsmanad);
+		return getBetaljournalList(bvDataSource, null, bokforingsar, bokforingsmanad);
 	}
 
 
 	// Fakturajournal för angiven bokföringsperiod, alla fakturor i bv
 	public FakturajournalList getBvFakturajurnalList(int bokforingsar, int bokforingsmanad) throws ServerErrorException {
-		return getFakturajournalList(bvDataSource, BVKUNDNR, bokforingsar, bokforingsmanad);
+		return getFakturajournalList(bvDataSource, null, bokforingsar, bokforingsmanad);
 	 }
 
 
@@ -593,6 +595,97 @@ public class ServiceImpl {
 	}
 
 
+	private PreparedStatement getArtikelListPreparedStatement(Connection con, String sqlWhere, int offset) throws SQLException{
+		if (sqlWhere==null) sqlWhere="1=1";
+		String sql =
+"select nummer, namn, lev, bestnr, enhet, utpris, inpris, rab, inp_fraktproc, " +
+" inp_miljo, inp_frakt, konto, rabkod, kod1, prisdatum, inpdat, utgattdatum, onskattb, inp_enhetsfaktor , struktnr, forpack " +
+" from artikel " +
+" where " + sqlWhere +
+" order by nummer";
 
+		if (offset > 0) sql=sql + " offset " + offset;
+
+		return con.prepareStatement(sql);
+	}
+
+	private Artikel getArtikelFromResultSet(ResultSet rs) throws SQLException{
+		Artikel artikel = new Artikel();
+		artikel.nummer = rs.getString(1);
+		artikel.namn = rs.getString(2);
+		artikel.lev = rs.getString(3);
+		artikel.bestnr = rs.getString(4);
+		artikel.enhet = rs.getString(5);
+		artikel.utpris = rs.getDouble(6);
+		artikel.inpris = rs.getDouble(7);
+		artikel.inrab = rs.getDouble(8);
+		artikel.inp_fraktproc = rs.getDouble(9);
+		artikel.inp_miljo = rs.getDouble(10);
+		artikel.inp_frakt = rs.getDouble(11);
+		artikel.konto = rs.getString(12);
+		artikel.rabkod = rs.getString(13);
+		artikel.rabkod1 = rs.getString(14);
+		artikel.utprisdatum = rs.getDate(15);
+		artikel.inprisdatum = rs.getDate(16);
+		artikel.utgattdatum = rs.getDate(17);
+		artikel.onskattb = rs.getInt(18);
+		artikel.inp_enhetsfaktor = rs.getBigDecimal(19).doubleValue();
+		artikel.struktnr = rs.getString(20);
+		artikel.forpack = rs.getDouble(21);
+		return artikel;
+	}
+
+	private ArtikelList getArtikelList(DataSource dataSource, String query, int offset, int limit) throws ServerErrorException {
+		Connection con=null;
+		ArtikelList artikelList = new ArtikelList();
+		String sqlWhere=null;
+		String s=null;
+		if (!SXUtil.isEmpty(query)) {
+			s = "%" + query.trim().replace(' ', '%') + "%";
+			sqlWhere = "upper(nummer) like upper(?) "
+					  + " upper(namn) like upper(?) "
+					  + " upper(lev) like upper(?) "
+					  + " upper(bestnr) like upper(?) "
+					  + " upper(refnr) like upper(?) "
+					  ;
+		}
+
+		try {
+			con = dataSource.getConnection();
+			PreparedStatement stm = getArtikelListPreparedStatement(con, sqlWhere, offset);
+			if (!SXUtil.isEmpty(query)) {
+				stm.setString(1, s);
+				stm.setString(2, s);
+				stm.setString(3, s);
+				stm.setString(4, s);
+				stm.setString(5, s);
+			}
+
+			ResultSet rs = stm.executeQuery();
+			int cn=0;
+			while (rs.next() && (cn < limit || limit==0)) {
+				cn++;
+				artikelList.artikelList.add(getArtikelFromResultSet(rs));
+			}
+			if (limit!=0) if (rs.next()) artikelList.hasMoreRows=true; else artikelList.hasMoreRows=false;
+			artikelList.limit=limit;
+			artikelList.offset=offset;
+			artikelList.query=query;
+
+		} catch (SQLException e) { e.printStackTrace(); throw(new ServerErrorException("Fel vid kommunikation med databasen"));}
+		catch (Exception ee) {ee.printStackTrace();throw(new ServerErrorException("Okänt fel"));}
+		finally {
+			try { con.close(); } catch (Exception e) {}
+		}
+		 return artikelList;
+	}
+
+
+	public ArtikelList getSxArtikelList(String query, int offset, int limit) throws ServerErrorException {
+		return getArtikelList(sxDataSource, query, offset, limit);
+	}
+	public ArtikelList getBvArtikelList(String query, int offset, int limit) throws ServerErrorException {
+		return getArtikelList(bvDataSource, query, offset, limit);
+	}
 
 }

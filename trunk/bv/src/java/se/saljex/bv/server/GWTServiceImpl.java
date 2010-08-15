@@ -18,6 +18,7 @@ import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 import se.saljex.bv.client.GWTService;
+import se.saljex.bv.client.NotLoggedInException;
 import se.saljex.bv.client.Order;
 import se.saljex.bv.client.Order1;
 import se.saljex.bv.client.Order1List;
@@ -66,23 +67,55 @@ public class GWTServiceImpl extends RemoteServiceServlet implements GWTService {
 
 
 
-	 public OrderLookupResp getBvOrderLookup(int bvOrdernr)  {
-		 if (isLoggedIn()) return serviceImpl.getBvOrderLookup(bvOrdernr);
-		 return null;
-	 }
+	public OrderLookupResp getBvOrderLookup(int bvOrdernr) throws NotLoggedInException {
+		ensureLoggedIn();
+		return serviceImpl.getBvOrderLookup(bvOrdernr);
+	}
 
 
-	 public Order1List getBvOrder1List(int filter) throws ServerErrorException {
+	 public Order1List getBvOrder1List(int filter) throws ServerErrorException, NotLoggedInException {
+		 ensureLoggedIn();
 		 return serviceImpl.getBvOrder1List(filter);
 	 }
 
-	public OverforBVOrderResp overforBVOrder(int bvOrdernr, short lagernr, Integer callerId)  {
-		if (isLoggedIn())	return serviceImpl.overforBVOrder(bvOrdernr, lagernr, callerId);
-		return null;
+	public OverforBVOrderResp overforBVOrder(int bvOrdernr, short lagernr, Integer callerId) throws NotLoggedInException {
+		ensureLoggedIn();
+		return serviceImpl.overforBVOrder(bvOrdernr, lagernr, callerId);
 	}
 
-	private boolean isLoggedIn() {
-		return (WebUtil.getSXSession(getThreadLocalRequest().getSession()).checkIntraBehorighetIntraWebApp());
+	private void ensureLoggedIn() throws NotLoggedInException {
+		if (WebUtil.getSXSession(getThreadLocalRequest().getSession()).getInloggad()) System.out.print("Inloggad"); else System.out.print("inte Inloggad");
+		if (WebUtil.getSXSession(getThreadLocalRequest().getSession()).isSuperuser()) System.out.print("superuser"); else System.out.print("inte superuser");
+		if (!WebUtil.getSXSession(getThreadLocalRequest().getSession()).checkIntraBehorighetIntraWebApp()) throw new NotLoggedInException();
+	}
+
+	public String logIn(String anvandare, String losen) throws NotLoggedInException, ServerErrorException {
+		Connection sxCon=null;
+		try {
+			sxCon = sxDataSource.getConnection();
+			if (WebUtil.loginIntra(sxCon, getThreadLocalRequest().getSession(), anvandare, losen)) return "Inloggad";
+			else throw new NotLoggedInException("Felaktig användare/Lösen");
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw (new ServerErrorException());
+		} finally {
+			try { sxCon.close(); } catch(Exception e) {}
+		}
+	}
+
+	public String logOut() {
+		Connection sxCon=null;
+		try {
+			sxCon = sxDataSource.getConnection();
+			WebUtil.logOutIntra(sxCon, getThreadLocalRequest().getSession());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} finally {
+			try { sxCon.close(); } catch(Exception e) {}
+			//Säkerställ utloggning med brutalt våld
+			if (WebUtil.getSXSession(getThreadLocalRequest().getSession()).getInloggad()) getThreadLocalRequest().getSession().invalidate();
+		}
+		return "Utloggad";
 	}
 
 

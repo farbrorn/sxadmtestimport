@@ -27,9 +27,9 @@ public class Artikel implements IsSerializable{
 	public double inp_frakt;					//Frakttillägg på inköpspriset i kronor
 	public String konto=null;					//Kontonummer som försäljningen bokförs på
 	public String rabkod=null;					//Huvudrabattgrupp
-	public String kod1=null;					//Underrabattgrupp till rabkod
-	public java.util.Date prisdatum=null;	//Ändringsdatum för utpriset
-	public java.util.Date inpdat=null;		//Ändringsdatum för inpriset
+	public String rabkod1=null;					//Underrabattgrupp till rabkod
+	public java.util.Date utprisdatum=null;	//Ändringsdatum för utpriset
+	public java.util.Date inprisdatum=null;		//Ändringsdatum för inpriset
 	public java.util.Date utgattdatum=null;//Datum då artikeln utgick ur sortimentet, ananrs null
 	public int onskattb;							//Önskat täckningsbidrag på utpris i procent*100
 	public double inp_enhetsfaktor;			/* Hur många av leverantörens enheter som motsvarar försäljningsenheten

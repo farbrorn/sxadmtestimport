@@ -21,7 +21,10 @@ public interface GWTService extends RemoteService {
  	 public final static int FILTER_FORSKOTT=4;
 
     public String myMethod(String s);
- 	 public Order1List getBvOrder1List(int filter)  throws ServerErrorException;
- 	 public OverforBVOrderResp overforBVOrder(int bvOrdernr, short lagernr, Integer callerId);
-	 public OrderLookupResp getBvOrderLookup(int bvOrdernr);
+ 	 public Order1List getBvOrder1List(int filter)  throws ServerErrorException, NotLoggedInException;
+ 	 public OverforBVOrderResp overforBVOrder(int bvOrdernr, short lagernr, Integer callerId) throws NotLoggedInException;
+	 public OrderLookupResp getBvOrderLookup(int bvOrdernr) throws NotLoggedInException;
+	public String logIn(String anvandare, String losen) throws NotLoggedInException, ServerErrorException;
+	public String logOut();
+
 }

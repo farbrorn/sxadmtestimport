@@ -15,6 +15,10 @@ import java.util.ArrayList;
 public class ArtikelList implements IsSerializable {
 	public ArtikelList() {}
 
-	ArrayList<Artikel> artikelList = new ArrayList();
+	public int offset=0;
+	public int limit=0;
+	public Boolean hasMoreRows=null;
+	public String query=null;
+	public ArrayList<Artikel> artikelList = new ArrayList();
 
 }
