@@ -43,6 +43,7 @@ public class ServiceImpl {
 	private DataSource sxDataSource;
 
 	private final static String BVKUNDNR="0855115291";
+	private final static String BVKUNDNR2="0855115290";
 	 public final static int FILTER_ALLA=0;				//Alla order
 	 public final static int FILTER_FOROVERFORING=1;	//Order som är klara att föras över till sx
 	 public final static int FILTER_OVERFORDA=2;			//Order som är överförda till sx
@@ -363,12 +364,13 @@ public class ServiceImpl {
 "select f1.lagernr, f2.ordernr, u1.status, f1.kundnr, f1.namn, u1.datum, u1.dellev, f1.faktnr, u1.levadr1, u1.levadr2, u1.levadr3, u1.kundordernr, "+
 " sum(f2.summa), sum(f2.summa*(1+f1.momsproc/100)) "+
 " from faktura1 f1 join faktura2 f2 on f1.faktnr=f2.faktnr left outer join utlev1 u1 on u1.ordernr=f2.ordernr "+
-" where f2.faktnr = ? and f1.kundnr=? " +
+" where f2.faktnr = ? and f1.kundnr in (?,?) " +
 " group by f1.lagernr, f2.ordernr, u1.status, f1.kundnr, f1.namn, u1.datum, u1.dellev, f1.faktnr, u1.levadr1, u1.levadr2, u1.levadr3, u1.kundordernr "+
 " order by f2.ordernr");
 
 			stm.setInt(1, sxFaktnr);
 			stm.setString(2, BVKUNDNR);
+			stm.setString(3, BVKUNDNR2);
 
 			ResultSet rs = stm.executeQuery();
 
@@ -411,10 +413,11 @@ public class ServiceImpl {
 "select faktnr, datum, namn, adr1, adr2, adr3, saljare, referens, momsproc, ktid, "+
 " ranta, bonus, t_netto, t_moms, t_orut, t_attbetala "+
 " from faktura1 f1 "+
-" where kundnr=? "	+
+" where kundnr (?,?) "	+
 " order by f1.faktnr desc"
 					  );
 			stm.setString(1, BVKUNDNR);
+			stm.setString(1, BVKUNDNR2);
 
 			ResultSet rs = stm.executeQuery();
 
