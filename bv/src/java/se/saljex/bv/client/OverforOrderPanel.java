@@ -52,6 +52,7 @@ public class OverforOrderPanel extends VerticalPanel{
 	private final RadioButton rbFilterOverfforda = new RadioButton(RADIOFILTERGROUP, "Överförda");
 	private final RadioButton rbFilterForskott = new RadioButton(RADIOFILTERGROUP, "Förskott");
 
+	private LogInWidget loginWidget;
 	ClickHandler clickHandlerGetOrder1List = new ClickHandler() {
 		public void onClick(ClickEvent event) {
 			startGetOrder1List();
@@ -123,6 +124,8 @@ public class OverforOrderPanel extends VerticalPanel{
 		public void onFailure(Throwable caught) {
 			remoteServiceBlocked=false;
 			setErrorLabel("Fel: " + caught.getMessage());
+			loginWidget = new LogInWidget();
+			loginWidget.show();
 		}
   };
 

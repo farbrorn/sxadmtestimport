@@ -11,6 +11,7 @@ import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.sql.DataSource;
+import se.saljex.bv.client.ArtikelList;
 import se.saljex.bv.client.BetaljournalList;
 import se.saljex.bv.client.BokordList;
 import se.saljex.bv.client.Faktura1List;
@@ -114,6 +115,26 @@ public class BvWebService {
 	short bokforingsmanad) throws ServerErrorException {
 		 return serviceImpl.getBvBokordList(bokforingsar, bokforingsmanad);
 	}
+
+
+	//Artikellista för sx. 
+	@WebMethod(operationName = "getSxArtikelList")
+	public ArtikelList getSxArtikelList(@WebParam(name = "query")
+	String query, @WebParam(name = "offset")
+	int offset, @WebParam(name = "limit")
+	int limit) throws ServerErrorException {
+		return serviceImpl.getSxArtikelList(query, offset, limit);
+	}
+
+	//Artikellista för bv
+	@WebMethod(operationName = "getBvArtikelList")
+	public ArtikelList getBvArtikelList(@WebParam(name = "query")
+	String query, @WebParam(name = "offset")
+	int offset, @WebParam(name = "limit")
+	int limit) throws ServerErrorException {
+		return serviceImpl.getBvArtikelList(query, offset, limit);
+	}
+	
 
 
 /*
