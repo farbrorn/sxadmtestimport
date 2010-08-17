@@ -404,25 +404,36 @@ public class ServiceImpl {
 
 
 
-	 public Faktura1List getSxFaktura1List() throws ServerErrorException {
+
+	 public Faktura1List getSxFaktura1List(int ar, int man, int offset, int limit) throws ServerErrorException {
 		Connection con=null;
 		Faktura1List faktura1List = new Faktura1List();
 		try {
 			con = sxDataSource.getConnection();
-			PreparedStatement stm = con.prepareStatement(
-"select faktnr, datum, namn, adr1, adr2, adr3, saljare, referens, momsproc, ktid, "+
-" ranta, bonus, t_netto, t_moms, t_orut, t_attbetala "+
-" from faktura1 f1 "+
-" where kundnr (?,?) "	+
-" order by f1.faktnr desc"
-					  );
+			String sqlWhere="";
+			String sqlOffset="";
+			if (ar!=0) sqlWhere=sqlWhere + " and year(datum) = " + ar;
+			if (man!=0) sqlWhere=sqlWhere + " and month(datum) = " + man;
+			if (offset>0) sqlOffset=" offset " + offset;
+			faktura1List.offset=offset;
+			faktura1List.limit=limit;
+
+			String sql=
+				"select faktnr, datum, namn, adr1, adr2, adr3, saljare, referens, momsproc, ktid, "+
+				" ranta, bonus, t_netto, t_moms, t_orut, t_attbetala "+
+				" from faktura1 f1 "+
+				" where kundnr in (?,?) "	+ sqlWhere +
+				" order by f1.faktnr desc " + sqlOffset;
+			PreparedStatement stm = con.prepareStatement(sql);
 			stm.setString(1, BVKUNDNR);
-			stm.setString(1, BVKUNDNR2);
+			stm.setString(2, BVKUNDNR2);
 
 			ResultSet rs = stm.executeQuery();
 
 			Faktura1 faktura1;
-			while (rs.next()) {
+			int cn=0;
+			while (rs.next() && (cn < limit || limit==0)) {
+				cn++;
 				faktura1 = new Faktura1();
 				faktura1.faktnr = rs.getInt(1);
 				faktura1.datum = rs.getDate(2);
@@ -442,6 +453,7 @@ public class ServiceImpl {
 				faktura1.attbetala = rs.getDouble(16);
 				faktura1List.faktura1List.add(faktura1);
 			}
+			if (limit!=0) if (rs.next()) faktura1List.hasMoreRows=true; else faktura1List.hasMoreRows=false;
 
 		} catch (SQLException e) { e.printStackTrace(); throw(new ServerErrorException("Fel vid kommunikation med databasen"));}
 		catch (Exception ee) {ee.printStackTrace();throw(new ServerErrorException("Okänt fel"));}
@@ -645,10 +657,10 @@ public class ServiceImpl {
 		String s=null;
 		if (!SXUtil.isEmpty(query)) {
 			s = "%" + query.trim().replace(' ', '%') + "%";
-			sqlWhere = "upper(nummer) like upper(?) "
-					  + " upper(namn) like upper(?) "
-					  + " upper(lev) like upper(?) "
-					  + " upper(bestnr) like upper(?) "
+			sqlWhere = "upper(nummer) like upper(?) or "
+					  + " upper(namn) like upper(?) or "
+					  + " upper(lev) like upper(?) or "
+					  + " upper(bestnr) like upper(?) or "
 					  + " upper(refnr) like upper(?) "
 					  ;
 		}
@@ -689,6 +701,30 @@ public class ServiceImpl {
 	}
 	public ArtikelList getBvArtikelList(String query, int offset, int limit) throws ServerErrorException {
 		return getArtikelList(bvDataSource, query, offset, limit);
+	}
+
+
+	private Artikel getArtikel(DataSource dataSource, String nummer) throws ServerErrorException {
+		Connection con=null;
+		try {
+			con = dataSource.getConnection();
+			PreparedStatement stm = getArtikelListPreparedStatement(con, "nummer=?", 0);
+			stm.setString(1, nummer);
+			ResultSet rs = stm.executeQuery();
+			if (rs.next()) return getArtikelFromResultSet(rs); else return null;
+
+		} catch (SQLException e) { e.printStackTrace(); throw(new ServerErrorException("Fel vid kommunikation med databasen"));}
+		catch (Exception ee) {ee.printStackTrace();throw(new ServerErrorException("Okänt fel"));}
+		finally {
+			try { con.close(); } catch (Exception e) {}
+		}
+
+	}
+	public Artikel getSxArtikel(String nummer) throws ServerErrorException {
+		return getArtikel(sxDataSource, nummer);
+	}
+	public Artikel getBvArtikel(String nummer) throws ServerErrorException {
+		return getArtikel(bvDataSource, nummer);
 	}
 
 }
