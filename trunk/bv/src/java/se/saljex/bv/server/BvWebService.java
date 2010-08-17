@@ -11,6 +11,7 @@ import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.sql.DataSource;
+import se.saljex.bv.client.Artikel;
 import se.saljex.bv.client.ArtikelList;
 import se.saljex.bv.client.BetaljournalList;
 import se.saljex.bv.client.BokordList;
@@ -75,7 +76,25 @@ public class BvWebService {
 	 }
 	@WebMethod(operationName = "getSxFaktura1List")
 	 public Faktura1List getSxFaktura1List() throws ServerErrorException  {
-		 return serviceImpl.getSxFaktura1List();
+		 return serviceImpl.getSxFaktura1List(0,0,0,0);
+	 }
+/*	@WebMethod(operationName = "getSxFaktura1List")
+	 public Faktura1List getSxFaktura1List(
+		@WebParam(name = "offset") int offset,
+		@WebParam(name = "limit") int limit
+	 ) throws ServerErrorException  {
+		 return serviceImpl.getSxFaktura1List(offset, limit, 0,0);
+	 }
+ */
+
+	@WebMethod(operationName = "getSxFaktura1ListByYearMonth")
+	 public Faktura1List getSxFaktura1ListByYearMonth(
+		@WebParam(name = "year") int year,
+		@WebParam(name = "month") int month,
+		@WebParam(name = "offset") int offset,
+		@WebParam(name = "limit") int limit
+	 ) throws ServerErrorException  {
+		 return serviceImpl.getSxFaktura1List(year, month, offset, limit);
 	 }
 
 	// Betaljournal för angiven bokföringsperiod, endast betalningar som bv har gjort
@@ -135,6 +154,17 @@ public class BvWebService {
 		return serviceImpl.getBvArtikelList(query, offset, limit);
 	}
 	
+
+	@WebMethod(operationName = "getBvArtikel")
+	public Artikel getBvArtikel(@WebParam(name = "artnr")
+	String artnr) throws ServerErrorException {
+		return serviceImpl.getBvArtikel(artnr);
+	}
+	@WebMethod(operationName = "getSxArtikel")
+	public Artikel getSxArtikel(@WebParam(name = "artnr")
+	String artnr) throws ServerErrorException {
+		return serviceImpl.getSxArtikel(artnr);
+	}
 
 
 /*

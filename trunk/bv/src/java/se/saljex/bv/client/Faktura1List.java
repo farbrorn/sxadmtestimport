@@ -15,5 +15,8 @@ import java.util.ArrayList;
 public class Faktura1List implements IsSerializable {
 	public Faktura1List() {}
 
+	public int offset=0;
+	public int limit=0;
+	public Boolean hasMoreRows=null;
 	public ArrayList<Faktura1> faktura1List = new ArrayList();
 }
