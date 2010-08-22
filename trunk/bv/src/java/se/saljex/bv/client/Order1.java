@@ -34,5 +34,6 @@ public class Order1 implements IsSerializable, Serializable{
 	public Date datum=null;					//Orer skapad datum
 	public double summaInkMoms;			//Ordersumma inkl. moms
 	public boolean isOverforbar=false;	//Är ordern tillgänglig för överföring till sx?
+	public boolean isFakturerad=false;	//Är ordern fakturerad.
 
 }

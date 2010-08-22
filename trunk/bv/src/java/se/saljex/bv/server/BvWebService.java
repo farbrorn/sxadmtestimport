@@ -17,6 +17,7 @@ import se.saljex.bv.client.BetaljournalList;
 import se.saljex.bv.client.BokordList;
 import se.saljex.bv.client.Faktura1List;
 import se.saljex.bv.client.FakturajournalList;
+import se.saljex.bv.client.Order;
 import se.saljex.bv.client.Order1List;
 import se.saljex.bv.client.OrderLookupResp;
 import se.saljex.bv.client.OverforBVOrderResp;
@@ -66,6 +67,15 @@ public class BvWebService {
 	}
 
 
+	@WebMethod(operationName = "getSxOrder")
+	 public Order getSxOrder(@WebParam(name = "sxOrdernr") int sxOrdernr) throws ServerErrorException  {
+		 return serviceImpl.getSxOrder(sxOrdernr);
+	 }
+	@WebMethod(operationName = "getBvOrder")
+	 public Order getBvOrder(@WebParam(name = "bvOrdernr") int bvOrdernr) throws ServerErrorException  {
+		 return serviceImpl.getBvOrder(bvOrdernr);
+	 }
+
 	@WebMethod(operationName = "getBvOrderLookup")
 	 public OrderLookupResp getBvOrderLookup(@WebParam(name = "bvOrdernr") int bvOrdernr)  {
 		 return serviceImpl.getBvOrderLookup(bvOrdernr);
@@ -73,6 +83,10 @@ public class BvWebService {
 	@WebMethod(operationName = "getSxOrder1ListFromFaktnr")
 	 public Order1List getSxOrder1ListFromFaktnr(@WebParam(name = "sxFaktnr") int sxFaktnr) throws ServerErrorException  {
 		 return serviceImpl.getSxOrder1ListFromFaktnr(sxFaktnr);
+	 }
+	@WebMethod(operationName = "getBvOrder1ListFromFaktnr")
+	 public Order1List getBvOrder1ListFromFaktnr(@WebParam(name = "bvFaktnr") int bvFaktnr) throws ServerErrorException  {
+		 return serviceImpl.getBvOrder1ListFromFaktnr(bvFaktnr);
 	 }
 	@WebMethod(operationName = "getSxFaktura1List")
 	 public Faktura1List getSxFaktura1List() throws ServerErrorException  {

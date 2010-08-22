@@ -93,6 +93,41 @@ public class ServiceImpl {
 			return order2List;
 	 }
 
+	 private ArrayList<Order2> fillOrder2FromFaktura(Connection con, int ordernr) throws SQLException{
+			PreparedStatement stm = con.prepareStatement(
+"select f1.lagernr, f2.artnr, f2.namn, f2.lev, f2.enh, f2.pris, f2.rab, l.ilager - l.iorder as tillgangliga, l2.tillgangliga-(l.ilager-l.iorder) as tillgangligaovriga, l.best " +
+" from faktura1 f1 join faktura2 f2 on (f1.faktnr=f2.faktnr) "+
+" left outer join lager l on (l.artnr=f2.artnr and l.lagernr=f1.lagernr) " +
+" left outer join ( " +
+	" select artnr as artnr , sum(ilager - iorder) as tillgangliga from lager " +
+	" group by artnr " +
+" ) l2 on (l2.artnr=f2.artnr) " +
+" where f2.ordernr=? " +
+" order by f2.pos"
+					  );
+
+			stm.setInt(1, ordernr);
+			ResultSet rs = stm.executeQuery();
+			ArrayList<Order2> order2List = new ArrayList();
+
+			Order2 order2;
+			while (rs.next()) {
+				order2 = new Order2();
+				order2.artnr = rs.getString(2);
+				order2.namn = rs.getString(3);
+				order2.antal = rs.getDouble(4);
+				order2.enh = rs.getString(5);
+				order2.pris = rs.getDouble(6);
+				order2.rab = rs.getDouble(7);
+				order2.lagerTillgangliga = rs.getDouble(8);
+				order2.lagerTillgangligaFilialer = rs.getDouble(9);
+				order2.lagerBest = rs.getDouble(10);
+				order2List.add(order2);
+			}
+			return order2List;
+	 }
+
+
 	 private ArrayList<OrderHand> fillOrderHand(Connection con, int ordernr) throws SQLException{
 		ArrayList<OrderHand> orderHandList = new ArrayList();
 		PreparedStatement stm = con.prepareStatement("select serverdatum, anvandare, handelse, transportor, fraktsedelnr from orderhand where ordernr=? order by datum, tid");
@@ -112,6 +147,7 @@ public class ServiceImpl {
 
 		return orderHandList;
 	 }
+
 
 
 	 public OrderLookupResp getBvOrderLookup(int bvOrdernr)  {
@@ -165,6 +201,57 @@ public class ServiceImpl {
 		finally {
 			try { sxCon.close(); } catch (Exception e) {}
 			try { bvCon.close(); } catch (Exception e) {}
+		}
+
+		 return response;
+	 }
+
+
+
+	 //Returnerar order. Om ordern är fakturerad returneras utleveransen och isFakturerad=true
+	 public Order getBvOrder(int ordernr) throws ServerErrorException {
+		 return getOrder(bvDataSource, ordernr);
+	 }
+
+	 //Returnerar order. Om ordern är fakturerad returneras utleveransen och isFakturerad=true
+	 public Order getSxOrder(int ordernr) throws ServerErrorException {
+		 return getOrder(sxDataSource, ordernr);
+	 }
+
+	 private Order getOrder(DataSource dataSource, int ordernr) throws ServerErrorException {
+		 Order response=new Order();
+		 Connection con=null;
+
+		 try {
+			con = dataSource.getConnection();
+			PreparedStatement stm;
+			ResultSet rs;
+
+			stm = getOrder1PreparedStatement(con, "o1.ordernr=?");
+			stm.setInt(1, ordernr);
+			rs = stm.executeQuery();
+			if (rs.next()) {
+				response.order1 = getOrder1FromResultset(rs);
+				response.order2List = fillOrder2(con, ordernr);
+			} else {
+				stm = getUtlev1PreparedStatement(con, "u1.ordernr=?");
+				stm.setInt(1, ordernr);
+				rs = stm.executeQuery();
+				if (rs.next()) {
+					response.order1 = getOrder1FromResultset(rs);
+					response.order1.isFakturerad=true;
+					response.order2List = fillOrder2FromFaktura(con, ordernr);
+				} else {
+					throw new ServerErrorException("Order saknas");
+				}
+			}
+
+			//bvOrderHand
+			response.orderHandList = fillOrderHand(con, ordernr);
+
+		} catch (SQLException e) { e.printStackTrace(); throw new ServerErrorException("SQL undantagsfel");}
+		finally {
+			try { con.close(); } catch (Exception e) {}
 		}
 
 		 return response;
@@ -355,22 +442,34 @@ public class ServiceImpl {
 		return resp;
 	}
 
-	 public Order1List getSxOrder1ListFromFaktnr(int sxFaktnr) throws ServerErrorException {
+	 public Order1List getSxOrder1ListFromFaktnr(int faktnr) throws ServerErrorException {
+		 return getOrder1ListFromFaktnr(sxDataSource, true, faktnr);
+	 }
+	 public Order1List getBvOrder1ListFromFaktnr(int faktnr) throws ServerErrorException {
+		 return getOrder1ListFromFaktnr(bvDataSource, false, faktnr);
+	 }
+
+	 private Order1List getOrder1ListFromFaktnr(DataSource dataSource, boolean includeBvKundnrFilter, int faktnr) throws ServerErrorException {
 		Connection con=null;
 		Order1List order1List = new Order1List();
-		try {
-			con = sxDataSource.getConnection();
-			PreparedStatement stm = con.prepareStatement(
+		String sql =
 "select f1.lagernr, f2.ordernr, u1.status, f1.kundnr, f1.namn, u1.datum, u1.dellev, f1.faktnr, u1.levadr1, u1.levadr2, u1.levadr3, u1.kundordernr, "+
 " sum(f2.summa), sum(f2.summa*(1+f1.momsproc/100)) "+
 " from faktura1 f1 join faktura2 f2 on f1.faktnr=f2.faktnr left outer join utlev1 u1 on u1.ordernr=f2.ordernr "+
-" where f2.faktnr = ? and f1.kundnr in (?,?) " +
-" group by f1.lagernr, f2.ordernr, u1.status, f1.kundnr, f1.namn, u1.datum, u1.dellev, f1.faktnr, u1.levadr1, u1.levadr2, u1.levadr3, u1.kundordernr "+
-" order by f2.ordernr");
+" where f2.faktnr = ? ";
+		if (includeBvKundnrFilter) sql = sql + " and f1.kundnr in (?,?) ";
+		sql=sql + " group by f1.lagernr, f2.ordernr, u1.status, f1.kundnr, f1.namn, u1.datum, u1.dellev, f1.faktnr, u1.levadr1, u1.levadr2, u1.levadr3, u1.kundordernr "+
+					" order by f2.ordernr";
 
-			stm.setInt(1, sxFaktnr);
-			stm.setString(2, BVKUNDNR);
-			stm.setString(3, BVKUNDNR2);
+		try {
+			con = dataSource.getConnection();
+			PreparedStatement stm = con.prepareStatement(sql);
+
+			stm.setInt(1, faktnr);
+			if (includeBvKundnrFilter) {
+				stm.setString(2, BVKUNDNR);
+				stm.setString(3, BVKUNDNR2);
+			}
 
 			ResultSet rs = stm.executeQuery();
 
