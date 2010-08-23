@@ -35,5 +35,9 @@ public class Order1 implements IsSerializable, Serializable{
 	public double summaInkMoms;			//Ordersumma inkl. moms
 	public boolean isOverforbar=false;	//Är ordern tillgänglig för överföring till sx?
 	public boolean isFakturerad=false;	//Är ordern fakturerad.
+	public boolean forskatt=false;		//Är det en order som ska betalas förskott
+	public boolean forskattBetalt=false;//Är förskottsordern betald
+	public String betalsatt=null;			//Betalsätt, valfritt, kan .t.ex vara 'Faktura' eller 'Betalkort'
+
 
 }

@@ -23,6 +23,7 @@ public class Order2 implements IsSerializable {
 	public double lagerTillgangliga=0;				//Antall tillgängliga i det lager ordern är registrerad på
 	public double lagerTillgangligaFilialer=0;	//Totalt antal tillgängliga på andra lager
 	public double lagerBest=0;							//Antal beställda
+	public double nettonetto=0;						//Inköpspris, nettonetto
 
 
 }
