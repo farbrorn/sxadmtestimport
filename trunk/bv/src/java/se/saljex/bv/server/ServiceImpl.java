@@ -61,7 +61,7 @@ public class ServiceImpl {
 
 	 private ArrayList<Order2> fillOrder2(Connection con, int ordernr) throws SQLException{
 			PreparedStatement stm = con.prepareStatement(
-"select o1.lagernr, o2.artnr, o2.namn, o2.best, o2.enh, o2.pris, o2.rab, l.ilager - l.iorder + o2.best as tillgangliga, l2.tillgangliga-(l.ilager-l.iorder+o2.best) as tillgangligaovriga, l.best " +
+"select o1.lagernr, o2.artnr, o2.namn, o2.best, o2.enh, o2.pris, o2.rab, l.ilager - l.iorder + o2.best as tillgangliga, l2.tillgangliga-(l.ilager-l.iorder+o2.best) as tillgangligaovriga, l.best, o2.netto " +
 " from order1 o1 join order2 o2 on (o1.ordernr=o2.ordernr) "+
 " left outer join lager l on (l.artnr=o2.artnr and l.lagernr=o1.lagernr) " +
 " left outer join ( " +
@@ -88,6 +88,7 @@ public class ServiceImpl {
 				order2.lagerTillgangliga = rs.getDouble(8);
 				order2.lagerTillgangligaFilialer = rs.getDouble(9);
 				order2.lagerBest = rs.getDouble(10);
+				order2.nettonetto = rs.getDouble(11);
 				order2List.add(order2);
 			}
 			return order2List;
@@ -95,7 +96,7 @@ public class ServiceImpl {
 
 	 private ArrayList<Order2> fillOrder2FromFaktura(Connection con, int ordernr) throws SQLException{
 			PreparedStatement stm = con.prepareStatement(
-"select f1.lagernr, f2.artnr, f2.namn, f2.lev, f2.enh, f2.pris, f2.rab, l.ilager - l.iorder as tillgangliga, l2.tillgangliga-(l.ilager-l.iorder) as tillgangligaovriga, l.best " +
+"select f1.lagernr, f2.artnr, f2.namn, f2.lev, f2.enh, f2.pris, f2.rab, l.ilager - l.iorder as tillgangliga, l2.tillgangliga-(l.ilager-l.iorder) as tillgangligaovriga, l.best, f2.netto " +
 " from faktura1 f1 join faktura2 f2 on (f1.faktnr=f2.faktnr) "+
 " left outer join lager l on (l.artnr=f2.artnr and l.lagernr=f1.lagernr) " +
 " left outer join ( " +
@@ -122,6 +123,7 @@ public class ServiceImpl {
 				order2.lagerTillgangliga = rs.getDouble(8);
 				order2.lagerTillgangligaFilialer = rs.getDouble(9);
 				order2.lagerBest = rs.getDouble(10);
+				order2.nettonetto = rs.getDouble(11);
 				order2List.add(order2);
 			}
 			return order2List;
@@ -268,7 +270,7 @@ public class ServiceImpl {
 "select o1.lagernr, o1.ordernr, o1.status, o1.kundnr, o1.namn, o1.datum, o3.summa, " +
 " case when o1.moms=1 then (1+f.moms1/100)*o3.summa else case when o1.moms=2 then (1+f.moms2/100)*o3.summa else case when o1.moms=3 then (1+f.moms3/100)*o3.summa else o3.summa end end end "+
 " , o1.dellev, null " +
-" , o1.adr1, o1.adr2, o1.adr3, o1.levadr1, o1.levadr2, o1.levadr3 "	+
+" , o1.adr1, o1.adr2, o1.adr3, o1.levadr1, o1.levadr2, o1.levadr3, o1.kundordernr, o1.forskatt, o1.forskattbetald, o1.betalsatt "	+
 " from order1 o1 left outer join " +
 " (select ordernr as ordernr, sum(o2.summa) as summa from order2 o2 group by ordernr) o3 on o3.ordernr=o1.ordernr "+
 " left outer join fuppg f on 1=1 "+
@@ -285,7 +287,7 @@ public class ServiceImpl {
 "select o1.lagernr, o1.ordernr, o1.status, o1.kundnr, o1.namn, o1.datum, o3.summaexmoms, " +
 " o3.summainkmoms "+
 " , o1.dellev, o1.faktnr " +
-" , o1.adr1, o1.adr2, o1.adr3, o1.levadr1, o1.levadr2, o1.levadr3 "	+
+" , o1.adr1, o1.adr2, o1.adr3, o1.levadr1, o1.levadr2, o1.levadr3, o1.kundordernr, o1.forskatt, o1.forskattbetald, o1.betalsatt "	+
 " from utlev1 o1 left outer join " +
 " (select f2.ordernr as ordernr, f2.faktnr as faktnr, sum(f2.summa) as summaexmoms, sum(f2.summa*(1+f1.momsproc/100)) as summainkmoms from faktura2 f2 join faktura1 f1 on f1.faktnr=f2.faktnr group by f2.faktnr, f2.ordernr) o3 on o3.ordernr=o1.ordernr and o3.faktnr=o1.faktnr "+
 " where " + sqlWhere +
@@ -313,6 +315,10 @@ public class ServiceImpl {
 		order1.levadr1 = rs.getString(14);
 		order1.levadr2 = rs.getString(15);
 		order1.levadr3 = rs.getString(16);
+		order1.kundordernr = rs.getInt(17);
+		order1.forskatt = rs.getInt(18)!=0;
+		order1.forskattBetalt = rs.getInt(19)!=0;
+		order1.betalsatt= rs.getString(20);
 		if (order1.faktnr==0) order1.faktnr=null;
 		if (SXConstant.ORDER_STATUS_SPARAD.equals(order1.status)) order1.isOverforbar=true; else order1.isOverforbar=false;
 		return order1;
