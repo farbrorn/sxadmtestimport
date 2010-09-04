@@ -10,7 +10,6 @@ import javax.ejb.Timer;
 import javax.ejb.TimerService;
 
 import com.lowagie.text.*;//.text.Document;
-import javax.servlet.http.*;
 import java.io.*;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -34,7 +33,6 @@ import javax.naming.NamingException;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
 import javax.sql.DataSource;
 import se.saljex.sxserver.tables.TableVarukorg;
 
@@ -506,4 +504,62 @@ public class SxServerMainBean implements SxServerMainLocal {
 		bvOrder.updateBvOrder();
 		return bvOrder.getSxOrdernr();
 	}
+
+	public int faktureraOrder(int ordernr) throws SxOrderLastException {
+		return faktureraOrderMedAnvandare(ordernr, "00");
+	}
+
+	public int faktureraOrderMedAnvandare(int ordernr, String anvandare) throws SxOrderLastException {
+		FakturaHandler fh = new FakturaHandler(em, anvandare);
+		return fh.faktureraOrder(ordernr);
+	}
+
+	public int faktureraBvOrder(int ordernr) throws SxOrderLastException {
+		return faktureraBvOrderMedAnvandare(ordernr, "00");
+	}
+
+	public int faktureraBvOrderMedAnvandare(int ordernr, String anvandare) throws SxOrderLastException {
+		FakturaHandler fh = new FakturaHandler(embv, anvandare);
+		return fh.faktureraOrder(ordernr);
+	}
+
+	//Skapar två st fakturor för förskott. Debetfakturan bokas som betald, kreditfakturan ligger kvar i kundreskontran
+	//Fakturorna är utan moms
+	//Returnerar ista med fakturanummer
+	public ArrayList<Integer> skapaForskattFakturor(String kundnr, double belopp, String artnr, String anvandare) throws SXEntityNotFoundException{
+		return skapaForskattFakturor(em, kundnr, belopp, artnr, anvandare);
+	}
+	public ArrayList<Integer> skapaBvForskattFakturor(String kundnr, double belopp, String artnr, String anvandare) throws SXEntityNotFoundException{
+		return skapaForskattFakturor(embv, kundnr, belopp, artnr, anvandare);
+	}
+
+	private ArrayList<Integer> skapaForskattFakturor(EntityManager em, String kundnr, double belopp, String artnr, String anvandare) throws SXEntityNotFoundException{
+		ArrayList<Integer> fakturaList = new ArrayList();
+		OrderHandler oh;
+		FakturaHandler fh;
+		KundresHandler kh;
+		int faktnr;
+		oh = new OrderHandler(em, kundnr, (short)0, anvandare);
+		oh.addRow(artnr, 1.0, belopp, 0.0);
+		oh.setMoms((short)0);
+		fh = new FakturaHandler(em, anvandare);
+		fh.prepareFaktura(oh);
+		faktnr = fh.persistFaktura();
+		fakturaList.add(faktnr);
+
+		kh = new KundresHandler();
+		kh.betalaFaktura(faktnr);
+
+		oh = new OrderHandler(em, kundnr, (short)0, anvandare);
+		oh.addRow(artnr, -1.0, belopp, 0.0);
+		oh.setMoms((short)0);
+		fh = new FakturaHandler(em, anvandare);
+		fh.prepareFaktura(oh);
+		faktnr = fh.persistFaktura();
+		fakturaList.add(faktnr);
+
+		return fakturaList;
+
+	}
+
 }

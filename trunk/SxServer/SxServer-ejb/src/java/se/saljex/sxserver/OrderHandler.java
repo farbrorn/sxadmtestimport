@@ -58,7 +58,44 @@ public class OrderHandler {
 		orderLaddad = false;
 	}
 	
-	public void setLagerNr(short lagernr) {
+	//Hämta in en order
+	public OrderHandler(EntityManager e, int ordernr, String anvandare) throws SxOrderLastException {
+		em = e;
+		setAnvandare(anvandare);
+		or1 = em.find(TableOrder1.class, ordernr);
+		if (or1 == null) throw new EntityNotFoundException("Ordernummer " + ordernr + " hittades inte.");
+		if (or1.getLastdatum() != null) throw new SxOrderLastException();
+		List<TableOrder2> o = em.createNamedQuery("TableOrder2.findByOrdernr").setParameter("ordernr", ordernr).getResultList();
+		OrderHandlerRad or;
+		for (TableOrder2 o2 : o) {
+			or = new OrderHandlerRad();
+			or.artnr = o2.getArtnr();
+			or.best = o2.getBest();
+			or.dellev = o2.getDellev();
+			or.enh = o2.getEnh();
+			or.konto = o2.getKonto();
+			or.lev = o2.getLev();
+			or.levdat = o2.getLevdat();
+			or.levnr = o2.getLevnr();
+			or.namn = o2.getNamn();
+			or.netto = o2.getNetto();
+			or.ordernr = o2.getTableOrder2PK().getOrdernr();
+			or.pos = o2.getTableOrder2PK().getPos();
+			or.pris = o2.getPris();
+			or.prisnr = o2.getPrisnr();
+			or.rab = o2.getRab();
+			or.stjid = o2.getStjid();
+			or.summa = o2.getSumma();
+			or.text = o2.getText();
+			or.utskrivendatum = o2.getUtskrivendatum();
+			or.utskriventid = o2.getUtskriventid();
+			ordreg.add(or);
+		}
+
+		orderLaddad = true;
+	}
+	
+	public final void setLagerNr(short lagernr) {
 		// Sätter nytt lager och läser om alla lagersaldon till det nya lagret
 		// Kan även användas med samma lagernummer för att uppdatera lagersaldona
 		or1.setLagernr(lagernr);
@@ -87,7 +124,7 @@ public class OrderHandler {
 		
 	}
 	
-	public void setAnvandare(String anvandare) {
+	public final void setAnvandare(String anvandare) {
 		this.anvandare = anvandare;
 		if (this.anvandare != null) if (this.anvandare.length() > 3) {		//Max 3 tecken i användaren
 			this.anvandare = this.anvandare.substring(0, 4);	//Tar de tre första tecknen
@@ -449,7 +486,7 @@ public class OrderHandler {
 		return or1.getOrdernr();
 	}
 	
-	public void setKund(String kundNr) {
+	public final void setKund(String kundNr) {
 		// Hämta kund och sätt standardvärden för or1
 		kun = em.find(TableKund.class, kundNr);
 		if (kun == null) { throw new EntityNotFoundException("Kan inte hitta kund " + kundNr + " för ny order."); }
@@ -569,6 +606,15 @@ public class OrderHandler {
 		
 	}
 
+
+	public void deleteOrder(boolean skapaOrderHandRaderad) {
+		if (!orderLaddad) throw new EntityNotFoundException("Ordern är inte laddad och kan inte raderas.");
+		deleteFromOrder2AndUpdateLager();
+		if (skapaOrderHandRaderad) em.persist( new TableOrderhand(or1.getOrdernr(), anvandare, SXConstant.ORDERHAND_RADERAD));
+		em.remove(or1);
+		em.flush();
+	}
+
 	  private void deleteFromOrder2AndUpdateLager() {
 			 // Radera alla rader ur order2 samt uppdatera lager
 			 // Observera att ordernumret tas ur or1.ordernr
@@ -590,8 +636,9 @@ public class OrderHandler {
 						// om raden har tagits bort från ordern låter vi deta bara passera
 					}
 				}
+				em.remove(o);
 			}
-			em.createNamedQuery("TableOrder2.deleteByOrdernr").setParameter("ordernr", or1.getOrdernr()).executeUpdate();	// Radera alla rader 
+			//em.createNamedQuery("TableOrder2.deleteByOrdernr").setParameter("ordernr", or1.getOrdernr()).executeUpdate();	// Radera alla rader
 	  }
 
 	

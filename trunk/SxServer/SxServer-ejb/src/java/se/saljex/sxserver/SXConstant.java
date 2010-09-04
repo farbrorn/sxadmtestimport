@@ -19,6 +19,10 @@ public class SXConstant {
 	public static final  String ORDER_STATUS_OVERFORD = "Överf";
 	
 	public static final  String ORDERHAND_SKAPAD = "Skapad";
+	public static final  String ORDERHAND_RADERAD = "Raderad";
+	public static final  String ORDERHAND_ANDRAD = "Ändrad";
+	public static final  String ORDERHAND_FAKTURERAD = "Fakturerad";
+	public static final  String ORDERHAND_UTSKRIVEN = "Utskriven";
 
 	public static final	String SERVJOBB_UPPGIFT_SAND = "sänd";
 	public static final	String SERVJOBB_SANDSATT_EPOST = "epost";
