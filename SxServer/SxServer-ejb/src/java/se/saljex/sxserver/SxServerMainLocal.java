@@ -51,5 +51,16 @@ public interface SxServerMainLocal {
 
 	int overforBVOrder(String sxKundnr, int bvOrdernr, String bvAnvandare, String sxAnvandare, short sxLagernr) throws SXEntityNotFoundException;
 	void overforBVOrderSaveSxOrder(BvOrder bvOrder) throws SXEntityNotFoundException;
+
+	int faktureraOrder(int ordernr) throws SxOrderLastException;
+
+	int faktureraOrderMedAnvandare(int ordernr, String anvandare) throws SxOrderLastException;
+
+	int faktureraBvOrder(int ordernr) throws SxOrderLastException;
+
+	int faktureraBvOrderMedAnvandare(int ordernr, String anvandare) throws SxOrderLastException;
+
+	ArrayList<Integer> skapaForskattFakturor(String kundnr, double belopp, String artnr, String anvandare) throws SXEntityNotFoundException;
+	ArrayList<Integer> skapaBvForskattFakturor(String kundnr, double belopp, String artnr, String anvandare) throws SXEntityNotFoundException;
 	
 }

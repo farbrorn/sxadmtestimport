@@ -37,6 +37,7 @@ import se.saljex.sxserver.tables.TableLev;
 import se.saljex.sxserver.tables.TableLevstat;
 import se.saljex.sxserver.tables.TableLevstatPK;
 import se.saljex.sxserver.tables.TableOrder1;
+import se.saljex.sxserver.tables.TableOrderhand;
 import se.saljex.sxserver.tables.TableRanta;
 import se.saljex.sxserver.tables.TableRantaPK;
 import se.saljex.sxserver.tables.TableSaljare;
@@ -61,6 +62,15 @@ public class FakturaHandler {
 	public FakturaHandler(EntityManager e, String anvandare) {
 		this.em = e;
 		setAnvandare(anvandare);
+	}
+
+	public int faktureraOrder(int ordernr) throws SxOrderLastException{
+		OrderHandler orh = new OrderHandler(em, ordernr, anvandare);
+		prepareFaktura(orh);
+		int faktnr  = persistFaktura();
+		em.persist( new TableOrderhand(orh.getOrdernr(), anvandare, SXConstant.ORDERHAND_FAKTURERAD));
+		orh.deleteOrder(false);
+		return faktnr;
 	}
 
 	public void prepareFaktura(OrderHandler orh) {
@@ -132,7 +142,7 @@ public class FakturaHandler {
 	}
 
 	//Nuvarande funktion klarar inte att ta fram ränta och bonusar. Något för framtiden kanske...
-	public void persistFaktura() throws SXEntityNotFoundException {
+	public int persistFaktura()  {
 		
 		TableBokord bokord;
 		TableBokordPK bokordPK;
@@ -168,7 +178,7 @@ public class FakturaHandler {
 		Calendar calendar = Calendar.getInstance();
 		
 		kund = em.find(TableKund.class, fa1.getKundnr());
-		if (kund==null) { throw new SXEntityNotFoundException("Kundnummer är inte initierat vid försök att spara faktura"); }
+		if (kund==null) { throw new EntityNotFoundException("Kund saknas vid försök att spara faktura"); }
 		double t_innetto = 0;
 		double t_netto=0;
 		fup = (TableFuppg)em.createNamedQuery("TableFuppg.findAll").getSingleResult();
@@ -184,7 +194,7 @@ public class FakturaHandler {
 		else if (fa1.getMoms() == 1) fa1.setMomsproc(fup.getMoms1());
 		else if (fa1.getMoms() == 2) fa1.setMomsproc(fup.getMoms2());
 		else if (fa1.getMoms() == 3) fa1.setMomsproc(fup.getMoms3());
-		else throw new SXEntityNotFoundException("Otillåten moms: Moms nr " + fa1.getMoms());
+		else throw new EntityNotFoundException("Otillåten moms: Moms nr " + fa1.getMoms());
 
 		Integer faktnr;
 		faktnr = (Integer)em.createNativeQuery("select max(faktnr) from faktura1").getSingleResult();
@@ -506,9 +516,11 @@ public class FakturaHandler {
 		statistik.setFakInnetto(statistik.getFakInnetto() + fa1.getTInnetto());
 		statistik.setFakAntal((short)(statistik.getFakAntal() + 1));
 
+		em.flush();
+		return fa1.getFaktnr();
 	}
 
-	public void setAnvandare(String anvandare) {		this.anvandare = anvandare;	}
+	public final void setAnvandare(String anvandare) {		this.anvandare = anvandare;	}
 	public String getAnvandare() {return anvandare; }
 
 	private class FaktRad {
