@@ -179,6 +179,50 @@ public class WebUtil {
 		logAnvandarhandelse(request, con, anvandare, "Logout");
 	}
 
+
+	public static void logOutIntra(Connection con, HttpSession session) throws SQLException {
+		session.invalidate();
+	}
+
+
+	public static boolean loginIntra(Connection con, HttpSession session, String anvandare, String losen) throws SQLException {
+		SXSession sxSession = getSXSession(session);
+		if (anvandare != null && !sxSession.getInloggad()) {
+
+			PreparedStatement st = con.prepareStatement("select forkortning, namn, a.behorighet, lagernr from saljare s, anvbehorighet a where a.anvandare = s.namn " +
+							" and s.forkortning=? and s.losen=?");
+			st.setString(1, anvandare);
+			st.setString(2, losen);
+			ResultSet rs = st.executeQuery();
+			while (rs.next()) {
+				if (SXConstant.BEHORIGHET_INTRA_LOGIN.equals(rs.getString(3))
+						|| SXConstant.BEHORIGHET_INTRA_SUPERUSER.equals(rs.getString(3))
+						|| SXConstant.BEHORIGHET_INTRA_ADMIN.equals(rs.getString(3))	  ) {
+					sxSession.setInloggad(true);
+					sxSession.setIntrauser(true);
+					sxSession.setIntraAnvandare(rs.getString(2));
+					sxSession.setIntraAnvandareKort(rs.getString(1));
+					sxSession.setIntraAnvandareLagerNr(rs.getInt(4));
+				}
+				if (SXConstant.BEHORIGHET_INTRA_SUPERUSER.equals(rs.getString(3)))	sxSession.setSuperuser(true);
+				if (SXConstant.BEHORIGHET_INTRA_ADMIN.equals(rs.getString(3)))			sxSession.setAdminuser(true);
+                                sxSession.addBehorighet(rs.getString(3));
+			}
+			if (sxSession.getInloggad()) {
+				return true;
+			} else {
+				// LoginError
+				sxSession.setSuperuser(false);
+				sxSession.setAdminuser(false);
+				return false;
+			}
+		}
+		return false;
+	}
+
+
+
+
 	private static void setKundLoginNull(Connection con, String anvandare) throws SQLException{
 		PreparedStatement u = con.prepareStatement("update kundlogin set autologinid=null, autologinexpire=null where loginnamn=?");
 		u.setString(1, anvandare);

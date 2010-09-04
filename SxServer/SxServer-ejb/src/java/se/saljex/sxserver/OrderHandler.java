@@ -122,6 +122,8 @@ public class OrderHandler {
 
 	}
 
+	public void setMoms(short moms) { or1.setMoms(moms); }
+	public short getMoms() { return or1.getMoms(); }
 
 	public void addStjRow(String artnr, String namn, String levnr, double antal, String enh, double inpris, double utpris, double utrab) {
 		ord = new OrderHandlerRad();
@@ -353,7 +355,7 @@ public class OrderHandler {
 		return getRow(getRowCount()-1);
 	}
 
-	public ArrayList getOrdreg() {
+	public ArrayList<OrderHandlerRad> getOrdreg() {
 		return ordreg;
 	}
 
