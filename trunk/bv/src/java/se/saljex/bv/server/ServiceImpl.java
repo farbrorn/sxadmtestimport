@@ -752,6 +752,7 @@ public class ServiceImpl {
 		artikel.inp_enhetsfaktor = rs.getBigDecimal(19).doubleValue();
 		artikel.struktnr = rs.getString(20);
 		artikel.forpack = rs.getDouble(21);
+		artikel.nettoNetto = artikel.inpris*(1-artikel.inrab/100)*(1+artikel.inp_fraktproc/100) + artikel.inp_frakt + artikel.inp_miljo;
 		return artikel;
 	}
 
@@ -830,6 +831,12 @@ public class ServiceImpl {
 	}
 	public Artikel getBvArtikel(String nummer) throws ServerErrorException {
 		return getArtikel(bvDataSource, nummer);
+	}
+
+	public int skapaBvForskattsbetalning(int ordernr, double belopp, String anvandare, char betalSatt, java.util.Date betalDatum, int talongLopnr) throws ServerErrorException {
+		try {
+			return sxServerMainBean.skapaBvForskattFaktura(ordernr, belopp, "11", anvandare, betalSatt, betalDatum, talongLopnr);
+		} catch (Exception e) { throw new ServerErrorException(e.getMessage()); }
 	}
 
 }

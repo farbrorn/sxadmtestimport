@@ -26,5 +26,8 @@ public interface GWTService extends RemoteService {
 	 public OrderLookupResp getBvOrderLookup(int bvOrdernr) throws NotLoggedInException;
 	public String logIn(String anvandare, String losen) throws NotLoggedInException, ServerErrorException;
 	public String logOut();
+	public int skapaBvForskattsbetalning(int ordernr, double belopp, String anvandare, char betalSatt, java.util.Date betalDatum, int talongLopnr) throws NotLoggedInException, ServerErrorException;
+
+
 
 }
