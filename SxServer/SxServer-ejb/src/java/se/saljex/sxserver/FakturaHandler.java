@@ -67,7 +67,7 @@ public class FakturaHandler {
 	public int faktureraOrder(int ordernr) throws SxOrderLastException{
 		OrderHandler orh = new OrderHandler(em, ordernr, anvandare);
 		prepareFaktura(orh);
-		int faktnr  = persistFaktura();
+		int faktnr  = persistFaktura(false);
 		em.persist( new TableOrderhand(orh.getOrdernr(), anvandare, SXConstant.ORDERHAND_FAKTURERAD));
 		orh.deleteOrder(false);
 		return faktnr;
@@ -142,7 +142,7 @@ public class FakturaHandler {
 	}
 
 	//Nuvarande funktion klarar inte att ta fram ränta och bonusar. Något för framtiden kanske...
-	public int persistFaktura()  {
+	public int persistFaktura(boolean sparaNollFakturaIReskontra)  {
 		
 		TableBokord bokord;
 		TableBokordPK bokordPK;
@@ -417,7 +417,7 @@ public class FakturaHandler {
 		bokord.setMan((short)calendar.get(Calendar.MONTH));
 		em.persist(bokord);
 
-		if (!((Double)0.0).equals(fa1.getTAttbetala())) {
+		if (!((Double)0.0).equals(fa1.getTAttbetala()) || sparaNollFakturaIReskontra) {
 			kundres = new TableKundres();
 			kundres.setFaktnr(fa1.getFaktnr());
 			kundres.setDatum(fa1.getDatum());
@@ -522,6 +522,8 @@ public class FakturaHandler {
 
 	public final void setAnvandare(String anvandare) {		this.anvandare = anvandare;	}
 	public String getAnvandare() {return anvandare; }
+
+	public TableFaktura1 getFaktura1() { return fa1; }
 
 	private class FaktRad {
 		public TableFaktura2 fa2;

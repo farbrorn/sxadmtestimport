@@ -60,7 +60,7 @@ public interface SxServerMainLocal {
 
 	int faktureraBvOrderMedAnvandare(int ordernr, String anvandare) throws SxOrderLastException;
 
-	ArrayList<Integer> skapaForskattFakturor(String kundnr, double belopp, String artnr, String anvandare) throws SXEntityNotFoundException;
-	ArrayList<Integer> skapaBvForskattFakturor(String kundnr, double belopp, String artnr, String anvandare) throws SXEntityNotFoundException;
+	int skapaForskattFaktura(String kundnr, double belopp, String artnr, String anvandare, char betalSatt, java.util.Date betalDatum) throws SXEntityNotFoundException;
+	int skapaBvForskattFaktura(String kundnr, double belopp, String artnr, String anvandare, char betalSatt, java.util.Date betalDatum) throws SXEntityNotFoundException;
 	
 }

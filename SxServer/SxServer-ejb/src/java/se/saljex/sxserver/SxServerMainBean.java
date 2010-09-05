@@ -526,39 +526,31 @@ public class SxServerMainBean implements SxServerMainLocal {
 	//Skapar två st fakturor för förskott. Debetfakturan bokas som betald, kreditfakturan ligger kvar i kundreskontran
 	//Fakturorna är utan moms
 	//Returnerar ista med fakturanummer
-	public ArrayList<Integer> skapaForskattFakturor(String kundnr, double belopp, String artnr, String anvandare) throws SXEntityNotFoundException{
-		return skapaForskattFakturor(em, kundnr, belopp, artnr, anvandare);
+	public int skapaForskattFaktura(String kundnr, double belopp, String artnr, String anvandare, char betalSatt, java.util.Date betalDatum) throws SXEntityNotFoundException{
+		return doSkapaForskattFaktura(em, kundnr, belopp, artnr, anvandare, betalSatt, betalDatum);
 	}
-	public ArrayList<Integer> skapaBvForskattFakturor(String kundnr, double belopp, String artnr, String anvandare) throws SXEntityNotFoundException{
-		return skapaForskattFakturor(embv, kundnr, belopp, artnr, anvandare);
+	public int skapaBvForskattFaktura(String kundnr, double belopp, String artnr, String anvandare, char betalSatt, java.util.Date betalDatum) throws SXEntityNotFoundException{
+		return doSkapaForskattFaktura(embv, kundnr, belopp, artnr, anvandare, betalSatt, betalDatum);
 	}
 
-	private ArrayList<Integer> skapaForskattFakturor(EntityManager em, String kundnr, double belopp, String artnr, String anvandare) throws SXEntityNotFoundException{
-		ArrayList<Integer> fakturaList = new ArrayList();
+	private int doSkapaForskattFaktura(EntityManager em, String kundnr, double belopp, String artnr, String anvandare, char betalSatt, java.util.Date betalDatum) throws SXEntityNotFoundException{
+		//Strategi: Skapa en faktura med artikel för förskott. Se till att beloppet bllir noll. Boka en betalning så att reskontran bir ett tillgodo.
 		OrderHandler oh;
 		FakturaHandler fh;
-		KundresHandler kh;
 		int faktnr;
 		oh = new OrderHandler(em, kundnr, (short)0, anvandare);
-		oh.addRow(artnr, 1.0, belopp, 0.0);
+		oh.addRow(artnr, 1.0, 0.0, 0.0);
 		oh.setMoms((short)0);
+		oh.setBonus(false);
 		fh = new FakturaHandler(em, anvandare);
 		fh.prepareFaktura(oh);
-		faktnr = fh.persistFaktura();
-		fakturaList.add(faktnr);
+		faktnr = fh.persistFaktura(true);
 
-		kh = new KundresHandler();
-		kh.betalaFaktura(faktnr);
+		//kh = new KundresHandler();
+//	(EntityManager em, int faktnr, double belopp, java.util.Date betdat, boolean bokaInkassoSomFelbetald, char betalSatt, int talongLopnr, java.util.Date talongDatum, boolean sparaRanta, boolean betalningAvserPantsattFaktura) {
+		KundresHandler.bokaBetalning(em, faktnr, belopp, fh.getFaktura1().getDatum(), false, betalSatt, 0, betalDatum, false, false);
 
-		oh = new OrderHandler(em, kundnr, (short)0, anvandare);
-		oh.addRow(artnr, -1.0, belopp, 0.0);
-		oh.setMoms((short)0);
-		fh = new FakturaHandler(em, anvandare);
-		fh.prepareFaktura(oh);
-		faktnr = fh.persistFaktura();
-		fakturaList.add(faktnr);
-
-		return fakturaList;
+		return faktnr;
 
 	}
 
