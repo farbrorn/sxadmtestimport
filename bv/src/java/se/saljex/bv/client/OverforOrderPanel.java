@@ -44,6 +44,7 @@ public class OverforOrderPanel extends VerticalPanel{
   public final static int COL_SUMMAINKMOMS=5;
   public final static int COL_BTN_OVERFOR=6;
   public final static int COL_BTN_INFO=7;
+  public final static int COL_BTN_FORSKATT=8;
 
 	public static final String RADIOFILTERGROUP = "ft";
 	private final RadioButton rbFilterAlla = new RadioButton(RADIOFILTERGROUP, "Alla");
@@ -184,6 +185,17 @@ public class OverforOrderPanel extends VerticalPanel{
 				});
 				orderTable.setWidget(btnRow, COL_BTN_OVERFOR, btnOverfor);
 			}
+			if (order1.forskatt && !order1.forskattBetalt) {
+				final Button btnForskatt = new Button("Förskott");
+				final int ordernr = order1.ordernr;
+				final int btnRow  = row;
+				btnForskatt.addClickHandler(new ClickHandler() {
+					public void onClick(ClickEvent event) {
+						doBtnForskatt(btnForskatt, ordernr, btnRow);
+					}
+				});
+				orderTable.setWidget(btnRow, COL_BTN_FORSKATT, btnForskatt);
+			}
 			final Button btnInfo = new Button("Info");
 			final int ordernr=order1.ordernr;
 			btnInfo.addClickHandler(new ClickHandler() {
@@ -195,6 +207,12 @@ public class OverforOrderPanel extends VerticalPanel{
 			row++;
 
 		}
+	}
+
+	private void doBtnForskatt(Button btn, int ordernr, int row) {
+		if (remoteServiceBlocked) return;
+		btn.setEnabled(false);
+		todo
 	}
 
 	private void doBtnOverfor(Button btn, int ordernr, int row) {

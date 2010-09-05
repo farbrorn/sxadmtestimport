@@ -37,4 +37,5 @@ public class Artikel implements IsSerializable{
 														*/
 	public String struktnr=null;				//Anger vilken struktur artikeln är kopplad till. En struktur innehåller flera artikelnummer och aritkeln översätts då till samtliga artiklar i strukturen
 	public double forpack;						//Förpackning
+	public double nettoNetto;					//Inköpspriset netto netto, dvs mad alla rabatter dragna och alla tillägg pålagda.
 }

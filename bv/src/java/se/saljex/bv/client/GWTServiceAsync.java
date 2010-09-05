@@ -18,5 +18,6 @@ public interface GWTServiceAsync {
 	 public void getBvOrderLookup(int bvOrdernr, AsyncCallback<OrderLookupResp> callback) ;
 	public void logIn(String anvandare, String losen, AsyncCallback<String> callback);
 	public void logOut(AsyncCallback<String> callback);
+	public void skapaBvForskattsbetalning(int ordernr, double belopp, String anvandare, char betalSatt, java.util.Date betalDatum, int talongLopnr, AsyncCallback<Integer> callback);
 
 }

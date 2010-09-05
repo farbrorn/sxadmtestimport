@@ -118,5 +118,11 @@ public class GWTServiceImpl extends RemoteServiceServlet implements GWTService {
 		return "Utloggad";
 	}
 
+	public int skapaBvForskattsbetalning(int ordernr, double belopp, String anvandare, char betalSatt, java.util.Date betalDatum, int talongLopnr) throws NotLoggedInException, ServerErrorException {
+		ensureLoggedIn();
+		return serviceImpl.skapaBvForskattsbetalning(ordernr, belopp, anvandare, betalSatt, betalDatum, talongLopnr);
+
+	}
+
 
 }
