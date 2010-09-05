@@ -31,9 +31,11 @@ import javax.ejb.TransactionAttributeType;
 import javax.mail.MessagingException;
 import javax.naming.NamingException;
 import javax.persistence.EntityManager;
+import javax.persistence.EntityNotFoundException;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.sql.DataSource;
+import se.saljex.sxserver.tables.TableOrder1;
 import se.saljex.sxserver.tables.TableVarukorg;
 
 
@@ -526,29 +528,36 @@ public class SxServerMainBean implements SxServerMainLocal {
 	//Skapar två st fakturor för förskott. Debetfakturan bokas som betald, kreditfakturan ligger kvar i kundreskontran
 	//Fakturorna är utan moms
 	//Returnerar ista med fakturanummer
-	public int skapaForskattFaktura(String kundnr, double belopp, String artnr, String anvandare, char betalSatt, java.util.Date betalDatum) throws SXEntityNotFoundException{
-		return doSkapaForskattFaktura(em, kundnr, belopp, artnr, anvandare, betalSatt, betalDatum);
+	public int skapaForskattFaktura(int ordernr, double belopp, String artnr, String anvandare, char betalSatt, java.util.Date betalDatum, int talongLopnr) throws SXEntityNotFoundException{
+		return doSkapaForskattFaktura(em, ordernr, belopp, artnr, anvandare, betalSatt, betalDatum, talongLopnr);
 	}
-	public int skapaBvForskattFaktura(String kundnr, double belopp, String artnr, String anvandare, char betalSatt, java.util.Date betalDatum) throws SXEntityNotFoundException{
-		return doSkapaForskattFaktura(embv, kundnr, belopp, artnr, anvandare, betalSatt, betalDatum);
+	public int skapaBvForskattFaktura(int ordernr, double belopp, String artnr, String anvandare, char betalSatt, java.util.Date betalDatum, int talongLopnr) throws SXEntityNotFoundException{
+		return doSkapaForskattFaktura(embv, ordernr, belopp, artnr, anvandare, betalSatt, betalDatum, talongLopnr);
 	}
 
-	private int doSkapaForskattFaktura(EntityManager em, String kundnr, double belopp, String artnr, String anvandare, char betalSatt, java.util.Date betalDatum) throws SXEntityNotFoundException{
+	private int doSkapaForskattFaktura(EntityManager em, int ordernr, double belopp, String artnr, String anvandare, char betalSatt, java.util.Date betalDatum, int talongLopnr) throws SXEntityNotFoundException{
 		//Strategi: Skapa en faktura med artikel för förskott. Se till att beloppet bllir noll. Boka en betalning så att reskontran bir ett tillgodo.
 		OrderHandler oh;
+		TableOrder1 or1;
+		or1 = em.find(TableOrder1.class, ordernr);
+		if (or1==null) throw new EntityNotFoundException("Ordernr " + ordernr + " hittades inte.");
+		if (!or1.getForskatt()) throw new EntityNotFoundException("Ordernr " + ordernr + " är inte markerad för förskottsbetalning.");
+
 		FakturaHandler fh;
 		int faktnr;
-		oh = new OrderHandler(em, kundnr, (short)0, anvandare);
+		oh = new OrderHandler(em, or1.getKundnr(), (short)0, anvandare);
+		oh.setMarke("Förskott order " + ordernr);
 		oh.addRow(artnr, 1.0, 0.0, 0.0);
 		oh.setMoms((short)0);
 		oh.setBonus(false);
 		fh = new FakturaHandler(em, anvandare);
 		fh.prepareFaktura(oh);
 		faktnr = fh.persistFaktura(true);
+		or1.setForskattbetald(true);
 
 		//kh = new KundresHandler();
 //	(EntityManager em, int faktnr, double belopp, java.util.Date betdat, boolean bokaInkassoSomFelbetald, char betalSatt, int talongLopnr, java.util.Date talongDatum, boolean sparaRanta, boolean betalningAvserPantsattFaktura) {
-		KundresHandler.bokaBetalning(em, faktnr, belopp, fh.getFaktura1().getDatum(), false, betalSatt, 0, betalDatum, false, false);
+		KundresHandler.bokaBetalning(em, faktnr, belopp, fh.getFaktura1().getDatum(), false, betalSatt, talongLopnr, betalDatum, false, false);
 
 		return faktnr;
 
