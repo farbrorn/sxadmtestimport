@@ -161,6 +161,8 @@ public class OrderHandler {
 
 	public void setMoms(short moms) { or1.setMoms(moms); }
 	public short getMoms() { return or1.getMoms(); }
+	public void setBonus(boolean bonus) { if (bonus) or1.setBonus((short)1); else or1.setBonus((short)0); }
+	public boolean isBonus() { return or1.getBonus() > 0; }
 
 	public void addStjRow(String artnr, String namn, String levnr, double antal, String enh, double inpris, double utpris, double utrab) {
 		ord = new OrderHandlerRad();
