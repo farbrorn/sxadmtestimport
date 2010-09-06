@@ -289,7 +289,7 @@ public class ServiceImpl {
 " , o1.dellev, o1.faktnr " +
 " , o1.adr1, o1.adr2, o1.adr3, o1.levadr1, o1.levadr2, o1.levadr3, o1.kundordernr, o1.forskatt, o1.forskattbetald, o1.betalsatt "	+
 " from utlev1 o1 left outer join " +
-" (select f2.ordernr as ordernr, f2.faktnr as faktnr, sum(f2.summa) as summaexmoms, sum(f2.summa*(1+f1.momsproc/100)) as summainkmoms from faktura2 f2 join faktura1 f1 on f1.faktnr=f2.faktnr group by f2.faktnr, f2.ordernr) o3 on o3.ordernr=o1.ordernr and o3.faktnr=o1.faktnr "+
+" (select f2.ordernr as ordernr, f2.faktnr as faktnr, round(sum(f2.summa),2) as summaexmoms, round(sum(f2.summa*(1+f1.momsproc/100)),2) as summainkmoms from faktura2 f2 join faktura1 f1 on f1.faktnr=f2.faktnr group by f2.faktnr, f2.ordernr) o3 on o3.ordernr=o1.ordernr and o3.faktnr=o1.faktnr "+
 " where " + sqlWhere +
 " order by o1.ordernr"
 		  );
@@ -306,7 +306,7 @@ public class ServiceImpl {
 		order1.kundnr = rs.getString(4);
 		order1.namn = rs.getString(5);
 		order1.datum = new java.util.Date(rs.getDate(6).getTime());
-		order1.summaInkMoms = rs.getDouble(8);
+		order1.summaInkMoms = SXUtil.getRoundedDecimal(rs.getDouble(8));
 		order1.dellev = rs.getInt(9);
 		order1.faktnr=rs.getInt(10);
 		order1.adr1 = rs.getString(11);

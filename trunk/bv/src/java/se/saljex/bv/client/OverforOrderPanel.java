@@ -13,6 +13,7 @@ import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.FlexTable;
@@ -185,13 +186,17 @@ public class OverforOrderPanel extends VerticalPanel{
 				});
 				orderTable.setWidget(btnRow, COL_BTN_OVERFOR, btnOverfor);
 			}
-			if (order1.forskatt && !order1.forskattBetalt) {
+
+
+//			if (order1.forskatt && !order1.forskattBetalt) {
+			if (true) {
 				final Button btnForskatt = new Button("Förskott");
 				final int ordernr = order1.ordernr;
+				final double summaInkMoms = order1.summaInkMoms;
 				final int btnRow  = row;
 				btnForskatt.addClickHandler(new ClickHandler() {
 					public void onClick(ClickEvent event) {
-						doBtnForskatt(btnForskatt, ordernr, btnRow);
+						doBtnForskatt(btnForskatt, ordernr, summaInkMoms, btnRow);
 					}
 				});
 				orderTable.setWidget(btnRow, COL_BTN_FORSKATT, btnForskatt);
@@ -209,10 +214,9 @@ public class OverforOrderPanel extends VerticalPanel{
 		}
 	}
 
-	private void doBtnForskatt(Button btn, int ordernr, int row) {
-		if (remoteServiceBlocked) return;
-		btn.setEnabled(false);
-		todo
+	private void doBtnForskatt(Button btn, int ordernr, double belopp, int row) {
+		BetalaForskatPopUp forskattPopUp = new BetalaForskatPopUp(ordernr, belopp);
+		forskattPopUp.show();
 	}
 
 	private void doBtnOverfor(Button btn, int ordernr, int row) {
