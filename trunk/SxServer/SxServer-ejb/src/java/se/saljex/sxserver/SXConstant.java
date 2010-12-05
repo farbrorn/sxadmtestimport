@@ -57,6 +57,11 @@ public class SXConstant {
 	public static final  String SXREG_SXSERVMAILFAKTURABODYSUFFIX = "SxServMailFakturaBodySuffix";
 	public static final  String SXREG_SXSERVMAILFAKTURABODYSUFFIX_DEFAULT = "<br/>Med vänlig hälsning</br>Säljex AB";
 
+	public static final  String SXREG_SXSERVMAILBESTFROMADRESS = "SxServMailBestFromAddress";
+	public static final  String SXREG_SXSERVMAILBESTFROMADRESS_DEFAULT = "inkop@saljex.se";
+	public static final  String SXREG_SXSERVMAILBESTFROMNAME = "SxServMailBestFromName";
+	public static final  String SXREG_SXSERVMAILBESTFROMNAME_DEFAULT = "inkop@saljex.se";
+
 
 	public static final  String SXREG_SXSERVMAILOFFERTFROMADRESS = "SxServMailOffertFromAddress";
 	public static final  String SXREG_SXSERVMAILOFFERTFROMADRESS_DEFAULT = "info@saljex.se";
