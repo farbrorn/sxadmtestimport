@@ -108,7 +108,14 @@ public class JobbHandler {
 	
 	public void handleSandFakturaEpost(TableSxservjobb t) throws  DocumentException, IOException, NamingException, MessagingException {
 		if (markBearbetar(t.getJobbid(), t.getBearbetar()) > 0) {	// Ingen annan har låst denna för bearbetning
-			sendFakturaEpost(t.getExternidint(), t.getEpost());
+			String epost;
+			if (!SXUtil.getSXReg(em,"SxServTestlage","Ja" ).equals("Nej")) {
+				epost = SXConstant.EMAIL_VID_TESTLAGE;
+			} else {
+				epost=t.getEpost();
+			}
+
+			sendFakturaEpost(t.getExternidint(), epost);
 			SXUtil.log("Faktura " + t.getExternidint() +  " skickad e-post");
 			markSlutfort(t.getJobbid());
 		}
@@ -153,7 +160,13 @@ public class JobbHandler {
 	
 	public void handleSandOffertEpost(TableSxservjobb t) throws  DocumentException, IOException, NamingException, MessagingException {
 		if (markBearbetar(t.getJobbid(), t.getBearbetar()) > 0) {	// Ingen annan har låst denna för bearbetning
-			sendFakturaEpost(t.getExternidint(), t.getEpost());
+			String epost;
+			if (!SXUtil.getSXReg(em,"SxServTestlage","Ja" ).equals("Nej")) {
+				epost = SXConstant.EMAIL_VID_TESTLAGE;
+			} else {
+				epost=t.getEpost();
+			}
+			sendFakturaEpost(t.getExternidint(), epost);
 			SXUtil.log("Offert " + t.getExternidint() +  " skickad e-post");
 			markSlutfort(t.getJobbid());
 		}
@@ -241,7 +254,7 @@ public class JobbHandler {
 		try {
 			SendMail m = new SendMail(mailsxmail, SXUtil.getSXReg(em,"SxServSMTPUser"), SXUtil.getSXReg(em,"SxServSMTPPassword"), SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPSERVERPORT), SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPTRANSPORT));
 			
-			m.sendMailTextHtml(new InternetAddress(SXUtil.getSXReg(em,"SxServMailBestFromAddress","inkop@saljex.se"),SXUtil.getSXReg(em,"SxServMailBestFromName","Säljex Inköp")),
+			m.sendMailTextHtml(new InternetAddress(SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVMAILBESTFROMADRESS,SXConstant.SXREG_SXSERVMAILBESTFROMADRESS_DEFAULT),SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVMAILBESTFROMNAME,SXConstant.SXREG_SXSERVMAILBESTFROMNAME_DEFAULT)),
 							epost,"Beställning " + be1.getBestnr() + " från " + fup.getNamn()
 							, "Beställningen är i HTML-format. Din e-postläsare verkar inte stödja HTML, och vi ber dig kontakta oss." , ht);
 		} catch (Exception e) {
