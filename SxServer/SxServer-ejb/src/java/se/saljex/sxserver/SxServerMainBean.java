@@ -24,6 +24,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
   
 import javax.annotation.Resource;
+import javax.annotation.security.RolesAllowed;
 import javax.ejb.EJB;
 import javax.ejb.EJBContext;
 import javax.ejb.TransactionAttribute;
@@ -61,7 +62,7 @@ import se.saljex.sxserver.tables.TableVarukorg;
  */
 
 @Stateless
-public class SxServerMainBean implements SxServerMainLocal {
+public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 	@Resource(name = "saljexse")
 	private DataSource saljexse;
 	@Resource(name = "sxadm")
@@ -306,6 +307,7 @@ public class SxServerMainBean implements SxServerMainLocal {
 	
 	
 
+	@RolesAllowed("admin")
 	public ByteArrayOutputStream getPdfFaktura(int faktnr) throws IOException {		
 		PdfFaktura sx;
 		try {
@@ -334,6 +336,7 @@ public class SxServerMainBean implements SxServerMainLocal {
 	 }
 
 
+	@RolesAllowed("admin")
 	public String getHTMLStatus() {
 		String ret = "<h1>Statusrapport från SXServer</h1><br/>" + new Date().getTime() + "<br>";
 		ret = ret + "<h2>Timers</h2><br/>";
@@ -456,6 +459,7 @@ public class SxServerMainBean implements SxServerMainLocal {
 		}
 	}
 
+	@RolesAllowed("admin")
 	public ArrayList<Integer> saveSxShopOrder(int kontaktId, String kundnr, String kontaktNamn, short lagerNr, String marke) throws KreditSparrException {
 		//Spara angiven användares varukorg som en riktig order
 		//Returnerar en lista över de 'riktiga' order somskapas (om flera som t.ex. vid direktleverans)
@@ -480,6 +484,7 @@ public class SxServerMainBean implements SxServerMainLocal {
 
 
 	//Returnerar true vid error
+	@RolesAllowed("admin")
 	public boolean sendSimpleMail(String adress, String header, String bodytext) {
 		try {
 			SendMail m = new SendMail(mailsxmail, SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPUSER), SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPPASSWORD),
@@ -525,42 +530,5 @@ public class SxServerMainBean implements SxServerMainLocal {
 		return fh.faktureraOrder(ordernr);
 	}
 
-	//Skapar två st fakturor för förskott. Debetfakturan bokas som betald, kreditfakturan ligger kvar i kundreskontran
-	//Fakturorna är utan moms
-	//Returnerar ista med fakturanummer
-	public int skapaForskattFaktura(int ordernr, double belopp, String artnr, String anvandare, char betalSatt, java.util.Date betalDatum, int talongLopnr) throws SXEntityNotFoundException{
-		return doSkapaForskattFaktura(em, ordernr, belopp, artnr, anvandare, betalSatt, betalDatum, talongLopnr);
-	}
-	public int skapaBvForskattFaktura(int ordernr, double belopp, String artnr, String anvandare, char betalSatt, java.util.Date betalDatum, int talongLopnr) throws SXEntityNotFoundException{
-		return doSkapaForskattFaktura(embv, ordernr, belopp, artnr, anvandare, betalSatt, betalDatum, talongLopnr);
-	}
-
-	private int doSkapaForskattFaktura(EntityManager em, int ordernr, double belopp, String artnr, String anvandare, char betalSatt, java.util.Date betalDatum, int talongLopnr) throws SXEntityNotFoundException{
-		//Strategi: Skapa en faktura med artikel för förskott. Se till att beloppet bllir noll. Boka en betalning så att reskontran bir ett tillgodo.
-		OrderHandler oh;
-		TableOrder1 or1;
-		or1 = em.find(TableOrder1.class, ordernr);
-		if (or1==null) throw new EntityNotFoundException("Ordernr " + ordernr + " hittades inte.");
-		if (!or1.getForskatt()) throw new EntityNotFoundException("Ordernr " + ordernr + " är inte markerad för förskottsbetalning.");
-
-		FakturaHandler fh;
-		int faktnr;
-		oh = new OrderHandler(em, or1.getKundnr(), (short)0, anvandare);
-		oh.setMarke("Förskott order " + ordernr);
-		oh.addRow(artnr, 1.0, 0.0, 0.0);
-		oh.setMoms((short)0);
-		oh.setBonus(false);
-		fh = new FakturaHandler(em, anvandare);
-		fh.prepareFaktura(oh);
-		faktnr = fh.persistFaktura(true);
-		or1.setForskattbetald(true);
-
-		//kh = new KundresHandler();
-//	(EntityManager em, int faktnr, double belopp, java.util.Date betdat, boolean bokaInkassoSomFelbetald, char betalSatt, int talongLopnr, java.util.Date talongDatum, boolean sparaRanta, boolean betalningAvserPantsattFaktura) {
-		KundresHandler.bokaBetalning(em, faktnr, belopp, fh.getFaktura1().getDatum(), false, betalSatt, talongLopnr, betalDatum, false, false);
-
-		return faktnr;
-
-	}
 
 }

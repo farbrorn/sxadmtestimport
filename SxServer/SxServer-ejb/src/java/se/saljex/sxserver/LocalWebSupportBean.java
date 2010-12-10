@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.List;
 import javax.ejb.Timer;
 import javax.annotation.Resource;
+import javax.annotation.security.RolesAllowed;
 import javax.ejb.EJBContext;
 import javax.ejb.Stateless;
 import javax.ejb.TimerService;
@@ -44,7 +45,7 @@ import se.saljex.sxserver.tables.TableStjarnrad;
  * @author ulf
  */
 @Stateless
-public class LocalWebSupportBean implements LocalWebSupportLocal {
+public class LocalWebSupportBean implements LocalWebSupportLocal, LocalWebSupportRemote {
 	@Resource(name = "saljexse")
 	private DataSource saljexse;
 	@Resource(name = "sxadm")
@@ -208,6 +209,7 @@ public class LocalWebSupportBean implements LocalWebSupportLocal {
 	}
 
 	//Innan anrop måste säkerhetsspärrar utföras - behörighet, är ordern lås osv
+	@RolesAllowed("admin")
 	public void deleteOrder(int ordernr) {
 		TableOrder1 o1 = em.find(TableOrder1.class, ordernr);
 		if (o1!=null) {
@@ -236,6 +238,7 @@ public class LocalWebSupportBean implements LocalWebSupportLocal {
 	}
 
 	//Innan anrop måste säkerhetsspärrar utföras - behörighet, är ordern lås osv
+	@RolesAllowed("admin")
 	public void changeOrderRowAntal(int ordernr,short pos, double antal) {
 		TableOrder1 o1 = em.find(TableOrder1.class, ordernr);
 		if (o1!=null) {
