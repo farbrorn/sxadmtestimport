@@ -22,7 +22,10 @@ import javax.persistence.TemporalType;
  */
 @Entity
 @Table(name = "FAKTDAT")
-@NamedQueries({@NamedQuery(name = "TableFaktdat.findAll", query = "SELECT t FROM TableFaktdat t"), @NamedQuery(name = "TableFaktdat.updateBestnrBy1", query = "UPDATE TableFaktdat t SET t.bestnr = t.bestnr+1 where t.bestnr = :bestnr and t.ft = :ft")})
+@NamedQueries({@NamedQuery(name = "TableFaktdat.findAll", query = "SELECT t FROM TableFaktdat t"),
+@NamedQuery(name = "TableFaktdat.updateBestnrBy1", query = "UPDATE TableFaktdat t SET t.bestnr = t.bestnr+1 where t.bestnr = :bestnr and t.ft = :ft"),
+@NamedQuery(name = "TableFaktdat.updateOffertnrBy1", query = "UPDATE TableFaktdat t SET t.offertnr = t.offertnr+1 where t.offertnr = :offertnr and t.ft = :ft")
+})
 public class TableFaktdat implements Serializable {
 	  private static final long serialVersionUID = 1L;
 	  @Column(name = "BESTNR", nullable = false)

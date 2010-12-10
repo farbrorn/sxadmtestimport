@@ -8,6 +8,8 @@ package se.saljex.sxserver;
 import se.saljex.sxserver.tables.TableOrder2PK;
 import se.saljex.sxserver.tables.TableOrder2;
 import java.util.Date;
+import se.saljex.sxserver.tables.TableOffert2;
+import se.saljex.sxserver.tables.TableOffert2PK;
 
 /**
  *
@@ -15,6 +17,7 @@ import java.util.Date;
  */
 public class OrderHandlerRad {
 	public Integer ordernr = 0;
+	public Integer offertnr = 0;
 	public Short pos = 0;
 	public Short prisnr = 0;
 	public Short dellev = 0;
@@ -69,6 +72,28 @@ public class OrderHandlerRad {
 		utskriventid = o.getUtskriventid();
 		stjid = o.getStjid();
 	}
+	public void setAll(TableOffert2 o) {
+		offertnr = o.getTableOffert2PK().getOffertnr();
+		pos = o.getTableOffert2PK().getPos();
+		prisnr = o.getPrisnr();
+		dellev = 0;
+		artnr = o.getArtnr();
+		namn = o.getNamn();
+		levnr = o.getLevnr();
+		best = o.getBest();
+		rab = o.getRab();
+		lev = o.getLev();
+		text = o.getText();
+		pris = o.getPris();
+		summa = o.getSumma();
+		konto = o.getKonto();
+		netto = o.getNetto();
+		enh = o.getEnh();
+		levdat = o.getLevdat();
+		utskrivendatum = null;
+		utskriventid = null;
+		stjid = null;
+	}
 	
 	//Returnera raden som ett TabelOrder2 objekt.
 	public TableOrder2 getOrder2() {
@@ -93,7 +118,31 @@ public class OrderHandlerRad {
 		o.setUtskrivendatum(utskrivendatum);
 		o.setUtskriventid(utskriventid);
 		o.setStjid(stjid);
-		
+
+		return o;
+	}
+
+
+	//Returnera raden som ett TabelOffert2 objekt.
+	public TableOffert2 getOffert2() {
+		TableOffert2 o = new TableOffert2();
+
+		o.setTableOffert2PK(new TableOffert2PK(offertnr,pos));
+		o.setPrisnr(prisnr);
+		o.setArtnr(artnr);
+		o.setNamn(namn);
+		o.setLevnr(levnr);
+		o.setBest(best);
+		o.setRab(rab);
+		o.setLev(lev);
+		o.setText(text);
+		o.setPris(pris);
+		o.setSumma(summa);
+		o.setKonto(konto);
+		o.setNetto(netto);
+		o.setEnh(enh);
+		o.setLevdat(levdat);
+
 		return o;
 	}
 }

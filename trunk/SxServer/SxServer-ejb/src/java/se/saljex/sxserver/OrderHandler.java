@@ -27,6 +27,9 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceException;
 import se.saljex.sxserver.tables.TableArtstrukt;
+import se.saljex.sxserver.tables.TableFaktdat;
+import se.saljex.sxserver.tables.TableOffert1;
+import se.saljex.sxserver.tables.TableOffert2;
 
 /**
  *
@@ -595,17 +598,41 @@ public class OrderHandler {
 			if (em.createNamedQuery("TableFdordernr.updateOrdernrBy1").setParameter("ordernr", fdo.getOrdernr()).executeUpdate() > 0) {
 				// Uppdatering lyckades, avbryt while/loopen
 				break;
-			} else {						
+			} else {
 				if (scn > 10) {				// Har vi provat så många gånger så att vi får ge upp?
 					throw new PersistenceException("Kunde inte uppdatera fdordernr för order " + or1.getNamn());
 				}
 			}
-		}	
-		// OK Allt klart, vi har fått ett ordernr 
+		}
+		// OK Allt klart, vi har fått ett ordernr
 
 		or1.setOrdernr(fdo.getOrdernr());
 		return(fdo.getOrdernr());
-		
+
+	}
+
+
+	public int prepareNextOffertNr() {
+		//	 Tar fram nästa offertnr , samt uppdaterar räknaren
+		TableFaktdat fdt;
+		int scn = 0;
+		while (true) {
+			scn++;			//Räkna antalet loopar för att avgöra när fel skall skapass
+			fdt = (TableFaktdat) em.find(TableFaktdat.class, SXConstant.DEFAULT_FT);
+
+			if (em.createNamedQuery("TableFaktdat.updateBestnrBy1").setParameter("bestnr", fdt.getBestnr()).setParameter("ft", SXConstant.DEFAULT_FT).executeUpdate() > 0) {
+				// Uppdatering lyckades, avbryt while/loopen
+				break;
+			} else {
+				if (scn > 10) {				// Har vi provat så många gånger så att vi får ge upp?
+					throw new PersistenceException("Kunde inte uppdatera faktdat för offert " + or1.getNamn());
+				}
+			}
+		}
+		// OK Allt klart, vi har fått ett offertnr
+
+		return(fdt.getOffertnr());
+
 	}
 
 
@@ -724,7 +751,63 @@ public class OrderHandler {
 		orderLaddad = true;			// Signalera att ordern nu finns sparad, och aktuell order därför betraktas som laddad
 		return or1.getOrdernr();
 	}
-	
+
+
+	public Integer persistOffert() {
+		//Sparar som ny offert
+		// Returnerar offertnumret
+		short scn;
+		TableLager lag;
+
+		int offertnr =	prepareNextOffertNr();
+		or1.setDatum(new Date());
+		or1.setTid(new Date());
+
+
+		TableOffert1 of1 = new TableOffert1();
+		TableOffert2 of2;
+		of1.setOffertnr(offertnr);
+		of1.setAdr1(or1.getAdr1());
+		of1.setAdr2(or1.getAdr2());
+		of1.setAdr3(or1.getAdr3());
+		of1.setAnnanlevadress(or1.getAnnanlevadress());
+		of1.setBonus(or1.getBonus());
+		of1.setDatum(new Date());
+		of1.setFaktor(or1.getFaktor());
+		of1.setFraktbolag(or1.getFraktbolag());
+		of1.setFraktfrigrans(or1.getFraktfrigrans());
+		of1.setFraktkundnr(or1.getFraktkundnr());
+		of1.setKtid(or1.getKtid());
+		of1.setKundnr(or1.getKundnr());
+		of1.setLagernr(or1.getLagernr());
+		of1.setLevadr1(or1.getLevadr1());
+		of1.setLevadr2(or1.getLevadr2());
+		of1.setLevadr3(or1.getLevadr3());
+		of1.setLevdat(or1.getLevdat());
+		of1.setLevvillkor(or1.getLevvillkor());
+		of1.setMarke(or1.getMarke());
+		of1.setMoms(or1.getMoms());
+		of1.setMottagarfrakt(or1.getMottagarfrakt());
+		of1.setNamn(or1.getNamn());
+		of1.setOrdermeddelande(or1.getOrdermeddelande());
+		of1.setReferens(or1.getReferens());
+		of1.setSaljare(or1.getSaljare());
+		em.persist(of1);
+		scn = 0;
+		for (OrderHandlerRad o : ordreg) {
+			scn++;
+			o.offertnr = offertnr;
+			o.dellev = or1.getDellev();
+			o.pos = scn;
+			if (o.stjid == null) { o.stjid = 0; }
+			of2 = o.getOffert2();
+			em.persist(of2);
+		}
+		em.flush();
+		return of1.getOffertnr();
+	}
+
+
 	public void sortLevNr() {
 		java.util.Collections.sort(ordreg, new OrderHandlerComparatorLevNr());
 
