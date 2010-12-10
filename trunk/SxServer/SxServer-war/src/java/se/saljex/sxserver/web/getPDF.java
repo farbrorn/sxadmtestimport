@@ -15,11 +15,13 @@ import javax.ejb.EJB;
 import se.saljex.sxserver.SxServerMainLocal;
 import com.lowagie.text.DocumentException;
 import java.sql.SQLException;
+import javax.annotation.security.RunAs;
 
 /**
  *
  * @author Ulf
  */
+@RunAs("admin")
 public class getPDF extends HttpServlet {
     @EJB
     private SxServerMainLocal SxServerMainBean;

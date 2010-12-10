@@ -6,17 +6,22 @@
 package se.saljex.sxserver.web;
 
 import java.io.*;
-import java.net.*;
+import javax.annotation.security.RunAs;
 
 import javax.ejb.EJB;
 import javax.servlet.*;
 import javax.servlet.http.*;
+import se.saljex.sxserver.LocalWebSupportLocal;
+import se.saljex.sxserver.LocalWebSupportRemote;
 import se.saljex.sxserver.SxServerMainLocal;
 /**
  *
  * @author Ulf
  */
+@RunAs("admin")
 public class status extends HttpServlet {
+	@EJB
+	private LocalWebSupportLocal localWebSupportBean;
       @EJB
     private SxServerMainLocal SxServerMainBean;
  
@@ -32,6 +37,8 @@ public class status extends HttpServlet {
         PrintWriter out = response.getWriter();
         try {
 			out.println(SxServerMainBean.getHTMLStatus());
+			out.println("<br/>nytt<br/>");
+			out.println(localWebSupportBean.getHTMLStatus());
 			
             /* output your page here
             out.println("<html>");
