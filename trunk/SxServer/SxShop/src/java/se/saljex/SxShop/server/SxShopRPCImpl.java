@@ -19,6 +19,7 @@ import java.util.ArrayList;
 
 import java.util.Calendar;
 import java.util.Date;
+import javax.annotation.security.RunAs;
 import javax.ejb.EJB;
 import javax.persistence.EntityNotFoundException;
 import javax.sql.DataSource;
@@ -78,6 +79,7 @@ import se.saljex.sxserver.websupport.WebUtil;
  *
  * @author ulf
  */
+@RunAs("admin")
 public class SxShopRPCImpl extends RemoteServiceServlet implements
 		  SxShopRPC {
 	@EJB

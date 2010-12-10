@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.sql.SQLException;
+import javax.annotation.security.RunAs;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -21,6 +22,7 @@ import se.saljex.sxserver.SxServerMainLocal;
  *
  * @author ulf
  */
+@RunAs("admin")
 public class getdoc extends HttpServlet {
       @EJB
     private SxServerMainLocal SxServerMainBean;
