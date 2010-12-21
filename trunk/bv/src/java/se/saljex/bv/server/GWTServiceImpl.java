@@ -8,40 +8,31 @@ package se.saljex.bv.server;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import javax.annotation.PostConstruct;
+import javax.annotation.security.RunAs;
 import javax.ejb.EJB;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.sql.DataSource;
 import se.saljex.bv.client.GWTService;
 import se.saljex.bv.client.NotLoggedInException;
-import se.saljex.bv.client.Order;
-import se.saljex.bv.client.Order1;
 import se.saljex.bv.client.Order1List;
-import se.saljex.bv.client.Order2;
-import se.saljex.bv.client.OrderHand;
 import se.saljex.bv.client.OrderLookupResp;
 import se.saljex.bv.client.OverforBVOrderResp;
 import se.saljex.bv.client.ServerErrorException;
-import se.saljex.sxserver.SXConstant;
-import se.saljex.sxserver.SXEntityNotFoundException;
-import se.saljex.sxserver.SxServerMainLocal;
-import se.saljex.sxserver.websupport.WebUtil;
+import se.saljex.sxlibrary.SxServerMainRemote;
+import se.saljex.sxlibrary.WebSupport;
 
 /**
  *
  * @author ulf
  */
+@RunAs("admin")
 public class GWTServiceImpl extends RemoteServiceServlet implements GWTService {
 
 
 
 	@EJB
-	private SxServerMainLocal sxServerMainBean;
+	private SxServerMainRemote sxServerMainBean;
 //	@EJB
 //	private LocalWebSupportLocal localWebSupportBean;
 	@javax.annotation.Resource(name = "sxadmkundbv")
@@ -84,16 +75,16 @@ public class GWTServiceImpl extends RemoteServiceServlet implements GWTService {
 	}
 
 	private void ensureLoggedIn() throws NotLoggedInException {
-		if (WebUtil.getSXSession(getThreadLocalRequest().getSession()).getInloggad()) System.out.print("Inloggad"); else System.out.print("inte Inloggad");
-		if (WebUtil.getSXSession(getThreadLocalRequest().getSession()).isSuperuser()) System.out.print("superuser"); else System.out.print("inte superuser");
-		if (!WebUtil.getSXSession(getThreadLocalRequest().getSession()).checkIntraBehorighetIntraWebApp()) throw new NotLoggedInException();
+		if (WebSupport.getSXSession(getThreadLocalRequest().getSession()).getInloggad()) System.out.print("Inloggad"); else System.out.print("inte Inloggad");
+		if (WebSupport.getSXSession(getThreadLocalRequest().getSession()).isSuperuser()) System.out.print("superuser"); else System.out.print("inte superuser");
+		if (!WebSupport.getSXSession(getThreadLocalRequest().getSession()).checkIntraBehorighetIntraWebApp()) throw new NotLoggedInException();
 	}
 
 	public String logIn(String anvandare, String losen) throws NotLoggedInException, ServerErrorException {
 		Connection sxCon=null;
 		try {
 			sxCon = sxDataSource.getConnection();
-			if (WebUtil.loginIntra(sxCon, getThreadLocalRequest().getSession(), anvandare, losen)) return "Inloggad";
+			if (WebSupport.loginIntra(sxCon, getThreadLocalRequest().getSession(), anvandare, losen)) return "Inloggad";
 			else throw new NotLoggedInException("Felaktig användare/Lösen");
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -107,13 +98,13 @@ public class GWTServiceImpl extends RemoteServiceServlet implements GWTService {
 		Connection sxCon=null;
 		try {
 			sxCon = sxDataSource.getConnection();
-			WebUtil.logOutIntra(sxCon, getThreadLocalRequest().getSession());
+			WebSupport.logOutIntra(sxCon, getThreadLocalRequest().getSession());
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
 			try { sxCon.close(); } catch(Exception e) {}
 			//Säkerställ utloggning med brutalt våld
-			if (WebUtil.getSXSession(getThreadLocalRequest().getSession()).getInloggad()) getThreadLocalRequest().getSession().invalidate();
+			if (WebSupport.getSXSession(getThreadLocalRequest().getSession()).getInloggad()) getThreadLocalRequest().getSession().invalidate();
 		}
 		return "Utloggad";
 	}
