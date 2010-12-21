@@ -5,6 +5,7 @@
 
 package se.saljex.sxserver;
 
+import se.saljex.sxlibrary.SXUtil;
 import se.saljex.sxserver.tables.TableArtikel;
 import se.saljex.sxserver.tables.TableArtgrplank;
 import se.saljex.sxserver.tables.TableArtklase;
@@ -38,7 +39,7 @@ public class WebArtikelUpdater {
 
 	
 	public int updateWArt() throws SQLException {
-		SXUtil.log("Börjar uppdatera WArt");
+		ServerUtil.log("Börjar uppdatera WArt");
 		Statement s = con.createStatement();
 		s.executeUpdate("delete from wartikelup");
 		PreparedStatement p = con.prepareStatement("insert into wartikelup (nummer, namn, enhet, utpris, staf_pris1, staf_pris2, staf_pris1_dat, staf_pris2_dat" +
@@ -90,12 +91,12 @@ public class WebArtikelUpdater {
 			" nummer, namn, enhet, utpris, staf_pris1, staf_pris2, staf_pris1_dat, staf_pris2_dat" +
 			", staf_antal1, staf_antal2, bestnr, rabkod, kod1, prisdatum, refnr, vikt, volym, minsaljpack, forpack, rsk, enummer, fraktvillkor" +
 			", prisgiltighetstid, utgattdatum, katnamn, bildartnr, maxlager, ilager from wartikelup");
-		SXUtil.log("Update WArt färdigt! Antal rader: " + antalRader);
+		ServerUtil.log("Update WArt färdigt! Antal rader: " + antalRader);
 		return antalRader;
 	}
 
 	public int updateWArtGrp() throws SQLException {
-		SXUtil.log("Börjar uppdatera WArtGrp");
+		ServerUtil.log("Börjar uppdatera WArtGrp");
 		Statement s = con.createStatement();
 		s.executeUpdate("delete from wartgrpup");
 		PreparedStatement p = con.prepareStatement("insert into wartgrpup (grpid, prevgrpid, rubrik, infourl, sortorder, text, html)" +
@@ -113,13 +114,13 @@ public class WebArtikelUpdater {
 		}
 		s.executeUpdate("delete from wartgrp");
 		int antalRader = s.executeUpdate("insert into wartgrp (grpid, prevgrpid, rubrik, infourl, sortorder, text, html) select grpid, prevgrpid, rubrik, infourl, sortorder, text, html from wartgrpup");
-		SXUtil.log("Update WArtGrp färdigt! Antal rader: " + antalRader);
+		ServerUtil.log("Update WArtGrp färdigt! Antal rader: " + antalRader);
 		return antalRader;
 	}
 
 
 	public int updateWArtGrpLank() throws SQLException {
-		SXUtil.log("Börjar uppdatera WArtGrpLank");
+		ServerUtil.log("Börjar uppdatera WArtGrpLank");
 		Statement s = con.createStatement();
 		s.executeUpdate("delete from wartgrplankup");
 		PreparedStatement p = con.prepareStatement("insert into wartgrplankup (grpid, klasid, sortorder)" +
@@ -133,12 +134,12 @@ public class WebArtikelUpdater {
 		}
 		s.executeUpdate("delete from wartgrplank");
 		int antalRader = s.executeUpdate("insert into wartgrplank (grpid, klasid, sortorder) select grpid, klasid, sortorder from wartgrplankup");
-		SXUtil.log("Update WArtGrpLank färdigt! Antal rader: " + antalRader);
+		ServerUtil.log("Update WArtGrpLank färdigt! Antal rader: " + antalRader);
 		return antalRader;
 	}
 
 	public int updateWArtKlase() throws SQLException {
-		SXUtil.log("Börjar uppdatera WArtKlase");
+		ServerUtil.log("Börjar uppdatera WArtKlase");
 		Statement s = con.createStatement();
 		s.executeUpdate("delete from wartklaseup");
 		PreparedStatement p = con.prepareStatement("insert into wartklaseup (klasid, rubrik, infourl, fraktvillkor, text, html)" +
@@ -155,12 +156,12 @@ public class WebArtikelUpdater {
 		}
 		s.executeUpdate("delete from wartklase");
 		int antalRader = s.executeUpdate("insert into wartklase (klasid, rubrik, infourl, fraktvillkor, text, html) select klasid, rubrik, infourl, fraktvillkor, text, html from wartklaseup");
-		SXUtil.log("Update WArtKlase färdigt! Antal rader: " + antalRader);
+		ServerUtil.log("Update WArtKlase färdigt! Antal rader: " + antalRader);
 		return antalRader;
 	}
 	
 	public int updateWArtKlaseLank() throws SQLException {
-		SXUtil.log("Börjar uppdatera WArtKlaseLank");
+		ServerUtil.log("Börjar uppdatera WArtKlaseLank");
 		Statement s = con.createStatement();
 		s.executeUpdate("delete from wartklaselankup");
 		PreparedStatement p = con.prepareStatement("insert into wartklaselankup (klasid, artnr, sortorder)" +
@@ -174,7 +175,7 @@ public class WebArtikelUpdater {
 		}
 		s.executeUpdate("delete from wartklaselank");
 		int antalRader = s.executeUpdate("insert into wartklaselank (klasid, artnr, sortorder) select klasid, artnr, sortorder from wartklaselankup");
-		SXUtil.log("Update WArtKlaseLank färdigt! Antal rader: " + antalRader);
+		ServerUtil.log("Update WArtKlaseLank färdigt! Antal rader: " + antalRader);
 		return antalRader;
 	}
 

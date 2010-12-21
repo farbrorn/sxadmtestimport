@@ -5,6 +5,10 @@
 
 package se.saljex.sxserver;
 
+import se.saljex.sxlibrary.exceptions.SXEntityNotFoundException;
+import se.saljex.sxlibrary.SXUtil;
+import se.saljex.sxlibrary.SXConstant;
+import se.saljex.sxlibrary.exceptions.KreditSparrException;
 import se.saljex.sxserver.tables.TableOrder1;
 import java.util.ArrayList;
 import java.util.ListIterator;
@@ -70,11 +74,11 @@ public SimpleOrderHandler(EntityManager e, String kundNr, String kontaktNamn, sh
 		TableOrder1 or1 = (TableOrder1)em.find(TableOrder1.class, orderNr);
 		if(!or1.getStatus().equals(SXConstant.ORDER_STATUS_SIMPLEORDER)) {	//Detta var inte en simpleorder, och kan inte laddas
 			String s = "Order " + orderNr + " försöker hämtas som en SimpleOrder, men den har status " + or1.getStatus() + " och kan inte behandlas.";
-			SXUtil.log(s);
+			ServerUtil.log(s);
 			throw new EntityNotFoundException(s);
 		} else if (or1.getLastdatum() != null) {
 			String s = "Order " + orderNr + " är låst och kan inte behandlas.";
-			SXUtil.log(s);
+			ServerUtil.log(s);
 			throw new EntityNotFoundException(s);
 		} else {  
 			sor1 = or1;			// Detta objekt blir nu huvudobjekt
@@ -167,7 +171,7 @@ public SimpleOrderHandler(EntityManager e, String kundNr, String kontaktNamn, sh
 	}
 	
 	public ArrayList<Integer> saveAsOrder() throws KreditSparrException {
-	SXUtil.logDebug("SimpleOrderHandler - saveAsOrder() - Start");
+	ServerUtil.logDebug("SimpleOrderHandler - saveAsOrder() - Start");
 		BestHandler bes;
 		ArrayList<Integer> ordList = new ArrayList();
 		int bestnr;
@@ -177,7 +181,7 @@ public SimpleOrderHandler(EntityManager e, String kundNr, String kontaktNamn, sh
 		for (OrderHandlerRad or : ordreg) {
 			try {
 				mainOrh.addRow(or.artnr, or.best);
-			} catch (SXEntityNotFoundException e) {SXUtil.log("Kunde inte spara rad. " + or.artnr + " Radden hoppas över. Fel: " + e.getMessage()); e.printStackTrace();}
+			} catch (SXEntityNotFoundException e) {ServerUtil.log("Kunde inte spara rad. " + or.artnr + " Radden hoppas över. Fel: " + e.getMessage()); e.printStackTrace();}
 		}
 		//Nu är alla rader från SimpleOrder inlästa i main-ordern med korrekta priser
 		//Nu fortsätter vi med att skanna igenom ordern och delqa den ifall det finns direkleveransartiklar
@@ -205,7 +209,7 @@ public SimpleOrderHandler(EntityManager e, String kundNr, String kontaktNamn, sh
 				for (OrderHandlerRad rad : ord ) {
 					if (bes.addRow(rad.artnr, rad.best) == null) {
 						// Vi får fel att artikeln inte finns
-						SXUtil.log("Artikel " + rad.artnr + " finns i en SimpleOrder (kund " + sor1.getKundnr() + "), men kan inte hittas när beställning ska skapas. Raden hoppas över.");
+						ServerUtil.log("Artikel " + rad.artnr + " finns i en SimpleOrder (kund " + sor1.getKundnr() + "), men kan inte hittas när beställning ska skapas. Raden hoppas över.");
 					}
 				}
 				
@@ -285,8 +289,8 @@ public SimpleOrderHandler(EntityManager e, String kundNr, String kontaktNamn, sh
 		
 		if (fraktTillkommer) {
 			try {
-				delOrh.addRow(SXUtil.getSXReg(em, SXConstant.SXREG_ARTNRFRAKT, SXConstant.SXREG_ARTNRFRAKT_DEFAULT),1);
-			} catch (SXEntityNotFoundException e) { SXUtil.log("Kunde inte hitta artikel för frakt. Raden hoppas över. Fel: " + e.getMessage()); e.printStackTrace(); }
+				delOrh.addRow(ServerUtil.getSXReg(em, SXConstant.SXREG_ARTNRFRAKT, SXConstant.SXREG_ARTNRFRAKT_DEFAULT),1);
+			} catch (SXEntityNotFoundException e) { ServerUtil.log("Kunde inte hitta artikel för frakt. Raden hoppas över. Fel: " + e.getMessage()); e.printStackTrace(); }
 			if (direktlevLev != null) {
 				delOrh.getLastRow().levnr = direktlevLev;
 			}			

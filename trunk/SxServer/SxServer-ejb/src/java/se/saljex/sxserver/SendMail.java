@@ -5,6 +5,8 @@
 
 package se.saljex.sxserver;
 
+import se.saljex.sxlibrary.SXUtil;
+import se.saljex.sxlibrary.SXConstant;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.Transport;
@@ -80,7 +82,7 @@ public class SendMail {
 */
 	
 	public void sendSimpleMail(EntityManager em, String mailTo, String subject, String text) throws NamingException, MessagingException, UnsupportedEncodingException {
-		sendMailTextHtml(	new InternetAddress(SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVMAILFROMADRESS, SXConstant.SXREG_SXSERVMAILFROMADRESS_DEFAULT)), mailTo, subject, text,text);
+		sendMailTextHtml(	new InternetAddress(ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVMAILFROMADRESS, SXConstant.SXREG_SXSERVMAILFROMADRESS_DEFAULT)), mailTo, subject, text,text);
 	}
 
 	public void sendMailTextHtml(InternetAddress mailFrom, String mailTo, String subject, String bodyText, String bodyHTML) throws NamingException, MessagingException, UnsupportedEncodingException {

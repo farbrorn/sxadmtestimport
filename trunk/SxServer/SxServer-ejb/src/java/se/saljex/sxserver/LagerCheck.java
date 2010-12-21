@@ -4,6 +4,7 @@
  */
 package se.saljex.sxserver;
 
+import se.saljex.sxlibrary.SXUtil;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -67,7 +68,7 @@ public class LagerCheck {
 				a = s.executeUpdate("insert into lager (artnr, lagernr, ilager, bestpunkt, maxlager, best, iorder)" +
 						" values('" + r.getString(1) + "', " + r.getInt(2) + ", 0, 0, 0, " + r.getFloat(4) + ", " + r.getFloat(3) + ")" );
 				if (a < 1) {		//Vi fick inget tillagd 
-					SXUtil.log("Det gick inte att lägga till i lager. Artikelnr: " + r.getString(1) + ", lagernr: " + r.getInt(2));
+					ServerUtil.log("Det gick inte att lägga till i lager. Artikelnr: " + r.getString(1) + ", lagernr: " + r.getInt(2));
 				}
 			}
 		}

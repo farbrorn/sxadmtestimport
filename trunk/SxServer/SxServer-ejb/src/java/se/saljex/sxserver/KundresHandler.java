@@ -5,6 +5,7 @@
 
 package se.saljex.sxserver;
 
+import se.saljex.sxlibrary.SXUtil;
 import java.util.Calendar;
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
@@ -55,10 +56,10 @@ public class KundresHandler {
 
 		//Sätt felbetalningsstatus
 		if (kundres.getFaktor()!=0) {
-			SXUtil.log("Från KundresHandler.bokaBetaning: Faktura " + kundres.getFaktnr() + " är lämnad till faktoring och registreras som felbetald");
+			ServerUtil.log("Från KundresHandler.bokaBetaning: Faktura " + kundres.getFaktnr() + " är lämnad till faktoring och registreras som felbetald");
 			felbet = FELBET_FAKTORING;
 		} else if (kundres.getInkassodatum() != null && INKASSO_STATUS_OVERFORD.equals(kundres.getInkassostatus()) && bokaInkassoSomFelbetald) {
-			SXUtil.log("Från KundresHandler.bokaBetaning: Faktura " + kundres.getFaktnr() + " är lämnad till inkasso och registreras som felbetald");
+			ServerUtil.log("Från KundresHandler.bokaBetaning: Faktura " + kundres.getFaktnr() + " är lämnad till inkasso och registreras som felbetald");
 			felbet = FELBET_FAKTORING;
 		}
 

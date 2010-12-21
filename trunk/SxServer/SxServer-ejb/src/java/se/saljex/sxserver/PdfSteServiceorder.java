@@ -1,6 +1,7 @@
 
 package se.saljex.sxserver;
 
+import se.saljex.sxlibrary.SXUtil;
 import se.saljex.sxserver.tables.TableBilder;
 import com.lowagie.text.*;//.text.Document;
 import com.lowagie.text.pdf.*;
@@ -32,7 +33,7 @@ public class PdfSteServiceorder extends PdfHandler {
 
 		//Hämta bild från databas
 		Query q = em.createQuery("SELECT t FROM TableBilder t WHERE t.namn = ?1");
-		String bildNamn = SXUtil.getSXReg(em,"BildLogoSteService");
+		String bildNamn = ServerUtil.getSXReg(em,"BildLogoSteService");
 		if (bildNamn.isEmpty()) { throw new DocumentException("Kan inte hitta logobildnamn i tabell sxreg. Nyckel: BildLogoSteService"); }
 		q.setParameter(1, bildNamn);
 		try {

@@ -5,6 +5,7 @@
 
 package se.saljex.sxserver;
 
+import se.saljex.sxlibrary.LocalWebSupportRemote;
 import se.saljex.sxserver.tables.TableFaktura1;
 import se.saljex.sxserver.tables.TableKundkontakt;
 import se.saljex.sxserver.tables.TableOrder1;

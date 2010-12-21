@@ -4,13 +4,14 @@
  */
 
 package se.saljex.sxserver;
+import se.saljex.sxlibrary.SXUtil;
+import se.saljex.sxlibrary.SXConstant;
 import se.saljex.sxserver.tables.TableLev;
 import se.saljex.sxserver.tables.TableBesthand;
 import se.saljex.sxserver.tables.TableFuppg;
 import se.saljex.sxserver.tables.TableBest2;
 import se.saljex.sxserver.tables.TableBest1;
 import se.saljex.sxserver.tables.TableSxservjobb;
-import se.saljex.sxserver.SXUtil;
 import javax.mail.Session;
 import javax.mail.internet.InternetAddress;
 import com.lowagie.text.DocumentException;
@@ -109,14 +110,14 @@ public class JobbHandler {
 	public void handleSandFakturaEpost(TableSxservjobb t) throws  DocumentException, IOException, NamingException, MessagingException {
 		if (markBearbetar(t.getJobbid(), t.getBearbetar()) > 0) {	// Ingen annan har låst denna för bearbetning
 			String epost;
-			if (!SXUtil.getSXReg(em,"SxServTestlage","Ja" ).equals("Nej")) {
+			if (!ServerUtil.getSXReg(em,"SxServTestlage","Ja" ).equals("Nej")) {
 				epost = SXConstant.EMAIL_VID_TESTLAGE;
 			} else {
 				epost=t.getEpost();
 			}
 
 			sendFakturaEpost(t.getExternidint(), epost);
-			SXUtil.log("Faktura " + t.getExternidint() +  " skickad e-post");
+			ServerUtil.log("Faktura " + t.getExternidint() +  " skickad e-post");
 			markSlutfort(t.getJobbid());
 		}
 	}
@@ -126,7 +127,7 @@ public class JobbHandler {
 		if (markBearbetar(t.getJobbid(), t.getBearbetar()) > 0) {	// Ingen annan har låst denna för bearbetning
 			be1 = em.find(TableBest1.class, t.getExternidint());
 			if (be1 == null) {
-				SXUtil.log("Beställning " + t.getExternidint() + " hittades inte och kan inte skickas som epost");
+				ServerUtil.log("Beställning " + t.getExternidint() + " hittades inte och kan inte skickas som epost");
 			} else {
 				sandBestEpost(be1);
 			}
@@ -139,17 +140,17 @@ public class JobbHandler {
 	{
 		PdfFaktura sx;
       sx = new PdfFaktura(em);
-		String bodyHtml = SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVMAILFAKTURABODYPREFIX, SXConstant.SXREG_SXSERVMAILFAKTURABODYSUFFIX_DEFAULT)
-								+ SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVMAILFAKTURABODYSUFFIX, SXConstant.SXREG_SXSERVMAILFAKTURABODYSUFFIX_DEFAULT);
+		String bodyHtml = ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVMAILFAKTURABODYPREFIX, SXConstant.SXREG_SXSERVMAILFAKTURABODYSUFFIX_DEFAULT)
+								+ ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVMAILFAKTURABODYSUFFIX, SXConstant.SXREG_SXSERVMAILFAKTURABODYSUFFIX_DEFAULT);
 		
-		SendMail m = new SendMail(mailsxmail, SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPUSER), SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPPASSWORD), SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPSERVERPORT), SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPTRANSPORT));
+		SendMail m = new SendMail(mailsxmail, ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPUSER), ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPPASSWORD), ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPSERVERPORT), ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPTRANSPORT));
 		m.sendMailTextHtmlPdf(
-							new InternetAddress(SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVMAILFAKTURAFROMADRESS, SXConstant.SXREG_SXSERVMAILFAKTURAFROMADRESS_DEFAULT),
-								SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVMAILFAKTURAFROMNAME, SXConstant.SXREG_SXSERVMAILFAKTURAFROMNAME_DEFAULT)),
+							new InternetAddress(ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVMAILFAKTURAFROMADRESS, SXConstant.SXREG_SXSERVMAILFAKTURAFROMADRESS_DEFAULT),
+								ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVMAILFAKTURAFROMNAME, SXConstant.SXREG_SXSERVMAILFAKTURAFROMNAME_DEFAULT)),
 							epost, 
-							SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVMAILFAKTURASUBJEKTPREFIX, SXConstant.SXREG_SXSERVMAILFAKTURASUBJEKTPREFIX_DEFAULT)
+							ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVMAILFAKTURASUBJEKTPREFIX, SXConstant.SXREG_SXSERVMAILFAKTURASUBJEKTPREFIX_DEFAULT)
 								+ " " + faktnr + " "
-								+ SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVMAILFAKTURASUBJEKTSUFFIX, SXConstant.SXREG_SXSERVMAILFAKTURASUBJEKTSUFFIX_DEFAULT),
+								+ ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVMAILFAKTURASUBJEKTSUFFIX, SXConstant.SXREG_SXSERVMAILFAKTURASUBJEKTSUFFIX_DEFAULT),
 							bodyHtml,
 							bodyHtml, 
 							sx.getPDF(faktnr),
@@ -161,13 +162,13 @@ public class JobbHandler {
 	public void handleSandOffertEpost(TableSxservjobb t) throws  DocumentException, IOException, NamingException, MessagingException {
 		if (markBearbetar(t.getJobbid(), t.getBearbetar()) > 0) {	// Ingen annan har låst denna för bearbetning
 			String epost;
-			if (!SXUtil.getSXReg(em,"SxServTestlage","Ja" ).equals("Nej")) {
+			if (!ServerUtil.getSXReg(em,"SxServTestlage","Ja" ).equals("Nej")) {
 				epost = SXConstant.EMAIL_VID_TESTLAGE;
 			} else {
 				epost=t.getEpost();
 			}
 			sendFakturaEpost(t.getExternidint(), epost);
-			SXUtil.log("Offert " + t.getExternidint() +  " skickad e-post");
+			ServerUtil.log("Offert " + t.getExternidint() +  " skickad e-post");
 			markSlutfort(t.getJobbid());
 		}
 	}
@@ -176,17 +177,17 @@ public class JobbHandler {
 	{
 		PdfOffert sx;
       sx = new PdfOffert(em);
-		String bodyHtml = SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVMAILOFFERTBODYPREFIX, SXConstant.SXREG_SXSERVMAILOFFERTBODYSUFFIX_DEFAULT)
-								+ SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVMAILOFFERTBODYSUFFIX, SXConstant.SXREG_SXSERVMAILOFFERTBODYSUFFIX_DEFAULT);
+		String bodyHtml = ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVMAILOFFERTBODYPREFIX, SXConstant.SXREG_SXSERVMAILOFFERTBODYSUFFIX_DEFAULT)
+								+ ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVMAILOFFERTBODYSUFFIX, SXConstant.SXREG_SXSERVMAILOFFERTBODYSUFFIX_DEFAULT);
 
-		SendMail m = new SendMail(mailsxmail, SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPUSER), SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPPASSWORD), SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPSERVERPORT), SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPTRANSPORT));
+		SendMail m = new SendMail(mailsxmail, ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPUSER), ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPPASSWORD), ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPSERVERPORT), ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPTRANSPORT));
 		m.sendMailTextHtmlPdf(
-							new InternetAddress(SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVMAILOFFERTFROMADRESS, SXConstant.SXREG_SXSERVMAILOFFERTFROMADRESS_DEFAULT),
-								SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVMAILOFFERTFROMNAME, SXConstant.SXREG_SXSERVMAILOFFERTFROMNAME_DEFAULT)),
+							new InternetAddress(ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVMAILOFFERTFROMADRESS, SXConstant.SXREG_SXSERVMAILOFFERTFROMADRESS_DEFAULT),
+								ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVMAILOFFERTFROMNAME, SXConstant.SXREG_SXSERVMAILOFFERTFROMNAME_DEFAULT)),
 							epost, 
-							SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVMAILOFFERTSUBJEKTPREFIX, SXConstant.SXREG_SXSERVMAILOFFERTSUBJEKTPREFIX_DEFAULT)
+							ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVMAILOFFERTSUBJEKTPREFIX, SXConstant.SXREG_SXSERVMAILOFFERTSUBJEKTPREFIX_DEFAULT)
 								+ " " + offertnr + " "
-								+ SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVMAILOFFERTSUBJEKTSUFFIX, SXConstant.SXREG_SXSERVMAILOFFERTSUBJEKTSUFFIX_DEFAULT),
+								+ ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVMAILOFFERTSUBJEKTSUFFIX, SXConstant.SXREG_SXSERVMAILOFFERTSUBJEKTSUFFIX_DEFAULT),
 							bodyHtml,
 							bodyHtml,
 							sx.getPDF(offertnr),
@@ -201,17 +202,17 @@ public class JobbHandler {
 	public void sandBestEpost(TableBest1 be1) throws  DocumentException, IOException, NamingException, MessagingException {
 		
 		String ht;
-		TableFuppg fup = SXUtil.getFuppg(em);
+		TableFuppg fup = ServerUtil.getFuppg(em);
 		TableLev lev;
 		lev = em.find(TableLev.class, be1.getLevnr());
 		if (lev == null) {
-			SXUtil.log("Leverantör " + be1.getLevnr() + " på beställning " + be1.getBestnr() + " finns inte i registret. Kan inte skicka beställning epost.");
+			ServerUtil.log("Leverantör " + be1.getLevnr() + " på beställning " + be1.getBestnr() + " finns inte i registret. Kan inte skicka beställning epost.");
 			return;
 		}
 		
-		String burl  = SXUtil.getSXReg(em,"SxServBestURL","http://www.saljex.se/inkop/" );
-		String burltext  = SXUtil.getSXReg(em, "SxServBestURLText", "Klicka här för att bekräfta mottagande!" );
-		String testlage  = SXUtil.getSXReg(em,"SxServTestlage","Ja" );
+		String burl  = ServerUtil.getSXReg(em,"SxServBestURL","http://www.saljex.se/inkop/" );
+		String burltext  = ServerUtil.getSXReg(em, "SxServBestURLText", "Klicka här för att bekräfta mottagande!" );
+		String testlage  = ServerUtil.getSXReg(em,"SxServTestlage","Ja" );
 
 		String epost;
 
@@ -252,34 +253,34 @@ public class JobbHandler {
 		boolean err = false;
 		
 		try {
-			SendMail m = new SendMail(mailsxmail, SXUtil.getSXReg(em,"SxServSMTPUser"), SXUtil.getSXReg(em,"SxServSMTPPassword"), SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPSERVERPORT), SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPTRANSPORT));
+			SendMail m = new SendMail(mailsxmail, ServerUtil.getSXReg(em,"SxServSMTPUser"), ServerUtil.getSXReg(em,"SxServSMTPPassword"), ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPSERVERPORT), ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPTRANSPORT));
 			
-			m.sendMailTextHtml(new InternetAddress(SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVMAILBESTFROMADRESS,SXConstant.SXREG_SXSERVMAILBESTFROMADRESS_DEFAULT),SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVMAILBESTFROMNAME,SXConstant.SXREG_SXSERVMAILBESTFROMNAME_DEFAULT)),
+			m.sendMailTextHtml(new InternetAddress(ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVMAILBESTFROMADRESS,SXConstant.SXREG_SXSERVMAILBESTFROMADRESS_DEFAULT),ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVMAILBESTFROMNAME,SXConstant.SXREG_SXSERVMAILBESTFROMNAME_DEFAULT)),
 							epost,"Beställning " + be1.getBestnr() + " från " + fup.getNamn()
 							, "Beställningen är i HTML-format. Din e-postläsare verkar inte stödja HTML, och vi ber dig kontakta oss." , ht);
 		} catch (Exception e) {
 			err = true;
-			SXUtil.log("Beställning " + be1.getBestnr() + " till " + be1.getLevnr() + ", epostadress " + epost + " kunde inte skickas epost. " + e.toString());
-			em.persist(new TableBesthand(be1.getBestnr(),SXUtil.getSXReg(em, SXConstant.SXREG_SERVERANVANDARE, SXConstant.SXREG_SERVERANVANDARE_DEFAULT), "E-Post sändning misslyckad",0));
+			ServerUtil.log("Beställning " + be1.getBestnr() + " till " + be1.getLevnr() + ", epostadress " + epost + " kunde inte skickas epost. " + e.toString());
+			em.persist(new TableBesthand(be1.getBestnr(),ServerUtil.getSXReg(em, SXConstant.SXREG_SERVERANVANDARE, SXConstant.SXREG_SERVERANVANDARE_DEFAULT), "E-Post sändning misslyckad",0));
 			be1.setSxservsandforsok((short)(be1.getSxservsandforsok() + 1));
 			if (be1.getSxservsandforsok() > 4 ) {
-				SXUtil.sendMessage(em, "Beställning " + be1.getBestnr() + " till " + be1.getLevnr() + " kunde inte skickas epost.", 
+				ServerUtil.sendMessage(em, "Beställning " + be1.getBestnr() + " till " + be1.getLevnr() + " kunde inte skickas epost.",
 									"Skriv ut en kopia och faxa!", be1.getVarRef());
-				SXUtil.log("Beställning " + be1.getBestnr() + " till " + be1.getLevnr() + " kunde inte skickas epost. Max antal försök uppnått, flaggar som fel " + e.toString());
+				ServerUtil.log("Beställning " + be1.getBestnr() + " till " + be1.getLevnr() + " kunde inte skickas epost. Max antal försök uppnått, flaggar som fel " + e.toString());
 				be1.setStatus("Fel");
-				em.persist(new TableBesthand(be1.getBestnr(),SXUtil.getSXReg(em, SXConstant.SXREG_SERVERANVANDARE, SXConstant.SXREG_SERVERANVANDARE_DEFAULT), "E-Post sändning misslyckad - flaggar som fel",0));
+				em.persist(new TableBesthand(be1.getBestnr(),ServerUtil.getSXReg(em, SXConstant.SXREG_SERVERANVANDARE, SXConstant.SXREG_SERVERANVANDARE_DEFAULT), "E-Post sändning misslyckad - flaggar som fel",0));
 				em.flush();
 			}
 		}
 		if (!err) {
-			SXUtil.log("Beställning"  + be1.getBestnr() + " till " + be1.getLevnr() + " skickad!");
+			ServerUtil.log("Beställning"  + be1.getBestnr() + " till " + be1.getLevnr() + " skickad!");
 			try {
 				be1.setStatus("Skickad");
 				be1.setSanddat(new Date());
-				em.persist(new TableBesthand(be1.getBestnr(),SXUtil.getSXReg(em, SXConstant.SXREG_SERVERANVANDARE, SXConstant.SXREG_SERVERANVANDARE_DEFAULT),"Sänd E-Post",0));
+				em.persist(new TableBesthand(be1.getBestnr(),ServerUtil.getSXReg(em, SXConstant.SXREG_SERVERANVANDARE, SXConstant.SXREG_SERVERANVANDARE_DEFAULT),"Sänd E-Post",0));
 				em.flush();
 			} catch (Exception e) {
-				SXUtil.log("Fel vid beställning " + be1.getBestnr() + ". E-post skickad, men kunde inte uppdatera status/händelse. " + e.toString());
+				ServerUtil.log("Fel vid beställning " + be1.getBestnr() + ". E-post skickad, men kunde inte uppdatera status/händelse. " + e.toString());
 				e.printStackTrace();
 			}
 		}
@@ -290,17 +291,17 @@ public class JobbHandler {
 	public void sandBestPaminEpost(TableBest1 be1) throws  DocumentException, IOException, NamingException, MessagingException {
 		
 		String ht;
-		TableFuppg fup = SXUtil.getFuppg(em);
+		TableFuppg fup = ServerUtil.getFuppg(em);
 		TableLev lev;
 		lev = em.find(TableLev.class, be1.getLevnr());
 		if (lev == null) {
-			SXUtil.log("Leverantör " + be1.getLevnr() + " på beställning " + be1.getBestnr() + " finns inte i registret. Kan inte skicka beställning epost.");
+			ServerUtil.log("Leverantör " + be1.getLevnr() + " på beställning " + be1.getBestnr() + " finns inte i registret. Kan inte skicka beställning epost.");
 			return;
 		}
 		
-		String burl  = SXUtil.getSXReg(em,"SxServBestURL","http://www.saljex.se/inkop/" );
-		String burltext  = SXUtil.getSXReg(em, "SxServBestURLText", "Klicka här för att bekräfta mottagande!" );
-		String testlage  = SXUtil.getSXReg(em,"SxServTestlage","Ja" );
+		String burl  = ServerUtil.getSXReg(em,"SxServBestURL","http://www.saljex.se/inkop/" );
+		String burltext  = ServerUtil.getSXReg(em, "SxServBestURLText", "Klicka här för att bekräfta mottagande!" );
+		String testlage  = ServerUtil.getSXReg(em,"SxServTestlage","Ja" );
 
 		String epost;
 
@@ -330,30 +331,30 @@ public class JobbHandler {
 		boolean err = false;
 		
 		try {
-			SendMail m = new SendMail(mailsxmail, SXUtil.getSXReg(em,"SxServSMTPUser"), SXUtil.getSXReg(em,"SxServSMTPPassword"), SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPSERVERPORT), SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPTRANSPORT));
+			SendMail m = new SendMail(mailsxmail, ServerUtil.getSXReg(em,"SxServSMTPUser"), ServerUtil.getSXReg(em,"SxServSMTPPassword"), ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPSERVERPORT), ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPTRANSPORT));
 			
-			m.sendMailTextHtml(new InternetAddress(SXUtil.getSXReg(em,"SxServMailBestFromAddress","inkop@saljex.se"),SXUtil.getSXReg(em,"SxServMailBestFromName","Säljex inköp")),
+			m.sendMailTextHtml(new InternetAddress(ServerUtil.getSXReg(em,"SxServMailBestFromAddress","inkop@saljex.se"),ServerUtil.getSXReg(em,"SxServMailBestFromName","Säljex inköp")),
 							epost,"Påminnelse om kvittens på beställning " + be1.getBestnr() + " från " + fup.getNamn()
 							, "Meddelandet är i HTML-format. Din e-postläsare verkar inte stödja HTML, och vi ber dig kontakta oss." , ht);
 		} catch (Exception e) {
 			err = true;
-			SXUtil.log("Påminnelse på beställning " + be1.getBestnr() + " till " + be1.getLevnr() + " kunde inte skickas epost. " + e.toString());
+			ServerUtil.log("Påminnelse på beställning " + be1.getBestnr() + " till " + be1.getLevnr() + " kunde inte skickas epost. " + e.toString());
 		}
 		if (!err) {
-			SXUtil.log("Påminnelse på beställning"  + be1.getBestnr() + " till " + be1.getLevnr() + " skickad!");
+			ServerUtil.log("Påminnelse på beställning"  + be1.getBestnr() + " till " + be1.getLevnr() + " skickad!");
 			be1.setAntalpamin(be1.getAntalpamin() + 1);
 			be1.setPamindat(new Date());
-			SXUtil.sendMessage(em, "Beställning " + be1.getBestnr() + " till " + be1.getLevnr() + " är inte mottagen.", 
+			ServerUtil.sendMessage(em, "Beställning " + be1.getBestnr() + " till " + be1.getLevnr() + " är inte mottagen.",
 								"Kontrollera mottagandet!", be1.getVarRef());
 			try {
 				if (be1.getAntalpamin() > 4 ) {
 					be1.setStatus("Fel");
 				}
-				TableBesthand beh = new TableBesthand(be1.getBestnr(),SXUtil.getSXReg(em, SXConstant.SXREG_SERVERANVANDARE, SXConstant.SXREG_SERVERANVANDARE_DEFAULT),"Påminnelse skickad",0);
+				TableBesthand beh = new TableBesthand(be1.getBestnr(),ServerUtil.getSXReg(em, SXConstant.SXREG_SERVERANVANDARE, SXConstant.SXREG_SERVERANVANDARE_DEFAULT),"Påminnelse skickad",0);
 				em.persist(beh);
 				em.flush();
 			} catch (Exception e) {
-				SXUtil.log("Fel vid påminnelse på beställning " + be1.getBestnr() + ". E-post skickad, men kunde inte uppdatera status/Händelse. " + e.toString());
+				ServerUtil.log("Fel vid påminnelse på beställning " + be1.getBestnr() + ". E-post skickad, men kunde inte uppdatera status/Händelse. " + e.toString());
 				e.printStackTrace();
 			}
 		}
