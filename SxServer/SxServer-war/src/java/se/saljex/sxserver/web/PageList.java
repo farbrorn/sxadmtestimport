@@ -5,7 +5,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import se.saljex.sxserver.SXUtil;
+import se.saljex.sxserver.ServerUtil;
 
 /**
  *
@@ -73,7 +73,7 @@ private boolean hasMoreRows = true;
 					if (!rs.next()) { hasMoreRows = false; break; }
 				}
 			}
-		} catch (SQLException sqe) { SXUtil.log("Exception i getArtdetaljer" + sqe.toString()); }
+		} catch (SQLException sqe) { ServerUtil.log("Exception i getArtdetaljer" + sqe.toString()); }
 		if (pageSize == 0) { 
 			currentPage = 1; 
 		} else {

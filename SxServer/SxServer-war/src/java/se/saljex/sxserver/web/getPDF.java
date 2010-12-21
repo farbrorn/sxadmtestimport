@@ -16,6 +16,7 @@ import se.saljex.sxserver.SxServerMainLocal;
 import com.lowagie.text.DocumentException;
 import java.sql.SQLException;
 import javax.annotation.security.RunAs;
+import se.saljex.sxlibrary.SxServerMainRemote;
 
 /**
  *
@@ -25,6 +26,8 @@ import javax.annotation.security.RunAs;
 public class getPDF extends HttpServlet {
     @EJB
     private SxServerMainLocal SxServerMainBean;
+    @EJB
+    private SxServerMainRemote SxServerMainRemote;
 	
    
     /** 
@@ -56,7 +59,7 @@ public class getPDF extends HttpServlet {
 		 OutputStream out = response.getOutputStream();
         
 //        try {
-            ByteArrayOutputStream bs = SxServerMainBean.getPdfFaktura(0);
+            ByteArrayOutputStream bs = SxServerMainRemote.getPdfFaktura(0);
             response.setHeader("Expires", "0");
             response.setHeader("Cache-Control", "must-revalidate, post-check=0, pre-check=0");
             response.setHeader("Pragma", "public");

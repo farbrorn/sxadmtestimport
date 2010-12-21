@@ -7,7 +7,7 @@ package se.saljex.sxserver.web;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import se.saljex.sxserver.SXUtil;
+import se.saljex.sxserver.ServerUtil;
 
 /**
  *
@@ -42,7 +42,7 @@ private String sokStr;
 				super.query.setString(8, sokStr);
 			}
 			super.getPage(page);
-		} catch (SQLException sqe) { SXUtil.log("Exception i getPage" + sqe.toString()); }
+		} catch (SQLException sqe) { ServerUtil.log("Exception i getPage" + sqe.toString()); }
 	}	
 
 	public String getNummer() {	return super.getStringColumn(1);	}

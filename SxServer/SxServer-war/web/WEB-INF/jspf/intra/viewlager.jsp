@@ -3,10 +3,11 @@
     Created on : 2009-feb-17, 15:37:28
     Author     : ulf
 --%>
-<%@ page import="se.saljex.sxserver.SXUtil" %>
 <%@ page import="se.saljex.sxserver.web.*" %>
 <%@ page import="java.sql.*" %>
 <%@ page import="java.util.*" %>
+<%@ page import="se.saljex.sxlibrary.*" %>
+
 
 <%
 int lagernr = 0;

@@ -8,6 +8,8 @@
 <%@ page import="se.saljex.sxserver.web.*" %>
 <%@ page import="java.util.List" %>
 <%@ page import="se.saljex.sxserver.websupport.*" %>
+<%@ page import="se.saljex.sxlibrary.SXSession" %>
+<%@ page import="se.saljex.sxlibrary.*" %>
 
  <script type="text/javascript" src="sxdoclib.js"></script>
  <script type="text/javascript">
@@ -17,7 +19,7 @@
  </script> 
 
 <% 
-SXSession sxSession = WebUtil.getSXSession(session);
+SXSession sxSession = WebSupport.getSXSession(session);
 
 List<TableKundres> ok = (List)request.getAttribute("listtablekundres");
 

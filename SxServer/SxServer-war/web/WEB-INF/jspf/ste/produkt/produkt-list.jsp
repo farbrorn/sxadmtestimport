@@ -8,6 +8,7 @@
 <%@ page import="se.saljex.sxserver.web.*" %>
 <%@ page import="se.saljex.sxserver.tables.*" %>
 <%@ page import="java.util.List" %>
+<%@ page import="se.saljex.sxlibrary.*" %>
 
 <%
 FormHandlerSteprodukt f = (FormHandlerSteprodukt)request.getAttribute("FormHandlerSteprodukt");

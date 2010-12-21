@@ -2,7 +2,7 @@ package se.saljex.sxserver.web;
 import java.sql.*;
 import java.util.ArrayList;
 import javax.servlet.http.HttpServletRequest;
-import se.saljex.sxserver.SXUtil;
+import se.saljex.sxlibrary.SXUtil;
 
 /**
  *

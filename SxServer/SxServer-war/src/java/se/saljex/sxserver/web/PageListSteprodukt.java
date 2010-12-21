@@ -2,8 +2,7 @@ package se.saljex.sxserver.web;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Date;
-import se.saljex.sxserver.SXUtil;
+import se.saljex.sxserver.ServerUtil;
 
 /**
  *
@@ -66,7 +65,7 @@ private String sokStrSn;
 				super.query.setString(13, sokStr);
 			}
 			super.getPage(page);
-		} catch (SQLException sqe) { SXUtil.log("Exception i getPage" + sqe.toString()); }
+		} catch (SQLException sqe) { ServerUtil.log("Exception i getPage" + sqe.toString()); }
 	}
 
 	public Integer getSn() {		return super.getIntColumn(1);	}

@@ -7,9 +7,12 @@
 <%@ page import="se.saljex.sxserver.web.*" %>
 <%@ page import="java.util.List" %>
 <%@ page import="se.saljex.sxserver.websupport.*" %>
+<%@ page import="se.saljex.sxlibrary.*" %>
+<%@ page import="se.saljex.sxlibrary.SXSession" %>
+
 
 <% 
-SXSession sxSession = WebUtil.getSXSession(session);
+SXSession sxSession = WebSupport.getSXSession(session);
 
 se.saljex.sxserver.web.inkop.BestForm b = (se.saljex.sxserver.web.inkop.BestForm)request.getAttribute("bestform");
 String errstr;

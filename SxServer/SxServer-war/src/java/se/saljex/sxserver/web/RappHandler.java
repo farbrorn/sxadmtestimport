@@ -14,8 +14,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.DateFormat;
 import java.util.ArrayList;
-import javax.sql.DataSource;
-import se.saljex.sxserver.SXUtil;
+import se.saljex.sxlibrary.SXUtil;
+import se.saljex.sxserver.ServerUtil;
 
 /**
  *
@@ -104,7 +104,7 @@ public class RappHandler {
 		} finally {
 			try { s1.close(); } catch (Exception e) {}
 		}
-		SXUtil.logDebug("SQL-Sats för rapport: " + sb.toString());
+		ServerUtil.logDebug("SQL-Sats för rapport: " + sb.toString());
 	}
 	
 

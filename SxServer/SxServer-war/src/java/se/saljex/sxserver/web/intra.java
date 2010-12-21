@@ -2,7 +2,7 @@
 package se.saljex.sxserver.web;
 
 import se.saljex.sxserver.websupport.WebUtil;
-import se.saljex.sxserver.websupport.SXSession;
+import se.saljex.sxlibrary.SXSession;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
+import se.saljex.sxlibrary.WebSupport;
 
 /**
  *
@@ -51,7 +52,7 @@ public class intra extends HttpServlet {
 			response = res;
 			out = response.getWriter();
 
-			sxSession = WebUtil.getSXSession(req.getSession());
+			sxSession = WebSupport.getSXSession(req.getSession());
 			if (!sxSession.getInloggad()) {
 				response.setStatus(response.SC_MOVED_TEMPORARILY);
 				response.setHeader("Location", "login?refpage=intra&logintype=intra");

@@ -5,12 +5,10 @@
 
 package se.saljex.sxserver.web;
 
-import com.sun.crypto.provider.RSACipher;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Date;
-import javax.sql.DataSource;
-import se.saljex.sxserver.SXUtil;
+import se.saljex.sxserver.ServerUtil;
 
 /**
  *
@@ -65,7 +63,7 @@ private String orderByStr;
 				super.initSql(selectStr + " order by " + orderByStr); 
 			}
 			super.getPage(page);
-		} catch (SQLException sqe) { SXUtil.log("Exception i getPage" + sqe.toString()); }
+		} catch (SQLException sqe) { ServerUtil.log("Exception i getPage" + sqe.toString()); }
 	}	
 
 	public Integer getBestnr() { return super.getIntColumn(1);	}

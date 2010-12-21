@@ -3,14 +3,16 @@
     Created on : 2009-mar-25, 18:24:39
     Author     : ulf
 --%>
-<%@ page import="se.saljex.sxserver.SXUtil" %>
+<%@ page import="se.saljex.sxlibrary.*" %>
 <%@ page import="se.saljex.sxserver.web.*" %>
 <%@ page import="java.sql.*" %>
 <%@ page import="java.util.*" %>
 <%@ page import="se.saljex.sxserver.websupport.*" %>
+<%@ page import="se.saljex.sxlibrary.SXSession" %>
+
 
 <%
-SXSession sx = WebUtil.getSXSession(session);
+SXSession sx = WebSupport.getSXSession(session);
 Connection con = (Connection)request.getAttribute("con");
 ResultSet rs;
 

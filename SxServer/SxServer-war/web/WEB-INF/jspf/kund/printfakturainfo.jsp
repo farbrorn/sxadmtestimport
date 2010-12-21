@@ -4,11 +4,12 @@
     Author     : ulf
 --%>
 <%@ page import="se.saljex.sxserver.tables.*" %>
-<%@ page import="se.saljex.sxserver.SXUtil" %>
+<%@ page import="se.saljex.sxlibrary.*" %>
 <%@ page import="se.saljex.sxserver.web.*" %>
 <%@ page import="se.saljex.sxserver.tables.TableFaktura1" %>
 <%@ page import="se.saljex.sxserver.tables.TableFaktura2" %>
 <%@ page import="se.saljex.sxserver.websupport.*" %>
+<%@ page import="se.saljex.sxlibrary.SXSession" %>
 
 <%@ page import="java.util.List" %>
  <script type="text/javascript">
@@ -19,7 +20,7 @@
  </script> 
 
 <% 
-SXSession sxSession = WebUtil.getSXSession(session);
+SXSession sxSession = WebSupport.getSXSession(session);
 
 TableFaktura1 f1 = (TableFaktura1)request.getAttribute("tablefaktura1");
 List<TableFaktura2> lf2 = (List<TableFaktura2>)request.getAttribute("listtablefaktura2");

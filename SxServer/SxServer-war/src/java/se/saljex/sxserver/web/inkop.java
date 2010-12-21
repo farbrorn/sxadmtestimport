@@ -5,11 +5,15 @@
 
 package se.saljex.sxserver.web;
 
+import se.saljex.sxlibrary.exceptions.SXSecurityException;
+import se.saljex.sxlibrary.SXConstant;
+import se.saljex.sxlibrary.SXUtil;
 import se.saljex.sxserver.websupport.WebUtil;
-import se.saljex.sxserver.websupport.SXSession;
-import se.saljex.sxserver.SXEntityNotFoundException;
+import se.saljex.sxlibrary.SXSession;
+import se.saljex.sxlibrary.exceptions.SXEntityNotFoundException;
 import java.io.*;
 import java.net.*;
+import se.saljex.sxlibrary.WebSupport;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -71,7 +75,7 @@ public class inkop extends HttpServlet {
 		public InkopLocalHandler(HttpServletRequest req, HttpServletResponse res) throws IOException, ServletException {
 			request = req;
 			response = res;
-			sxSession = WebUtil.getSXSession(req.getSession());
+			sxSession = WebSupport.getSXSession(req.getSession());
 			con = WebUtil.getConnection(sxadm);
 
 			String get = request.getParameter("get");
@@ -92,11 +96,11 @@ public class inkop extends HttpServlet {
 					handleId(id);
 				}
 			} catch (com.lowagie.text.DocumentException ep) {
-				SXUtil.log(ep.toString()); ep.printStackTrace();
+				ServerUtil.log(ep.toString()); ep.printStackTrace();
 				throw new ServletException("Fel vid skapande av pdf");
 			} catch (SQLException se) {
 			} catch (IOException ie) {
-				SXUtil.log(ie.toString()); ie.printStackTrace();
+				ServerUtil.log(ie.toString()); ie.printStackTrace();
 				throw new ServletException("IOException.");
 			} finally {
 				loginForm = null;
@@ -114,7 +118,7 @@ public class inkop extends HttpServlet {
 					if (!login()) { throw  new ServletException("Inte inloggad" ); }
 					bnr = sxSession.getInkopInloggatBestNr();		///// Göres om!! ***********************************
 
-					WebUtil.sendPdf(LocalWebSupportBean.getPdfBest(bnr), outStream, response);
+					WebSupport.sendPdf(LocalWebSupportBean.getPdfBest(bnr), outStream, response);
 
 				}
 			}

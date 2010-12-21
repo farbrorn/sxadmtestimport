@@ -5,10 +5,12 @@
 --%>
 <%@ page import="se.saljex.sxserver.web.*" %>
 <%@ page import="se.saljex.sxserver.websupport.*" %>
+<%@ page import="se.saljex.sxlibrary.SXSession" %>
+<%@ page import="se.saljex.sxlibrary.WebSupport" %>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%
-SXSession sxSession = WebUtil.getSXSession(session);
+SXSession sxSession = WebSupport.getSXSession(session);
 request.getRequestDispatcher("/WEB-INF/jspf/siteheader.jsp").include(request, response);
 %>
 <div id="body">

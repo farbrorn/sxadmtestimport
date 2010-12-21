@@ -8,7 +8,7 @@ package se.saljex.sxserver.web;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Date;
-import se.saljex.sxserver.SXUtil;
+import se.saljex.sxserver.ServerUtil;
 
 /**
  *
@@ -27,7 +27,7 @@ public class PageListKalender extends PageList {
 		try {
 			super.initSql("select f_dat, f_tid, kmemo from kalender order by f_dat desc, f_tid desc"); 
 			super.getPage(page);
-		} catch (SQLException sqe) { SXUtil.log("Exception i getPage" + sqe.toString()); }
+		} catch (SQLException sqe) { ServerUtil.log("Exception i getPage" + sqe.toString()); }
 	}	
 
 	public Date getF_Dat() {		return super.getDateColumn(1);	}

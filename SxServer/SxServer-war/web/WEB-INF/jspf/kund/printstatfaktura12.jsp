@@ -4,10 +4,11 @@
     Author     : ulf
 --%>
 <%@ page import="se.saljex.sxserver.tables.*" %>
-<%@ page import="se.saljex.sxserver.SXUtil" %>
+<%@ page import="se.saljex.sxlibrary.*" %>
 <%@ page import="se.saljex.sxserver.web.*" %>
 <%@ page import="java.util.List" %>
 <%@ page import="se.saljex.sxserver.websupport.*" %>
+<%@ page import="se.saljex.sxlibrary.SXSession" %>
 
  <script type="text/javascript">
 	$(document).ready(function() {
@@ -17,7 +18,7 @@
  </script> 
 
 <% 
-SXSession sxSession = WebUtil.getSXSession(session);
+SXSession sxSession = WebSupport.getSXSession(session);
 
 PageListStatFaktura12 pl = (PageListStatFaktura12)request.getAttribute("pageliststatfaktura12");
 

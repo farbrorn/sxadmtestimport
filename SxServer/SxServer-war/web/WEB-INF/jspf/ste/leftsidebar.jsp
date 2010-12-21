@@ -1,12 +1,13 @@
-<%@ page import="se.saljex.sxserver.SXUtil" %>
 <%@ page import="se.saljex.sxserver.web.*" %>
 <%@ page import="java.sql.*" %>
 <%@ page import="java.util.*" %>
 <%@ page import="se.saljex.sxserver.websupport.*" %>
+<%@ page import="se.saljex.sxlibrary.*" %>
+<%@ page import="se.saljex.sxlibrary.SXSession" %>
 
 <%
 Connection con = (Connection)request.getAttribute("con");
-SXSession sxSession = WebUtil.getSXSession(request.getSession());
+SXSession sxSession = WebSupport.getSXSession(request.getSession());
 %>
 <b>Stiebel Eltron</b>
 <p/>

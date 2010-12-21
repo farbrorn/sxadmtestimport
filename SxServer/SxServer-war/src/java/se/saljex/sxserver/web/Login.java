@@ -5,8 +5,12 @@
 
 package se.saljex.sxserver.web;
 
+import se.saljex.sxlibrary.SXConstant;
+import se.saljex.sxlibrary.SXUtil;
+import se.saljex.sxlibrary.WebSupport;
+
 import se.saljex.sxserver.websupport.WebUtil;
-import se.saljex.sxserver.websupport.SXSession;
+import se.saljex.sxlibrary.SXSession;
 import java.io.*;
 
 import java.sql.Connection;
@@ -53,7 +57,7 @@ public class Login extends HttpServlet {
 		try {
 			con = sxadm.getConnection();
 		} catch (SQLException se) {
-			SXUtil.log(se.toString()); se.printStackTrace();
+			ServerUtil.log(se.toString()); se.printStackTrace();
 			throw new ServletException("Fel vid kommunikation med databasen.");
 		}
 		String refPage = request.getParameter("refpage");
@@ -62,7 +66,7 @@ public class Login extends HttpServlet {
 
 		try {
 			session = request.getSession();
-			sxSession = WebUtil.getSXSession(session);
+			sxSession = WebSupport.getSXSession(session);
 
 			f = new LoginFormData();
 
@@ -94,7 +98,7 @@ public class Login extends HttpServlet {
 			}
 
 		} catch (SQLException e) {
-			SXUtil.log(e.toString()); e.printStackTrace();
+			ServerUtil.log(e.toString()); e.printStackTrace();
 			throw new ServletException("Fel vid kommunikation med databasen.");
 		} finally {
 			try { con.close();} catch (Exception e ){}
@@ -105,11 +109,11 @@ public class Login extends HttpServlet {
 	private void setFelaktigAnvandare() {
 		f.anvandareErr = "Felaktig användare/lösenord";
 		request.setAttribute("loginformdata", f);
-		SXUtil.log("Felaktig inloggning Användare " + f.anvandare + " från ip " + request.getRemoteAddr());
+		ServerUtil.log("Felaktig inloggning Användare " + f.anvandare + " från ip " + request.getRemoteAddr());
 	}
 
 	private boolean loginKund() throws SQLException {
-		if (WebUtil.logInKund(request, con, f.anvandare, request.getParameter("losen"))) {
+		if (WebSupport.logInKund(request, con, f.anvandare, request.getParameter("losen"))) {
 			return true;
 		} else {
 			setFelaktigAnvandare();

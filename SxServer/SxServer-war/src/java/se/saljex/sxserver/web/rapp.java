@@ -7,7 +7,7 @@ package se.saljex.sxserver.web;
 
 import se.saljex.sxserver.websupport.WebUtil;
 import se.saljex.sxserver.websupport.RappEdit;
-import se.saljex.sxserver.websupport.SXSession;
+import se.saljex.sxlibrary.SXSession;
 import java.io.*;
 
 import java.sql.Connection;
@@ -20,6 +20,7 @@ import javax.ejb.EJB;
 import javax.servlet.*;
 import javax.servlet.http.*;
 import javax.sql.DataSource;
+import se.saljex.sxlibrary.WebSupport;
 import se.saljex.sxserver.*;
 
 /**
@@ -92,7 +93,7 @@ public class rapp extends HttpServlet {
 			String id = request.getParameter("id");
 			if (id == null) { id = "1"; }
 
-			sxSession = WebUtil.getSXSession(request.getSession());
+			sxSession = WebSupport.getSXSession(request.getSession());
 
 			Integer rappId = null;
 			try {
@@ -103,7 +104,7 @@ public class rapp extends HttpServlet {
 			RappEdit currentRappEdit = null;
 			try {
 				rappSession = Integer.parseInt(request.getParameter("rappsession"));
-				currentRappEdit = sxSession.getArrRappEdit().get(rappSession);
+				currentRappEdit = (RappEdit)sxSession.getArrRappEdit().get(rappSession);
 			}
 			catch (NumberFormatException e) { }
 			catch (NullPointerException e) { }
@@ -227,7 +228,7 @@ public class rapp extends HttpServlet {
 								rappSession = null;
 
 								// Kollar om det redan finns en session förr ngivet id
-								for (RappEdit re : sxSession.getArrRappEdit()) {
+								for (RappEdit re : (ArrayList<RappEdit>)sxSession.getArrRappEdit()) {
 									if (re.rappId == rappId) {
 										currentRappEdit = re;
 										rappSession = re.rappSession;
@@ -307,7 +308,7 @@ public class rapp extends HttpServlet {
 					// Om vi har minst en rad returnerad så vet vi att  behörigheten är ok!
 					return true;
 				}
-			} catch (SQLException e) { SXUtil.logDebug("Undantag vid checkRappBehorighet: " + e.toString());return false; }
+			} catch (SQLException e) { ServerUtil.logDebug("Undantag vid checkRappBehorighet: " + e.toString());return false; }
 			return false;
 		}
 
@@ -322,7 +323,7 @@ public class rapp extends HttpServlet {
 				try {
 					RappHTML rh = new RappHTML(con, request);
 					out.println(rh.printHTMLInputForm(rappId));
-				} catch (SQLException e) { SXUtil.log("Undantag vid printRappInput:" + e.toString()); out.println("Undantag vid rapport: " + e.toString()); }
+				} catch (SQLException e) { ServerUtil.log("Undantag vid printRappInput:" + e.toString()); out.println("Undantag vid rapport: " + e.toString()); }
 			}
 		}
 
@@ -369,7 +370,7 @@ public class rapp extends HttpServlet {
 						rh.prepareFromSQLRepository(rappId);
 						out.println(rh.print());
 					}
-				} catch (SQLException e) { out.print("Undantagsfel i rapporten"); SXUtil.log(e.toString()); e.printStackTrace(); }
+				} catch (SQLException e) { out.print("Undantagsfel i rapporten"); ServerUtil.log(e.toString()); e.printStackTrace(); }
 			request.getRequestDispatcher("/WEB-INF/jspf/rapp/rappfootervisa.jsp").include(request, response);
 		}
 
@@ -381,7 +382,7 @@ public class rapp extends HttpServlet {
 				try {
 					if (jr.isBehorig(jspFileName, sxSession.getIntraAnvandare(), con)) jr.printJspRapport(request, response, jspFileName);
 
-				} catch (SQLException e) { out.print("Undantagsfel i rapporten"); SXUtil.log(e.toString()); e.printStackTrace(); }
+				} catch (SQLException e) { out.print("Undantagsfel i rapporten"); ServerUtil.log(e.toString()); e.printStackTrace(); }
 			}
 		}
 	 }

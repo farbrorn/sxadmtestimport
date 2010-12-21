@@ -12,8 +12,9 @@ import javax.ejb.EJB;
 import javax.servlet.*;
 import javax.servlet.http.*;
 import se.saljex.sxserver.LocalWebSupportLocal;
-import se.saljex.sxserver.LocalWebSupportRemote;
+import se.saljex.sxlibrary.LocalWebSupportRemote;
 import se.saljex.sxserver.SxServerMainLocal;
+import se.saljex.sxlibrary.SxServerMainRemote;
 /**
  *
  * @author Ulf
@@ -24,6 +25,8 @@ public class status extends HttpServlet {
 	private LocalWebSupportLocal localWebSupportBean;
       @EJB
     private SxServerMainLocal SxServerMainBean;
+      @EJB
+    private SxServerMainRemote SxServerMainRemote;
  
     /** 
     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -36,7 +39,7 @@ public class status extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
         try {
-			out.println(SxServerMainBean.getHTMLStatus());
+			out.println(SxServerMainRemote.getHTMLStatus());
 			out.println("<br/>nytt<br/>");
 			out.println(localWebSupportBean.getHTMLStatus());
 			

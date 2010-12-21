@@ -3,11 +3,12 @@
     Created on : 2008-jun-16, 20:43:50
     Author     : ulf
 --%>
-<%@ page import="se.saljex.sxserver.SXUtil" %>
+<%@ page import="se.saljex.sxlibrary.*" %>
 <%@ page import="se.saljex.sxserver.web.*" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="java.sql.*" %>
 <%@ page import="se.saljex.sxserver.websupport.*" %>
+<%@ page import="se.saljex.sxlibrary.SXSession" %>
 
 <%
 Connection con = (Connection)request.getAttribute("con");

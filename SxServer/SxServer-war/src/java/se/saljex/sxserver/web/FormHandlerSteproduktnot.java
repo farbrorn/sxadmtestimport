@@ -20,7 +20,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.UserTransaction;
 import se.saljex.sxserver.LocalWebSupportLocal;
-import se.saljex.sxserver.SXUtil;
+import se.saljex.sxlibrary.SXUtil;
+import se.saljex.sxlibrary.WebSupport;
+import se.saljex.sxserver.ServerUtil;
 import se.saljex.sxserver.tables.TableKund;
 import se.saljex.sxserver.tables.TableSteprodukt;
 import se.saljex.sxserver.tables.TableSteproduktnot;
@@ -118,17 +120,17 @@ public class FormHandlerSteproduktnot extends FormHandler {
 	protected void handleOtherAction() throws IOException, ServletException {
 		if (K_GETFILE.equals(action)) {
 			getEntityByRequestAndThrowNotFoundException();
-			WebUtil.sendFile(t.getBilaga(), t.getContenttype(), response.getOutputStream(), response);
+			WebSupport.sendFile(t.getBilaga(), t.getContenttype(), response.getOutputStream(), response);
 
 		} else if (K_GETPDFSERVICEORDER.equals(action)) {
 			getEntityByRequestAndThrowNotFoundException();
 			try {
 				if (ARENDETYP_SERVICEORDER.equals(t.getArendetyp())) {
-					WebUtil.sendPdf(lookupLocalWebSupportBean().getPdfSteServiceorder(t.getId()), response.getOutputStream(), response);
+					WebSupport.sendPdf(lookupLocalWebSupportBean().getPdfSteServiceorder(t.getId()), response.getOutputStream(), response);
 				} else {
 					response.getWriter().print("Inte en serviceorder");
 				}
-			} catch (com.lowagie.text.DocumentException e) {SXUtil.log(e.toString()); e.printStackTrace();}
+			} catch (com.lowagie.text.DocumentException e) {ServerUtil.log(e.toString()); e.printStackTrace();}
 		} else {
 			getJsp(ACTION_LIST);
 		}
@@ -173,7 +175,7 @@ public class FormHandlerSteproduktnot extends FormHandler {
 				if (maxId==null) maxId=0;
 				maxId++;
 				t.setId(maxId);
-				t.setAnvandare(WebUtil.getSXSession(request.getSession()).getIntraAnvandareKort());
+				t.setAnvandare(WebSupport.getSXSession(request.getSession()).getIntraAnvandareKort());
 				em.persist(t);
 				utx.commit();
 			} catch (EntityExistsException e1) {

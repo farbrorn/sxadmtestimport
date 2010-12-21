@@ -16,7 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.UserTransaction;
 import se.saljex.sxserver.LocalWebSupportLocal;
-import se.saljex.sxserver.SXUtil;
+import se.saljex.sxlibrary.SXUtil;
 
 /**
  *

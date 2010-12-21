@@ -1,14 +1,14 @@
 
 package se.saljex.sxserver.web;
 
-import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.Date;
-import se.saljex.sxserver.SXUtil;
+import se.saljex.sxlibrary.SXUtil;
+import se.saljex.sxserver.ServerUtil;
 
 /**
  *
@@ -85,7 +85,7 @@ private PreparedStatement qart;
 			super.initSql("select f2.artnr, sum(f2.summa), sum(f2.lev), count(*) from faktura1 f1, faktura2 f2 where f1.faktnr = f2.faktnr and f1.kundnr = ? and f1.datum between ? and ? and f2.artnr not like '*%' and f2.lev <> 0 group by f2.artnr order by " + orderByStr);
 			setupQueryParameter(super.query);
 			super.getPage(page);		
-		} catch (SQLException sqe) { SXUtil.log("Exception i getPage" + sqe.toString()); }
+		} catch (SQLException sqe) { ServerUtil.log("Exception i getPage" + sqe.toString()); }
 	}	
 	
 	private void setupQueryParameter(PreparedStatement q) throws SQLException {
@@ -107,7 +107,7 @@ private PreparedStatement qart;
 			r.next();
 			ret = r.getString(1);
 			if (ret == null) ret = "";
-		} catch (SQLException sqe) { SXUtil.log(sqe.toString()) ;}
+		} catch (SQLException sqe) { ServerUtil.log(sqe.toString()) ;}
 		return ret;
 	}
 	

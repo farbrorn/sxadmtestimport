@@ -7,6 +7,7 @@
 <%@ page import="se.saljex.sxserver.*" %>
 <%@ page import="se.saljex.sxserver.web.*" %>
 <%@ page import="se.saljex.sxserver.tables.*" %>
+<%@ page import="se.saljex.sxlibrary.*" %>
 
 <%
 FormHandlerSteproduktnot f = (FormHandlerSteproduktnot)request.getAttribute("FormHandlerSteproduktnot");

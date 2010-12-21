@@ -4,13 +4,15 @@
     Author     : ulf
 --%>
 <%@ page import="se.saljex.sxserver.tables.*" %>
-<%@ page import="se.saljex.sxserver.SXUtil" %>
+<%@ page import="se.saljex.sxlibrary.*" %>
 <%@ page import="se.saljex.sxserver.web.*" %>
 <%@ page import="java.util.List" %>
 <%@ page import="se.saljex.sxserver.websupport.*" %>
+<%@ page import="se.saljex.sxlibrary.SXSession" %>
+
 
 <% 
-SXSession sxSession = WebUtil.getSXSession(session);
+SXSession sxSession = WebSupport.getSXSession(session);
 
 //TableOrder1 o1 = (TableOrder1)request.getAttribute("tableorder1");
 PageListUtlev2 pl = (PageListUtlev2)request.getAttribute("pagelistutlev2");
