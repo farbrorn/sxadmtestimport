@@ -7,9 +7,11 @@
 <%@ page import="se.saljex.sxserver.web.*" %>
 <%@ page import="se.saljex.sxserver.tables.*" %>
 <%@ page import="se.saljex.sxserver.websupport.*" %>
+<%@ page import="se.saljex.sxlibrary.SXSession" %>
+<%@ page import="se.saljex.sxlibrary.*" %>
 
 <% 
-SXSession sxSession = WebUtil.getSXSession(session);
+SXSession sxSession = WebSupport.getSXSession(session);
 TableKund k = (TableKund)request.getAttribute("kund");
 TableKundkontakt kk = (TableKundkontakt)request.getAttribute("kundkontakt");
 

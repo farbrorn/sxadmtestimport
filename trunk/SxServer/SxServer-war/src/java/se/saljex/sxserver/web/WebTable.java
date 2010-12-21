@@ -9,7 +9,7 @@ import java.sql.SQLException;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
-import se.saljex.sxserver.SXUtil;
+import se.saljex.sxlibrary.SXUtil;
 
 /**
  *

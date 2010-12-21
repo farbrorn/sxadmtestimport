@@ -3,9 +3,12 @@
     Created on : 2008-jun-16, 21:59:23
     Author     : ulf
 --%>
+<%@ page import="se.saljex.sxlibrary.WebSupport" %>
 <%@ page import="se.saljex.sxserver.websupport.*" %>
 <%@ page import="se.saljex.sxserver.web.*" %>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@ page import="se.saljex.sxlibrary.SXSession" %>
+
 <%
 LoginFormData f = (LoginFormData)request.getAttribute("loginformdata");
 if (f == null) { f = new LoginFormData(); }
@@ -14,7 +17,7 @@ if (refPage == null) { refPage = "kund"; }
 String loginType = request.getParameter("logintype");
 if (loginType == null) { loginType = "kund"; }
 			  
-SXSession sxSession = WebUtil.getSXSession(session);
+SXSession sxSession = WebSupport.getSXSession(session);
 request.getRequestDispatcher("/WEB-INF/jspf/siteheader.jsp").include(request, response);
 %>
 	<div id="body">

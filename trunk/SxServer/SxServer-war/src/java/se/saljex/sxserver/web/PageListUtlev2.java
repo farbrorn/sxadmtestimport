@@ -7,7 +7,7 @@ package se.saljex.sxserver.web;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import se.saljex.sxserver.SXUtil;
+import se.saljex.sxserver.ServerUtil;
 
 /**
  *
@@ -33,7 +33,7 @@ private String kundnr;
 			super.query.setString(1, kundnr);
 			super.query.setInt(2, ordernr);
 			super.getPage(page);
-		} catch (SQLException sqe) { SXUtil.log("Exception i getPage" + sqe.toString()); }
+		} catch (SQLException sqe) { ServerUtil.log("Exception i getPage" + sqe.toString()); }
 	}	
 
 	public Integer getFaktnr() {				return super.getIntColumn(1);	}

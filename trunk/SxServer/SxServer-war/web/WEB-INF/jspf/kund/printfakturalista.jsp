@@ -3,9 +3,11 @@
     Created on : 2008-jun-16, 19:42:28
     Author     : ulf
 --%>
-<%@ page import="se.saljex.sxserver.SXUtil" %>
+<%@ page import="se.saljex.sxlibrary.*" %>
 <%@ page import="se.saljex.sxserver.web.*" %>
 <%@ page import="se.saljex.sxserver.websupport.*" %>
+<%@ page import="se.saljex.sxlibrary.SXSession" %>
+
  <script type="text/javascript" src="sxdoclib.js"></script>
  <script type="text/javascript">
 	$(document).ready(function() {
@@ -14,7 +16,7 @@
  </script> 
 
 <% 
-SXSession sxSession = WebUtil.getSXSession(session);
+SXSession sxSession = WebSupport.getSXSession(session);
 
 PageListFaktura1 pl = (PageListFaktura1)request.getAttribute("pagelistfaktura1");
 

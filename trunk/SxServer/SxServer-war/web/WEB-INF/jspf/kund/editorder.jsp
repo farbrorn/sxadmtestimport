@@ -4,11 +4,12 @@
     Author     : ulf
 --%>
 <%@ page import="se.saljex.sxserver.tables.*" %>
-<%@ page import="se.saljex.sxserver.SXUtil" %>
+<%@ page import="se.saljex.sxlibrary.*" %>
 <%@ page import="se.saljex.sxserver.web.*" %>
 <%@ page import="se.saljex.sxserver.tables.TableOrder1" %>
 <%@ page import="se.saljex.sxserver.tables.TableOrder2" %>
 <%@ page import="se.saljex.sxserver.websupport.*" %>
+<%@ page import="se.saljex.sxlibrary.SXSession" %>
 
 <%@ page import="java.util.List" %>
  <script type="text/javascript">
@@ -19,7 +20,7 @@
  </script> 
 
 <% 
-SXSession sxSession = WebUtil.getSXSession(session);
+SXSession sxSession = WebSupport.getSXSession(session);
 
 TableOrder1 o1 = (TableOrder1)request.getAttribute("tableorder1");
 List<TableOrder2> lo2 = (List<TableOrder2>)request.getAttribute("listtableorder2");

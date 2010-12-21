@@ -7,6 +7,9 @@
 <%@ page import="se.saljex.sxserver.web.*" %>
 <%@ page import="java.util.List" %>
 <%@ page import="se.saljex.sxserver.websupport.*" %>
+<%@ page import="se.saljex.sxlibrary.SXSession" %>
+<%@ page import="se.saljex.sxlibrary.*" %>
+
  <script type="text/javascript" src="sxdoclib.js"></script>
  <script type="text/javascript">
 $(document).ready(function() {
@@ -16,7 +19,7 @@ $(document).ready(function() {
  </script> 
 
 <% 
-SXSession sxSession = WebUtil.getSXSession(session);
+SXSession sxSession = WebSupport.getSXSession(session);
 
 PageListStatFaktura2 pl = (PageListStatFaktura2)request.getAttribute("pageliststatfaktura2");
 

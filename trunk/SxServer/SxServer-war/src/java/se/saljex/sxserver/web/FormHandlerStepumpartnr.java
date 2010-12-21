@@ -11,7 +11,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.UserTransaction;
-import se.saljex.sxserver.SXUtil;
+import se.saljex.sxlibrary.SXUtil;
 import se.saljex.sxserver.tables.TableStepumpartnr;
 
 public class FormHandlerStepumpartnr extends FormHandler {

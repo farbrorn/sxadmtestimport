@@ -1,11 +1,12 @@
 
-<%@ page import="se.saljex.sxserver.SXUtil" %>
+<%@ page import="se.saljex.sxlibrary.*" %>
 <%@ page import="se.saljex.sxserver.web.*" %>
 <%@ page import="java.util.ArrayList" %>
 <%@ page import="se.saljex.sxserver.websupport.*" %>
+<%@ page import="se.saljex.sxlibrary.SXSession" %>
 
 <% 
-SXSession sxSession = WebUtil.getSXSession(session);
+SXSession sxSession = WebSupport.getSXSession(session);
 String divInfo = (String)request.getAttribute("divinfo");
 RappEdit r = (RappEdit)request.getAttribute("rappedit");
 Integer rappSession = r.getRappSession();

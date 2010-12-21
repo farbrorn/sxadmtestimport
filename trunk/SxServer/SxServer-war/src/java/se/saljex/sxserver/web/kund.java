@@ -1,7 +1,8 @@
 package se.saljex.sxserver.web;
 
+import se.saljex.sxlibrary.SXUtil;
 import se.saljex.sxserver.websupport.WebUtil;
-import se.saljex.sxserver.websupport.SXSession;
+import se.saljex.sxlibrary.SXSession;
 import se.saljex.sxserver.tables.TableKund;
 import se.saljex.sxserver.tables.TableFaktura2;
 import se.saljex.sxserver.tables.TableFaktura1;
@@ -9,6 +10,7 @@ import se.saljex.sxserver.tables.TableOrder1;
 import se.saljex.sxserver.tables.TableKundres;
 import se.saljex.sxserver.tables.TableOrder2;
 import java.io.*;
+import se.saljex.sxlibrary.WebSupport;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -97,7 +99,7 @@ private EntityManagerFactory emf;
 				if (id == null) { id = "1"; }
 
 				try {
-					sxSession = WebUtil.getSXSession(request.getSession());
+					sxSession = WebSupport.getSXSession(request.getSession());
 
 					// Två rader som fixaar automatisk inloggning för test
 		/*			if (!sxSession.getInloggad()) {
@@ -183,8 +185,8 @@ private EntityManagerFactory emf;
 					nr = Integer.parseInt(request.getParameter("faktnr"));
 				} catch (Exception e) {}
 				try {
-					WebUtil.sendPdf(LocalWebSupportBean.getPdfFaktura(nr, sxSession.getKundnr()), outStream, response);
-				} catch (com.lowagie.text.DocumentException e) {SXUtil.log(e.toString());}
+					WebSupport.sendPdf(LocalWebSupportBean.getPdfFaktura(nr, sxSession.getKundnr()), outStream, response);
+				} catch (com.lowagie.text.DocumentException e) {ServerUtil.log(e.toString());}
 
 			} else if (get.equals("utlev2")) {
 				int nr = 0;

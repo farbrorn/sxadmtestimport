@@ -2,7 +2,7 @@
 package se.saljex.sxserver.web;
 
 import se.saljex.sxserver.websupport.WebUtil;
-import se.saljex.sxserver.websupport.SXSession;
+import se.saljex.sxlibrary.SXSession;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
@@ -20,8 +20,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.sql.DataSource;
 import javax.transaction.UserTransaction;
-import se.saljex.sxserver.SXConstant;
-import se.saljex.sxserver.SXUtil;
+import se.saljex.sxlibrary.SXConstant;
+import se.saljex.sxlibrary.SXUtil;
+import se.saljex.sxlibrary.WebSupport;
 
 /**
  *
@@ -84,7 +85,7 @@ System.out.print("zzzzz-"+s);
 			if (id == null) { id = "welcome"; }
 			
 
-			sxSession = WebUtil.getSXSession(req.getSession());
+			sxSession = WebSupport.getSXSession(req.getSession());
 			if (!sxSession.getInloggad()) {
 				response.setStatus(response.SC_MOVED_TEMPORARILY);
 				response.setHeader("Location", "login?refpage=ste&logintype=intra");

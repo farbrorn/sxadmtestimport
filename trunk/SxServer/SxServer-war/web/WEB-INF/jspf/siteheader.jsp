@@ -1,9 +1,11 @@
 <%@ page import="se.saljex.sxserver.*" %>
 <%@ page import="se.saljex.sxserver.web.*" %>
 <%@ page import="se.saljex.sxserver.websupport.*" %>
+<%@ page import="se.saljex.sxlibrary.SXSession" %>
+<%@ page import="se.saljex.sxlibrary.WebSupport" %>
 
 <% 
-SXSession sxSession = WebUtil.getSXSession(session);
+SXSession sxSession = WebSupport.getSXSession(session);
 String anv = "";
 if (sxSession.getKundLoginNamn() != null) {
 	anv = sxSession.getKundKontaktNamn() + ", " + sxSession.getKundnamn();

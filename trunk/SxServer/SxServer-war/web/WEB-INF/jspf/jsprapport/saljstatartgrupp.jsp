@@ -3,7 +3,7 @@
     Created on : 2009-mar-22, 14:26:08
     Author     : ulf
 --%>
-<%@ page import="se.saljex.sxserver.SXUtil" %>
+<%@ page import="se.saljex.sxlibrary.*" %>
 <%@ page import="se.saljex.sxserver.websupport.GoogleChartHandler" %>
 <%@ page import="se.saljex.sxserver.web.*" %>
 <%@ page import="java.sql.*" %>

@@ -11,7 +11,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.Date;
-import se.saljex.sxserver.SXUtil;
+import se.saljex.sxlibrary.SXUtil;
+import se.saljex.sxserver.ServerUtil;
 
 /**
  *
@@ -124,7 +125,7 @@ private String orderByStr;
 				super.query.setString(4, marke);
 			}
 			super.getPage(page);
-		} catch (SQLException sqe) { SXUtil.log("Exception i getPage" + sqe.toString()); }
+		} catch (SQLException sqe) { ServerUtil.log("Exception i getPage" + sqe.toString()); }
 	}	
 
 	public Integer getOrdernr() {	return super.getIntColumn(1);	}

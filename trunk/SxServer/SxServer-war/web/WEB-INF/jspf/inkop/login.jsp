@@ -7,9 +7,12 @@
 <%@ page import="se.saljex.sxserver.web.*" %>
 <%@ page import="java.util.List" %>
 <%@ page import="se.saljex.sxserver.websupport.*" %>
+<%@ page import="se.saljex.sxlibrary.SXSession" %>
+<%@ page import="se.saljex.sxlibrary.*" %>
+
 
 <% 
-SXSession sxSession = WebUtil.getSXSession(session);
+SXSession sxSession = WebSupport.getSXSession(session);
 
 se.saljex.sxserver.web.inkop.LoginForm l = (se.saljex.sxserver.web.inkop.LoginForm)request.getAttribute("loginform");
 %>

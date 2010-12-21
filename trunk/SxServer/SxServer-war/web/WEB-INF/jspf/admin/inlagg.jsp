@@ -3,15 +3,18 @@
     Created on : 2009-feb-23, 09:23:51
     Author     : ulf
 --%>
-<%@ page import="se.saljex.sxserver.SXUtil" %>
+<%@ page import="se.saljex.sxlibrary.*" %>
+<%@ page import="se.saljex.sxlibrary.WebSupport" %>
 <%@ page import="se.saljex.sxserver.web.*" %>
 <%@ page import="se.saljex.sxserver.websupport.*" %>
 <%@ page import="java.sql.*" %>
 <%@ page import="java.util.ArrayList" %>
+<%@ page import="se.saljex.sxlibrary.SXSession" %>
+
 Inlägg<br/>
 <%
 	Connection con = (java.sql.Connection)request.getAttribute("con");
-	SXSession sXSession = WebUtil.getSXSession(session);
+	SXSession sXSession = WebSupport.getSXSession(session);
 	InlaggHandler ih = new InlaggHandler(con);
 	ih.setupFromRequest(request);
 	// Kolla om vi har en DO-request och utför den. Efter utförande har action-åtgärden ändrats

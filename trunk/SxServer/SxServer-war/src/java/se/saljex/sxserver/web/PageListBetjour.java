@@ -8,7 +8,8 @@ package se.saljex.sxserver.web;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Date;
-import se.saljex.sxserver.SXUtil;
+import se.saljex.sxlibrary.SXUtil;
+import se.saljex.sxserver.ServerUtil;
 
 /**
  *
@@ -58,7 +59,7 @@ private Date tidat;
 			super.initSql("select faktnr, betdat, betsatt, bet from betjour where " + whereStr + " order by betdat desc, betsatt, faktnr"); 
 			super.query.setString(1, kundnr);
 			super.getPage(page);
-		} catch (SQLException sqe) { SXUtil.log("Exception i getPage" + sqe.toString()); }
+		} catch (SQLException sqe) { ServerUtil.log("Exception i getPage" + sqe.toString()); }
 	}	
 
 	public Integer getFaktnr() {	return super.getIntColumn(1);	}

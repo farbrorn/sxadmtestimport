@@ -6,7 +6,8 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.Date;
-import se.saljex.sxserver.SXUtil;
+import se.saljex.sxlibrary.SXUtil;
+import se.saljex.sxserver.ServerUtil;
 
 /**
  *
@@ -71,7 +72,7 @@ private String artnr;
 			setupQueryParameter(super.query);
 			
 			super.getPage(page);
-		} catch (SQLException sqe) { SXUtil.log("Exception i getArtdetaljer" + sqe.toString()); }
+		} catch (SQLException sqe) { ServerUtil.log("Exception i getArtdetaljer" + sqe.toString()); }
 	}	
 	
 	private void setupQueryParameter(PreparedStatement q) throws SQLException {

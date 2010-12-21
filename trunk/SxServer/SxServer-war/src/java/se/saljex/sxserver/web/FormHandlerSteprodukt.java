@@ -16,7 +16,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.UserTransaction;
-import se.saljex.sxserver.SXUtil;
+import se.saljex.sxlibrary.SXUtil;
+import se.saljex.sxlibrary.WebSupport;
+
 import se.saljex.sxserver.tables.TableArtikel;
 import se.saljex.sxserver.tables.TableFaktura1;
 import se.saljex.sxserver.tables.TableKund;
@@ -170,7 +172,7 @@ public class FormHandlerSteprodukt extends FormHandler {
 		if (!super.isFormError()) {
 			try {
 				utx.begin();
-				t.setAnvandare(WebUtil.getSXSession(request.getSession()).getIntraAnvandareKort());
+				t.setAnvandare(WebSupport.getSXSession(request.getSession()).getIntraAnvandareKort());
 				em.persist(t);
 				utx.commit();
 			} catch (EntityExistsException e1) {
