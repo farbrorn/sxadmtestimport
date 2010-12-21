@@ -66,14 +66,14 @@ import se.saljex.SxShop.client.rpcobject.StatInkopRow;
 import se.saljex.SxShop.client.rpcobject.UtlevInfo;
 import se.saljex.SxShop.client.rpcobject.UtlevList;
 import se.saljex.SxShop.client.rpcobject.UtlevRow;
-import se.saljex.sxserver.KreditSparrException;
-import se.saljex.sxserver.LocalWebSupportLocal;
-import se.saljex.sxserver.SXConstant;
-import se.saljex.sxserver.SXUtil;
-import se.saljex.sxserver.SxServerMainLocal;
+import se.saljex.sxlibrary.exceptions.KreditSparrException;
+import se.saljex.sxlibrary.SXConstant;
+import se.saljex.sxlibrary.SXUtil;
 import se.saljex.sxserver.websupport.GoogleChartHandler;
-import se.saljex.sxserver.websupport.SXSession;
-import se.saljex.sxserver.websupport.WebUtil;
+import se.saljex.sxlibrary.SXSession;
+import se.saljex.sxlibrary.WebSupport;
+import se.saljex.sxlibrary.LocalWebSupportRemote;
+import se.saljex.sxlibrary.SxServerMainRemote;
 
 /**
  *
@@ -83,9 +83,10 @@ import se.saljex.sxserver.websupport.WebUtil;
 public class SxShopRPCImpl extends RemoteServiceServlet implements
 		  SxShopRPC {
 	@EJB
-	private SxServerMainLocal sxServerMainBean;
-	@EJB
-	private LocalWebSupportLocal localWebSupportBean;
+	private LocalWebSupportRemote localWebSupportBean;
+	@EJB	
+	private SxServerMainRemote sxServerMainBean;
+
 	@javax.annotation.Resource(name = "sxadm")
 	private DataSource sxadm;
 
@@ -260,7 +261,7 @@ public class SxShopRPCImpl extends RemoteServiceServlet implements
 //		ensureLoggedIn();
 //		} catch (Exception e) {}
 
-		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
+		SXSession sxSession = WebSupport.getSXSession(getThreadLocalRequest().getSession());
 		Anvandare anvandare=new Anvandare();
 		if (!sxSession.checkBehorighetKund()) {
 			sxSession.setGastLogin(true);
@@ -279,7 +280,7 @@ public class SxShopRPCImpl extends RemoteServiceServlet implements
 	}
 
 	public Anvandare autoLogin(String anvandare, String autoLogInId) throws IncorrectLogInException, ServerErrorException {
-		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
+		SXSession sxSession = WebSupport.getSXSession(getThreadLocalRequest().getSession());
 		
 		if (!sxSession.getInloggad()) {	// Om vi redan är inloggad så ska vi inte försöka igen
 			if (anvandare!=null && autoLogInId!=null) {
@@ -288,7 +289,7 @@ public class SxShopRPCImpl extends RemoteServiceServlet implements
 					try {
 						con = sxadm.getConnection();
 						//Autoinlogga om möjligt. Skulle det inte gå faller vi igenom och functionen returnerar gästlogin
-						WebUtil.autoLogInKund(getThreadLocalRequest(), con, anvandare, autoLogInId);
+						WebSupport.autoLogInKund(getThreadLocalRequest(), con, anvandare, autoLogInId);
 
 					} catch (SQLException e) {
 						e.printStackTrace();
@@ -306,7 +307,7 @@ public class SxShopRPCImpl extends RemoteServiceServlet implements
 		Connection con=null;
 		try {
 			con = sxadm.getConnection();
-			if (WebUtil.logInKund(getThreadLocalRequest(), con, anvandare, losen, stayLoggedIn)) {
+			if (WebSupport.logInKund(getThreadLocalRequest(), con, anvandare, losen, stayLoggedIn)) {
 				return getInloggadAnvandare();
 			} else {
 				throw new IncorrectLogInException("Felaktig användare/lösen");
@@ -324,7 +325,7 @@ public class SxShopRPCImpl extends RemoteServiceServlet implements
 		Connection con=null;
 		try {
 			con = sxadm.getConnection();
-			WebUtil.logOutKund(getThreadLocalRequest(),con);
+			WebSupport.logOutKund(getThreadLocalRequest(),con);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		} finally {
@@ -336,11 +337,11 @@ public class SxShopRPCImpl extends RemoteServiceServlet implements
 
 	private void ensureLoggedIn() throws NotLoggedInException {
 		// Throw exception om inte inloggad, annars ingen åtgärd
-		if (!WebUtil.getSXSession(getThreadLocalRequest().getSession()).checkBehorighetKund()) throw new NotLoggedInException();
+		if (!WebSupport.getSXSession(getThreadLocalRequest().getSession()).checkBehorighetKund()) throw new NotLoggedInException();
 	}
 
 	public ArrayList<VaruKorgRad> deleteVaruKorg(String artnr) throws NotLoggedInException {
-		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
+		SXSession sxSession = WebSupport.getSXSession(getThreadLocalRequest().getSession());
 
 		ensureLoggedIn();
 
@@ -378,7 +379,7 @@ public class SxShopRPCImpl extends RemoteServiceServlet implements
 
 	public ArrayList<VaruKorgRad> updateVaruKorg(String artnr, double antal) throws NotLoggedInException, FelaktigtAntalException{
 		ArrayList<VaruKorgRad> ar=null;
-		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
+		SXSession sxSession = WebSupport.getSXSession(getThreadLocalRequest().getSession());
 
 		ensureLoggedIn();
 
@@ -406,7 +407,7 @@ public class SxShopRPCImpl extends RemoteServiceServlet implements
 
 	public ArrayList<VaruKorgRad> addVaruKorg(String artnr, double antal) throws NotLoggedInException, FelaktigtAntalException, ServerErrorException {
 		ArrayList<VaruKorgRad> ar=null;
-		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
+		SXSession sxSession = WebSupport.getSXSession(getThreadLocalRequest().getSession());
 
 		ensureLoggedIn();
 
@@ -521,7 +522,7 @@ public class SxShopRPCImpl extends RemoteServiceServlet implements
 
 
 	public ArrayList<VaruKorgRad> getVaruKorg() throws NotLoggedInException {
-		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
+		SXSession sxSession = WebSupport.getSXSession(getThreadLocalRequest().getSession());
 
 		ensureLoggedIn();
 	
@@ -539,7 +540,7 @@ public class SxShopRPCImpl extends RemoteServiceServlet implements
 	public ArrayList<Integer> skickaOrder(String marke) throws NotLoggedInException, SxShopKreditSparrException {
 		//Sparar varukorgen som en order
 		//Returnerar null om inga rader finns i varukorgen
-		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
+		SXSession sxSession = WebSupport.getSXSession(getThreadLocalRequest().getSession());
 		ensureLoggedIn();
 		Connection con=null;
 		ArrayList<Integer> orders=null;
@@ -547,7 +548,7 @@ public class SxShopRPCImpl extends RemoteServiceServlet implements
 			con = sxadm.getConnection();
 			orders =	sxServerMainBean.saveSxShopOrder(sxSession.getKundKontaktId(), sxSession.getKundnr(), sxSession.getKundKontaktNamn(), (short)0, marke);
 			for (Integer o : orders) {
-				WebUtil.logAnvandarhandelse(getThreadLocalRequest(), con, sxSession.getKundLoginNamn(), "Sparad order: " + o);
+				WebSupport.logAnvandarhandelse(getThreadLocalRequest(), con, sxSession.getKundLoginNamn(), "Sparad order: " + o);
 			}
 		} catch (KreditSparrException e) { throw new SxShopKreditSparrException(); }
 		catch (SQLException se) { se.printStackTrace(); }// I övrigt ingnorera denna eftersom ordrarna ändå är sparade
@@ -907,7 +908,7 @@ String q3=" ) as g"+
 	//Returnerar alla artiklar som ligger på kampanj
 	public SokResult getKampanjartiklar() throws ServerErrorException, NotLoggedInException{
 		ensureLoggedIn();
-		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
+		SXSession sxSession = WebSupport.getSXSession(getThreadLocalRequest().getSession());
 		Connection con=null;
 		SokResult sokResult = new SokResult();
 		sokResult.maxRader=0;
@@ -1067,7 +1068,7 @@ String q3=" ) as g"+
 	
 	//Get fakturalista med start från offset om pageSize antal rader
 	public FakturaHeaderList getFakturaHeaders(int startRow, int pageSize) throws ServerErrorException, NotLoggedInException {
-		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
+		SXSession sxSession = WebSupport.getSXSession(getThreadLocalRequest().getSession());
 		ensureLoggedIn();
 
 		FakturaHeaderList list = new FakturaHeaderList();
@@ -1124,7 +1125,7 @@ String q3=" ) as g"+
 
 
 	public FakturaInfo getFakturaInfo(int faktnr) throws ServerErrorException, NotLoggedInException {
-		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
+		SXSession sxSession = WebSupport.getSXSession(getThreadLocalRequest().getSession());
 		ensureLoggedIn();
 
 		FakturaInfo fakturaInfo = null;
@@ -1180,7 +1181,7 @@ String q3=" ) as g"+
 
 	//Get offertlista med start från offset om pageSize antal rader
 	public OffertHeaderList getOffertHeaders(int startRow, int pageSize) throws ServerErrorException, NotLoggedInException {
-		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
+		SXSession sxSession = WebSupport.getSXSession(getThreadLocalRequest().getSession());
 		ensureLoggedIn();
 
 		OffertHeaderList list = new OffertHeaderList();
@@ -1221,7 +1222,7 @@ String q3=" ) as g"+
 
 	public OffertInfo getOffertInfo(int offertnr) throws ServerErrorException, NotLoggedInException {
 		OffertInfo info=null;
-		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
+		SXSession sxSession = WebSupport.getSXSession(getThreadLocalRequest().getSession());
 		ensureLoggedIn();
 		Connection con=null;
 		try {
@@ -1372,7 +1373,7 @@ String q3=" ) as g"+
 	}
 	public OrderInfo getOrderInfo(int ordernr) throws ServerErrorException, NotLoggedInException {
 		ensureLoggedIn();
-		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
+		SXSession sxSession = WebSupport.getSXSession(getThreadLocalRequest().getSession());
 		OrderInfo orderInfo=new OrderInfo();
 		Connection con=null;
 		try {
@@ -1393,7 +1394,7 @@ String q3=" ) as g"+
 	public OrderHeaderList getOrderHeaders() throws ServerErrorException, NotLoggedInException{
 		ensureLoggedIn();
 		OrderHeaderList list =new OrderHeaderList();
-		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
+		SXSession sxSession = WebSupport.getSXSession(getThreadLocalRequest().getSession());
 		Connection con=null;
 		try {
 			con = sxadm.getConnection();
@@ -1407,7 +1408,7 @@ String q3=" ) as g"+
 
 	public void deleteOrder(int ordernr) throws ServerErrorException, NotLoggedInException {
 		ensureLoggedIn();
-		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
+		SXSession sxSession = WebSupport.getSXSession(getThreadLocalRequest().getSession());
 		Connection con=null;
 		try {
 			con = sxadm.getConnection();
@@ -1421,7 +1422,7 @@ String q3=" ) as g"+
 
 	public void changeOrderRow(int ordernr, int pos, String antal) throws ServerErrorException, NotLoggedInException {
 		ensureLoggedIn();
-		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
+		SXSession sxSession = WebSupport.getSXSession(getThreadLocalRequest().getSession());
 		Connection con=null;
 		double antalD;
 		try {
@@ -1439,7 +1440,7 @@ String q3=" ) as g"+
 
 
 	private boolean isOrderRowBehorigAndChangable(Connection con, int ordernr, int pos) throws SQLException {
-		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
+		SXSession sxSession = WebSupport.getSXSession(getThreadLocalRequest().getSession());
 		PreparedStatement stm = con.prepareStatement("select status, lastdatum from order1 where ordernr=? and kundnr=?");
 		stm.setInt(1, ordernr);
 		stm.setString(2, sxSession.getKundnr());
@@ -1461,7 +1462,7 @@ String q3=" ) as g"+
 		return false;
 	}
 	private boolean isOrderBehorigAndDeletable(Connection con, int ordernr) throws SQLException {
-		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
+		SXSession sxSession = WebSupport.getSXSession(getThreadLocalRequest().getSession());
 		OrderHeader oh = doGetOrderHeader(con, ordernr, sxSession.getKundnr());
 		if (oh!=null && oh.isDeletable) return true;
 		return false;
@@ -1470,7 +1471,7 @@ String q3=" ) as g"+
 
 	public ArrayList<KundresRow> getKundresLista() throws ServerErrorException, NotLoggedInException {
 		ensureLoggedIn();
-		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
+		SXSession sxSession = WebSupport.getSXSession(getThreadLocalRequest().getSession());
 
 		ArrayList<KundresRow> arr = new ArrayList();
 		KundresRow row;
@@ -1510,7 +1511,7 @@ String q3=" ) as g"+
 
 	public BetalningList getBetalningList(int startRow, int pageSize) throws ServerErrorException, NotLoggedInException {
 		ensureLoggedIn();
-		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
+		SXSession sxSession = WebSupport.getSXSession(getThreadLocalRequest().getSession());
 
 		BetalningList list = new BetalningList();
 		if (startRow<0) startRow=0;
@@ -1567,7 +1568,7 @@ String q3=" ) as g"+
 
 	public UtlevList getUtlevList(int startRow, int pageSize, String frdat, String tidat, String sokstr) throws ServerErrorException, NotLoggedInException {
 		ensureLoggedIn();
-		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
+		SXSession sxSession = WebSupport.getSXSession(getThreadLocalRequest().getSession());
 
 		UtlevList list = new UtlevList();
 		if (startRow<0) startRow=0;
@@ -1638,7 +1639,7 @@ String q3=" ) as g"+
 
 	public UtlevInfo getUtlevInfo(int  ordernr) throws ServerErrorException, NotLoggedInException {
 		ensureLoggedIn();
-		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
+		SXSession sxSession = WebSupport.getSXSession(getThreadLocalRequest().getSession());
 
 		UtlevInfo utlevInfo = new UtlevInfo();
 		Connection con=null;
@@ -1672,7 +1673,7 @@ String q3=" ) as g"+
 
 	public StatArtikelList getStatArtikelList(int startRow, int pageSize, String frdat, String tidat, String sokstr, String orderBy) throws ServerErrorException, NotLoggedInException {
 		ensureLoggedIn();
-		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
+		SXSession sxSession = WebSupport.getSXSession(getThreadLocalRequest().getSession());
 
 		StatArtikelList list = new StatArtikelList();
 		if (startRow<0) startRow=0;
@@ -1756,7 +1757,7 @@ String q3=" ) as g"+
 
 	public ArrayList<StatArtikelFakturaRow> getStatArtikelFakturaRows(String artnr, String frdat, String tidat) throws ServerErrorException, NotLoggedInException {
 		ensureLoggedIn();
-		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
+		SXSession sxSession = WebSupport.getSXSession(getThreadLocalRequest().getSession());
 
 		ArrayList<StatArtikelFakturaRow> rader = new ArrayList();
 
@@ -1820,7 +1821,7 @@ String q3=" ) as g"+
 
 	public StatInkopHeader getStatInkopRows(int antalArBakat) throws ServerErrorException, NotLoggedInException {
 		ensureLoggedIn();
-		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
+		SXSession sxSession = WebSupport.getSXSession(getThreadLocalRequest().getSession());
 		StatInkopHeader st = new StatInkopHeader();
 		StatInkopRow row=null;
 		Connection con=null;
@@ -1880,7 +1881,7 @@ String q3=" ) as g"+
 
 	public void updateAnvandareUppgifter(AnvandareUppgifter a) throws ServerErrorException, NotLoggedInException {
 		ensureLoggedIn();
-		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
+		SXSession sxSession = WebSupport.getSXSession(getThreadLocalRequest().getSession());
 
 		Connection con=null;
 		try {
@@ -1907,7 +1908,7 @@ String q3=" ) as g"+
 
 	public AnvandareUppgifter getAnvandareUppgifter() throws ServerErrorException, NotLoggedInException {
 		ensureLoggedIn();
-		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
+		SXSession sxSession = WebSupport.getSXSession(getThreadLocalRequest().getSession());
 
 		AnvandareUppgifter a =new AnvandareUppgifter();
 
@@ -1943,7 +1944,7 @@ String q3=" ) as g"+
 
 	public void updateLosen(String nyttLosen, String upprepaLosen, String gammaltLosen) throws ServerErrorException, NotLoggedInException {
 		ensureLoggedIn();
-		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
+		SXSession sxSession = WebSupport.getSXSession(getThreadLocalRequest().getSession());
 
 		if (nyttLosen==null) throw new ServerErrorException("Inget lösenord angivet");
 		if (nyttLosen.length() < 5) throw new ServerErrorException("Lösenordet är för kort");
@@ -1968,7 +1969,7 @@ String q3=" ) as g"+
 	public ArrayList<ArtGrpBilder> getBilderForArtGrpNodes(int grpid, int maxbilder) throws ServerErrorException {
 		ArrayList<ArtGrpBilder> arr = new ArrayList();
 		ArtGrpBilder bilder;
-		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
+		SXSession sxSession = WebSupport.getSXSession(getThreadLocalRequest().getSession());
 
 		Connection con=null;
 		try {
@@ -2015,7 +2016,7 @@ String q3=" ) as g"+
 	}
 	public void dummyFunctionToHoldSkelton() throws ServerErrorException, NotLoggedInException {
 		ensureLoggedIn();
-		SXSession sxSession = WebUtil.getSXSession(getThreadLocalRequest().getSession());
+		SXSession sxSession = WebSupport.getSXSession(getThreadLocalRequest().getSession());
 
 		Connection con=null;
 		try {
