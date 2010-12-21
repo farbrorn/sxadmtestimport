@@ -16,7 +16,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import se.saljex.sxserver.SxServerMainLocal;
+import se.saljex.sxlibrary.SxServerMainRemote;
 
 /**
  *
@@ -24,8 +24,8 @@ import se.saljex.sxserver.SxServerMainLocal;
  */
 @RunAs("admin")
 public class getdoc extends HttpServlet {
-      @EJB
-    private SxServerMainLocal SxServerMainBean;
+//      @EJB
+//    private SxServerMainRemote SxServerMainBean;
 
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -36,7 +36,7 @@ public class getdoc extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-        OutputStream outStream=null;
+/*        OutputStream outStream=null;
 		  PrintWriter outWriter=null;
 		  Integer docId=null;
 
@@ -76,7 +76,7 @@ public class getdoc extends HttpServlet {
 			} finally {
 				try { outStream.close(); } catch (Exception e) {}
 				try { outWriter.close(); } catch (Exception e) {}
-        }
+        }*/
     } 
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
@@ -87,7 +87,7 @@ public class getdoc extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
-    @Override
+   @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
         processRequest(request, response);

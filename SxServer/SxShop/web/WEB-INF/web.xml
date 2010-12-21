@@ -23,5 +23,5 @@
     </session-config>
     <welcome-file-list>
         <welcome-file>welcomeGWT.html</welcome-file>
-        </welcome-file-list>
-    </web-app>
+    </welcome-file-list>
+</web-app>

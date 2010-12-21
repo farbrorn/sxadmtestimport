@@ -10,14 +10,22 @@
                     <file>${reference.SxServer-ejb.dist}</file>
                 </library>
                 <library dirs="200">
-                    <file>${libs.GWT2.0.3.classpath}</file>
-                    <path-in-war>WEB-INF/lib</path-in-war>
-                </library>
-                <library dirs="200">
                     <file>${file.reference.gwt-dev.jar}</file>
                 </library>
                 <library dirs="200">
                     <file>${file.reference.gwt-servlet.jar}</file>
+                </library>
+                <library dirs="200">
+                    <file>${libs.GWT2.1.0.classpath}</file>
+                    <path-in-war>WEB-INF/lib</path-in-war>
+                </library>
+                <library dirs="200">
+                    <file>${reference.SxLibrary.jar}</file>
+                    <path-in-war>WEB-INF/lib</path-in-war>
+                </library>
+                <library dirs="200">
+                    <file>${file.reference.iText-2.0.7.jar}</file>
+                    <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
             </web-module-libraries>
             <web-module-additional-libraries/>
@@ -29,6 +37,14 @@
             </test-roots>
         </data>
         <references xmlns="http://www.netbeans.org/ns/ant-project-references/1">
+            <reference>
+                <foreign-project>SxLibrary</foreign-project>
+                <artifact-type>jar</artifact-type>
+                <script>build.xml</script>
+                <target>jar</target>
+                <clean-target>clean</clean-target>
+                <id>jar</id>
+            </reference>
             <reference>
                 <foreign-project>SxServer-ejb</foreign-project>
                 <artifact-type>jar</artifact-type>
