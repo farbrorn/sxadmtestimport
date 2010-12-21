@@ -6,6 +6,7 @@
 package se.saljex.bv.server;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.security.RunAs;
 import javax.ejb.EJB;
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
@@ -20,18 +21,18 @@ import se.saljex.bv.client.FakturajournalList;
 import se.saljex.bv.client.Order;
 import se.saljex.bv.client.Order1List;
 import se.saljex.bv.client.OrderLookupResp;
-import se.saljex.bv.client.OverforBVOrderResp;
-import se.saljex.sxserver.SxServerMainLocal;
 import se.saljex.bv.client.ServerErrorException;
+import se.saljex.sxlibrary.SxServerMainRemote;
 
 /**
  *
  * @author ulf
  */
 @WebService()
+@RunAs("admin")
 public class BvWebService {
 	@EJB
-	private SxServerMainLocal sxServerMainBean;
+	private SxServerMainRemote sxServerMainBean;
 	@javax.annotation.Resource(name = "sxadmkundbv")
 	private DataSource bvDataSource;
 	@javax.annotation.Resource(name = "sxadm")

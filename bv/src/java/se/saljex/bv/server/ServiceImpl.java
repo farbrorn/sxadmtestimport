@@ -29,16 +29,16 @@ import se.saljex.bv.client.OrderHand;
 import se.saljex.bv.client.OrderLookupResp;
 import se.saljex.bv.client.OverforBVOrderResp;
 import se.saljex.bv.client.ServerErrorException;
-import se.saljex.sxserver.SXConstant;
-import se.saljex.sxserver.SXUtil;
-import se.saljex.sxserver.SxServerMainLocal;
+import se.saljex.sxlibrary.SXConstant;
+import se.saljex.sxlibrary.SXUtil;
+import se.saljex.sxlibrary.SxServerMainRemote;
 
 /**
  *
  * @author ulf
  */
 public class ServiceImpl {
-	private SxServerMainLocal sxServerMainBean;
+	private SxServerMainRemote sxServerMainBean;
 	private DataSource bvDataSource;
 	private DataSource sxDataSource;
 
@@ -51,7 +51,7 @@ public class ServiceImpl {
  	 public final static int FILTER_FORSKOTT=4;			//Order som skall betalas förskott
 
 
-	public ServiceImpl(SxServerMainLocal sxServerMainBean, DataSource sxDataSource, DataSource bvDataSource) {
+	public ServiceImpl(SxServerMainRemote sxServerMainBean, DataSource sxDataSource, DataSource bvDataSource) {
 		this.sxServerMainBean = sxServerMainBean;
 		this.sxDataSource=sxDataSource;
 		this.bvDataSource=bvDataSource;
@@ -441,7 +441,7 @@ public class ServiceImpl {
 			resp.sxOrdernr = sxServerMainBean.overforBVOrder(BVKUNDNR, bvOrdernr, "BV", "00", lagernr);
 			resp.bvOrdernr = bvOrdernr;
 			resp.overfordOK=true;
-		} catch (se.saljex.sxserver.SXEntityNotFoundException e) {
+		} catch (se.saljex.sxlibrary.exceptions.SXEntityNotFoundException e) {
 			 resp.error = e.getMessage();
 			 resp.overfordOK=false;
 		}
@@ -834,9 +834,10 @@ public class ServiceImpl {
 	}
 
 	public int skapaBvForskattsbetalning(int ordernr, double belopp, String anvandare, char betalSatt, java.util.Date betalDatum, int talongLopnr) throws ServerErrorException {
-		try {
-			return sxServerMainBean.skapaBvForskattFaktura(ordernr, belopp, "11", anvandare, betalSatt, betalDatum, talongLopnr);
-		} catch (Exception e) { throw new ServerErrorException(e.getMessage()); }
+	 throw new ServerErrorException("Metoden för förskott är borttAGEN!" );
+//		try {
+//			return sxServerMainBean.skapaBvForskattFaktura(ordernr, belopp, "11", anvandare, betalSatt, betalDatum, talongLopnr);
+//		} catch (Exception e) { throw new ServerErrorException(e.getMessage()); }
 	}
 
 }
