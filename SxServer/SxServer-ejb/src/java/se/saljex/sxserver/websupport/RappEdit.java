@@ -12,7 +12,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import javax.servlet.http.HttpServletRequest;
-import se.saljex.sxserver.SXUtil;
+import se.saljex.sxlibrary.SXUtil;
 
 /**
  *

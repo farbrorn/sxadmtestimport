@@ -4,6 +4,9 @@
  */
 
 package se.saljex.sxserver;
+import se.saljex.sxlibrary.exceptions.SxOrderLastException;
+import se.saljex.sxlibrary.exceptions.SXEntityNotFoundException;
+import se.saljex.sxlibrary.exceptions.KreditSparrException;
 import se.saljex.sxserver.tables.TableBest1;
 import se.saljex.sxserver.tables.TableSxservjobb;
 import java.sql.SQLException;
@@ -26,7 +29,7 @@ public interface SxServerMainLocal {
     void handleTimer(Timer timer);
 
     void startTimers();
-    public ByteArrayOutputStream getPdfFaktura(int faktnr) throws IOException;
+//    public ByteArrayOutputStream getPdfFaktura(int faktnr) throws IOException;
 
 	void main();
 
@@ -34,7 +37,7 @@ public interface SxServerMainLocal {
 
 	void startTimer(int time, String timerName);
 
-	String getHTMLStatus();
+//	String getHTMLStatus();
 
 	void handleJobb(TableSxservjobb t) throws Exception;
 
@@ -45,11 +48,11 @@ public interface SxServerMainLocal {
 
 	  ArrayList<Integer> saveWorder(int worderNr) throws SQLException, KreditSparrException;
 
-	ArrayList<Integer> saveSxShopOrder(int kontaktId, String kundnr, String kontaktNamn, short lagerNr, String marke) throws KreditSparrException;
+//	ArrayList<Integer> saveSxShopOrder(int kontaktId, String kundnr, String kontaktNamn, short lagerNr, String marke) throws KreditSparrException;
 
-	boolean sendSimpleMail(String adress, String header, String bodytext);
+//	boolean sendSimpleMail(String adress, String header, String bodytext);
 
-	int overforBVOrder(String sxKundnr, int bvOrdernr, String bvAnvandare, String sxAnvandare, short sxLagernr) throws SXEntityNotFoundException;
+//	int overforBVOrder(String sxKundnr, int bvOrdernr, String bvAnvandare, String sxAnvandare, short sxLagernr) throws SXEntityNotFoundException;
 	void overforBVOrderSaveSxOrder(BvOrder bvOrder) throws SXEntityNotFoundException;
 
 	int faktureraOrder(int ordernr) throws SxOrderLastException;

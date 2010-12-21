@@ -64,8 +64,8 @@ public interface LocalWebSupportLocal {
 
 	ByteArrayOutputStream getPdfSteServiceorder(Integer id) throws DocumentException, IOException;
 
-	public void deleteOrder(int ordernr);
+//	public void deleteOrder(int ordernr);
 
-	public void changeOrderRowAntal(int ordernr,short pos, double antal);
+//	public void changeOrderRowAntal(int ordernr,short pos, double antal);
 
 }

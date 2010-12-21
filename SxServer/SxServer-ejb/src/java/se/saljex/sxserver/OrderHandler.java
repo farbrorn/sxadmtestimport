@@ -5,6 +5,11 @@
 
 package se.saljex.sxserver;
 
+import se.saljex.sxlibrary.exceptions.SxOrderLastException;
+import se.saljex.sxlibrary.exceptions.SXToManyIterationsException;
+import se.saljex.sxlibrary.exceptions.SXEntityNotFoundException;
+import se.saljex.sxlibrary.SXUtil;
+import se.saljex.sxlibrary.SXConstant;
 import se.saljex.sxserver.tables.TableKunrabPK;
 import se.saljex.sxserver.tables.TableFdordernr;
 import se.saljex.sxserver.tables.TableLager;
@@ -218,7 +223,7 @@ public class OrderHandler {
 		ord = new OrderHandlerRad();
 		art = em.find(TableArtikel.class, artnr);
 		if (art == null) {
-			SXUtil.log("OrderHandler-addRow-Kan inte hitta artikel " + artnr + " för order.");
+			ServerUtil.log("OrderHandler-addRow-Kan inte hitta artikel " + artnr + " för order.");
 			throw new SXEntityNotFoundException("Kan inte hitta artikel  " + artnr );
 		}
 		if (!SXUtil.isEmpty(art.getStruktnr())) {		//Det finns struktur på artikeln
@@ -259,7 +264,7 @@ public class OrderHandler {
 		ord = new OrderHandlerRad();
 		art = em.find(TableArtikel.class, artnr); 
 		if (art == null) { 
-			SXUtil.log("OrderHandler-addRow-Kan inte hitta artikel " + artnr + " för order."); 
+			ServerUtil.log("OrderHandler-addRow-Kan inte hitta artikel " + artnr + " för order.");
 			throw new SXEntityNotFoundException("Kan inte hitta artikel  " + artnr );
 		}
 		if (!SXUtil.isEmpty(art.getStruktnr())) {		//Det finns struktur på artikeln

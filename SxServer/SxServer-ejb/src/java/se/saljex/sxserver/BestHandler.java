@@ -4,6 +4,8 @@
  */
 package se.saljex.sxserver;
 
+import se.saljex.sxlibrary.SXUtil;
+import se.saljex.sxlibrary.SXConstant;
 import se.saljex.sxserver.tables.TableArtikel;
 import se.saljex.sxserver.tables.TableLev;
 import se.saljex.sxserver.tables.TableFaktdat;
@@ -108,7 +110,7 @@ public class BestHandler {
 			 bord = new BestHandlerRad();
 			 art = em.find(TableArtikel.class, artnr);
 			 if (art == null) {
-					SXUtil.log("BestHandler-addRow-Kan inte hitta artikel " + artnr + " för best.");
+					ServerUtil.log("BestHandler-addRow-Kan inte hitta artikel " + artnr + " för best.");
 					return null;
 			 }
 			 bord.best = antal;

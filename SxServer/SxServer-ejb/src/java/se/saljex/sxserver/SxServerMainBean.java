@@ -1,5 +1,11 @@
 package se.saljex.sxserver;
 
+import se.saljex.sxlibrary.exceptions.SxOrderLastException;
+import se.saljex.sxlibrary.exceptions.SXEntityNotFoundException;
+import se.saljex.sxlibrary.SxServerMainRemote;
+import se.saljex.sxlibrary.SXUtil;
+import se.saljex.sxlibrary.SXConstant;
+import se.saljex.sxlibrary.exceptions.KreditSparrException;
 import se.saljex.sxserver.tables.TableBest1;
 import se.saljex.sxserver.tables.TableSxservjobb;
 import java.sql.SQLException;
@@ -96,7 +102,7 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 	@Timeout
 	public void handleTimer(Timer timer)   {
 
-		SXUtil.logDebug("handleTimer startad: " + timer.getInfo());
+		ServerUtil.logDebug("handleTimer startad: " + timer.getInfo());
 
 		if (timer.getInfo().equals("JobbTimer")) handleJobbTimer();
 		else if (timer.getInfo().equals("KvartTimer")) handleKvartTimer();
@@ -131,15 +137,15 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 			try {
 				WebArtikelUpdater w = new WebArtikelUpdater(em, conSe);
 				w.updateWArt();
-			} catch (SQLException e) { SXUtil.log("Undantag i handleDygnsTimer vid WebArtikelUpdater: " + e.toString()); }
+			} catch (SQLException e) { ServerUtil.log("Undantag i handleDygnsTimer vid WebArtikelUpdater: " + e.toString()); }
 
 			// Räkna om alla lagervärden
 			try {
 				LagerCheck lagerCheck = new LagerCheck(con);
 				lagerCheck.run();
-			} catch (SQLException e) { SXUtil.log("Undantag i handleDygnsTimer vid LagerCheck: " + e.toString()); }
+			} catch (SQLException e) { ServerUtil.log("Undantag i handleDygnsTimer vid LagerCheck: " + e.toString()); }
 		} catch (SQLException e) {
-			SXUtil.log("Undantag i handleDygnsTimer: " + e.toString());
+			ServerUtil.log("Undantag i handleDygnsTimer: " + e.toString());
 		} finally {
 			try { con.close(); } catch (Exception e) {}
 			try { conSe.close(); } catch (Exception e) {}
@@ -162,9 +168,9 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 				w.updateWArtGrpLank();
 				w.updateWArtKlase();
 				w.updateWArtKlaseLank();
-			} catch (SQLException e) { SXUtil.log("Undantag i handleVeckoTimer vid WebArtikelUpdater: " + e.toString()); }
+			} catch (SQLException e) { ServerUtil.log("Undantag i handleVeckoTimer vid WebArtikelUpdater: " + e.toString()); }
 		} catch (SQLException e) {
-			SXUtil.log("Undantag i handleVeckoTimer: " + e.toString());
+			ServerUtil.log("Undantag i handleVeckoTimer: " + e.toString());
 		} finally {
 			try { con.close(); } catch (Exception e) {}
 			try { conSe.close(); } catch (Exception e) {}
@@ -188,7 +194,7 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 							t.setBearbetar(new Date());		// Om vi får en exception på detta jobb försöker vi sätt bearbetningstiden
 							em.flush();								// så att det dröjer ett tag (fn 1 timme) innan försök sker igen
 						} catch (Exception e2) {}				// Ignorera ev. exception eftersom funktionen inte är kritisk
-						SXUtil.log("Ett undantagsfel uppstod vid bearbetning av jobb." + t.getJobbid() + ". Försöker fortsätta med nästa " + e.toString()); e.printStackTrace();
+						ServerUtil.log("Ett undantagsfel uppstod vid bearbetning av jobb." + t.getJobbid() + ". Försöker fortsätta med nästa " + e.toString()); e.printStackTrace();
 					}
 				}
 				
@@ -199,7 +205,7 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 					try {
 						sxServerMainBean.handleSandBestEpost(be1);		//aNROPAS SÅ HÄR FÖR ATT STARTA NY TRANSAKTION
 					} catch (Exception e) {
-						SXUtil.log("Ett undantagsfel uppstod vid bearbetning av sänd best1 epost." + be1.getBestnr() + ". Försöker fortsätta med nästa " + e.toString()); 
+						ServerUtil.log("Ett undantagsfel uppstod vid bearbetning av sänd best1 epost." + be1.getBestnr() + ". Försöker fortsätta med nästa " + e.toString()); 
 					}
 				} 
 
@@ -209,12 +215,12 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 					try {
 						sxServerMainBean.handleSandBestPaminEpost(be1);		//aNROPAS SÅ HÄR FÖR ATT STARTA NY TRANSAKTION
 					} catch (Exception e) {
-						SXUtil.log("Ett undantagsfel uppstod vid bearbetning av sänd best1 påminnelse epost." + be1.getBestnr() + ". Försöker fortsätta med nästa " + e.toString()); 
+						ServerUtil.log("Ett undantagsfel uppstod vid bearbetning av sänd best1 påminnelse epost." + be1.getBestnr() + ". Försöker fortsätta med nästa " + e.toString()); 
 					}
 				} 
 				
 			} catch (Exception e) { 
-				SXUtil.log("Ett undantagsfel uppstod vid bearbetning av jobb: " + e.toString());
+				ServerUtil.log("Ett undantagsfel uppstod vid bearbetning av jobb: " + e.toString());
 				context.setRollbackOnly();
 			}
 			finally { 
@@ -227,7 +233,7 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 	public void handleJobb(TableSxservjobb t) throws  Exception {
 		try {
 			JobbHandler jobbHandler = new JobbHandler(em,mailsxmail);		//Vi gör detta kryptiska anrop för att ny transaktion ska startas för varje jobb
-			SXUtil.log("Behandlar jobbid " + t.getJobbid());
+			ServerUtil.log("Behandlar jobbid " + t.getJobbid());
 			if (t.getUppgift().equals(SXConstant.SERVJOBB_UPPGIFT_SAND)) {
 				if (t.getDokumenttyp().equals(SXConstant.SERVJOBB_DOKUMENTTYP_FAKTURA)) {	//Faktura
 					if (t.getSandsatt().equals(SXConstant.SERVJOBB_SANDSATT_EPOST)) {
@@ -366,10 +372,10 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 
 	private void checkWorder()  {
 		Connection conSe = null;
-		SXUtil.log("Startar checkWorder");
+		ServerUtil.log("Startar checkWorder");
 		try {
 			conSe = saljexse.getConnection();
-			WebOrderHandler woh = new WebOrderHandler(em,conSe,SXUtil.getSXReg(em, SXConstant.SXREG_SERVERANVANDARE,SXConstant.SXREG_SERVERANVANDARE_DEFAULT));
+			WebOrderHandler woh = new WebOrderHandler(em,conSe,ServerUtil.getSXReg(em, SXConstant.SXREG_SERVERANVANDARE,SXConstant.SXREG_SERVERANVANDARE_DEFAULT));
 			ArrayList<Integer> orderList = woh.getSkickadWorderList();
 			for (Integer o : orderList) {
 				try {
@@ -379,15 +385,15 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 					for (Integer nr : sparadeOrderArr) {			//Skapa sträng med alla ordernummer som är sparade
 						logStr = logStr + nr + " ";
 					}
-					SXUtil.log(logStr);
+					ServerUtil.log(logStr);
 				} catch (KreditSparrException ke) {
-					SXUtil.log("Kreditspärr vid Weborder " + o + ". Ordern sparas inte." );
+					ServerUtil.log("Kreditspärr vid Weborder " + o + ". Ordern sparas inte." );
 					String mailTo = "";
 					Statement st = conSe.createStatement();
 					ResultSet r = st.executeQuery("select u.epost from webuser u, weborder1 o where u.loginnamn = o.loginnamn and o.wordernr = " + o);
 					if (r.next()) {
 						try {
-							String testlage  = SXUtil.getSXReg(em,"SxServTestlage","Ja" );
+							String testlage  = ServerUtil.getSXReg(em,"SxServTestlage","Ja" );
 
 							if (!testlage.equals("Nej")) {
 								mailTo = "ulf.hemma@saljex.se";
@@ -395,30 +401,30 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 								mailTo = r.getString(1);
 							}
 
-							SendMail m = new SendMail(mailsxmail, SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPUSER), SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPPASSWORD),
-																SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPSERVERPORT), SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPTRANSPORT));
+							SendMail m = new SendMail(mailsxmail, ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPUSER), ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPPASSWORD),
+																ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPSERVERPORT), ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPTRANSPORT));
 							m.sendSimpleMail(	em,
 													mailTo,
-													SXUtil.getSXReg(em,SXConstant.SXREG_WORDER_SPARRAD_ORDER_SUBJECT, SXConstant.SXREG_WORDER_SPARRAD_ORDER_SUBJECT_DEFAULT),
-													SXUtil.getSXReg(em,SXConstant.SXREG_WORDER_SPARRAD_ORDER_BODY, SXConstant.SXREG_WORDER_SPARRAD_ORDER_BODY_DEFAULT));
+													ServerUtil.getSXReg(em,SXConstant.SXREG_WORDER_SPARRAD_ORDER_SUBJECT, SXConstant.SXREG_WORDER_SPARRAD_ORDER_SUBJECT_DEFAULT),
+													ServerUtil.getSXReg(em,SXConstant.SXREG_WORDER_SPARRAD_ORDER_BODY, SXConstant.SXREG_WORDER_SPARRAD_ORDER_BODY_DEFAULT));
 						} catch (Exception e) {
-							SXUtil.log("Kunde inte skicka epost om kreditspärr till " + mailTo + " Weborder " + o + ". " + e.toString());
+							ServerUtil.log("Kunde inte skicka epost om kreditspärr till " + mailTo + " Weborder " + o + ". " + e.toString());
 						}
 					} else {
-						SXUtil.log("Kunde inte hitta kontaktinfo för weborder " + o + " vid försök att skicka epost om kreditspärr.");
+						ServerUtil.log("Kunde inte hitta kontaktinfo för weborder " + o + " vid försök att skicka epost om kreditspärr.");
 					}
 					r.close();
 					st.executeUpdate("update weborder1 set status='Spärrad', kreditsparr=1 where wordernr = " + o);
 
 				} catch (SQLException se) {
-					SXUtil.log("Fel vid spara webordernr " + o + ": " + se.toString());
+					ServerUtil.log("Fel vid spara webordernr " + o + ": " + se.toString());
 				}
 			}
 		} catch (SQLException se1) {
-			SXUtil.log("Fel " + se1.toString()); 
+			ServerUtil.log("Fel " + se1.toString()); 
 		}	finally {
 			try { conSe.close(); } catch (Exception e) {}
-			SXUtil.log("checkWorder slutförd");
+			ServerUtil.log("checkWorder slutförd");
 		}
 	}
 	
@@ -430,7 +436,7 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 		ArrayList<Integer> ret;
 		try {
 			conSe = saljexse.getConnection();
-			WebOrderHandler woh = new WebOrderHandler(em,conSe,SXUtil.getSXReg(em, SXConstant.SXREG_SERVERANVANDARE,SXConstant.SXREG_SERVERANVANDARE_DEFAULT));
+			WebOrderHandler woh = new WebOrderHandler(em,conSe,ServerUtil.getSXReg(em, SXConstant.SXREG_SERVERANVANDARE,SXConstant.SXREG_SERVERANVANDARE_DEFAULT));
 			ret = woh.loadWorderAndSaveSkickadAsOrder(worderNr);
 			if (ret == null) { throw new SQLException("Kunde inte spara order. Webordernr: " + worderNr); }
 		} catch (KreditSparrException ke) {
@@ -487,8 +493,8 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 	@RolesAllowed("admin")
 	public boolean sendSimpleMail(String adress, String header, String bodytext) {
 		try {
-			SendMail m = new SendMail(mailsxmail, SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPUSER), SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPPASSWORD),
-									SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPSERVERPORT), SXUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPTRANSPORT));
+			SendMail m = new SendMail(mailsxmail, ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPUSER), ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPPASSWORD),
+									ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPSERVERPORT), ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPTRANSPORT));
 			m.sendSimpleMail(	em, adress, header, bodytext);
 		}
 		catch (Exception e) { e.printStackTrace(); return true; }

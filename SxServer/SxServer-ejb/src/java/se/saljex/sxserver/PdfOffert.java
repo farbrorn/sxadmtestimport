@@ -1,6 +1,7 @@
 
 package se.saljex.sxserver;
 
+import se.saljex.sxlibrary.SXUtil;
 import se.saljex.sxserver.tables.TableArtikel;
 import se.saljex.sxserver.tables.TableKund;
 import se.saljex.sxserver.tables.TableFuppg;
@@ -37,7 +38,7 @@ public class PdfOffert extends PdfHandler {
 		
 		//Hämta bild från databas
 		Query q = em.createQuery("SELECT t FROM TableBilder t WHERE t.namn = ?1");
-		String bildNamn = SXUtil.getSXReg(em,"BildLogo");
+		String bildNamn = ServerUtil.getSXReg(em,"BildLogo");
 		if (bildNamn.isEmpty()) { throw new DocumentException("Kan inte hitta logobildnamn i tabell sxreg. Nyckel: BildLogo"); }
 		q.setParameter(1, bildNamn);
 		try {

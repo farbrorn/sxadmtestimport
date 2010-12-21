@@ -5,6 +5,9 @@
 
 package se.saljex.sxserver; 
 
+import se.saljex.sxlibrary.exceptions.SXEntityNotFoundException;
+import se.saljex.sxlibrary.SXUtil;
+import se.saljex.sxlibrary.exceptions.KreditSparrException;
 import se.saljex.sxserver.tables.TableOrder1;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -110,7 +113,7 @@ public class SXTester {
 			ArrayList<Integer> al = null;
 			try {
 				al = soh.saveAsOrder();
-			} catch (KreditSparrException ke) { SXUtil.log("Kreditspärr exception"); ke.printStackTrace();}
+			} catch (KreditSparrException ke) { ServerUtil.log("Kreditspärr exception"); ke.printStackTrace();}
 			for (Integer il : al) {
 				ret = ret + "<br> Sparad som ordernr: " + il;
 			}
@@ -156,7 +159,7 @@ public class SXTester {
 			w.updateWArtGrpLank();
 			w.updateWArtKlase();
 			w.updateWArtKlaseLank();
-		} catch(SQLException e) { SXUtil.log(e.toString()); }
+		} catch(SQLException e) { ServerUtil.log(e.toString()); }
 		return "dumtest";
 	}
 }
