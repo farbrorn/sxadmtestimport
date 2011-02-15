@@ -17,6 +17,9 @@ public class SXConstant {
 	public static final  String ORDER_STATUS_VANTAR = "Väntar";
 	public static final  String ORDER_STATUS_AVVAKT = "Avvakt";
 	public static final  String ORDER_STATUS_OVERFORD = "Överf";
+	public static final  String ORDER_STATUS_SAMFAK = "Samfak";
+	public static final  String ORDER_STATUS_HAMT = "Hamt";
+
 	
 	public static final  String ORDERHAND_SKAPAD = "Skapad";
 	public static final  String ORDERHAND_RADERAD = "Raderad";
@@ -80,6 +83,10 @@ public class SXConstant {
 	public static final  String SXREG_SXSERVMAILFROMADRESS_DEFAULT = "info@saljex.se";
 	public static final  String SXREG_SXSERVMAILFROMNAME = "SxServMailFromName";
 	public static final  String SXREG_SXSERVMAILFROMNAME_DEFAULT = "Säljex AB";
+
+	public static final  String SXREG_SXSERVSAMFAKTAKTIVERAD = "SxServSamfaktAktiverad";
+	public static final  String SXREG_SXSERVSAMFAKTAKTIVERAD_DEFAULT = "Nej";
+
 
 	public static final	String SXREG_WORDER_SPARRAD_ORDER_SUBJECT = "sxServWorderSparradOrderSubject";
 	public static final	String SXREG_WORDER_SPARRAD_ORDER_SUBJECT_DEFAULT = "Viktig information om order i Säljex webb-shop";
