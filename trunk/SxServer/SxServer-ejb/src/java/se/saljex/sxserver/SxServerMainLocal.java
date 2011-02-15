@@ -48,6 +48,8 @@ public interface SxServerMainLocal {
 
 	  ArrayList<Integer> saveWorder(int worderNr) throws SQLException, KreditSparrException;
 
+	void doSamfaktByEmail(String anvandare, SamfaktByEpostHandler samfak) throws SQLException;
+
 //	ArrayList<Integer> saveSxShopOrder(int kontaktId, String kundnr, String kontaktNamn, short lagerNr, String marke) throws KreditSparrException;
 
 //	boolean sendSimpleMail(String adress, String header, String bodytext);

@@ -90,7 +90,7 @@ public class PdfFaktura extends PdfHandler {
 //		art = null;
 		final int startY = 595;
 		final int stopY = 170;
-		final int detailRantaHeight = 0;
+		final int detailRantaHeight = 10;
 		final int detailArtHeight = 10;
 		final int detailTextHeight = 10;
 		final int detailFaktorHeight = 40;

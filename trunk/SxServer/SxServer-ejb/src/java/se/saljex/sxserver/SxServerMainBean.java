@@ -73,6 +73,8 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 	private DataSource saljexse;
 	@Resource(name = "sxadm")
 	private DataSource sxadm;
+	@Resource(name = "sxadmkundbv")
+	private DataSource bvadm;
 	@Resource TimerService timerService;
 	@Resource EJBContext context;
 	@Resource(name="sxmail", mappedName="sxmail") private Session mailsxmail;
@@ -81,22 +83,11 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 	
 		@EJB		SxServerMainLocal sxServerMainBean;// = new JobbHandlerBean();
 	
-		@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public void test() {
 		System.out.println("Test startad");
-		Integer maxid;
-		TableSxservjobb j;
-		maxid = (Integer)em.createQuery("select max(j.jobbid) from TableSxservjobb j").getSingleResult();
-		System.out.println("Test max " + maxid);
-				j = new TableSxservjobb((int)maxid+1,"Test");
-		System.out.println("Test max 2" + maxid);
-				em.persist(j);
-		System.out.println("Test max 3-" + maxid);
-		maxid = (Integer)em.createQuery("select max(j.jobbid) from TableSxservjobb j").getSingleResult();
-		System.out.println("Test max 4" + maxid);
-		//context.setRollbackOnly();
+//		samfaktByEmail();
 		
-		}
+	}
 	
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	@Timeout
@@ -109,11 +100,21 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 		else if (timer.getInfo().equals("TimTimer")) handleTimTimer();
 		else if (timer.getInfo().equals("DygnsTimer")) handleDygnsTimer();
 		else if (timer.getInfo().equals("VeckoTimer")) handleVeckoTimer();
+		else if (timer.getInfo().equals("SamfaktTimer")) handleSamfaktTimer();
 	}
 
+	private void handleSamfaktTimer() {
+		try {
+			if (ServerUtil.getSXReg(em, SXConstant.SXREG_SXSERVSAMFAKTAKTIVERAD, SXConstant.SXREG_SXSERVSAMFAKTAKTIVERAD_DEFAULT).equals("Ja")) {
+				//samfaktByEmail();
+			}
+		}finally {
+			startSamfaktTimer();
+		}
+	}
 	private void handleKvartTimer() {
 		try {
-			checkWorder();
+			//samfaktByEmail();
 		}finally {
 			startKvartTimer();
 		}
@@ -272,6 +273,7 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 
 	public void startTimers() {
 		startJobbTimer();
+		startSamfaktTimer();
 		startKvartTimer();
 		startTimTimer();
 		startDygnsTimer();
@@ -280,6 +282,9 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 	
 	private void startJobbTimer() {
 		sxServerMainBean.startTimer(3*60*1000,"JobbTimer");	//Måste startas som EJB-anrop för att new transaction skall funka
+	}
+	private void startSamfaktTimer() {
+		sxServerMainBean.startTimer(30*60*1000,"SamfaktTimer");	//Måste startas som EJB-anrop för att new transaction skall funka
 	}
 	private void startKvartTimer() {
 		sxServerMainBean.startTimer(15*60*1000,"KvartTimer");	//Måste startas som EJB-anrop för att new transaction skall funka
@@ -370,6 +375,26 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 		return ret;
 	}
 
+	private void samfaktByEmail() {
+		String anvandare = ServerUtil.getSXReg(em, SXConstant.SXREG_SERVERANVANDARE, SXConstant.SXREG_SERVERANVANDARE_DEFAULT);
+		try {
+			SamfaktByEpostHandler samfak = new SamfaktByEpostHandler(sxadm, anvandare);
+			while (samfak.hasNextFakturaOrder()) {
+				sxServerMainBean.doSamfaktByEmail(anvandare, samfak);
+			}
+		} catch (SQLException se) { ServerUtil.log("Fel vid samfaktbyEMail: " + se.toString()); }
+
+	}
+
+
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+	public void doSamfaktByEmail(String anvandare, SamfaktByEpostHandler samfak) throws SQLException {
+		if (samfak.nextFakturaOrder(em)) {
+			FakturaHandler fakturaHandler = new FakturaHandler(em, sxadm, anvandare);
+			fakturaHandler.samlingsfaktureraSandEpost(samfak.getFakturaOrder(), samfak.getOrderPaFaktura());
+		}
+	}
+
 	private void checkWorder()  {
 		Connection conSe = null;
 		ServerUtil.log("Startar checkWorder");
@@ -451,7 +476,9 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 
 
 	public String tester(String testTyp) {
-		Connection conSe = null;
+		samfaktByEmail();
+		return("Samfakt startad");
+/*		Connection conSe = null;
 		Connection con = null;
 		try {
 			conSe = saljexse.getConnection();
@@ -462,7 +489,7 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 		} finally {
 			try { con.close(); } catch (Exception e) {}
 			try { conSe.close(); } catch (Exception e) {}
-		}
+		}*/
 	}
 
 	@RolesAllowed("admin")
@@ -523,7 +550,7 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 	}
 
 	public int faktureraOrderMedAnvandare(int ordernr, String anvandare) throws SxOrderLastException {
-		FakturaHandler fh = new FakturaHandler(em, anvandare);
+		FakturaHandler fh = new FakturaHandler(em, sxadm, anvandare);
 		return fh.faktureraOrder(ordernr);
 	}
 
@@ -532,7 +559,7 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 	}
 
 	public int faktureraBvOrderMedAnvandare(int ordernr, String anvandare) throws SxOrderLastException {
-		FakturaHandler fh = new FakturaHandler(embv, anvandare);
+		FakturaHandler fh = new FakturaHandler(embv, bvadm, anvandare);
 		return fh.faktureraOrder(ordernr);
 	}
 

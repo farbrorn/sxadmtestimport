@@ -5,19 +5,21 @@
 
 package se.saljex.sxserver;
 
+import java.sql.SQLException;
 import se.saljex.sxlibrary.exceptions.SxOrderLastException;
 import se.saljex.sxlibrary.SXUtil;
 import se.saljex.sxlibrary.SXConstant;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
+import javax.sql.DataSource;
 import se.saljex.sxserver.tables.TableArtikel;
 import se.saljex.sxserver.tables.TableArtstat;
 import se.saljex.sxserver.tables.TableArtstatPK;
 import se.saljex.sxserver.tables.TableBetjour;
-import se.saljex.sxserver.tables.TableBetjourPK;
 import se.saljex.sxserver.tables.TableBokord;
 import se.saljex.sxserver.tables.TableBokordPK;
 import se.saljex.sxserver.tables.TableBonus;
@@ -30,6 +32,7 @@ import se.saljex.sxserver.tables.TableFaktura2;
 import se.saljex.sxserver.tables.TableFaktura2PK;
 import se.saljex.sxserver.tables.TableFuppg;
 import se.saljex.sxserver.tables.TableKund;
+import se.saljex.sxserver.tables.TableKundkontakt;
 import se.saljex.sxserver.tables.TableKundres;
 import se.saljex.sxserver.tables.TableKunstat;
 import se.saljex.sxserver.tables.TableKunstatPK;
@@ -49,6 +52,8 @@ import se.saljex.sxserver.tables.TableSljstatPK;
 import se.saljex.sxserver.tables.TableStatistik;
 import se.saljex.sxserver.tables.TableStatistikPK;
 import se.saljex.sxserver.tables.TableStjarnrad;
+import se.saljex.sxserver.tables.TableSxservjobb;
+import se.saljex.sxserver.tables.TableUtlev1;
 
 /**
  *
@@ -61,22 +66,78 @@ public class FakturaHandler {
 	private String anvandare = null;
 	private TableFaktura1 fa1 = new TableFaktura1();
 	private ArrayList<FaktRad> faktRadList = new ArrayList();
+	private DataSource sxDataSource;
 
-	public FakturaHandler(EntityManager e, String anvandare) {
+	public FakturaHandler(EntityManager e, DataSource sxDataSource, String anvandare) {
 		this.em = e;
+		this.sxDataSource = sxDataSource;
 		setAnvandare(anvandare);
 	}
 
+	public void samlingsfaktureraSandEpost(OrderHandler fakturaOrder, ArrayList<OrderHandler> orderPaFaktura) throws SQLException{
+		// fakturaORder = färdig order att fakturera som innehåller alla delordrar listade i orderPaFaktura
+
+		//Kolla om kunden kan fakutreras och skickas e-post
+		if (fakturaOrder.getTableKund().getEjfakturerbar() > 0 || fakturaOrder.getTableKund().getSkickafakturaepost() == 0) throw new EntityNotFoundException("Kund " + fakturaOrder.getKundNr() + " är inte fakturerbar eller ska inte skickas e-post. Fel vid försök att fakturera");
+
+		// Ta fram e-postadress
+		String epost = null;
+		List<TableKundkontakt> kundkontaktList = em.createNamedQuery("TableKundkontakt.findByKundnr").setParameter("kundnr", fakturaOrder.getKundNr()).getResultList();
+		for (TableKundkontakt kk : kundkontaktList) {
+			if (!kk.getEkonomi().equals(0) && !SXUtil.isEmpty(kk.getEpost())) {	// Vi har en e-postadress
+				if (epost==null) epost = kk.getEpost(); else epost = "; " + kk.getEpost();
+			}
+		}
+		if (SXUtil.isEmpty(epost)) epost=fakturaOrder.getTableKund().getEmail();
+		if (SXUtil.isEmpty(epost)) throw new EntityNotFoundException("E-postadress saknas för kund " + fakturaOrder.getKundNr() + ". Kan inte skicka faktura e-post.");
+
+
+		TableUtlev1 utlev1;
+		TableSxservjobb tableSxservjobb;
+		prepareFaktura(fakturaOrder);
+		int faktnr  = persistFaktura(false);
+		for (OrderHandler oh : orderPaFaktura) {
+			em.persist( new TableOrderhand(oh.getOrdernr(), anvandare, SXConstant.ORDERHAND_FAKTURERAD));
+			utlev1 = new TableUtlev1(oh.getTableOrder1());
+			utlev1.setFaktnr(faktnr);
+			em.persist(utlev1);
+			oh.deleteOrder(false);
+		}
+
+		//Sätt upp serverjobb för att skicka fakturan
+		Integer jobbid;
+		jobbid = (Integer)em.createNativeQuery("select max(jobbid) from sxservjobb").getSingleResult();
+		jobbid++;
+
+		tableSxservjobb = new TableSxservjobb();
+		tableSxservjobb.setAnvandare(anvandare);
+		tableSxservjobb.setDokumenttyp(SXConstant.SERVJOBB_DOKUMENTTYP_FAKTURA);
+		tableSxservjobb.setEpost(epost);
+		tableSxservjobb.setExternidint(faktnr);
+		tableSxservjobb.setJobbid(jobbid);
+		tableSxservjobb.setSandsatt(SXConstant.SERVJOBB_SANDSATT_EPOST);
+		tableSxservjobb.setSkapad(new java.util.Date());
+		tableSxservjobb.setUppgift(SXConstant.SERVJOBB_UPPGIFT_SAND);
+		em.persist(tableSxservjobb);
+
+		ServerUtil.log("Faktura " + faktnr + " skapad.");
+
+	}
+
 	public int faktureraOrder(int ordernr) throws SxOrderLastException{
+		TableUtlev1 utlev1;
 		OrderHandler orh = new OrderHandler(em, ordernr, anvandare);
 		prepareFaktura(orh);
 		int faktnr  = persistFaktura(false);
 		em.persist( new TableOrderhand(orh.getOrdernr(), anvandare, SXConstant.ORDERHAND_FAKTURERAD));
+		utlev1 = new TableUtlev1(orh.getTableOrder1());
+		utlev1.setFaktnr(faktnr);
+		em.persist(utlev1);
 		orh.deleteOrder(false);
 		return faktnr;
 	}
 
-	public void prepareFaktura(OrderHandler orh) {
+	private void prepareFaktura(OrderHandler orh) {
 
 		FaktRad faktRad;
 
@@ -104,6 +165,20 @@ public class FakturaHandler {
 		fa1.setReferens(or1.getReferens());
 		fa1.setSaljare(or1.getSaljare());
 
+		if (orh.getTableKund().getRantfakt() > 0) {		//Fakturera ränta
+			List<TableRanta> rantaList = em.createNamedQuery("TableRanta.findByKund").setParameter("kundnr", orh.getKundNr()).getResultList();
+			for (TableRanta ranta : rantaList) {
+				orh.addRanta(ranta);
+			}
+		}
+		if (or1.getBonus() > 0) {						//Fakturera bonus
+			List<TableBonus> bonusList = em.createNamedQuery("TableBonus.findByKund").setParameter("kund", orh.getKundNr()).getResultList();
+			for (TableBonus bonus : bonusList) {
+				orh.addBonus(bonus);
+			}
+		}
+
+
 		TableFaktura2 fa2;
 		for (OrderHandlerRad rad : orh.getOrdreg()) {
 			fa2 = new TableFaktura2();
@@ -113,39 +188,58 @@ public class FakturaHandler {
 			fa2.setLev(rad.lev);
 			fa2.setNamn(rad.namn);
 			fa2.setNetto(rad.netto);
-			fa2.setOrdernr(or1.getOrdernr());
+			if (rad.ordernr!=0 || or1.getOrdernr()==null) {
+				fa2.setOrdernr(rad.ordernr);
+			} else {
+				fa2.setOrdernr(or1.getOrdernr());
+			}
+//			fa2.setOrdernr(rad.ordernr!=0 ? rad.ordernr : or1.getOrdernr());
 			fa2.setPris(rad.pris);
 			fa2.setPrisnr(rad.prisnr);
 			fa2.setRab(rad.rab);
 			fa2.setStjid(rad.stjid);
 			fa2.setSumma(rad.summa);
 
-			fa2.setText(null);
+			fa2.setText(rad.text);
 
-			//När vi hämtar från orderså ska det inte finnas någon ränterad
-			fa2.setRantaproc(0);
-			fa2.setRantafalldatum(null);
-			fa2.setRantafakturanr(0);
-			fa2.setRantabetaldatum(null);
-			fa2.setRantabetalbelopp(0);
+			//Ränta
+			if (rad.tableRanta!=null) {
+				fa2.setRantaproc(rad.tableRanta.getRantaproc());
+				fa2.setRantafalldatum(rad.tableRanta.getFalldat());
+				fa2.setRantafakturanr(rad.tableRanta.getTableRantaPK().getFaktnr());
+				fa2.setRantabetaldatum(rad.tableRanta.getTableRantaPK().getBetdat());
+				fa2.setRantabetalbelopp(rad.tableRanta.getTot());
+			} else {
+				fa2.setRantaproc(0);
+				fa2.setRantafalldatum(null);
+				fa2.setRantafakturanr(0);
+				fa2.setRantabetaldatum(null);
+				fa2.setRantabetalbelopp(0.0);
 
-			//När vi hämtar från order så ska det inte finnas någon bonusrad
-			fa2.setBonNr(0);
+			}
+
+			//Bonus
+			if (rad.tableBonus!=null) {
+				fa2.setBonNr(rad.tableBonus.getTableBonusPK().getFaktura());
+			} else {
+				fa2.setBonNr(0);
+			}
+
+
+
+		//	funktioner för att spara och radera ränta och bonusinformation saknas och ska läggas till
 
 			faktRad = new FaktRad();
 			faktRad.fa2 = fa2;
-
-
-			/* TO-DO */
-			//Här ska vi hämta ränta och bonusar. Inte implementerad ännu,
-			//faktRad.bonusId=???		sätt här bonus id om det är en bonusrad som vi hämtat
+			faktRad.orderHandlerRad = rad;
 
 			faktRadList.add(faktRad);
 		}
+
+
 	}
 
-	//Nuvarande funktion klarar inte att ta fram ränta och bonusar. Något för framtiden kanske...
-	public int persistFaktura(boolean sparaNollFakturaIReskontra)  {
+	private int persistFaktura(boolean sparaNollFakturaIReskontra)  {
 		
 		TableBokord bokord;
 		TableBokordPK bokordPK;
@@ -156,7 +250,6 @@ public class FakturaHandler {
 		TableArtstat artstat;
 		TableArtstatPK artstatPK;
 		TableLev lev;
-		TableArtikel art;
 		TableLevstat levstat;
 		TableLevstatPK levstatPK;
 		TableKundres kundres;
@@ -170,12 +263,8 @@ public class FakturaHandler {
 		TableSljstatPK sljstatPK;
 		TableStatistik statistik;
 		TableStatistikPK statistikPK;
-		TableBonus bonus;
-		TableBonusPK bonusPK;
 		TableBonusbet bonusbet;
 		TableBonusbetPK bonusbetPK;
-		TableRanta ranta;
-		TableRantaPK rantaPK;
 		
 		
 		Calendar calendar = Calendar.getInstance();
@@ -317,24 +406,6 @@ public class FakturaHandler {
 					}
 				}
 
-				//*** Spara Levstatistik
-				art = em.find(TableArtikel.class, fa2.getArtnr());
-				if (art != null) {
-					lev = em.find(TableLev.class, art.getLev());
-					if (lev != null) {
-						levstatPK = new TableLevstatPK(lev.getNummer(), (short)calendar.get(Calendar.YEAR), (short)calendar.get(Calendar.MONTH));
-						levstat = em.find(null, levstatPK);
-						if (levstat == null) {
-							levstat = new TableLevstat(levstatPK);
-							em.persist(levstat);
-						}
-						levstat.setFtot(levstat.getFtot() + fa2.getSumma());
-						levstat.setFtbidrag(levstat.getFtbidrag() + fa2.getSumma() - (fa2.getNetto()*fa2.getLev()));
-
-
-					}
-
-				}
 
 
 				if (!((Double)0.0).equals(fa2.getSumma())) {
@@ -353,38 +424,48 @@ public class FakturaHandler {
 					bokord.setSumma(bokord.getSumma() - SXUtil.getRoundedDecimal(fa2.getSumma()));
 				}
 
-				//Spara bonus
-				if (fa2.getBonNr() != 0) {
-					bonusbet=null;
-					bonusPK = new TableBonusPK(cn, faktRad.bonusId);
-					bonus = em.find(TableBonus.class, bonusPK);
-					if (bonus == null) throw new EntityNotFoundException("Bonus på faktura " + fa2.getBonNr() + " id: " + faktRad.bonusId + " finns inte men försökte sparas.");
-					bonusbetPK = new TableBonusbetPK(fa1.getKundnr(), fa1.getFaktnr(), (short)0);
-					for (short x = 0; x < 200; x++) {
-						bonusbetPK.setId(x);
-						bonusbet = em.find(TableBonusbet.class, bonusbetPK);
-						if (bonusbet == null) break;
+
+				//*** Spara Levstatistik
+				lev = em.find(TableLev.class, faktRad.orderHandlerRad.levnr);
+				if (lev != null) {
+					levstatPK = new TableLevstatPK(lev.getNummer(), (short)calendar.get(Calendar.YEAR), (short)calendar.get(Calendar.MONTH));
+					levstat = em.find(TableLevstat.class, levstatPK);
+					if (levstat == null) {
+						levstat = new TableLevstat(levstatPK);
+						em.persist(levstat);
 					}
-					if (bonusbet!=null)  throw new EntityExistsException("Kan inte spara bonus eftersom bonusen redan finns sparad i bonusbet. Kundnr " + fa1.getKundnr() + " faktnr " + fa1.getFaktnr() + " högsta testade id " + bonusbetPK.getId());
-					bonusbet = new TableBonusbet(bonusbetPK);
-					bonusbet.setUtdatum(fa1.getDatum());
-					bonusbet.setUtfaktura(fa1.getFaktnr());
-					bonusbet.setBonus(fa2.getSumma());
-					em.persist(bonusbet);
-					em.remove(bonus);
-
-				}
-
-				//Ränta
-				if (fa2.getRantafakturanr() != 0) {
-					rantaPK = new TableRantaPK(fa1.getKundnr(), fa1.getFaktnr(), fa2.getRantabetaldatum());
-					ranta = em.find(TableRanta.class, rantaPK);
-					if (ranta==null) throw new EntityNotFoundException("Räntepost för faktura " + fa1.getFaktnr() + " rantabetdat " + SXUtil.getFormatDate(fa2.getRantabetaldatum()) + " finns inte i tabell Ranta men hänvisas till i fakturan");
-					em.remove(ranta);
+					levstat.setFtot(levstat.getFtot() + fa2.getSumma());
+					levstat.setFtbidrag(levstat.getFtbidrag() + fa2.getSumma() - (fa2.getNetto()*fa2.getLev()));
 				}
 
 			}//Spara artikel
+
+			//Spara bonus
+			if (faktRad.orderHandlerRad.tableBonus!=null) {
+				bonusbet=null;
+				bonusbetPK = new TableBonusbetPK(fa1.getKundnr(), faktRad.orderHandlerRad.tableBonus.getTableBonusPK().getFaktura(), (short)0);
+				for (short x = 0; x < 200; x++) {
+					bonusbetPK.setId(x);
+					bonusbet = em.find(TableBonusbet.class, bonusbetPK);
+					if (bonusbet == null) break;
+				}
+				if (bonusbet!=null)  throw new EntityExistsException("Kan inte spara bonus eftersom bonusen redan finns sparad i bonusbet. Kundnr " + fa1.getKundnr() + " faktnr " + fa1.getFaktnr() + " högsta testade id " + bonusbetPK.getId());
+				bonusbet = new TableBonusbet(bonusbetPK);
+				bonusbet.setUtdatum(fa1.getDatum());
+				bonusbet.setUtfaktura(fa1.getFaktnr());
+				bonusbet.setBonus(fa2.getSumma());
+				em.persist(bonusbet);
+				em.remove(faktRad.orderHandlerRad.tableBonus);
+
+			}
+
+			//Ränta
+			if (faktRad.orderHandlerRad.tableRanta!=null) {
+				em.remove(faktRad.orderHandlerRad.tableRanta);
+			}
+
 		} //for (TableFaktura2 fa2 : fa2List)
+
 
 
 		bokordPK = null;
@@ -530,6 +611,6 @@ public class FakturaHandler {
 
 	private class FaktRad {
 		public TableFaktura2 fa2;
-		public short bonusId = 0;
+		public OrderHandlerRad orderHandlerRad=null;
 	}
 }

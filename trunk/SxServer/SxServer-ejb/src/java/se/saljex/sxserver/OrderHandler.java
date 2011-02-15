@@ -32,9 +32,12 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceException;
 import se.saljex.sxserver.tables.TableArtstrukt;
+import se.saljex.sxserver.tables.TableBonus;
 import se.saljex.sxserver.tables.TableFaktdat;
+import se.saljex.sxserver.tables.TableFuppg;
 import se.saljex.sxserver.tables.TableOffert1;
 import se.saljex.sxserver.tables.TableOffert2;
+import se.saljex.sxserver.tables.TableRanta;
 
 /**
  *
@@ -65,14 +68,31 @@ public class OrderHandler {
 		setLagerNr(lagerNr);
 		orderLaddad = false;
 	}
-	
+
+	//Hämtar in en order utan att låsa upp om den är låst
+	public OrderHandler(EntityManager e, int ordernr, String anvandare) throws SxOrderLastException, EntityNotFoundException {
+		this(e,ordernr,  anvandare, null);
+	}
+
+
 	//Hämta in en order
-	public OrderHandler(EntityManager e, int ordernr, String anvandare) throws SxOrderLastException {
+	//Om ordern är låst så låses den automatiskt upp om låset är satt för angivet antal dagar sedan. Nullvärde ger ingen upplåsning
+	public OrderHandler(EntityManager e, int ordernr, String anvandare, Integer autoLasUppDagar) throws SxOrderLastException, EntityNotFoundException {
 		em = e;
 		setAnvandare(anvandare);
 		or1 = em.find(TableOrder1.class, ordernr);
 		if (or1 == null) throw new EntityNotFoundException("Ordernummer " + ordernr + " hittades inte.");
+		if (or1.getLastdatum() != null)	{
+			if (autoLasUppDagar != null &&
+						(autoLasUppDagar.equals(0) || or1.getLastdatum().before(SXUtil.addDate(new java.util.Date(), -1*(autoLasUppDagar-1))))	) {
+				lasUppOrder();
+			} else {
+				throw new SxOrderLastException("Ordernr " + ordernr + " kundnr " + or1.getKundnr() + " är låst av annan användare.");
+			}
+		}
+
 		if (or1.getLastdatum() != null) throw new SxOrderLastException();
+		loadKund(or1.getKundnr());
 		List<TableOrder2> o = em.createNamedQuery("TableOrder2.findByOrdernr").setParameter("ordernr", ordernr).getResultList();
 		OrderHandlerRad or;
 		for (TableOrder2 o2 : o) {
@@ -113,6 +133,21 @@ public class OrderHandler {
 			setLagerToOrderRad(o);
 		}
 	}
+
+	public void lasOrder() {
+		or1.setLastdatum(SXUtil.getSQLDate());
+		or1.setLasttid(SXUtil.getSQLTime());
+		or1.setLastav(ServerUtil.getSXReg(em, SXConstant.SXREG_SERVERANVANDARE, SXConstant.SXREG_SERVERANVANDARE_DEFAULT));
+		em.flush();
+	}
+	public final void lasUppOrder() {
+		or1.setLastav(null);
+		or1.setLastdatum(null);
+		or1.setLasttid(null);
+		em.flush();
+	}
+
+
 	private void setLagerToOrderRad(OrderHandlerRad o) {
 		// Hämtar lagervärden för aktuellt lager, och lägger in dem i orderhandlerrad
 		TableLager l;
@@ -167,10 +202,99 @@ public class OrderHandler {
 
 	}
 
+	public void setSaljare(String saljare) { or1.setSaljare(saljare); }
+	public String getSaljare() { return or1.getSaljare(); }
+	public java.util.Date getDatum() { return or1.getDatum(); }
 	public void setMoms(short moms) { or1.setMoms(moms); }
 	public short getMoms() { return or1.getMoms(); }
 	public void setBonus(boolean bonus) { if (bonus) or1.setBonus((short)1); else or1.setBonus((short)0); }
 	public boolean isBonus() { return or1.getBonus() > 0; }
+
+	public void addBonus(TableBonus bonus) {
+		ord = new OrderHandlerRad();
+
+		ord.text = null;
+		ord.best = 0.0;
+		ord.lev = 1.0;
+		ord.artnr = "*BONUS*";
+		ord.namn = "Faktura: " + bonus.getTableBonusPK().getFaktura();
+		ord.konto = "3011";
+		ord.enh = null;
+		ord.levnr = null;
+		ord.artDirektlev = 0;
+		ord.artFraktvillkor = 0;
+		ord.prisnr = (short)1;
+
+		ord.pris = -bonus.getBonus();
+		ord.summa = ord.pris;
+		ord.rab = 0.0;
+		ord.netto = 0.01;
+		ord.stjid=0;
+
+		ord.tableBonus = bonus;
+
+		ordreg.add(ord);
+		
+	}
+
+
+	public void addRanta(TableRanta tableRanta) {
+		TableFuppg fup = (TableFuppg)em.createNamedQuery("TableFuppg.findAll").getSingleResult();
+
+		ord = new OrderHandlerRad();
+
+		ord.text = null;
+		ord.best = 0.0;
+		ord.lev = 1.0;
+		ord.artnr = "*RÄNTA*";
+		ord.namn = "Faktura: " + tableRanta.getTableRantaPK().getFaktnr();
+		ord.konto = fup.getRantak();
+		ord.enh = null;
+		ord.levnr = null;
+		ord.artDirektlev = 0;
+		ord.artFraktvillkor = 0;
+		ord.prisnr = (short)1;
+
+		ord.pris = tableRanta.getRanta();
+		ord.summa = ord.pris;
+		ord.rab = 0.0;
+		ord.netto = 0.01;
+		ord.stjid=0;
+
+		ord.tableRanta = tableRanta;
+
+		ordreg.add(ord);
+
+	}
+
+
+
+	public void addTextRow(String text) {
+		addTextRow(text, 0.0, 0.0);
+	}
+	public void addTextRow(String text, double inpris, double utpris) {
+		ord = new OrderHandlerRad();
+
+		ord.text = text;
+		ord.best = 0.0;
+		ord.lev = 0.0;
+		ord.artnr = null;
+		ord.namn = null;
+		ord.konto = "3011";
+		ord.enh = null;
+		ord.levnr = null;
+		ord.artDirektlev = 0;
+		ord.artFraktvillkor = 0;
+		ord.prisnr = (short)1;
+
+		ord.pris = 0.0;
+		ord.summa = utpris;
+		ord.rab = 0.0;
+		ord.netto = inpris;
+		ord.stjid=0;
+
+		ordreg.add(ord);
+	}
 
 	public void addStjRow(String artnr, String namn, String levnr, double antal, String enh, double inpris, double utpris, double utrab) {
 		ord = new OrderHandlerRad();
@@ -259,6 +383,10 @@ public class OrderHandler {
 
 	}
 
+
+	public void addRow(OrderHandlerRad rad) {
+		ordreg.add(rad);
+	}
 
 	public void addRow(String artnr, double antal) throws SXEntityNotFoundException{
 		ord = new OrderHandlerRad();
@@ -495,12 +623,15 @@ public class OrderHandler {
 	public Integer getOrdernr() {
 		return or1.getOrdernr();
 	}
-	
-	public final void setKund(String kundNr) {
+
+	private void loadKund(String kundnr) {
+		kun = em.find(TableKund.class, kundnr);
+		if (kun == null) { throw new EntityNotFoundException("Kan inte hitta kund " + kundnr + " för order."); }
+	}
+
+	public final void setKund(String kundnr) {
 		// Hämta kund och sätt standardvärden för or1
-		kun = em.find(TableKund.class, kundNr);
-		if (kun == null) { throw new EntityNotFoundException("Kan inte hitta kund " + kundNr + " för ny order."); }
-		
+		loadKund(kundnr);
 		or1.setKundnr(kun.getNummer());
 		or1.setNamn(kun.getNamn());
 		or1.setAdr1(kun.getAdr1());

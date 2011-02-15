@@ -24,7 +24,9 @@ import javax.persistence.TemporalType;
 @Entity
 @Table(name = "RANTA")
 @NamedQueries({
-	@NamedQuery(name = "TableRanta.findAll", query = "SELECT t FROM TableRanta t")})
+	@NamedQuery(name = "TableRanta.findAll", query = "SELECT t FROM TableRanta t")
+	, @NamedQuery(name = "TableRanta.findByKund", query = "SELECT t FROM TableRanta t where t.tableRantaPK.kundnr=:kundnr order by t.tableRantaPK.faktnr")
+})
 public class TableRanta implements Serializable {
 	private static final long serialVersionUID = 1L;
 	@EmbeddedId
