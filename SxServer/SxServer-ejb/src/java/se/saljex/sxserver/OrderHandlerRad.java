@@ -8,8 +8,10 @@ package se.saljex.sxserver;
 import se.saljex.sxserver.tables.TableOrder2PK;
 import se.saljex.sxserver.tables.TableOrder2;
 import java.util.Date;
+import se.saljex.sxserver.tables.TableBonus;
 import se.saljex.sxserver.tables.TableOffert2;
 import se.saljex.sxserver.tables.TableOffert2PK;
+import se.saljex.sxserver.tables.TableRanta;
 
 /**
  *
@@ -49,7 +51,18 @@ public class OrderHandlerRad {
 	public Double artIorder = null;
 	public Double artBest = null;
 	public Double artIlager = null;
-		
+
+	public TableBonus tableBonus = null;
+
+	public TableRanta tableRanta = null;
+
+	public OrderHandlerRad() {	}
+
+	// Skapar en kopia på en befintlig rad
+	public OrderHandlerRad(OrderHandlerRad radAttKopiera) {
+		setAll(radAttKopiera.getOrder2());
+	}
+
 	public void setAll(TableOrder2 o) {
 		ordernr = o.getTableOrder2PK().getOrdernr();
 		pos = o.getTableOrder2PK().getPos();
