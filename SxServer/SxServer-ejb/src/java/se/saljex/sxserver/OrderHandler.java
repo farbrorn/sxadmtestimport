@@ -278,11 +278,11 @@ public class OrderHandler {
 		ord.text = text;
 		ord.best = 0.0;
 		ord.lev = 0.0;
-		ord.artnr = null;
-		ord.namn = null;
+		ord.artnr = "";
+		ord.namn = "";
 		ord.konto = "3011";
-		ord.enh = null;
-		ord.levnr = null;
+		ord.enh = "";
+		ord.levnr = "";
 		ord.artDirektlev = 0;
 		ord.artFraktvillkor = 0;
 		ord.prisnr = (short)1;

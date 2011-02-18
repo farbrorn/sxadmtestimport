@@ -195,7 +195,7 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 							t.setBearbetar(new Date());		// Om vi får en exception på detta jobb försöker vi sätt bearbetningstiden
 							em.flush();								// så att det dröjer ett tag (fn 1 timme) innan försök sker igen
 						} catch (Exception e2) {}				// Ignorera ev. exception eftersom funktionen inte är kritisk
-						ServerUtil.log("Ett undantagsfel uppstod vid bearbetning av jobb." + t.getJobbid() + ". Försöker fortsätta med nästa " + e.toString()); e.printStackTrace();
+						ServerUtil.log("Ett undantagsfel uppstod vid bearbetning av jobb." + t.getJobbid() + ". Försöker fortsätta med nästa " + e.toString() + " Message: " + e.getMessage()); e.printStackTrace();
 					}
 				}
 				
@@ -216,12 +216,12 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 					try {
 						sxServerMainBean.handleSandBestPaminEpost(be1);		//aNROPAS SÅ HÄR FÖR ATT STARTA NY TRANSAKTION
 					} catch (Exception e) {
-						ServerUtil.log("Ett undantagsfel uppstod vid bearbetning av sänd best1 påminnelse epost." + be1.getBestnr() + ". Försöker fortsätta med nästa " + e.toString()); 
+						ServerUtil.log("Ett undantagsfel uppstod vid bearbetning av sänd best1 påminnelse epost." + be1.getBestnr() + ". Försöker fortsätta med nästa. " + e.toString() +" " + e.getMessage());
 					}
 				} 
 				
 			} catch (Exception e) { 
-				ServerUtil.log("Ett undantagsfel uppstod vid bearbetning av jobb: " + e.toString());
+				ServerUtil.log("Ett undantagsfel uppstod vid bearbetning av jobb: " + e.toString() + " " + e.getMessage());
 				context.setRollbackOnly();
 			}
 			finally { 
@@ -231,10 +231,10 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 	}
 	
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	public void handleJobb(TableSxservjobb t) throws  Exception {
+	public void handleJobb(TableSxservjobb t) throws DocumentException, IOException, MessagingException, NamingException {
 		try {
 			JobbHandler jobbHandler = new JobbHandler(em,mailsxmail);		//Vi gör detta kryptiska anrop för att ny transaktion ska startas för varje jobb
-			ServerUtil.log("Behandlar jobbid " + t.getJobbid());
+			ServerUtil.log("Behandlar jobbid " + t.getJobbid() + " Uppgift: " + t.getUppgift() + " Typ: " + t.getDokumenttyp() + " Sändsätt: " + t.getSandsatt() + " Dokumentid: " + SXUtil.toStr(t.getExternidstring()) + t.getExternidint());
 			if (t.getUppgift().equals(SXConstant.SERVJOBB_UPPGIFT_SAND)) {
 				if (t.getDokumenttyp().equals(SXConstant.SERVJOBB_DOKUMENTTYP_FAKTURA)) {	//Faktura
 					if (t.getSandsatt().equals(SXConstant.SERVJOBB_SANDSATT_EPOST)) {
@@ -248,10 +248,51 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 					if (t.getSandsatt().equals(SXConstant.SERVJOBB_SANDSATT_EPOST)) {
 						jobbHandler.handleSandOffertEpost(t);
 					}
+				} else {
+					ServerUtil.log("Jobbid: " + t.getJobbid() +  "Dokumenttyp '" + t.getDokumenttyp() + "' är okänd. Ingen åtgärd utförd" );
+					
 				}
+
+
+			} else {
+				ServerUtil.log("Jobbid: " + t.getJobbid() +  " Uppgift '" + t.getUppgift() + "' är okänd. Ingen åtgärd utförd" );
 			}
-		} catch (Exception e) { context.setRollbackOnly(); throw e; }
+		} 
+		catch (NamingException ne) {
+			ServerUtil.log("Undantag i handleJobb: " + ne.toString() + " " + ne.getMessage());
+			context.setRollbackOnly();
+			sendAdminMail("Fel vid SxServerMainBean.handleJobb Undantag: NamingException " + ne.toString() + " " + ne.getMessage() + "<br/> Jobbid: " + t.getJobbid() + " <br/>E-postaddress: " + t.getEpost() + " <br/> Dokumenttyp: " + t.getDokumenttyp() + " <br/> Dokumentid: " +SXUtil.toStr(t.getExternidstring()) + t.getExternidint() );
+			throw ne;
+		}
+		catch (MessagingException me) { 
+			ServerUtil.log("Undantag i handleJobb: " + me.toString() + " " + me.getMessage());
+			context.setRollbackOnly();
+			sendAdminMail("Fel vid SxServerMainBean.handleJobb Undantag: MessagingException " + me.toString() + " " + me.getMessage() + "<br/> Jobbid: " + t.getJobbid() + " <br/>E-postaddress: " + t.getEpost() + " <br/> Dokumenttyp: " + t.getDokumenttyp() + " <br/> Dokumentid: " +SXUtil.toStr(t.getExternidstring()) + t.getExternidint() );
+			throw me;
+		}
+		catch (DocumentException de) { 
+			ServerUtil.log("Undantag i handleJobb: " + de.toString() + " " + de.getMessage());
+			context.setRollbackOnly();
+			sendAdminMail("Fel vid SxServerMainBean.handleJobb Undantag: DocumentException " + de.toString() + " " + de.getMessage() + "<br/> Jobbid: " + t.getJobbid() + " <br/>E-postaddress: " + t.getEpost() + " <br/> Dokumenttyp: " + t.getDokumenttyp() + " <br/> Dokumentid: " +SXUtil.toStr(t.getExternidstring()) + t.getExternidint() );
+			throw de;
+		}
+		catch (IOException ie) { 
+			ServerUtil.log("Undantag i handleJobb: " + ie.toString() + " " + ie.getMessage());
+			context.setRollbackOnly();
+			sendAdminMail("Fel vid SxServerMainBean.handleJobb Undantag: IOException " + ie.toString() + " " + ie.getMessage() + "<br/> Jobbid: " + t.getJobbid() + " <br/>E-postaddress: " + t.getEpost() + " <br/> Dokumenttyp: " + t.getDokumenttyp() + " <br/> Dokumentid: " +SXUtil.toStr(t.getExternidstring()) + t.getExternidint() );
+			throw ie;
+		}
+
 	}
+
+	private void sendAdminMail(String message) {
+		try {
+			SendMail m = new SendMail(em, mailsxmail);
+			m.sendAdminSimpleMail(em, message);
+		}
+		catch (Exception e) { ServerUtil.log("Undantag vid sendAdminMail. Message; " + message + " " + e.toString() + " " + e.getMessage()); }
+	}
+
 
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public void handleSandBestEpost(TableBest1 be1) throws  DocumentException, IOException, NamingException, MessagingException {
@@ -426,8 +467,7 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 								mailTo = r.getString(1);
 							}
 
-							SendMail m = new SendMail(mailsxmail, ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPUSER), ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPPASSWORD),
-																ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPSERVERPORT), ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPTRANSPORT));
+							SendMail m = new SendMail(em, mailsxmail);
 							m.sendSimpleMail(	em,
 													mailTo,
 													ServerUtil.getSXReg(em,SXConstant.SXREG_WORDER_SPARRAD_ORDER_SUBJECT, SXConstant.SXREG_WORDER_SPARRAD_ORDER_SUBJECT_DEFAULT),
@@ -520,8 +560,7 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 	@RolesAllowed("admin")
 	public boolean sendSimpleMail(String adress, String header, String bodytext) {
 		try {
-			SendMail m = new SendMail(mailsxmail, ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPUSER), ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPPASSWORD),
-									ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPSERVERPORT), ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPTRANSPORT));
+			SendMail m = new SendMail(em, mailsxmail);
 			m.sendSimpleMail(	em, adress, header, bodytext);
 		}
 		catch (Exception e) { e.printStackTrace(); return true; }

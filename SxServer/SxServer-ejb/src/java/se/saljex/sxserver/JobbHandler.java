@@ -143,7 +143,7 @@ public class JobbHandler {
 		String bodyHtml = ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVMAILFAKTURABODYPREFIX, SXConstant.SXREG_SXSERVMAILFAKTURABODYSUFFIX_DEFAULT)
 								+ ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVMAILFAKTURABODYSUFFIX, SXConstant.SXREG_SXSERVMAILFAKTURABODYSUFFIX_DEFAULT);
 		
-		SendMail m = new SendMail(mailsxmail, ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPUSER), ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPPASSWORD), ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPSERVERPORT), ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPTRANSPORT));
+		SendMail m = new SendMail(em, mailsxmail);
 		m.sendMailTextHtmlPdf(
 							new InternetAddress(ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVMAILFAKTURAFROMADRESS, SXConstant.SXREG_SXSERVMAILFAKTURAFROMADRESS_DEFAULT),
 								ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVMAILFAKTURAFROMNAME, SXConstant.SXREG_SXSERVMAILFAKTURAFROMNAME_DEFAULT)),
@@ -180,7 +180,7 @@ public class JobbHandler {
 		String bodyHtml = ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVMAILOFFERTBODYPREFIX, SXConstant.SXREG_SXSERVMAILOFFERTBODYSUFFIX_DEFAULT)
 								+ ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVMAILOFFERTBODYSUFFIX, SXConstant.SXREG_SXSERVMAILOFFERTBODYSUFFIX_DEFAULT);
 
-		SendMail m = new SendMail(mailsxmail, ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPUSER), ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPPASSWORD), ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPSERVERPORT), ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPTRANSPORT));
+		SendMail m = new SendMail(em, mailsxmail);
 		m.sendMailTextHtmlPdf(
 							new InternetAddress(ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVMAILOFFERTFROMADRESS, SXConstant.SXREG_SXSERVMAILOFFERTFROMADRESS_DEFAULT),
 								ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVMAILOFFERTFROMNAME, SXConstant.SXREG_SXSERVMAILOFFERTFROMNAME_DEFAULT)),
@@ -253,7 +253,7 @@ public class JobbHandler {
 		boolean err = false;
 		
 		try {
-			SendMail m = new SendMail(mailsxmail, ServerUtil.getSXReg(em,"SxServSMTPUser"), ServerUtil.getSXReg(em,"SxServSMTPPassword"), ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPSERVERPORT), ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPTRANSPORT));
+			SendMail m = new SendMail(em,mailsxmail);
 			
 			m.sendMailTextHtml(new InternetAddress(ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVMAILBESTFROMADRESS,SXConstant.SXREG_SXSERVMAILBESTFROMADRESS_DEFAULT),ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVMAILBESTFROMNAME,SXConstant.SXREG_SXSERVMAILBESTFROMNAME_DEFAULT)),
 							epost,"Beställning " + be1.getBestnr() + " från " + fup.getNamn()
@@ -331,7 +331,7 @@ public class JobbHandler {
 		boolean err = false;
 		
 		try {
-			SendMail m = new SendMail(mailsxmail, ServerUtil.getSXReg(em,"SxServSMTPUser"), ServerUtil.getSXReg(em,"SxServSMTPPassword"), ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPSERVERPORT), ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPTRANSPORT));
+			SendMail m = new SendMail(em, mailsxmail);
 			
 			m.sendMailTextHtml(new InternetAddress(ServerUtil.getSXReg(em,"SxServMailBestFromAddress","inkop@saljex.se"),ServerUtil.getSXReg(em,"SxServMailBestFromName","Säljex inköp")),
 							epost,"Påminnelse om kvittens på beställning " + be1.getBestnr() + " från " + fup.getNamn()

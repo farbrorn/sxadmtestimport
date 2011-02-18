@@ -59,10 +59,13 @@ public class SamfaktByEpostHandler {
 				" where " +
 				" kn.nummer = a.kundnr and kn.skickafakturaepost > 0 and kn.ejfakturerbar = 0" +
 					" and a.status in (?, ?) " +
-					" and (a.tidigastfaktdatum is null or tidigastfaktdatum <= current_date) " +
+					" and (a.tidigastfaktdatum is null or a.tidigastfaktdatum <= current_date) " +
 					" and (lastdatum is null or lastdatum <= current_date-?) " +
 					" and a.kundnr in (select kundnr from order1 o1, order2 o2 " +
 						" where o1.ordernr = o2.ordernr  " +
+						" and o1.status in (?,?) " +
+						" and (o1.tidigastfaktdatum is null or o1.tidigastfaktdatum <= current_date) " +
+						" and (lastdatum is null or lastdatum <= current_date-?) " +
 						" group by o1.kundnr " +
 						" having sum(abs(o2.summa)) > ? or min(o1.datum) < current_date-? " +
 						" ) "+
@@ -74,8 +77,11 @@ public class SamfaktByEpostHandler {
 		stm.setString(1, SXConstant.ORDER_STATUS_HAMT);
 		stm.setString(2, SXConstant.ORDER_STATUS_SAMFAK);
 		stm.setInt(3, 2);	//Dagar som ordern kan vara låst utan att vi automatiskt låser upp den. Lämpligt att ha 2 dagar så det inte blir problem vid för tidig upplåsning runt middnatt
-		stm.setDouble(4, 500); //Minsta belopp för att samfakturera
-		stm.setInt(5, 21);	//Högsta antalet dagar som order får ligga ofakturerat även om inte min.beloppet är uppnått
+		stm.setString(4, SXConstant.ORDER_STATUS_HAMT);
+		stm.setString(5, SXConstant.ORDER_STATUS_SAMFAK);
+		stm.setInt(6, 2);	//Dagar som ordern kan vara låst utan att vi automatiskt låser upp den. Lämpligt att ha 2 dagar så det inte blir problem vid för tidig upplåsning runt middnatt
+		stm.setDouble(7, 500); //Minsta belopp för att samfakturera
+		stm.setInt(8, 21);	//Högsta antalet dagar som order får ligga ofakturerat även om inte min.beloppet är uppnått
 		rs = stm.executeQuery();
 
 		String tempKundnr="";
