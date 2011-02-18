@@ -32,6 +32,11 @@ public class SendMail {
 	private String password;
 	private Integer port;
 	private String transport;
+
+	public SendMail(EntityManager em, Session s) {
+		this(s, ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPUSER), ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPPASSWORD),
+				ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPSERVERPORT), ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVSMTPTRANSPORT));
+	}
 	
 	public SendMail(Session s, String u, String p, String por, String transport) {
 		mailsxmail = s;
@@ -80,7 +85,15 @@ public class SendMail {
 		//javax.mail.Transport.send(message);
 	}
 */
-	
+
+	public void sendAdminSimpleMail(EntityManager em, String subject, String text) throws NamingException, MessagingException, UnsupportedEncodingException {
+		sendMailTextHtml(	new InternetAddress(ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVMAILFROMADRESS, SXConstant.SXREG_SXSERVMAILFROMADRESS_DEFAULT)), ServerUtil.getSXReg(em, SXConstant.SXREG_SXSERVADMINMAIL, SXConstant.SXREG_SXSERVADMINMAIL_DEFAULT), subject, text,text);
+	}
+	public void sendAdminSimpleMail(EntityManager em, String text) throws NamingException, MessagingException, UnsupportedEncodingException {
+		sendAdminSimpleMail(em, "Meddelande från SxServer", text);
+	}
+
+
 	public void sendSimpleMail(EntityManager em, String mailTo, String subject, String text) throws NamingException, MessagingException, UnsupportedEncodingException {
 		sendMailTextHtml(	new InternetAddress(ServerUtil.getSXReg(em,SXConstant.SXREG_SXSERVMAILFROMADRESS, SXConstant.SXREG_SXSERVMAILFROMADRESS_DEFAULT)), mailTo, subject, text,text);
 	}

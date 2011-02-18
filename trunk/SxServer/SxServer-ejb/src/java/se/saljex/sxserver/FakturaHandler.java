@@ -85,7 +85,7 @@ public class FakturaHandler {
 		List<TableKundkontakt> kundkontaktList = em.createNamedQuery("TableKundkontakt.findByKundnr").setParameter("kundnr", fakturaOrder.getKundNr()).getResultList();
 		for (TableKundkontakt kk : kundkontaktList) {
 			if (!kk.getEkonomi().equals(0) && !SXUtil.isEmpty(kk.getEpost())) {	// Vi har en e-postadress
-				if (epost==null) epost = kk.getEpost(); else epost = "; " + kk.getEpost();
+				if (epost==null) epost = kk.getEpost(); else epost = epost + "," + kk.getEpost();
 			}
 		}
 		if (SXUtil.isEmpty(epost)) epost=fakturaOrder.getTableKund().getEmail();

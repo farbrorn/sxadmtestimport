@@ -39,7 +39,7 @@ public class PdfFaktura extends PdfHandler {
 		//Hämta bild från databas
 		Query q = em.createQuery("SELECT t FROM TableBilder t WHERE t.namn = ?1");
 		String bildNamn = ServerUtil.getSXReg(em,"BildLogo");
-		if (bildNamn.isEmpty()) { throw new DocumentException("Kan inte hitta logobildnamn i tabell sxreg. Nyckel: BildLogo"); }
+		if (SXUtil.isEmpty(bildNamn)) { throw new DocumentException("Kan inte hitta logobildnamn i tabell sxreg. Nyckel: BildLogo"); }
 		q.setParameter(1, bildNamn);
 		try {
 			bil = (TableBilder)q.getSingleResult();
@@ -113,7 +113,7 @@ public class PdfFaktura extends PdfHandler {
 			}
 			
 			
-			if (!fa2.getText().isEmpty() || (fa2.getArtnr().isEmpty() && fa2.getNamn().isEmpty())) {
+			if (!SXUtil.isEmpty(fa2.getText()) || (SXUtil.isEmpty(fa2.getArtnr()) && SXUtil.isEmpty(fa2.getNamn()))) {
 				// Skriv ut textrad
 				offsetY = checkNewPage(offsetY, startY, stopY, detailTextHeight);
 				printDetailTextrad(offsetY);
@@ -146,12 +146,12 @@ public class PdfFaktura extends PdfHandler {
             }
 		}
 		// Artikelraderna är utskrivna
-		if (!fa1.getFaktortext1().isEmpty() || !fa1.getFaktortext2().isEmpty() || !fa1.getFaktortext3().isEmpty()) {
+		if (!SXUtil.isEmpty(fa1.getFaktortext1()) || !SXUtil.isEmpty(fa1.getFaktortext2()) || !SXUtil.isEmpty(fa1.getFaktortext3())) {
 			offsetY = checkNewPage(offsetY, startY, stopY, detailFaktorHeight);
 			printDetailFaktoring(offsetY );
 		}
 
-		if (!fup.getFakObstext1().isEmpty()) {
+		if (!SXUtil.isEmpty(fup.getFakObstext1())) {
 			offsetY = checkNewPage(offsetY, startY, stopY, detailObsHeight);
 			printDetailObs(offsetY );
 		}
@@ -288,7 +288,7 @@ public class PdfFaktura extends PdfHandler {
        addText(offsetX+20,offsetY-26,"Obs!");
        cb.setFontAndSize(FontTimesBold, 10);
        addText(offsetX+20,offsetY-38,fup.getFakObstext1());
-       addText(offsetX+20,offsetY-38,"Observer att prisjusteringar sker löpande!!!");
+//       addText(offsetX+20,offsetY-38,"Observer att prisjusteringar sker löpande!!!");
     }    
 
 	private void drawRec(int x, int y, int w, int h, int r) throws DocumentException {
@@ -421,7 +421,7 @@ public class PdfFaktura extends PdfHandler {
     }
     private void addText(int x,int y, String t, int align) {
            cb.beginText();
-           cb.showTextAligned(align, t,x,y,0);
+           cb.showTextAligned(align, SXUtil.toStr(t),x,y,0);
          cb.endText();
         
     }
