@@ -11,7 +11,9 @@ if (divInfo == null) divInfo = "";
 %>
 <div <%= divInfo %>>
 <a href="?id=status">Serverstatus</a><br/>
-<a href="?id=updateartikeltrad">Uppdatera Artikelträd</a><br/>
+<a href="?id=updateartikel">Uppdatera Artikel på web</a><br/>
+<a href="?id=updateartikeltrad">Uppdatera Artikelträd på web</a><br/>
+<a href="?id=updatelagersaldon">Uppdatera lagersaldon lokalt</a><br/>
 <a href="?id=inlagg">Hantera inlägg</a><br/>
 
 </div>
