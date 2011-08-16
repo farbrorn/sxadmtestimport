@@ -6,7 +6,6 @@
 package se.saljex.sxserver.web;
 
 import java.io.*;
-import java.net.*;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
@@ -14,9 +13,11 @@ import javax.servlet.http.*;
 import javax.ejb.EJB;
 import se.saljex.sxserver.SxServerMainLocal;
 import com.lowagie.text.DocumentException;
-import java.sql.SQLException;
 import javax.annotation.security.RunAs;
+import se.saljex.sxlibrary.SXSession;
 import se.saljex.sxlibrary.SxServerMainRemote;
+import se.saljex.sxlibrary.WebSupport;
+import se.saljex.sxserver.LocalWebSupportLocal;
 
 /**
  *
@@ -28,7 +29,12 @@ public class getPDF extends HttpServlet {
     private SxServerMainLocal SxServerMainBean;
     @EJB
     private SxServerMainRemote SxServerMainRemote;
-	
+    @EJB
+    private LocalWebSupportLocal LocalWebSupportLocal;
+
+	private OutputStream out;
+	private HttpServletResponse response;
+		private SXSession sxSession;
    
     /** 
     * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -37,29 +43,49 @@ public class getPDF extends HttpServlet {
     */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
-  /*     // PrintWriter out = response.getWriter();
-		File file = new File("C:\\dum\\test.pdf"); 
-		int bytes= (int)file.length(); 
+		this.response = response;
 
-		FileInputStream fis = new FileInputStream(file); 
-		byte[] buff = new byte[2048]; 
-		response.setContentLength(bytes); 
-		response.setContentType("application/pdf"); 
-		response.setHeader("Content-disposition", "filename=List.pdf"); 
-		while(fis.read(buff, 0, buff.length)!=-1) 
-		{ 
-			response.getOutputStream().write(buff, 0, buff.length); 
-		} 
+		 out = response.getOutputStream();
 
-//		response.flushBuffer();
-		fis.close();
-		
-*/	
+			sxSession = WebSupport.getSXSession(request.getSession());
+			if (!sxSession.getInloggad()) {
+				response.setStatus(response.SC_MOVED_TEMPORARILY);
+				response.setHeader("Location", "login?refpage=intra&logintype=intra");
+				return;
+			}
+			if (!sxSession.isIntrauser()) {
+				return;
+			}
 
-		 OutputStream out = response.getOutputStream();
-        
-//        try {
-            ByteArrayOutputStream bs = SxServerMainRemote.getPdfFaktura(0);
+//		 request.getSession().setAttribute("test", "Ja");
+		 String typ = request.getParameter("typ");
+		 if (typ==null) typ="";
+
+		 Integer nr = null;
+		 try {
+			nr = new Integer(request.getParameter("nr"));
+		} catch (NumberFormatException e) {  }
+
+		if (nr != null) {
+			try {
+				if ("faktura".equals(typ)) {
+					send(LocalWebSupportLocal.getPdfFaktura(nr));
+				} else if ("best".equals(typ)) {
+					send(LocalWebSupportLocal.getPdfBest(nr));
+				} else if ("offert".equals(typ)) {
+					if ("true".equals(request.getParameter("inkmoms"))) {
+						send(LocalWebSupportLocal.getPdfOffertInkMoms(nr));
+					} else {
+						send(LocalWebSupportLocal.getPdfOffert(nr));
+					}
+				}
+			} catch (DocumentException e) {}
+
+		}
+
+    }
+
+	private void send(ByteArrayOutputStream bs) throws IOException{
             response.setHeader("Expires", "0");
             response.setHeader("Cache-Control", "must-revalidate, post-check=0, pre-check=0");
             response.setHeader("Pragma", "public");
@@ -67,9 +93,8 @@ public class getPDF extends HttpServlet {
             response.setContentLength(bs.size());
             bs.writeTo(out);
             out.flush();
-  //      }
- 
-    } 
+
+	}
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /** 
