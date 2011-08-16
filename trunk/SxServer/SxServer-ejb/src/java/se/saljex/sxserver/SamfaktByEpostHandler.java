@@ -61,18 +61,27 @@ public class SamfaktByEpostHandler {
 					" and a.status in (?, ?) " +
 					" and (a.tidigastfaktdatum is null or a.tidigastfaktdatum <= current_date) " +
 					" and (lastdatum is null or lastdatum <= current_date-?) " +
-					" and a.kundnr in (select kundnr from order1 o1, order2 o2 " +
-						" where o1.ordernr = o2.ordernr  " +
+					" and a.kundnr in (select kundnr from order1 o1, order2 o2, kund k1 " +
+						" where o1.ordernr = o2.ordernr  and k1.nummer=o1.kundnr" +
 						" and o1.status in (?,?) " +
 						" and (o1.tidigastfaktdatum is null or o1.tidigastfaktdatum <= current_date) " +
 						" and (lastdatum is null or lastdatum <= current_date-?) " +
-						" group by o1.kundnr " +
-						" having sum(abs(o2.summa)) > ? or min(o1.datum) < current_date-? " +
+						" group by o1.kundnr, k1.samfakgrans " +
+						" having (sum(abs(o2.summa)) > k1.samfakgrans and k1.samfakgrans > 0) or (sum(abs(o2.summa)) > ? and k1.samfakgrans <= 0)  or min(o1.datum) < current_date-? " +
 						" ) "+
 //					" and a.ordernr not in (select oo2.ordernr from order2 oo2 "+
 //						" where lev > 0 and pris = 0 and artnr not like '*UD%') "+
 //					" and a.kundnr in ( select nummer from kund k  where k.skickafakturaepost > 0 ) " +
 				" order by a.kundnr, a.lagernr, a.bonus, a.saljare, a.ordernr, a.dellev";
+		int maxDagar = 21;
+		double minBelopp = 5000;
+		try {
+			maxDagar = new Integer(ServerUtil.getSXReg(con, SXConstant.SXREG_SXSERVSAMFAKTMAXDAGAR, SXConstant.SXREG_SXSERVSAMFAKTMAXDAGAR_DEFAULT));
+		} catch (Exception e) { ServerUtil.log("Felaktigt MaxDagar för samfakt i sxreg." +SXConstant.SXREG_SXSERVSAMFAKTMAXDAGAR );}
+		try {
+			minBelopp = new Double(ServerUtil.getSXReg(con, SXConstant.SXREG_SXSERVSAMFAKTMINBELOPP, SXConstant.SXREG_SXSERVSAMFAKTMINBELOPP_DEFAULT));
+		} catch (Exception e) { ServerUtil.log("Felaktigt minBelopp för samfakt i sxreg." +SXConstant.SXREG_SXSERVSAMFAKTMINBELOPP );}
+
 		stm = con.prepareStatement(q);
 		stm.setString(1, SXConstant.ORDER_STATUS_HAMT);
 		stm.setString(2, SXConstant.ORDER_STATUS_SAMFAK);
@@ -80,8 +89,8 @@ public class SamfaktByEpostHandler {
 		stm.setString(4, SXConstant.ORDER_STATUS_HAMT);
 		stm.setString(5, SXConstant.ORDER_STATUS_SAMFAK);
 		stm.setInt(6, 2);	//Dagar som ordern kan vara låst utan att vi automatiskt låser upp den. Lämpligt att ha 2 dagar så det inte blir problem vid för tidig upplåsning runt middnatt
-		stm.setDouble(7, 500); //Minsta belopp för att samfakturera
-		stm.setInt(8, 21);	//Högsta antalet dagar som order får ligga ofakturerat även om inte min.beloppet är uppnått
+		stm.setDouble(7, minBelopp); //Minsta belopp för att samfakturera
+		stm.setInt(8, maxDagar);	//Högsta antalet dagar som order får ligga ofakturerat även om inte min.beloppet är uppnått
 		rs = stm.executeQuery();
 
 		String tempKundnr="";

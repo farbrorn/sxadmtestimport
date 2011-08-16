@@ -106,7 +106,7 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 	private void handleSamfaktTimer() {
 		try {
 			if (ServerUtil.getSXReg(em, SXConstant.SXREG_SXSERVSAMFAKTAKTIVERAD, SXConstant.SXREG_SXSERVSAMFAKTAKTIVERAD_DEFAULT).equals("Ja")) {
-				//samfaktByEmail();
+				samfaktByEmail();
 			}
 		}finally {
 			startSamfaktTimer();
@@ -325,7 +325,7 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 		sxServerMainBean.startTimer(3*60*1000,"JobbTimer");	//Måste startas som EJB-anrop för att new transaction skall funka
 	}
 	private void startSamfaktTimer() {
-		sxServerMainBean.startTimer(30*60*1000,"SamfaktTimer");	//Måste startas som EJB-anrop för att new transaction skall funka
+		sxServerMainBean.startTimer(60*60*1000,"SamfaktTimer");	//Måste startas som EJB-anrop för att new transaction skall funka
 	}
 	private void startKvartTimer() {
 		sxServerMainBean.startTimer(15*60*1000,"KvartTimer");	//Måste startas som EJB-anrop för att new transaction skall funka
@@ -600,6 +600,16 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 	public int faktureraBvOrderMedAnvandare(int ordernr, String anvandare) throws SxOrderLastException {
 		FakturaHandler fh = new FakturaHandler(embv, bvadm, anvandare);
 		return fh.faktureraOrder(ordernr);
+	}
+
+	public ByteArrayOutputStream getTestPdf() throws IOException {
+		PdfTest sx;
+		try {
+			sx = new PdfTest();
+			return sx.getPDF();
+		} catch (DocumentException e ) {e.printStackTrace();}
+		catch (NoResultException e) {}
+		return null;
 	}
 
 

@@ -65,5 +65,7 @@ public interface SxServerMainLocal {
 
 	int faktureraBvOrderMedAnvandare(int ordernr, String anvandare) throws SxOrderLastException;
 
+	ByteArrayOutputStream getTestPdf() throws IOException;
+
 	
 }

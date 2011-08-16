@@ -55,7 +55,7 @@ public class LocalWebSupportBean implements LocalWebSupportLocal, LocalWebSuppor
 	@Resource EJBContext context;
 	@Resource(name="sxmail", mappedName="sxmail") private Session mailsxmail;
 	@PersistenceContext(unitName="SxServer-ejbPU") private EntityManager em;
-	@Resource private UserTransaction utx;
+//	@Resource private UserTransaction utx;
 
 	@PersistenceUnit(unitName="SxServer-ejbPU") private EntityManagerFactory emf;
 
@@ -151,6 +151,57 @@ public class LocalWebSupportBean implements LocalWebSupportLocal, LocalWebSuppor
 		return pdf.getPDF(nr);
 	}
 
+	public ByteArrayOutputStream getPdfOffert(Integer nr) throws com.lowagie.text.DocumentException, java.io.IOException {
+		return getPdfOffert(nr, false);
+	}
+	public ByteArrayOutputStream getPdfOffertInkMoms(Integer nr) throws com.lowagie.text.DocumentException, java.io.IOException {
+		return getPdfOffert(nr, true);
+	}
+
+	public ByteArrayOutputStream getPdfOffert(Integer nr, boolean skrivArtikelradInkMoms) throws com.lowagie.text.DocumentException, java.io.IOException {
+		if (nr == null) return null;
+		PdfOffert pdf = new PdfOffert(em);
+		return pdf.getPDF(nr, skrivArtikelradInkMoms);
+	}
+
+
+
+	public String updateLagerSaldonWithHTMLResponse() {
+		String ret = "";
+		java.sql.Connection con = null;
+		try {
+			con = sxadm.getConnection();
+			LagerCheck l = new LagerCheck(con);
+			try {
+				ret = ret + "<br/>Startar updateLagerSaldon";
+				l.run();
+				ret = ret + " - Klart!";
+			} catch (java.sql.SQLException e) { ret = ret + "<br/>Undantag vid updateLagerSaldon " + e.toString(); }
+		} catch (java.sql.SQLException e) { ret = ret + "<br/>Undantag vid getConnection " + e.toString(); }
+		finally { try { con.close(); } catch (Exception e) {} }
+		return ret;
+	}
+
+
+
+	public String updateWebArtikelWithHTMLResponse() {
+		String ret = "";
+		java.sql.Connection conSe = null;
+		int cn;
+		try {
+			conSe = saljexse.getConnection();
+			WebArtikelUpdater w = new WebArtikelUpdater(em, conSe);
+			try {
+				ret = ret + "<br/>Startar updateWArtikel";
+				cn = w.updateWArt();
+				ret = ret + " - Klart! Antal rader: " + cn;
+			} catch (java.sql.SQLException e) { ret = ret + "<br/>Undantag vid updateWArtikel " + e.toString(); }
+		} catch (java.sql.SQLException e) { ret = ret + "<br/>Undantag vid getConnection " + e.toString(); }
+		finally { try { conSe.close(); } catch (Exception e) {} }
+		return ret;
+	}
+
+
 	public String updateWebArtikelTradWithHTMLResponse() {
 		String ret = "";
 		java.sql.Connection conSe = null;
@@ -199,10 +250,10 @@ public class LocalWebSupportBean implements LocalWebSupportLocal, LocalWebSuppor
 		return emf;
 	}
 
-	public UserTransaction getUserTransaction() {
+/*	public UserTransaction getUserTransaction() {
 		return utx;
 	}
-
+*/
 	public ByteArrayOutputStream getPdfSteServiceorder(Integer id) throws DocumentException, IOException {
 		if (id==null) return null;
 		PdfSteServiceorder pdf = new PdfSteServiceorder(em);
@@ -271,6 +322,9 @@ public class LocalWebSupportBean implements LocalWebSupportLocal, LocalWebSuppor
 			}
 		}
 	}
+
+
+
 
 
 

@@ -29,7 +29,11 @@ public class PdfOffert extends PdfHandler {
 	private TableFuppg fup;
 	private TableBilder bil;
 	private TableKund kun;
-    private EntityManager em;  
+    private EntityManager em;
+	private double totalsummaNetto=0;
+	private double totalsummaMoms=0;
+    private double momssats;
+	private boolean skrivArtikelradInkMoms=false;
 	
     
     public PdfOffert(EntityManager e) throws DocumentException, IOException {
@@ -49,8 +53,12 @@ public class PdfOffert extends PdfHandler {
 
     }
     
-	
 	public ByteArrayOutputStream getPDF(int offertnr) throws IOException, DocumentException {
+		return getPDF(offertnr, false);
+	}
+	
+	public ByteArrayOutputStream getPDF(int offertnr, boolean skrivArtikelradInkMoms) throws IOException, DocumentException {
+		this.skrivArtikelradInkMoms=skrivArtikelradInkMoms;
 		Query q;
 		Query q2;
 		q = em.createQuery("select f from TableOffert1 f WHERE f.offertnr = " + offertnr);
@@ -60,7 +68,14 @@ public class PdfOffert extends PdfHandler {
 		q = em.createQuery("select f FROM TableFuppg f");
 		fup = (TableFuppg)q.getSingleResult();
 
-		
+
+
+	   if (of1.getMoms() == 0) momssats = 0;
+	   else if (of1.getMoms() == 1) momssats = fup.getMoms1();
+	   else if (of1.getMoms() == 2) momssats = fup.getMoms2();
+	   else if (of1.getMoms() == 3) momssats = fup.getMoms3();
+	   else momssats = fup.getMoms1();
+
 		initDocument();
 		cb.saveState();
 		printHeader();
@@ -75,7 +90,8 @@ public class PdfOffert extends PdfHandler {
 		final int detailTextHeight = 12;
 		int offsetY = startY + detailArtHeight;			//På första sidan ska måste vi öka med denna för att offsetminskningen sker före 
 														//första raden skrivs ut. Efterföljande sidor kan dock starta på startY
-		
+		totalsummaNetto=0;
+		totalsummaMoms=0;
 		for (TableOffert2 o2 : lof2) {
 			of2 = o2;	//För att den globala variabeln ska fungera
 			if (!of2.getText().isEmpty() || (of2.getArtnr().isEmpty() && of2.getNamn().isEmpty())) {
@@ -86,7 +102,11 @@ public class PdfOffert extends PdfHandler {
 				offsetY = checkNewPage(offsetY, startY, stopY, detailArtHeight);
 				printDetailArt(offsetY);
 			}
+			totalsummaNetto = totalsummaNetto+of2.getSumma();
+			totalsummaMoms = totalsummaMoms + (SXUtil.getRoundedDecimal(of2.getSumma() * momssats /100));
+
 		}
+		printTotalSumma();
 		// Artikelraderna är utskrivna
 		cb.restoreState();
 		document.close();
@@ -107,10 +127,35 @@ public class PdfOffert extends PdfHandler {
 			}
 			return offsetY;
 	}
-	private void printTotalSumma(Double tNettoMomsplikt0, Double tNettoMomsplikt) throws DocumentException  {
- //      addText(0,0,r.getString("artnr"));
+	private void printTotalSumma() throws DocumentException  {
        cb.setFontAndSize(FontCourier, 8);
-//       addText(80,146,fa1.getText1());
+
+
+
+       addText(394,146,"Momssats %:");
+	   addText(552,146,SXUtil.getFormatNumber(momssats) ,PdfContentByte.ALIGN_RIGHT );
+
+	   if (!skrivArtikelradInkMoms) {
+		   addText(394,136,"Netto:");
+		   addText(552,136, SXUtil.getFormatNumber(totalsummaNetto),PdfContentByte.ALIGN_RIGHT );
+		}
+
+	   if (skrivArtikelradInkMoms) {
+			addText(394,126,"Moms ingår med:");
+	   } else {
+			addText(394,126,"Moms:");
+		}
+	   addText(552,126,SXUtil.getFormatNumber(totalsummaMoms,2),PdfContentByte.ALIGN_RIGHT );
+
+
+//       addText(394,116,"Öresut:");
+//	   addText(520,116,SXUtil.getFormatNumber(fa1.getTOrut()),PdfContentByte.ALIGN_RIGHT );
+
+	   
+
+       cb.setFontAndSize(FontTimesBold, 10);
+		addText(394,100,"Totalt inkl. moms:");
+	   addText(552,100,SXUtil.getFormatNumber(totalsummaNetto + totalsummaMoms,2),PdfContentByte.ALIGN_RIGHT);
 	}
 	
 	
@@ -123,15 +168,24 @@ public class PdfOffert extends PdfHandler {
        
        addText(offsetX+415,offsetY,SXUtil.getFormatNumber(of2.getRab(),0));
        addText(offsetX+316, offsetY, SXUtil.getFormatNumber(of2.getBest(),2),PdfContentByte.ALIGN_RIGHT );
-       addText(offsetX+402, offsetY, SXUtil.getFormatNumber(of2.getPris(),2),PdfContentByte.ALIGN_RIGHT );
-       addText(offsetX+502, offsetY, SXUtil.getFormatNumber(of2.getSumma(),2),PdfContentByte.ALIGN_RIGHT );
+	   if (skrivArtikelradInkMoms) {
+		   addText(offsetX+402, offsetY, SXUtil.getFormatNumber(of2.getPris() + (SXUtil.getRoundedDecimal(of2.getPris() * momssats /100)),2),PdfContentByte.ALIGN_RIGHT );
+		   addText(offsetX+502, offsetY, SXUtil.getFormatNumber(of2.getSumma() + (SXUtil.getRoundedDecimal(of2.getSumma() * momssats /100)),2),PdfContentByte.ALIGN_RIGHT );
+	   } else {
+	       addText(offsetX+402, offsetY, SXUtil.getFormatNumber(of2.getPris(),2),PdfContentByte.ALIGN_RIGHT );
+			addText(offsetX+502, offsetY, SXUtil.getFormatNumber(of2.getSumma(),2),PdfContentByte.ALIGN_RIGHT );
+		}
     }
 	 
     private void printDetailTextrad(int offsetY) throws DocumentException ,IOException {
        cb.setFontAndSize(FontCourier, 8);
        final int offsetX = 50;
        addText(offsetX+0,offsetY,of2.getText());
-       addText(offsetX+502, offsetY, SXUtil.getFormatNumber(of2.getSumma(),2),PdfContentByte.ALIGN_RIGHT );
+	   if (skrivArtikelradInkMoms) {
+		   addText(offsetX+502, offsetY, SXUtil.getFormatNumber(of2.getSumma() + (SXUtil.getRoundedDecimal(of2.getSumma() * momssats /100)),2),PdfContentByte.ALIGN_RIGHT );
+	   } else {
+			addText(offsetX+502, offsetY, SXUtil.getFormatNumber(of2.getSumma(),2),PdfContentByte.ALIGN_RIGHT );
+		}
     }
     
     
@@ -186,13 +240,12 @@ public class PdfOffert extends PdfHandler {
        cb.resetGrayFill();
        
        cb.setFontAndSize(FontTimesBold, 18);
-       addText(254,806,"Faktura");
+       addText(254,806,"Offert");
        cb.setFontAndSize(FontTimesBold, 6);
        addText(325,656,"Vår ref.:");
        addText(396,765,"Datum");
-       addText(389,810,"Uppge vid betalning");
        addText(396,787,"Kundnummer:");
-       addText(396,801,"Fakturanummer:");
+       addText(396,801,"Offertnummer:");
        addText(47,746,"Leveransadress");
        addText(325,746,"Kund");
        addText(325,633,"Kredittid " + of1.getKtid() + " dagar. Betalas senast");

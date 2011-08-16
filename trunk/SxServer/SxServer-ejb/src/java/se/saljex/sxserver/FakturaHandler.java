@@ -171,7 +171,7 @@ public class FakturaHandler {
 				orh.addRanta(ranta);
 			}
 		}
-		if (or1.getBonus() > 0) {						//Fakturera bonus
+		if (or1.getBonus() == 0) {						//Fakturera normal bonus. Samlingsbonus hoppas över
 			List<TableBonus> bonusList = em.createNamedQuery("TableBonus.findByKund").setParameter("kund", orh.getKundNr()).getResultList();
 			for (TableBonus bonus : bonusList) {
 				orh.addBonus(bonus);
@@ -272,14 +272,19 @@ public class FakturaHandler {
 		kund = em.find(TableKund.class, fa1.getKundnr());
 		if (kund==null) { throw new EntityNotFoundException("Kund saknas vid försök att spara faktura"); }
 		double t_innetto = 0;
-		double t_netto=0;
+		double t_normalmomsat=0;	//Summa som det normalt är moms på. Vid helt momsfri faktura gäller momsfritt ändå
+		double t_momsfritt=0;		//Summa av m omsfria rader även då det är faktura med moms. T.ex. ränta
 		fup = (TableFuppg)em.createNamedQuery("TableFuppg.findAll").getSingleResult();
 
 		TableFaktura2 fa2;
 		for (FaktRad faktRad : faktRadList) {
 			fa2 = faktRad.fa2;
-			t_innetto = t_innetto+ (fa2.getNetto()*fa2.getLev());
-			t_netto = t_netto + fa2.getSumma();
+			t_innetto = t_innetto+ ( SXUtil.getRoundedDecimal(fa2.getNetto()*fa2.getLev()));
+			if (faktRad.orderHandlerRad.tableRanta!=null) {		//Det är en räntarad, och således momsfritt
+				t_momsfritt = t_momsfritt +  SXUtil.getRoundedDecimal(fa2.getSumma());
+			} else { //Vanlig rad
+				t_normalmomsat = t_normalmomsat +  SXUtil.getRoundedDecimal(fa2.getSumma());
+			}
 		}
 
 		if (fa1.getMoms() == 0)	fa1.setMomsproc(0);
@@ -328,12 +333,12 @@ public class FakturaHandler {
 		}
 		fa1.setRanta(fup.getDroj());
 
-		fa1.setTNetto(t_innetto);
-		fa1.setTInnetto(t_netto);
+		fa1.setTNetto(SXUtil.getRoundedDecimal(t_normalmomsat+t_momsfritt));
+		fa1.setTInnetto(SXUtil.getRoundedDecimal(t_innetto));
 
 
-		fa1.setTMoms(SXUtil.getRoundedDecimal(t_netto*fa1.getMomsproc()/100));
-		fa1.setTOrut(SXUtil.getRoundedDecimal( Math.round(t_netto + fa1.getTMoms()) - (fa1.getTNetto()+fa1.getTMoms()) ));
+		fa1.setTMoms(SXUtil.getRoundedDecimal(t_normalmomsat*fa1.getMomsproc()/100));
+		fa1.setTOrut(SXUtil.getRoundedDecimal( Math.round(fa1.getTNetto() + fa1.getTMoms()) - (fa1.getTNetto()+fa1.getTMoms()) ));
 		fa1.setTAttbetala(SXUtil.getRoundedDecimal(fa1.getTNetto() + fa1.getTOrut() + fa1.getTMoms()));
 
 		fa1.setRantfakt((short)0);
@@ -388,7 +393,7 @@ public class FakturaHandler {
 
 				//*** Spara Artikelstatistik
 				calendar.setTime(fa1.getDatum());
-				artstatPK = new TableArtstatPK(fa2.getArtnr(), (short)calendar.get(Calendar.YEAR), (short)calendar.get(Calendar.MONTH));
+				artstatPK = new TableArtstatPK(fa2.getArtnr(), (short)calendar.get(Calendar.YEAR), (short)(calendar.get(Calendar.MONTH)+1));
 				artstat = em.find(TableArtstat.class, artstatPK);
 				if (artstat == null) {
 					artstat = new TableArtstat(artstatPK);
@@ -406,29 +411,32 @@ public class FakturaHandler {
 					}
 				}
 
+			}
 
 
-				if (!((Double)0.0).equals(fa2.getSumma())) {
-					if (SXUtil.isEmpty(fa2.getKonto())) fa2.setKonto("3011");
-					bokordPK = new TableBokordPK(fa2.getKonto(), fa1.getFaktnr(), "F", fa1.getDatum());
-					bokord = em.find(TableBokord.class, bokordPK);
-					if (bokord == null) {
-						bokord = new TableBokord(bokordPK);
-						em.persist(bokord);
-					}
-					bokord.setKundnr(fa1.getKundnr());
-					calendar.setTime(fa1.getDatum());
-					bokord.setAr((short)calendar.get(Calendar.YEAR));
-					bokord.setMan((short)calendar.get(Calendar.MONTH));
-					bokord.setNamn(fa1.getNamn());
-					bokord.setSumma(bokord.getSumma() - SXUtil.getRoundedDecimal(fa2.getSumma()));
+			//Spara bokföringsorder
+			if (!((Double)0.0).equals(fa2.getSumma())) {
+				if (SXUtil.isEmpty(fa2.getKonto())) fa2.setKonto("3011");
+				bokordPK = new TableBokordPK(fa2.getKonto(), fa1.getFaktnr(), "F", fa1.getDatum());
+				bokord = em.find(TableBokord.class, bokordPK);
+				if (bokord == null) {
+					bokord = new TableBokord(bokordPK);
+					em.persist(bokord);
 				}
+				bokord.setKundnr(fa1.getKundnr());
+				calendar.setTime(fa1.getDatum());
+				bokord.setAr((short)calendar.get(Calendar.YEAR));
+				bokord.setMan((short)(calendar.get(Calendar.MONTH)+1));
+				bokord.setNamn(fa1.getNamn());
+				bokord.setSumma(bokord.getSumma() - SXUtil.getRoundedDecimal(fa2.getSumma()));
+			}
 
 
-				//*** Spara Levstatistik
+			//*** Spara Levstatistik
+			if (!SXUtil.isEmpty(faktRad.orderHandlerRad.levnr)) {
 				lev = em.find(TableLev.class, faktRad.orderHandlerRad.levnr);
 				if (lev != null) {
-					levstatPK = new TableLevstatPK(lev.getNummer(), (short)calendar.get(Calendar.YEAR), (short)calendar.get(Calendar.MONTH));
+					levstatPK = new TableLevstatPK(lev.getNummer(), (short)calendar.get(Calendar.YEAR), (short)(calendar.get(Calendar.MONTH)+1));
 					levstat = em.find(TableLevstat.class, levstatPK);
 					if (levstat == null) {
 						levstat = new TableLevstat(levstatPK);
@@ -437,8 +445,8 @@ public class FakturaHandler {
 					levstat.setFtot(levstat.getFtot() + fa2.getSumma());
 					levstat.setFtbidrag(levstat.getFtbidrag() + fa2.getSumma() - (fa2.getNetto()*fa2.getLev()));
 				}
+			}
 
-			}//Spara artikel
 
 			//Spara bonus
 			if (faktRad.orderHandlerRad.tableBonus!=null) {
@@ -479,7 +487,7 @@ public class FakturaHandler {
 			bokord.setNamn(fa1.getNamn());
 			calendar.setTime(fa1.getDatum());
 			bokord.setAr((short)calendar.get(Calendar.YEAR));
-			bokord.setMan((short)calendar.get(Calendar.MONTH));
+			bokord.setMan((short)(calendar.get(Calendar.MONTH)+1));
 			em.persist(bokord);
 		}
 
@@ -489,7 +497,7 @@ public class FakturaHandler {
 		bokord.setNamn(fa1.getNamn());
 		calendar.setTime(fa1.getDatum());
 		bokord.setAr((short)calendar.get(Calendar.YEAR));
-		bokord.setMan((short)calendar.get(Calendar.MONTH));
+		bokord.setMan((short)(calendar.get(Calendar.MONTH)+1));
 		em.persist(bokord);
 
 		bokord = new TableBokord(fup.getOrutk(), fa1.getFaktnr(), "F", fa1.getDatum());
@@ -498,7 +506,7 @@ public class FakturaHandler {
 		bokord.setNamn(fa1.getNamn());
 		calendar.setTime(fa1.getDatum());
 		bokord.setAr((short)calendar.get(Calendar.YEAR));
-		bokord.setMan((short)calendar.get(Calendar.MONTH));
+		bokord.setMan((short)(calendar.get(Calendar.MONTH)+1));
 		em.persist(bokord);
 
 		if (!((Double)0.0).equals(fa1.getTAttbetala()) || sparaNollFakturaIReskontra) {
@@ -539,7 +547,7 @@ public class FakturaHandler {
 			betjour.setBetdat(fa1.getDatum());
 			calendar.setTime(fa1.getDatum());
 			betjour.setAr((short)calendar.get(Calendar.YEAR));
-			betjour.setMan((short)calendar.get(Calendar.MONTH));
+			betjour.setMan((short)(calendar.get(Calendar.MONTH)+1));
 			betjour.setBonsumma(0.0);
 			betjour.setPantsatt(fup.getPantsattfakturor());
 			betjour.setBetsattkonto(fup.getPantsattfakturor());
@@ -556,7 +564,7 @@ public class FakturaHandler {
 		kund.setTbidrag(kund.getTbidrag() + fa1.getTNetto() - fa1.getTInnetto());
 
 		//**** Spara Kundstatistik
-		kunstatPK = new TableKunstatPK(fa1.getKundnr(), (short)calendar.get(Calendar.YEAR), (short)calendar.get(Calendar.MONTH));
+		kunstatPK = new TableKunstatPK(fa1.getKundnr(), (short)calendar.get(Calendar.YEAR), (short)(calendar.get(Calendar.MONTH)+1));
 		kunstat = em.find(TableKunstat.class, kunstatPK);
 		if (kunstat == null) {
 			kunstat = new TableKunstat(kunstatPK);
@@ -575,7 +583,7 @@ public class FakturaHandler {
 				saljare.setTotalt(saljare.getTotalt() + fa1.getTNetto());
 				saljare.setTbidrag(saljare.getTbidrag() +  fa1.getTNetto() - fa1.getTInnetto());
 				calendar.setTime(fa1.getDatum());
-				sljstatPK = new TableSljstatPK(saljareNamn, (short)calendar.get(Calendar.YEAR), (short)calendar.get(Calendar.MONTH));
+				sljstatPK = new TableSljstatPK(saljareNamn, (short)calendar.get(Calendar.YEAR), (short)(calendar.get(Calendar.MONTH)+1));
 				sljstat = em.find(TableSljstat.class, sljstatPK);
 				if (sljstat == null) {
 					sljstat = new TableSljstat(sljstatPK);
@@ -588,7 +596,7 @@ public class FakturaHandler {
 		
 		//Spara statistik
 		calendar.setTime(fa1.getDatum());
-		statistikPK = new TableStatistikPK((short)calendar.get(Calendar.YEAR), (short)calendar.get(Calendar.MONTH));
+		statistikPK = new TableStatistikPK((short)calendar.get(Calendar.YEAR), (short)(calendar.get(Calendar.MONTH)+1));
 		statistik = em.find(TableStatistik.class, statistikPK);
 		if (statistik == null) {
 			statistik = new TableStatistik(statistikPK);

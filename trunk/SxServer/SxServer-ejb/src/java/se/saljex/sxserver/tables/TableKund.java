@@ -189,6 +189,8 @@ public class TableKund implements Serializable {
 	private String linjenr3;
 	@Column(name = "SKICKAFAKTURAEPOST", nullable = false)
 	private short skickafakturaepost;
+	@Column(name = "SAMFAKGRANS", nullable = false)
+	private double samfakgrans;
 
 	public TableKund() {
 	}
@@ -886,6 +888,38 @@ public class TableKund implements Serializable {
 	public void setSkickafakturaepost(short skickafakturaepost) {
 		this.skickafakturaepost = skickafakturaepost;
 	}
+	public short getkDag() {
+		return kDag;
+	}
+
+	public void setkDag(short kDag) {
+		this.kDag = kDag;
+	}
+
+	public Date getkDatum() {
+		return kDatum;
+	}
+
+	public void setkDatum(Date kDatum) {
+		this.kDatum = kDatum;
+	}
+
+	public Date getkTid() {
+		return kTid;
+	}
+
+	public void setkTid(Date kTid) {
+		this.kTid = kTid;
+	}
+
+	public double getSamfakgrans() {
+		return samfakgrans;
+	}
+
+	public void setSamfakgrans(double samfakgrans) {
+		this.samfakgrans = samfakgrans;
+	}
+
 
 	@Override
 	public int hashCode() {

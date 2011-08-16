@@ -60,9 +60,16 @@ public interface LocalWebSupportLocal {
 
 	EntityManagerFactory getEmf();
 
-	UserTransaction getUserTransaction();
+	//UserTransaction getUserTransaction();
 
 	ByteArrayOutputStream getPdfSteServiceorder(Integer id) throws DocumentException, IOException;
+
+	String updateWebArtikelWithHTMLResponse();
+
+	String updateLagerSaldonWithHTMLResponse();
+
+	ByteArrayOutputStream getPdfOffert(Integer nr) throws com.lowagie.text.DocumentException, java.io.IOException ;
+	ByteArrayOutputStream getPdfOffertInkMoms(Integer nr) throws com.lowagie.text.DocumentException, java.io.IOException ;
 
 //	public void deleteOrder(int ordernr);
 

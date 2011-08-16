@@ -2289,3 +2289,5 @@ alter table utlev1 add forskatt smallint not null default 0;
 alter table utlev1 add forskattbetald smallint not null default 0;
 alter table utlev1 add betalsatt varchar(20);
 
+/* Ändringar 2011-02-18 */
+alter table kund add samfakgrans float not null default 0; /* Minsta belopp för att automatisk samfaktura ska gå ut */

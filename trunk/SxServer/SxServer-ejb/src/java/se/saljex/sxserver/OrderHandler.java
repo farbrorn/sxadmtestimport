@@ -225,7 +225,7 @@ public class OrderHandler {
 		ord.artFraktvillkor = 0;
 		ord.prisnr = (short)1;
 
-		ord.pris = -bonus.getBonus();
+		ord.pris =  SXUtil.getRoundedDecimal(-bonus.getBonus());
 		ord.summa = ord.pris;
 		ord.rab = 0.0;
 		ord.netto = 0.01;
@@ -255,7 +255,7 @@ public class OrderHandler {
 		ord.artFraktvillkor = 0;
 		ord.prisnr = (short)1;
 
-		ord.pris = tableRanta.getRanta();
+		ord.pris = SXUtil.getRoundedDecimal(tableRanta.getRanta());
 		ord.summa = ord.pris;
 		ord.rab = 0.0;
 		ord.netto = 0.01;
