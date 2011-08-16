@@ -1,0 +1,144 @@
+.sx-logo {
+	
+    font-size: 18pt;
+    font-weight: bolder;
+}
+.sx-tb-s5 {
+	width: 40px;
+	vertical-align:top;
+}
+.sx-tb-s10 {
+	width: 80px;
+	vertical-align:top;
+}
+.sx-tb-s15 {
+	width: 100px;
+	vertical-align:top;
+}
+.sx-tb-s20 {
+	width: 160px;
+	vertical-align:top;
+}
+.sx-tb-s30 {
+	width: 240px;
+	vertical-align:top;
+}
+
+.sx-tb-n15 {
+	width: 100px;
+	vertical-align:top;
+    text-align: right;
+}
+.sx-tb-n10 {
+	width: 80px;
+	vertical-align:top;
+    text-align: right;
+}
+.sx-tb-n5 {
+	width: 40px;
+	vertical-align:top;
+    text-align: right;
+}
+
+.sx-bg-odd {
+
+    background-color: #f4f4f4;
+}
+
+.sx-bold {
+    font-weight: bold;
+}
+
+.sx-table-rubrik {
+
+    font-size: 8pt;
+    background-color: #ccffff;
+}
+.sx-table-list td {
+	margin: 0px;
+	padding: 0px 4px 0px 4px;
+	border:none;
+	border-collapse: collapse;
+	border-spacing: 0px;
+}
+
+.sx-table-list  {
+}
+
+.sx-feltext {
+	color: red;
+}
+
+.w-tabtitle-btn {
+
+}
+
+.sx-errorlabel {
+
+    font-style: italic;
+    color: red;
+    border-right-style: solid;
+    border-left-style: solid;
+    border-bottom-style: solid;
+    border-top-style: solid;
+    border-right-width: 2px;
+    border-left-width: 2px;
+    border-bottom-width: 2px;
+    border-top-width: 2px;
+    border-right-color: red;
+    border-left-color: red;
+    border-bottom-color: red;
+    border-top-color: red;
+}
+
+.w-tabtitle-passive {
+
+	width:100%;
+    font-style: normal;
+	cursor: pointer;
+
+    padding-left: 6px;
+    padding-right: 6px;
+}
+.w-tabtitle-active {
+	width:100%;
+    font-style: normal;
+    padding-left: 6px;
+    padding-right: 6px;
+	background-color: #ff99ff;
+    border-top-style: solid;
+    border-top-width: 1px;
+    border-top-color: black;
+
+    border-left-style: solid;
+    border-left-width: 1px;
+    border-left-color: black;
+
+    border-right-style: solid;
+    border-rigt-width: 1px;
+    border-right-color: black;
+
+	cursor: pointer;
+    font-weight: bolder;
+}
+
+.w-tabpanel {
+	width: 100%;
+
+    padding-top: 4px;
+    padding-bottom: 0px;
+    padding-left: 4px;
+    padding-right: 4px;
+	background-color: #9999ff;
+}
+
+.w-windowpanel {
+	width: 100%;
+
+}
+.w-windowhandler {
+	width: 100%;
+
+}
+
+
