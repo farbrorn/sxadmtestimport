@@ -171,6 +171,11 @@ public class SXUtil {
 		 if (s == null) return ""; else return s;
 	 }
 
+	 //Tar bort avslutande tomma tecken
+	 public static String rightTrim(String s) {
+		 return s.replaceAll("\\s+$", "");
+	 }
+
 	 public static String urlEncode(String s) {
 		 if (s == null) return ""; else try { return URLEncoder.encode(s, "UTF-8"); } catch (UnsupportedEncodingException e) {}
 		 return "";//Om vi får exception retureneras ""

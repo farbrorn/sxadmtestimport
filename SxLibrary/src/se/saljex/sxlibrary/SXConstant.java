@@ -84,8 +84,15 @@ public class SXConstant {
 	public static final  String SXREG_SXSERVMAILFROMNAME = "SxServMailFromName";
 	public static final  String SXREG_SXSERVMAILFROMNAME_DEFAULT = "Säljex AB";
 
+	public static final  String SXREG_SXSERVADMINMAIL = "SxServAdminMail";
+	public static final  String SXREG_SXSERVADMINMAIL_DEFAULT = "ulf@saljex.se";
+
 	public static final  String SXREG_SXSERVSAMFAKTAKTIVERAD = "SxServSamfaktAktiverad";
 	public static final  String SXREG_SXSERVSAMFAKTAKTIVERAD_DEFAULT = "Nej";
+	public static final  String SXREG_SXSERVSAMFAKTMINBELOPP = "SxServSamfaktMinBelopp";		//Minsta totala orderbelopp för att tillåta samfakt
+	public static final  String SXREG_SXSERVSAMFAKTMINBELOPP_DEFAULT = "1000";
+	public static final  String SXREG_SXSERVSAMFAKTMAXDAGAR = "SxServSamfaktMaxDagar";			//Antalet dagar gammal order för att trigga samfakt utan beloppsgräns
+	public static final  String SXREG_SXSERVSAMFAKTMAXDAGAR_DEFAULT = "21";
 
 
 	public static final	String SXREG_WORDER_SPARRAD_ORDER_SUBJECT = "sxServWorderSparradOrderSubject";
