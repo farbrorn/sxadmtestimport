@@ -9,6 +9,7 @@ import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.sql.DataSource;
@@ -32,7 +33,7 @@ public class SQLTableGetList {
 
 	public void fillList(SQLTableList list, IsSQLTable table, String sokString, String sokField, String sortField, int compareType, int sortOrder, int offset, int limit) throws ServerErrorException{
 		String where = "";
-		String compareString;
+		String compareString="";
 		String orderBy = "";
 		Field[] fields;
 		ArrayList<Object> parameters = new ArrayList();
@@ -44,36 +45,46 @@ public class SQLTableGetList {
 			case SQLTableList.COMPARE_LESS: { compareString = "<"; break; }
 			case SQLTableList.COMPARE_LESS_EQUALS: { compareString = "<="; break; }
 			case SQLTableList.COMPARE_SUPERSOK: { compareString = "like"; break; }
+			case SQLTableList.COMPARE_NONE: { compareString = ""; break; }
 			default:	throw (new ServerErrorException("Felaktig compare-värde: " + compareType));
 		}
+		Object retTerm;
+		StringBuilder b = new StringBuilder();
 
-		if (compareType == SQLTableList.COMPARE_SUPERSOK) {
-			List<String> cols = SQLTableHandler.getStringColumnNames(table);
-			String[] terms = sokString.split(" ");
-			StringBuilder b = new StringBuilder();
-			for (String term : terms) {
-				for (String col : cols) {
-					if (b.length()>0) b.append(" or ");
-					b.append("upper(");
-					b.append(col);
-					b.append(")");
-					b.append(" like upper(?)");
-					parameters.add("%" + term + "%");
+		if (!compareString.isEmpty() && sokString!=null) {
+			if (compareType == SQLTableList.COMPARE_SUPERSOK) {
+				List<String> cols = SQLTableHandler.getStringColumnNames(table);
+				String[] terms = ((String)sokString).split(" ");
+				for (String term : terms) {
+					for (String col : cols) {
+						if (b.length()>0) b.append(" or ");
+						b.append("upper(");
+						b.append(col);
+						b.append(")");
+						b.append(" like upper(?)");
+						parameters.add("%" + term + "%");
+					}
 				}
+				where = b.toString();
+				if (where==null) where = "";
+			} else {
+				if (SQLTableHandler.isColumnNameValid(sokField, table)) {
+					where = where + " "+ sokField + compareString + " ?";
+				} else throw new ServerErrorException("Ogiltigt kolumnnamn: " + sokField);
+				try {
+					retTerm = SQLTableHandler.getObjectAsColumnType(table, sokField, sokString);
+				}catch (ParseException e) { throw new ServerErrorException("Fel vid omvandling av sökvärde till typ definerad i datatabell. Kolumn " + sokField + " värde: " + sokString); }
+				parameters.add(retTerm);
 			}
-			where = b.toString();
-			if (where==null) where = "";
-		} else {
-			if (SQLTableHandler.isColumnNameValid(sokField, table)) {
-				where = where + " "+ sokField + compareString + " ?";
-			} else throw new ServerErrorException("Ogiltigt kolumnnamn: " + sokField);
-			parameters.add(sokString);
 		}
+		
 
 
-		if (SQLTableHandler.isColumnNameValid(sortField, table)) {
-			orderBy = orderBy + " " + sortField + (sortOrder == SQLTableList.SORT_DESCANDING ? " desc" : "");
-		} else throw new ServerErrorException("Ogiltigt kolumnnamn: " + sortField);
+		if (sortField!=null) {
+			if (SQLTableHandler.isColumnNameValid(sortField, table)) {
+				orderBy = orderBy + " " + sortField + (sortOrder == SQLTableList.SORT_DESCANDING ? " desc" : "");
+			} else throw new ServerErrorException("Ogiltigt kolumnnamn för Order By: " + sortField);
+		}
 
 		//Lägg till grundsortering på primary key
 		String primaryKeyOrderBy = SQLTableHandler.getPrimaryKeyOrderByString(table, sortOrder==SQLTableList.SORT_DESCANDING);

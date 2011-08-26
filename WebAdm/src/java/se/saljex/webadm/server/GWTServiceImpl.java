@@ -17,10 +17,12 @@ import javax.sql.DataSource;
 import se.saljex.sxlibrary.SXUtil;
 
 import se.saljex.sxserver.LocalWebSupportLocal;
+import se.saljex.sxserver.SxServerMainLocal;
 import se.saljex.sxserver.tables.TableArtikel;
 import se.saljex.sxserver.tables.TableKund;
 
 import se.saljex.webadm.client.GWTService;
+import se.saljex.webadm.client.rpcobject.Epost;
 import se.saljex.webadm.client.rpcobject.ErrorConvertingFromResultsetException;
 import se.saljex.webadm.client.rpcobject.IsSQLTable;
 import se.saljex.webadm.client.rpcobject.ServerErrorException;
@@ -35,6 +37,8 @@ import se.saljex.webadm.client.rpcobject.SQLTableList;
  */
 public class GWTServiceImpl extends RemoteServiceServlet implements GWTService {
 	@EJB
+	private SxServerMainLocal sxServerMainBean;
+	@EJB
 	private LocalWebSupportLocal webBean;
 
 	@javax.annotation.Resource(name = "sxadm")
@@ -46,6 +50,59 @@ public class GWTServiceImpl extends RemoteServiceServlet implements GWTService {
 		if (t==null) t = "Null";
         return "Server says: " + s + " test: " + t;
     }
+
+	public ArrayList<Epost> getKundEpostLista(String kundnr) throws ServerErrorException {
+		ensureLoggedIn();
+		ArrayList<Epost> ret = new ArrayList<Epost>();
+		Epost epost;
+		Connection con=null;
+
+		try {
+			con = sxadm.getConnection();
+			PreparedStatement stm = con.prepareStatement("select ref, email from kund where nummer=?");
+			stm.setString(1, kundnr);
+			ResultSet rs = stm.executeQuery();
+
+			if (rs.next()) {
+				if (!SXUtil.isEmpty(rs.getString(2))) {
+					epost = new Epost();
+					epost.namn = rs.getString(1);
+					epost.epost = rs.getString(2);
+					epost.typ="Allmän";
+					ret.add(epost);
+				}
+			}
+			rs.close();
+			stm.close();
+			stm = con.prepareStatement("select namn, epost, ekonomi, info from kundkontakt where kundnr = ? order by namn");
+			stm.setString(1, kundnr);
+			rs = stm.executeQuery();
+
+			if (rs.next()) {
+				if (!SXUtil.isEmpty(rs.getString(2))) {
+					epost = new Epost();
+					epost.namn = rs.getString(1);
+					epost.epost = rs.getString(2);
+					if (rs.getInt(3)!=0) epost.typ="Ekonomi";
+					if (rs.getInt(4)!=0) {
+						if (epost.typ!=null) epost.typ = epost.typ + ", " + "Info"; else epost.typ="Info";
+					}
+					ret.add(epost);
+				}
+			}
+
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new ServerErrorException("SQL-Fel");
+		} finally {
+			try { con.close(); } catch (Exception e) {}
+
+		}
+
+
+		return ret;
+	}
 
 	public String getArtikel(String artnr) {
 		TableArtikel art = new TableArtikel("123");
@@ -100,14 +157,27 @@ public class GWTServiceImpl extends RemoteServiceServlet implements GWTService {
 		return tableList;
 	}
 */
-	public SQLTableList<IsSQLTable> getTableList(IsSQLTable table, String sokString, String sokField, String sortField, int compareType, int sortOrder, int offset, int limit) throws ServerErrorException{
+	private SQLTableList<IsSQLTable> doGetTableList(IsSQLTable table, Object sokString, String sokField, String sortField, int compareType, int sortOrder, int offset, int limit) throws ServerErrorException{
 		ensureLoggedIn();
 		SQLTableList<IsSQLTable> tableList = new SQLTableList<IsSQLTable>();
 		SQLTableGetList g = new SQLTableGetList(sxadm);
-		g.fillList(tableList, table, sokString, sokField, sortField, compareType, sortOrder, offset, limit);
+		g.fillList(tableList, table, sokString.toString(), sokField, sortField, compareType, sortOrder, offset, limit);
 		return tableList;
 	}
 
+	public SQLTableList<IsSQLTable> getTableList(IsSQLTable table, String sokString, String sokField, String sortField, int compareType, int sortOrder, int offset, int limit) throws ServerErrorException{
+		return doGetTableList(table, sokString, sokField, sortField, compareType, sortOrder, offset, limit);
+	}
+
+	public SQLTableList<IsSQLTable> getTableList(IsSQLTable table, Integer sokString, String sokField, String sortField, int compareType, int sortOrder, int offset, int limit) throws ServerErrorException{
+		return doGetTableList(table, sokString, sokField, sortField, compareType, sortOrder, offset, limit);
+	}
+	public SQLTableList<IsSQLTable> getTableList(IsSQLTable table, java.sql.Date sokString, String sokField, String sortField, int compareType, int sortOrder, int offset, int limit) throws ServerErrorException{
+		return doGetTableList(table, sokString, sokField, sortField, compareType, sortOrder, offset, limit);
+	}
+	public SQLTableList<IsSQLTable> getTableList(IsSQLTable table, Double sokString, String sokField, String sortField, int compareType, int sortOrder, int offset, int limit) throws ServerErrorException{
+		return doGetTableList(table, sokString, sokField, sortField, compareType, sortOrder, offset, limit);
+	}
 
 /*	public SQLTableList getOrder1List(IsSQLTable table, String kundnr,  int offset, int limit) throws ServerErrorException{
 		ensureLoggedIn();
@@ -313,6 +383,22 @@ public class GWTServiceImpl extends RemoteServiceServlet implements GWTService {
 
 		}
 
+	}
+
+	public Integer sendOffertEpost(String anvandare, String epost, int id) throws ServerErrorException {
+		ensureLoggedIn();
+		try {
+			sxServerMainBean.sendOffertEpost(anvandare, epost, id);
+		} catch (Exception e) {throw new ServerErrorException(e.getMessage()); }
+		return id;
+	}
+
+	public Integer sendFakturaEpost(String anvandare, String epost, int id) throws ServerErrorException {
+		ensureLoggedIn();
+		try {
+			sxServerMainBean.sendFakturaEpost(anvandare, epost, id);
+		} catch (Exception e) {throw new ServerErrorException(e.getMessage()); }
+		return id;
 	}
 
 	private void ensureLoggedIn()  {}

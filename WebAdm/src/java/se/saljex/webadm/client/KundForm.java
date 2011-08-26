@@ -46,7 +46,7 @@ public class KundForm extends Window implements HasFormUpdater<Kund>{
 
 	ModalMessageBox modalMessageBox = new ModalMessageBox();
 
-	ErrorLabel errorLabel = new ErrorLabel();
+	InfoLabel errorLabel = new InfoLabel();
 
 	Button closBtn = new Button("Stäng detta fönster");
 	Label vlabel = new Label();

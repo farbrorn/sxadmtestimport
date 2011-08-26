@@ -42,6 +42,7 @@ public class SxMenuBar extends MenuBar {
 		//Underhåll
 		add(menuUnderhall, "Artikel", new Command() {	@Override	public void execute() {	windowHandler.addWindow(new WelcomeWindow(windowHandler, "Välkommen"));	}	});
 		add(menuUnderhall,"Kund", new Command() {	@Override	public void execute() {	windowHandler.addWindow(new KundForm(windowHandler, "Kunder"));	}	});
+		add(menuUnderhall,"Offertlista", new Command() {	@Override	public void execute() {	windowHandler.addWindow(new OffertListaWidget(), "Offert");	}	});
 
 		//Frågor
 		add(menuFragor, "Tomt", new Command() {	@Override	public void execute() {		}	});

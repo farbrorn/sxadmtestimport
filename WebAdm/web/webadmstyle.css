@@ -90,6 +90,23 @@
     border-bottom-color: red;
     border-top-color: red;
 }
+.sx-infolabel {
+
+    font-style: italic;
+    color: yellow;
+    border-right-style: solid;
+    border-left-style: solid;
+    border-bottom-style: solid;
+    border-top-style: solid;
+    border-right-width: 1px;
+    border-left-width: 1px;
+    border-bottom-width: 1px;
+    border-top-width: 1px;
+    border-right-color: black;
+    border-left-color: black;
+    border-bottom-color: black;
+    border-top-color: black;
+}
 
 .w-tabtitle-passive {
 

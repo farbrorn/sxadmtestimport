@@ -6,6 +6,8 @@
 package se.saljex.webadm.client;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import java.util.ArrayList;
+import se.saljex.webadm.client.rpcobject.Epost;
 import se.saljex.webadm.client.rpcobject.IsSQLTable;
 import se.saljex.webadm.client.rpcobject.Kund;
 import se.saljex.webadm.client.rpcobject.SQLTableList;
@@ -19,6 +21,13 @@ public interface GWTServiceAsync {
 	public void getArtikel(String artnr, AsyncCallback<String> callback);
 	public void getKund(String kundnr, AsyncCallback<Kund> callback);
 	public void getTableList(IsSQLTable table, String sokString, String sokField, String sortField, int compareType, int sortOrder, int offset, int limit, AsyncCallback<SQLTableList> callback);
+	public void getTableList(IsSQLTable table, Integer sokString, String sokField, String sortField, int compareType, int sortOrder, int offset, int limit, AsyncCallback<SQLTableList> callback);
+	public void getTableList(IsSQLTable table, java.sql.Date sokString, String sokField, String sortField, int compareType, int sortOrder, int offset, int limit, AsyncCallback<SQLTableList> callback);
+	public void getTableList(IsSQLTable table, Double sokString, String sokField, String sortField, int compareType, int sortOrder, int offset, int limit, AsyncCallback<SQLTableList> callback);
 	public void putKund(Kund newValues, Kund oldValues, AsyncCallback callback);
 	public void deleteKund(String kundnr, AsyncCallback callback);
+	public void getKundEpostLista(String kundnr, AsyncCallback<ArrayList<Epost>> callback);
+	public void sendOffertEpost(String anvandare, String epost, int id, AsyncCallback<Integer> callback);
+	public void sendFakturaEpost(String anvandare, String epost, int id, AsyncCallback<Integer> callback);
+
 }

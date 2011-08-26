@@ -23,6 +23,7 @@ public class SQLTableList<T extends IsSQLTable> implements IsSerializable {
 	public static final int COMPARE_GREATER_EQUALS = 3;
 	public static final int COMPARE_EQUALS = 4;
 	public static final int COMPARE_SUPERSOK = 5;
+	public static final int COMPARE_NONE = 6;
 
 
 	public SQLTableList() {

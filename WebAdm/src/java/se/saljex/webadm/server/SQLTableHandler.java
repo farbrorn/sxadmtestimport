@@ -10,12 +10,18 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.util.AbstractCollection;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.zip.DataFormatException;
 import javax.persistence.OrderBy;
 import se.saljex.sxlibrary.SXUtil;
 import se.saljex.webadm.client.rpcobject.ErrorConvertingFromResultsetException;
 import se.saljex.webadm.client.rpcobject.IsSQLTable;
+import se.saljex.webadm.client.rpcobject.Offert2;
 import se.saljex.webadm.client.rpcobject.SQLTableList;
 
 /**
@@ -23,6 +29,12 @@ import se.saljex.webadm.client.rpcobject.SQLTableList;
  * @author Ulf
  */
 public class SQLTableHandler {
+
+	public static final Double dummyDouble = (double)0;
+	public static final String dummyString = "";
+	public static final Integer dummyInteger = 0;
+	public static final Short dummyShort = (short)0;
+	public static final java.sql.Date dummySQLDate = new java.sql.Date(0);
 
 
 	public static String getSelectColumns(Class c) {
@@ -114,9 +126,9 @@ public class SQLTableHandler {
 				list.hasMoreRows=true;
 				break;
 			}
-
 			row = sqlTable.newInstance();
 			getValues(row, rs);
+			list.lista.add(row);
 		}
 		list.limit = limit;
 		list.offset = offset;
@@ -136,6 +148,44 @@ public class SQLTableHandler {
 
 	}
 
+	//Hittar angiven kolumnnamn och konverteraar en string till ett object av samma typ
+	//Returnerar värdet som ett object av rätt typ, eller null m kolumnen inte finns
+	public static Object getObjectAsColumnType(IsSQLTable table, String columnName, String varde) throws ParseException{
+		try {
+		Field[] fields = table.getClass().getFields();
+		for (Field field : fields) {
+			if (field.getName().equals(columnName)) {
+				if (field.getType().isInstance(dummyString ) || field.get(table) instanceof String){
+//System.out.print("Kolumn " + columnName + " är String");
+					return varde;
+				} else if (field.getType().isInstance(dummySQLDate) || field.get(table) instanceof java.sql.Date ) {
+
+//System.out.print("Kolumn " + columnName + " är Date");
+					java.util.Date d = DateFormat.getInstance().parse(varde);
+					if (d!=null) {
+						return new java.sql.Date(d.getTime());
+					}
+				} else if (field.get(table) instanceof Integer || field.getType().isInstance(dummyInteger)) {
+//System.out.print("Kolumn " + columnName + " är Integer");
+					return new Integer(varde);
+				} else if (field.get(table) instanceof Short || field.getType().isInstance(dummyShort)) {
+//System.out.print("Kolumn " + columnName + " är Short");
+					return new Short(varde);
+				} else if (field.get(table) instanceof Double || field.getType().isInstance(dummyDouble)) {
+//7System.out.print("Kolumn " + columnName + " är Double");
+					return new Double(varde);
+				} else {
+					throw new ParseException("Kan inte konvertera kolumn " + columnName + " till den typ som är definerad i sql-tabellen. Omvandlingsfunktion saknas eller är inte implementerad. Kontrollera i tabellen vilken datatyp det är och gör ev. ändring av typ till någon vanlig typ.", 0);
+				}
+
+			}
+		}
+		}  catch (IllegalAccessException e)  { e.printStackTrace();
+		}
+		return null;
+
+	}
+
 	//Kolla om angivet column-name är giltigt i tabelle,. Används när client sänder data om vilken kolumn han vill använda och skyddar mot sql-injection
 	public static boolean isColumnNameValid(String columnName, IsSQLTable table) {
 		Field[] fields = table.getClass().getFields();
@@ -151,7 +201,7 @@ public class SQLTableHandler {
 		Field[] fields = table.getClass().getFields();
 		for (Field field : fields) {
 			try {
-				if (field.get(table) instanceof String) list.add(field.getName());
+				if (field.getType().isInstance(dummyString ) || field.get(table) instanceof String) list.add(field.getName());
 			} catch (IllegalAccessException e) {}
 		}
 		return list;

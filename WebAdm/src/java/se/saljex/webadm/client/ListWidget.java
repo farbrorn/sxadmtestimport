@@ -97,4 +97,6 @@ public class ListWidget<T extends IsSQLTable> extends ScrollPanel {
 	public CellList<T> getCellList() {return cellList; }
 	public PageLoad<T> getPageLoad() {return pageLoad; }
 
+	public T getSelectedObject() { return selectionModel.getSelectedObject(); }
+
 }

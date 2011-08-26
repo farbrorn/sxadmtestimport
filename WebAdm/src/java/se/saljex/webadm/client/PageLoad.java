@@ -22,7 +22,7 @@ abstract class PageLoad<T extends IsSQLTable> {
 
 	private int pageSize;
 	private int prefetchPageSize;
-	private int maxBufferSize;
+//	private int maxBufferSize;
 	private PageLoadCallback<T> callback;
 	private Integer currBufferPos=null;
 	private List<T> currBuffer=new ArrayList();
@@ -33,13 +33,15 @@ abstract class PageLoad<T extends IsSQLTable> {
 	private String currSokString=null;
 	private int currNextOffset=0;
 	private int currPreviousOffset=0;
+	private int currOriginalSokTyp=0;
 	protected boolean isSuperSok = false;
+	protected boolean isForwardOnly = false;
 	private AbstractHasData<T> hasData =null;
 
 	public PageLoad(int pageSize, int prefetchPageSize, int maxBufferSize, PageLoadCallback<T> callback) {
-		this.pageSize=pageSize>0 ? pageSize : 10;
-		this.prefetchPageSize=prefetchPageSize>0 ? prefetchPageSize : 20;
-		this.maxBufferSize=maxBufferSize>pageSize ? maxBufferSize : pageSize*2;
+		this.pageSize=pageSize>=0 ? pageSize : 10;		//PageSize på noll betyder hela resultatsetet
+		this.prefetchPageSize=prefetchPageSize>=0 ? prefetchPageSize : 20;
+	//	this.maxBufferSize=maxBufferSize>pageSize ? maxBufferSize : pageSize*2;
 		this.callback=callback;
 		if (callback==null) this.callback = new PageLoadCallback<T>() {
 
@@ -80,19 +82,27 @@ abstract class PageLoad<T extends IsSQLTable> {
 	}
 
 	public void setSearch(String field, String sokString, boolean isSuperSok) {
+		setSearch(field, sokString, field, isSuperSok ? SQLTableList.COMPARE_SUPERSOK : SQLTableList.COMPARE_GREATER_EQUALS, SQLTableList.SORT_DESCANDING);
+
+//			getList(MainEntryPoint.getService(), sokString, currSokField , currSortField, isSuperSok ? SQLTableList.COMPARE_SUPERSOK : SQLTableList.COMPARE_GREATER_EQUALS, SQLTableList.SORT_DESCANDING, 0, pageSize, callbackSok);
+	}
+
+	public void setSearch(String sokField, String sokString, String sortField, int sokTyp, int sortOrder) {
 		if (blockRPC) {
 			sendBlockedFailure();
 		} else {
 			blockRPC=true;
 			cancelPrefetch=true;
-			currSokField = field;
-			currSortField = field;
+			currSokField = sokField;
+			currSortField = sortField;
 			currSokString = sokString;
 			currNextOffset=0;
 			currPreviousOffset=0;
-			this.isSuperSok=isSuperSok;
+			currOriginalSokTyp=sokTyp;
+			this.isSuperSok=sokTyp==SQLTableList.COMPARE_SUPERSOK;
+			this.isForwardOnly = sokTyp==SQLTableList.COMPARE_SUPERSOK || sokTyp == SQLTableList.COMPARE_NONE || sokTyp == SQLTableList.COMPARE_EQUALS;
 
-			getList(MainEntryPoint.getService(), sokString, currSokField , currSortField, isSuperSok ? SQLTableList.COMPARE_SUPERSOK : SQLTableList.COMPARE_GREATER_EQUALS, SQLTableList.SORT_ASCENDING, 0, pageSize, callbackSok);
+			getList(MainEntryPoint.getService(), sokString, currSokField , currSortField, currOriginalSokTyp, sortOrder, 0, pageSize, callbackSok);
 		}
 	}
 
@@ -140,7 +150,7 @@ abstract class PageLoad<T extends IsSQLTable> {
 	}
 
 	private boolean getPreviousBufferPage() {
-		if (isSuperSok) { callback.onRowUpdate(null); return true; }
+		if (isSuperSok || isForwardOnly) { callback.onRowUpdate(null); return true; }
 		if (blockRPC) return false;
 		blockRPC=true;
 		getList(MainEntryPoint.getService(), currSokString, currSokField , currSortField, SQLTableList.COMPARE_LESS, SQLTableList.SORT_DESCANDING, currPreviousOffset, pageSize, callbackPreviousPage);
@@ -150,14 +160,14 @@ abstract class PageLoad<T extends IsSQLTable> {
 	private boolean getNextBufferPage() {
 		if (blockRPC) return false;
 		blockRPC=true;
-		getList(MainEntryPoint.getService(), currSokString, currSokField , currSortField, isSuperSok ? SQLTableList.COMPARE_SUPERSOK : SQLTableList.COMPARE_GREATER, SQLTableList.SORT_ASCENDING, currNextOffset, pageSize, callbackNextPage);
+		getList(MainEntryPoint.getService(), currSokString, currSokField , currSortField, currOriginalSokTyp, SQLTableList.SORT_ASCENDING, currNextOffset, pageSize, callbackNextPage);
 		return true;
 
 	}
 
 	public boolean prefetchNextBufferPage() {
-		if (cancelPrefetch) return false;
-		getList(MainEntryPoint.getService(), currSokString, currSokField , currSortField, isSuperSok ? SQLTableList.COMPARE_SUPERSOK : SQLTableList.COMPARE_GREATER, SQLTableList.SORT_ASCENDING, currNextOffset, prefetchPageSize, callbackPrefetchNextPage);
+		if (cancelPrefetch || prefetchPageSize == 0) return false;		//Strunta i prefetch om vi inte har satt prefetchBuuferSize
+		getList(MainEntryPoint.getService(), currSokString, currSokField , currSortField, currOriginalSokTyp, SQLTableList.SORT_ASCENDING, currNextOffset, prefetchPageSize, callbackPrefetchNextPage);
 		return true;
 	}
 
