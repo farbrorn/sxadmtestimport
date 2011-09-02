@@ -14,14 +14,12 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
  */
 public class SendOffertEpostHandler implements HasSendEpost{
 
-	HasShowError showError;
-	HasShowInfo showInfo;
+	HasShowMessage showMessage;
 	int offertnr;
 	String anvandare;
 
-	public SendOffertEpostHandler(String anvandare, int offertnr, HasShowInfo showInfo, HasShowError showError) {
-		this.showError = showError;
-		this.showInfo = showInfo;
+	public SendOffertEpostHandler(String anvandare, int offertnr, HasShowMessage showMessage) {
+		this.showMessage = showMessage;
 		this.anvandare=anvandare;
 		this.offertnr=offertnr;
 	}
@@ -35,12 +33,12 @@ public class SendOffertEpostHandler implements HasSendEpost{
 
 		@Override
 		public void onFailure(Throwable caught) {
-			showError.showErr("Kunde inte skaicka e-post, Fel: " + caught.getMessage());
+			showMessage.showErr("Kunde inte skaicka e-post, Fel: " + caught.getMessage());
 		}
 
 		@Override
 		public void onSuccess(Integer result) {
-			showInfo.showInfo("Offert " + result + " är lagd i kö för att skickas.");
+			showMessage.showInfo("Offert " + result + " är lagd i kö för att skickas.");
 		}
 	};
 

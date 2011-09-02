@@ -20,11 +20,14 @@ import se.saljex.webadm.client.rpcobject.SQLTableList;
  */
 abstract class PageLoad<T extends IsSQLTable> {
 
+	private boolean hasMoreRows = false;
+
 	private int pageSize;
 	private int prefetchPageSize;
 //	private int maxBufferSize;
 	private PageLoadCallback<T> callback;
 	private Integer currBufferPos=null;
+	private Integer currSortOrder=null;
 	private List<T> currBuffer=new ArrayList();
 	private boolean blockRPC = false;
 	private boolean cancelPrefetch = false;
@@ -99,6 +102,7 @@ abstract class PageLoad<T extends IsSQLTable> {
 			currNextOffset=0;
 			currPreviousOffset=0;
 			currOriginalSokTyp=sokTyp;
+			currSortOrder = sortOrder;
 			this.isSuperSok=sokTyp==SQLTableList.COMPARE_SUPERSOK;
 			this.isForwardOnly = sokTyp==SQLTableList.COMPARE_SUPERSOK || sokTyp == SQLTableList.COMPARE_NONE || sokTyp == SQLTableList.COMPARE_EQUALS;
 
@@ -153,21 +157,22 @@ abstract class PageLoad<T extends IsSQLTable> {
 		if (isSuperSok || isForwardOnly) { callback.onRowUpdate(null); return true; }
 		if (blockRPC) return false;
 		blockRPC=true;
-		getList(MainEntryPoint.getService(), currSokString, currSokField , currSortField, SQLTableList.COMPARE_LESS, SQLTableList.SORT_DESCANDING, currPreviousOffset, pageSize, callbackPreviousPage);
+		int sort = currSortOrder==SQLTableList.SORT_ASCENDING ? SQLTableList.SORT_DESCANDING : SQLTableList.SORT_ASCENDING;
+		getList(MainEntryPoint.getService(), currSokString, currSokField , currSortField, SQLTableList.COMPARE_LESS, sort, currPreviousOffset, pageSize, callbackPreviousPage);
 		return true;
 	}
 
 	private boolean getNextBufferPage() {
 		if (blockRPC) return false;
 		blockRPC=true;
-		getList(MainEntryPoint.getService(), currSokString, currSokField , currSortField, currOriginalSokTyp, SQLTableList.SORT_ASCENDING, currNextOffset, pageSize, callbackNextPage);
+		getList(MainEntryPoint.getService(), currSokString, currSokField , currSortField, currOriginalSokTyp, currSortOrder, currNextOffset, pageSize, callbackNextPage);
 		return true;
 
 	}
 
 	public boolean prefetchNextBufferPage() {
 		if (cancelPrefetch || prefetchPageSize == 0) return false;		//Strunta i prefetch om vi inte har satt prefetchBuuferSize
-		getList(MainEntryPoint.getService(), currSokString, currSokField , currSortField, currOriginalSokTyp, SQLTableList.SORT_ASCENDING, currNextOffset, prefetchPageSize, callbackPrefetchNextPage);
+		getList(MainEntryPoint.getService(), currSokString, currSokField , currSortField, currOriginalSokTyp, currSortOrder, currNextOffset, prefetchPageSize, callbackPrefetchNextPage);
 		return true;
 	}
 
@@ -199,6 +204,7 @@ abstract class PageLoad<T extends IsSQLTable> {
 			next();
 			blockRPC=false;
 			cancelPrefetch=false;
+			hasMoreRows=result.hasMoreRows;
 			prefetchNextBufferPage();
 		}
 
@@ -215,6 +221,8 @@ abstract class PageLoad<T extends IsSQLTable> {
 				currNextOffset = currNextOffset+result.lista.size();
 				currBuffer.addAll(result.lista);
 				callback.onBufferUpdate(currBuffer);
+				hasMoreRows=result.hasMoreRows;
+
 				//if (currBuffer.size() < maxBufferSize) prefetchNextBufferPage();
 			} else {
 				if (!blockRPC) {
@@ -247,6 +255,7 @@ abstract class PageLoad<T extends IsSQLTable> {
 			previous();
 			blockRPC=false;
 			cancelPrefetch=false;
+			hasMoreRows=result.hasMoreRows;
 			// prefetchNextBufferPage();
 		}
 
@@ -256,5 +265,6 @@ abstract class PageLoad<T extends IsSQLTable> {
 		}
 	};
 
+	public boolean getHasMoreRows() { return hasMoreRows;  }
 
 }

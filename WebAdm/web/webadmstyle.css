@@ -3,41 +3,67 @@
     font-size: 18pt;
     font-weight: bolder;
 }
+.sx-tb-s3 {
+	width: 1.5em;
+	vertical-align:top;
+}
 .sx-tb-s5 {
-	width: 40px;
+	width: 2.5em;
 	vertical-align:top;
 }
 .sx-tb-s10 {
-	width: 80px;
+	width: 5em;
 	vertical-align:top;
 }
 .sx-tb-s15 {
-	width: 100px;
+	width: 7.5em;
 	vertical-align:top;
 }
 .sx-tb-s20 {
-	width: 160px;
+	width: 10em;
 	vertical-align:top;
 }
 .sx-tb-s30 {
-	width: 240px;
+	width: 24em;
+	vertical-align:top;
+}
+.sx-tb-s40 {
+	width: 20em;
+	vertical-align:top;
+}
+.sx-tb-s50 {
+	width: 25em;
 	vertical-align:top;
 }
 
+.sx-tb-n20 {
+	width: 10em;
+	vertical-align:top;
+    text-align: right;
+}
 .sx-tb-n15 {
-	width: 100px;
+	width: 7.5em;
 	vertical-align:top;
     text-align: right;
 }
 .sx-tb-n10 {
-	width: 80px;
+	width: 5em;
 	vertical-align:top;
     text-align: right;
 }
 .sx-tb-n5 {
-	width: 40px;
+	width: 2.5em;
 	vertical-align:top;
     text-align: right;
+}
+.sx-tb-n3 {
+	width: 1.5em;
+	vertical-align:top;
+    text-align: right;
+}
+
+.sx-alignright {
+	tex-align: right;
 }
 
 .sx-bg-odd {
@@ -54,6 +80,7 @@
     font-size: 8pt;
     background-color: #ccffff;
 }
+
 .sx-table-list td {
 	margin: 0px;
 	padding: 0px 4px 0px 4px;
@@ -69,8 +96,35 @@
 	color: red;
 }
 
+.sx-text-smaller {
+	font-size: smaller;
+}
+.sx-text-small {
+	font-size: small;
+}
+
+.sx-text-larger {
+	font-size: larger;
+}
+.sx-text-large {
+	font-size: large;
+}
+.sx-text-medium {
+	font-size: medium;
+}
+
 .w-tabtitle-btn {
 
+}
+
+.sx-float-left {
+	float: left;
+}
+.sx-float-right {
+	float: right;
+}
+.sx-float-none {
+	float: none;
 }
 
 .sx-errorlabel {
@@ -158,4 +212,38 @@
 
 }
 
+.sx-boxed-scroll {
+	border-width: 1 px;
+	border-color: black;
+	border-style: solid;
+	margin: 0 2px 4px 0;
+	padding: 1px 1px 1px 1px;
+}
 
+.sx-cellpanel {
+font-family: Courier, monospace;
+table-layout: fixed;
+}
+.sx-cellpanel th {
+	font-size: 10px;
+	font-weight: bold;
+	height: 1em;
+	padding: 0 0 0 1px;
+	background-color: #f4f4f4;
+}
+.sx-cellpanel td {
+	height: 1em;
+	padding: 0 0 0 1px;
+}
+
+
+
+.gwt-TextBox {
+	padding: 0 0 0 0;
+	margin: 0 1px 0 0;
+	font-family: Courier, monospace;
+}
+
+table td {
+	font-family: inherit;
+}

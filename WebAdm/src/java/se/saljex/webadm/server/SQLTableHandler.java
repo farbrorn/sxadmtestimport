@@ -120,6 +120,7 @@ public class SQLTableHandler {
 	public static void fetchFromResultSet(ResultSet rs, IsSQLTable sqlTable, SQLTableList list, int offset, int limit) throws SQLException, ErrorConvertingFromResultsetException{
 		IsSQLTable row;
 		int cn = 0;
+		list.hasMoreRows = false;
 		while (rs.next()) {
 			cn++;
 			if (cn > limit && limit > 0) {

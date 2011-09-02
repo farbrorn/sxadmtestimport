@@ -11,26 +11,31 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment.VerticalAlignmentConstant;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.VerticalPanel;
+import se.saljex.webadm.client.constants.Const;
 import se.saljex.webadm.client.rpcobject.Offert1;
+import se.saljex.webadm.client.rpcobject.SQLTableList;
 
 /**
  *
  * @author Ulf
  */
-public class OffertListaWidget extends FlexTable implements HasFormUpdater<Offert1>{
-	private static final int EPOSTBTNROW = 3;
-	private static final int EPOSTBTNCOL = 0;
+public class OffertListaWidget extends FlowPanel implements HasFormUpdater<Offert1>{
+//	private static final int EPOSTBTNROW = 3;
+//	private static final int EPOSTBTNCOL = 0;
 
 	Offert1ListWidget o1 = new Offert1ListWidget(this);
 	Offert2ListWidget o2 = new Offert2ListWidget();
 
-	FlexTable o2Widget = new FlexTable();
+	FlowPanel o2Widget = new FlowPanel();
 	FlexTable o1DataWidget = new FlexTable();
 
-	InfoLabel infoLabel = new InfoLabel();
+	MessagePopupPanel messagePanel = new MessagePopupPanel(true);
 
 	KundEpostSelectWidget epostSelect;
 
@@ -45,27 +50,43 @@ public class OffertListaWidget extends FlexTable implements HasFormUpdater<Offer
 
 
 	public OffertListaWidget() {
-		o1.setHeight("400px");
-		o2.setHeight("400px");
-		SafeHtmlBuilder sb = new SafeHtmlBuilder();
+		this(true);
+	}
+
+	public OffertListaWidget(boolean loadInitialData) {
+		if(loadInitialData) o1.setSearch("kundnr", "0", "offertnr", SQLTableList.COMPARE_NONE, SQLTableList.SORT_DESCANDING);
+
+		this.setHeight("100%");
+		o1.setHeight("45%");
+		o2.setHeight("45%");
+		o1.setWidth("50em");
+		o2.setWidth("65em");
+		o1.addStyleName("sx-boxed-scroll");
+		o2.addStyleName("sx-boxed-scroll");
+//		SafeHtmlBuilder sb = new SafeHtmlBuilder();
 
 		initO1DataWidget();
 
 
-		o2Widget.setWidget(1, 0, o2);
-		o2Widget.setWidget(2, 0, o1DataWidget);
-		o2Widget.setWidget(EPOSTBTNROW, EPOSTBTNCOL, epostBtn);
+		o2Widget.add(o2);
+		o2Widget.add(o1DataWidget);
+		o2Widget.add(epostBtn);
 
-		this.setWidget(0, 0, infoLabel);
-		Offert1ListWidget.renderHeader(sb);
-		this.setHTML(1, 0, sb.toSafeHtml());
-		sb = new SafeHtmlBuilder();
-		Offert2ListWidget.renderHeader(sb);
-		this.setHTML(1, 1, sb.toSafeHtml());
+//		o2Widget.setWidget(1, 0, o2);
+//		o2Widget.setWidget(2, 0, o1DataWidget);
+//		o2Widget.setWidget(EPOSTBTNROW, EPOSTBTNCOL, epostBtn);
 
-		this.getRowFormatter().setVerticalAlign(2, HasVerticalAlignment.ALIGN_TOP);
-		this.setWidget(2, 0, o1);
-		this.setWidget(2, 1, o2Widget);
+//		this.setHTML(1, 0, sb.toSafeHtml());
+//		sb = new SafeHtmlBuilder();
+//		this.setHTML(1, 1, sb.toSafeHtml());
+
+//		this.getRowFormatter().setVerticalAlign(0, HasVerticalAlignment.ALIGN_TOP);
+//		this.setWidget(0, 0, o1);
+//		this.setWidget(0, 1, o2Widget);
+//		o1.addStyleName(Const.Style_FloatLeft);
+		add(o1);
+		add(o2Widget);
+
 	}
 
 	@Override
@@ -90,7 +111,8 @@ public class OffertListaWidget extends FlexTable implements HasFormUpdater<Offer
 	}
 
 	private void showEpostSelect() {
-		epostSelect = new KundEpostSelectWidget(o1.getSelectedObject().kundnr, new SendOffertEpostHandler("00", o1.getSelectedObject().offertnr, infoLabel, infoLabel), new HasRequestCompleted() {
+
+		epostSelect = new KundEpostSelectWidget(o1.getSelectedObject().kundnr, new SendOffertEpostHandler("00", o1.getSelectedObject().offertnr, messagePanel), new HasRequestCompleted() {
 
 			@Override
 			public void requestCompleted(String info) {		}
@@ -107,6 +129,10 @@ public class OffertListaWidget extends FlexTable implements HasFormUpdater<Offer
 	@Override
 	public Offert1 form2Data(){ return null;}
 
+	public void setSearch(String sokField, String sokString, String sortField, int sokTyp, int sortOrder) {
+		o2.getPageLoad().getBufferList().clear();	//Rensar innehåll så det inte visas felaktig vid uppdatering av O1 utan sökresultat
+		o1.getPageLoad().setSearch(sokField, sokString, sortField, sokTyp, sortOrder);
+	}
 
 
 }

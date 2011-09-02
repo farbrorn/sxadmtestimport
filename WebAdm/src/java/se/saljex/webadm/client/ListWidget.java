@@ -6,10 +6,18 @@
 package se.saljex.webadm.client;
 
 import com.google.gwt.cell.client.AbstractCell;
+import com.google.gwt.dom.client.Style.VerticalAlign;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.cellview.client.CellList;
+import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.HasKeyboardPagingPolicy.KeyboardPagingPolicy;
 import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy.KeyboardSelectionPolicy;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.Anchor;
+import com.google.gwt.user.client.ui.CellPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.RowCountChangeEvent;
 import com.google.gwt.view.client.SelectionChangeEvent;
@@ -21,15 +29,16 @@ import se.saljex.webadm.client.rpcobject.IsSQLTable;
  *
  * @author Ulf
  */
-public class ListWidget<T extends IsSQLTable> extends ScrollPanel {
+public abstract class ListWidget<T extends IsSQLTable> extends ScrollPanel {
 
-	private  final CellList<T> cellList;
-
+//	private  final CellList<T> cellList;
+private final CellTable<T> cellList;
 	private  final ListDataProvider<T>	listDataProvider ;
 	private  final HasFormUpdater<T> formUpdater;
 	private  final PageLoad<T> pageLoad;
 	private  final SingleSelectionModel<T> selectionModel  = new SingleSelectionModel<T>();
-	protected final HasShowError showError;
+	protected final HasShowMessage showError;
+	private Anchor merAnchor  = new Anchor("Visa fler rader...");
 
 	protected PageLoadCallback<T> callback = new PageLoadCallback<T>() {
 
@@ -50,16 +59,20 @@ public class ListWidget<T extends IsSQLTable> extends ScrollPanel {
 	};
 
 
-	public ListWidget(HasFormUpdater<T> formUpdat, AbstractCell cell, PageLoad<T> pageLoad, HasShowError showError) {
+	public ListWidget(HasFormUpdater<T> formUpdat, final PageLoad<T> pageLoad, HasShowMessage showError) {
 		super();
+		VerticalPanel mainPanel = new VerticalPanel();
 		this.showError=showError;
 		this.formUpdater = formUpdat;
 		this.pageLoad=pageLoad;
 
 		pageLoad.setPageLoadCallback(callback);
 
-		cellList = new CellList<T>(cell);
+//		cellList = new CellList<T>(cell);
+cellList = new CellTable<T>();
 
+addListColumns(cellList);
+cellList.addStyleName("sx-cellpanel");
 
 		listDataProvider = new ListDataProvider<T>();
 		listDataProvider.addDataDisplay(cellList);
@@ -76,6 +89,7 @@ public class ListWidget<T extends IsSQLTable> extends ScrollPanel {
 			@Override
 			public void onRowCountChange(RowCountChangeEvent event) {
 				cellList.setPageSize(cellList.getRowCount());
+				merAnchor.setVisible(pageLoad.getHasMoreRows());
 			}
 		});
 
@@ -89,14 +103,35 @@ public class ListWidget<T extends IsSQLTable> extends ScrollPanel {
 			});
 		}
 
-		setHeight("100%");
-		add(cellList);
+		merAnchor.addClickHandler(new ClickHandler() {
 
+			@Override
+			public void onClick(ClickEvent event) {
+				getPageLoad().prefetchNextBufferPage();
+			}
+		});
+
+		setHeight("100%");
+		cellList.setWidth("100%");
+		merAnchor.setVisible(false);
+//		cellList.setHeight("90%");
+//		merAnchor.setHeight("10%");
+		mainPanel.add(cellList);
+		mainPanel.add(merAnchor);
+		add(mainPanel);
 	}
 
-	public CellList<T> getCellList() {return cellList; }
+	public void setSearch(String field, String sokString, String sortField, int sokTyp, int sortOrder) {
+		pageLoad.setSearch(sortField, sokString, sortField, sokTyp, sortOrder);
+	}
+
+	abstract void addListColumns(CellTable<T> cellTable) ;
+//	public CellList<T> getCellList() {return cellList; }
 	public PageLoad<T> getPageLoad() {return pageLoad; }
 
 	public T getSelectedObject() { return selectionModel.getSelectedObject(); }
+	public CellTable getCellTable() {return cellList; }
+
+
 
 }

@@ -5,6 +5,11 @@
 
 package se.saljex.webadm.client.window;
 
+import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.core.client.Scheduler.ScheduledCommand;
+import com.google.gwt.event.logical.shared.ResizeEvent;
+import com.google.gwt.event.logical.shared.ResizeHandler;
+import com.google.gwt.user.client.ui.FlowPanel;
 import se.saljex.webadm.client.window.Window;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
@@ -20,7 +25,7 @@ import java.util.ArrayList;
  */
 public class WindowHandler extends VerticalPanel implements WindowHandlerInterface {
 	private final HorizontalPanel titleBar = new HorizontalPanel();
-	private final VerticalPanel windowPanel = new VerticalPanel();
+	private final FlowPanel windowPanel = new FlowPanel();
 	private final ScrollPanel windowScrollPanel = new ScrollPanel(windowPanel);
 
 	private final ArrayList<WindowTitleWidget> windowTitleList = new ArrayList();
@@ -34,13 +39,30 @@ public class WindowHandler extends VerticalPanel implements WindowHandlerInterfa
 		add(titleBar);
 		add(windowScrollPanel);
 
-		windowScrollPanel.setPixelSize(com.google.gwt.user.client.Window.getClientWidth()-windowScrollPanel.getAbsoluteLeft(), com.google.gwt.user.client.Window.getClientHeight()-windowScrollPanel.getAbsoluteTop());
+		setWindowScrollPanelSize();
 		addWindow(new Label("Tab4"), "Tebben n4");
+
+		com.google.gwt.user.client.Window.addResizeHandler(new ResizeHandler() {
+			@Override
+			public void onResize(ResizeEvent event) {
+				setWindowScrollPanelSize();
+			}
+		});
+		Scheduler.get().scheduleDeferred(new ScheduledCommand() {
+			@Override
+			public void execute() {
+				setWindowScrollPanelSize();
+			}
+		});
+		
 
 	}
 //	private ArrayList<Window> windowList = new ArrayList();
 
 
+	private void setWindowScrollPanelSize() {
+		windowScrollPanel.setPixelSize(com.google.gwt.user.client.Window.getClientWidth()-windowScrollPanel.getAbsoluteLeft(), com.google.gwt.user.client.Window.getClientHeight()-windowScrollPanel.getAbsoluteTop());
+	}
 
 
 	@Override

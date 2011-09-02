@@ -50,22 +50,27 @@ public class SQLTableGetList {
 		}
 		Object retTerm;
 		StringBuilder b = new StringBuilder();
+		StringBuilder bsub = new StringBuilder();
 
 		if (!compareString.isEmpty() && sokString!=null) {
 			if (compareType == SQLTableList.COMPARE_SUPERSOK) {
 				List<String> cols = SQLTableHandler.getStringColumnNames(table);
 				String[] terms = ((String)sokString).split(" ");
 				for (String term : terms) {
+					bsub = new StringBuilder();
 					for (String col : cols) {
-						if (b.length()>0) b.append(" or ");
-						b.append("upper(");
-						b.append(col);
-						b.append(")");
-						b.append(" like upper(?)");
+						if (bsub.length()>0) bsub.append(" or ");
+						bsub.append("upper(");
+						bsub.append(col);
+						bsub.append(")");
+						bsub.append(" like upper(?)");
 						parameters.add("%" + term + "%");
 					}
+					if (b.length()>0 && bsub.length()>0) b.append(" and ");
+					if (bsub.length()>0) b.append(" (" + bsub.toString() + ") ");
 				}
 				where = b.toString();
+System.out.print(where);
 				if (where==null) where = "";
 			} else {
 				if (SQLTableHandler.isColumnNameValid(sokField, table)) {

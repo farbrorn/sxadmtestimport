@@ -5,12 +5,12 @@
 
 package se.saljex.webadm.client;
 
+import com.google.gwt.user.client.ui.Widget;
+
 /**
  *
  * @author Ulf
  */
-public interface HasShowInfo {
-	public void showInfo(String info);
-
+public class UpdatebleTabWidget {
 
 }

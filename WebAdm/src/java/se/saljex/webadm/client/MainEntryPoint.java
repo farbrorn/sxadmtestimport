@@ -7,7 +7,12 @@ package se.saljex.webadm.client;
 import se.saljex.webadm.client.window.WindowHandler;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.RootLayoutPanel;
 import com.google.gwt.user.client.ui.RootPanel;
+import com.google.gwt.user.client.ui.TabLayoutPanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import java.util.ArrayList;
 import se.saljex.webadm.client.rpcobject.User;
 
@@ -36,9 +41,15 @@ public class MainEntryPoint implements EntryPoint {
 		User user = new User();
 		user.setUser("UB", "Ulf Berg", "ulf@saljex.se", behorighetList);
 
-		RootPanel.get().add(new SxMenuBar(windowHandler, user));
+		VerticalPanel rootVP = new VerticalPanel();
 
-       RootPanel.get().add(windowHandler);
+
+		rootVP.add(new SxMenuBar(windowHandler, user));
+
+       rootVP.add(windowHandler);
+
+	   RootLayoutPanel.get().add(rootVP);
+
 
     }
 	public static GWTServiceAsync getService() {

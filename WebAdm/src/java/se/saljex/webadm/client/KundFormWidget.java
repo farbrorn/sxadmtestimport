@@ -5,38 +5,30 @@
 
 package se.saljex.webadm.client;
 
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.rpc.SerializationException;
-import se.saljex.webadm.client.window.WindowHandler;
-import se.saljex.webadm.client.window.Window;
+import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.KeyDownHandler;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.rpc.SerializationStreamFactory;
-import com.google.gwt.user.client.rpc.SerializationStreamReader;
-import com.google.gwt.user.client.rpc.SerializationStreamWriter;
 import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.FocusWidget;
+import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.ScrollPanel;
-import com.google.gwt.user.client.ui.ValueBoxBase;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import com.google.gwt.user.client.ui.Widget;
-import se.saljex.webadm.client.constants.KeyCodes;
 import se.saljex.webadm.client.rpcobject.Kund;
 
 /**
  *
  * @author Ulf
  */
-public class KundForm extends Window implements HasFormUpdater<Kund>{
+public class KundFormWidget extends FlowPanel implements HasFormUpdater<Kund>{
+
+	public KundFormWidget() {
+		init();
+	}
+
+
 
 //	FlexTable mainGrid = new FlexTable();
 	VerticalPanel mainVp = new VerticalPanel();
@@ -69,6 +61,7 @@ public class KundForm extends Window implements HasFormUpdater<Kund>{
 	private FormTextBox adr1 = new FormTextBox(new FormWidgetGetSet<Kund>() {
 		@Override	void get(Kund table) {	table.adr1 = adr1.getSQLTableValue();}
 		@Override	void set(Kund table) {	adr1.setSQLTableValue(table.adr1);	}
+
 	});
 	private FormTextBox adr2 = new FormTextBox(new FormWidgetGetSet<Kund>() {
 		@Override	void get(Kund table) {	table.adr2 = adr2.getSQLTableValue();}
@@ -291,104 +284,32 @@ public class KundForm extends Window implements HasFormUpdater<Kund>{
 		@Override	void set(Kund table) {	samfakgrans.setSQLTableValue(table.samfakgrans);	}
 	});
 
-
-	//listPanel
-
-	private Button saveBtn = new Button("Spara");
-
-	private final KundListWidget kundListWidget  = new KundListWidget(this, errorLabel);
-
-
-	final AsyncCallback callbackKund = new AsyncCallback<Kund>() {
-		@Override
-		public void onSuccess(Kund result) {
-			data2Form(result);
-		}
-
-		@Override
-		public void onFailure(Throwable caught) {
-			errorLabel.showErr(caught.getMessage());
-		}
-	};
-
-
 	final KeyDownHandler standardKeyDownHandler = new KeyDownHandler() {
 			@Override
 			public void onKeyDown(KeyDownEvent event) {
-				int code=event.getNativeKeyCode();
-				if (code==KeyCodes.F7 && !event.isAnyModifierKeyDown()) kundListWidget.getPageLoad().previous();
-				else if(code == KeyCodes.F8 && !event.isAnyModifierKeyDown()) kundListWidget.getPageLoad().next();
 
 			}
 		};
 
 
-//	private final PageLoadKund pageLoadKund = new PageLoadKund(3, 20, callbackKund, callbackShowBuffer);
+	private void addInput(FlexTable ft, String label, FormWidgetInterface widget) {
+		int row = ft.getRowCount();
+		ft.setWidget(row, 0, new Label(label));
+		ft.setWidget(row, 1, widget.asWidget());
+		focusForm.addFocusWidget(widget);
 
-
-	public KundForm(WindowHandler windowHandler, String title) {
-		super(windowHandler, title);
-		windowWidget = mainVp;
-		initWindow();
-
-		MainEntryPoint.getService().getKund("055513915", callback);
-
-		DialogBox b1 = new DialogBox(false, false);
 	}
 
-	private void initWindow() {
+	private void addInputWithStandardKeyDownHandler(FlexTable ft, String label, FormWidgetInterface widget) {
+		addInput(ft, label, widget);
+		widget.addKeyDownHandler(standardKeyDownHandler);
+	}
 
-		saveBtn.addClickHandler(new ClickHandler() {
-
-			@Override
-			public void onClick(ClickEvent event) {
-				save();
-			}
-		});
-
-
-		errorLabel.showErr("Tomt");
-
-		mainScroll.setHeight("100%");
-		listScroll.setHeight((com.google.gwt.user.client.Window.getClientHeight()-listScroll.getAbsoluteTop()) + "px");
-
-
-
-		mainVp.setWidth("100%");
-		mainVp.add(errorLabel);
-		mainVp.add(saveBtn);
-		mainVp.add(kundHp);
-		kundHp.setWidth("100%");
-		//kundHp.setHeight("100%");
-		kundHp.setWidget(0,0,mainScroll);
-		kundHp.setWidget(0,1,listScroll);
-		kundHp.getCellFormatter().setWidth(0, 1, "25%");
-
-		//mainPanel
-
+	private void init() {
 		FlexTable inputTable = new FlexTable();
 		inputTable.getRowFormatter().setVerticalAlign(0, HasVerticalAlignment.ALIGN_TOP);
 		FlexTable groupPanel;
 		groupPanel = new FlexTable();
-		groupPanel.setCellPadding(0);
-		nummer.addKeyDownHandler(new KeyDownHandler() {
-			@Override
-			public void onKeyDown(KeyDownEvent event) {
-				int code=event.getNativeKeyCode();
-				if(code == KeyCodes.F9) kundListWidget.getPageLoad().setSearch("nummer", nummer.getValue(), false);
-				else if(code == KeyCodes.F5) kundListWidget.getPageLoad().setSearch("nummer", nummer.getValue(), true);
-			}
-		});
-		namn.addKeyDownHandler(new KeyDownHandler() {
-			@Override
-			public void onKeyDown(KeyDownEvent event) {
-				int code=event.getNativeKeyCode();
-				if(code == KeyCodes.F9) kundListWidget.getPageLoad().setSearch("namn", namn.getValue(), false);
-				else if(code == KeyCodes.F5) kundListWidget.getPageLoad().setSearch("namn", namn.getValue(), true);
-			}
-		});
-
-
 		inputTable.setWidget(0, 0, groupPanel);
 		addInputWithStandardKeyDownHandler(groupPanel, "Nummer", nummer);
 		addInputWithStandardKeyDownHandler(groupPanel, "Namn", namn);
@@ -434,7 +355,7 @@ public class KundForm extends Window implements HasFormUpdater<Kund>{
 		addInputWithStandardKeyDownHandler(groupPanel, "Grossist", grossist);
 
 		addInputWithStandardKeyDownHandler(groupPanel, "Basrabatt", basrab);
-		
+
 		addInputWithStandardKeyDownHandler(groupPanel, "Minsta ordervärde för samfakturering", samfakgrans);
 		addInputWithStandardKeyDownHandler(groupPanel, "Kreditgräns förfallet 30 dagar", kgransforfall30);
 		addInputWithStandardKeyDownHandler(groupPanel, "Distrikt", distrikt);
@@ -465,42 +386,10 @@ public class KundForm extends Window implements HasFormUpdater<Kund>{
 		addInputWithStandardKeyDownHandler(groupPanel, "Skicka faktura som epost", skickafakturaepost);
 
 
-
-		mainPanel.add(inputTable);
-
-		//ListPanel
-
-
-		listPanel.add(kundListWidget);
-
-
-		listPanel.add(new Label("Kubndlista"));
-
+		add(inputTable);
 
 	}
 
-	private void addInput(FlexTable ft, String label, FormWidgetInterface widget) {
-		int row = ft.getRowCount();
-		ft.setWidget(row, 0, new Label(label));
-		ft.setWidget(row, 1, widget.asWidget());
-		focusForm.addFocusWidget(widget);
-
-	}
-
-	private void addInputWithStandardKeyDownHandler(FlexTable ft, String label, FormWidgetInterface widget) {
-		addInput(ft, label, widget);
-		widget.addKeyDownHandler(standardKeyDownHandler);
-	}
-
-	public void hh(ValueBoxBase d) {
-		d.getValue();
-	}
-
-	public void save() {
-		Kund kund = form2Data();
-		MainEntryPoint.getService().putKund(kund, originalSQLTableRow, callbackSave);
-		modalMessageBox.show("Sparar...");
-	}
 
 	@Override
 	public Kund form2Data() {
@@ -520,241 +409,7 @@ public class KundForm extends Window implements HasFormUpdater<Kund>{
 			focusForm.set(kund);
 			originalSQLTableRow = new Kund(kund);
 		}
-		/*
-		nummer.setValue(kund.nummer);
-		namn.setValue(kund.namn);
-		adr1.setValue(kund.adr1);
-		adr2.setValue(kund.adr2);
-		adr3.setValue(kund.adr3);
-		lnamn.setValue(kund.lnamn);
-		ladr2.setValue(kund.ladr2);
-		ladr3.setValue(kund.ladr3);
-		ref.setValue(kund.ref);
-		saljare.setValue(kund.saljare);
-		tel.setValue(kund.tel);
-		biltel.setValue(kund.biltel);
-		fax.setValue(kund.fax);
-		sokare.setValue(kund.sokare);
-		email.setValue(kund.email);
-		hemsida.setValue(kund.hemsida);
-		kDag.setValue(new Integer(kund.k_Dag));
-		kTid.setValue(kund.k_Tid);
-		kDatum.setValue(kund.k_Datum);
-		regnr.setValue(kund.regnr);
-		rantfakt.setValue(kund.rantfakt==0 ? false : true);
-		faktor.setValue(kund.faktor==0 ? false : true);
-		kgrans.setValue(kund.kgrans);
-		ktid.setValue(new Integer(kund.ktid));
-		nettolst.setValue(kund.nettolst);
-		bonus.setValue(new Integer(kund.bonus));
-		elkund.setValue(kund.elkund==0 ? false : true);
-		vvskund.setValue(kund.vvskund==0 ? false : true);
-		ovrigkund.setValue(kund.ovrigkund==0 ? false : true);
-		installator.setValue(kund.installator==0 ? false : true);
-		butik.setValue(kund.butik==0 ? false : true);
-		industri.setValue(kund.industri==0 ? false : true);
-		oem.setValue(kund.oem==0 ? false : true);
-		grossist.setValue(kund.grossist==0 ? false : true);
-		levvillkor.setValue(kund.levvillkor);
-		mottagarfrakt.setValue(kund.mottagarfrakt==0 ? false : true);
-		fraktbolag.setValue(kund.fraktbolag);
-		fraktkundnr.setValue(kund.fraktkundnr);
-		fraktfrigrans.setValue(kund.fraktfrigrans);
-		ant1.setValue(kund.ant1);
-		ant2.setValue(kund.ant2);
-		ant3.setValue(kund.ant3);
-		distrikt.setValue(new Integer(kund.distrikt));
-		vakund.setValue(kund.vakund==0 ? false : true);
-		fastighetskund.setValue(kund.fastighetskund==0 ? false : true);
-		basrab.setValue(kund.basrab);
-		golvkund.setValue(kund.golvkund==0 ? false : true);
-		ejfakturerbar.setValue(kund.ejfakturerbar==0 ? false : true);
-		skrivfakturarskenr.setValue(kund.skrivfakturarskenr==0 ? false : true);
-		sarfaktura.setValue(kund.sarfaktura==0 ? false : true);
-		momsfri.setValue(kund.momsfri==0 ? false : true);
-		kgransforfall30.setValue(kund.kgransforfall30);
-		kravordermarke.setValue(kund.kravordermarke==0 ? false : true);
-		linjenr1.setValue(kund.linjenr1);
-		linjenr2.setValue(kund.linjenr2);
-		linjenr3.setValue(kund.linjenr3);
-		skickafakturaepost.setValue(kund.skickafakturaepost==0 ? false : true);
-		samfakgrans.setValue(kund.samfakgrans);
-		 * */
-
 	}
-
-	final AsyncCallback callback = new AsyncCallback<Kund>() {
-		@Override
-		public void onSuccess(Kund result) {
-			data2Form(result);
-		}
-
-		@Override
-	public void onFailure(Throwable caught) {
-
-		}
-	};
-
-	final AsyncCallback callbackSave = new AsyncCallback<Kund>() {
-		@Override
-		public void onSuccess(Kund result) {
-			data2Form(null);
-			kundListWidget.getPageLoad().getBufferList().clear();
-			modalMessageBox.hide();
-		}
-
-		@Override
-		public void onFailure(Throwable caught) {
-			modalMessageBox.show("Felmeddelande: " + caught.getMessage(), true);
-		}
-	};
-
 
 
 }
-
-/*
-nummer.setValue(kund.nummer);
-namn.setValue(kund.namn);
-adr1.setValue(kund.adr1);
-adr2.setValue(kund.adr2);
-adr3.setValue(kund.adr3);
-lnamn.setValue(kund.lnamn);
-ladr2.setValue(kund.ladr2);
-ladr3.setValue(kund.ladr3);
-ref.setValue(kund.ref);
-saljare.setValue(kund.saljare);
-tel.setValue(kund.tel);
-biltel.setValue(kund.biltel);
-fax.setValue(kund.fax);
-sokare.setValue(kund.sokare);
-email.setValue(kund.email);
-hemsida.setValue(kund.hemsida);
-grupp.setValue(kund.grupp);
-grupp2.setValue(kund.grupp2);
-kDag.setValue(kund.kDag);
-kTid.setValue(kund.kTid);
-kDatum.setValue(kund.kDatum);
-regnr.setValue(kund.regnr);
-rantfakt.setValue(kund.rantfakt);
-faktor.setValue(kund.faktor);
-kgrans.setValue(kund.kgrans);
-ktid.setValue(kund.ktid);
-nettolst.setValue(kund.nettolst);
-bonus.setValue(kund.bonus);
-elkund.setValue(kund.elkund);
-vvskund.setValue(kund.vvskund);
-ovrigkund.setValue(kund.ovrigkund);
-installator.setValue(kund.installator);
-butik.setValue(kund.butik);
-industri.setValue(kund.industri);
-oem.setValue(kund.oem);
-grossist.setValue(kund.grossist);
-levvillkor.setValue(kund.levvillkor);
-mottagarfrakt.setValue(kund.mottagarfrakt);
-fraktbolag.setValue(kund.fraktbolag);
-fraktkundnr.setValue(kund.fraktkundnr);
-fraktfrigrans.setValue(kund.fraktfrigrans);
-ant1.setValue(kund.ant1);
-ant2.setValue(kund.ant2);
-ant3.setValue(kund.ant3);
-distrikt.setValue(kund.distrikt);
-vakund.setValue(kund.vakund);
-fastighetskund.setValue(kund.fastighetskund);
-basrab.setValue(kund.basrab);
-golvkund.setValue(kund.golvkund);
-ejfakturerbar.setValue(kund.ejfakturerbar);
-skrivfakturarskenr.setValue(kund.skrivfakturarskenr);
-sarfaktura.setValue(kund.sarfaktura);
-momsfri.setValue(kund.momsfri);
-veckolevdag.setValue(kund.veckolevdag);
-kgransforfall30.setValue(kund.kgransforfall30);
-kravordermarke.setValue(kund.kravordermarke);
-linjenr1.setValue(kund.linjenr1);
-linjenr2.setValue(kund.linjenr2);
-linjenr3.setValue(kund.linjenr3);
-skickafakturaepost.setValue(kund.skickafakturaepost);
-samfakgrans.setValue(kund.samfakgrans);
-
-
-
-
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
-nummer
-namn
-adr1
-adr2
-adr3
-lnamn
-ladr2
-ladr3
-ref
-saljare
-tel
-biltel
-fax
-sokare
-email
-hemsida
-grupp
-grupp2
-kDag
-kTid
-kDatum
-regnr
-rantfakt
-faktor
-kgrans
-ktid
-nettolst
-bonus
-elkund
-vvskund
-ovrigkund
-installator
-butik
-industri
-oem
-grossist
-levvillkor
-mottagarfrakt
-fraktbolag
-fraktkundnr
-fraktfrigrans
-ant1
-ant2
-ant3
-distrikt
-vakund
-fastighetskund
-basrab
-golvkund
-ejfakturerbar
-skrivfakturarskenr
-sarfaktura
-momsfri
-veckolevdag
-kgransforfall30
-kravordermarke
-linjenr1
-linjenr2
-linjenr3
-skickafakturaepost
-samfakgrans
-
- *
- */
-
-
-
-
-
