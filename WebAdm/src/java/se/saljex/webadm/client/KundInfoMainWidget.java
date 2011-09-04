@@ -5,11 +5,7 @@
 
 package se.saljex.webadm.client;
 
-import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.LayoutPanel;
 import se.saljex.webadm.client.rpcobject.Kund;
 
 /**
@@ -18,10 +14,11 @@ import se.saljex.webadm.client.rpcobject.Kund;
  */
 public class KundInfoMainWidget extends FlowPanel implements HasFormUpdater<Kund>{
 
-	KundInfoSheetWidget sheet = new KundInfoSheetWidget();
+	KundInfoSheetWidget sheet;
 	KundBrowserWithSokWidget kunList = new KundBrowserWithSokWidget(this);
 
 	public KundInfoMainWidget() {
+		sheet = new KundInfoSheetWidget(kunList.getBrowserWidget().getPageLoad());
 		add(kunList);
 		sheet.setWidth("74%");
 		kunList.setWidth("24%");

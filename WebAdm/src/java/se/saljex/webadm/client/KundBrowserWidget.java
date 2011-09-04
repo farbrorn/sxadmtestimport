@@ -5,14 +5,9 @@
 
 package se.saljex.webadm.client;
 
-import com.google.gwt.cell.client.AbstractCell;
-import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.CellTable;
-import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.TextColumn;
-import com.google.gwt.user.client.ui.VerticalPanel;
 import se.saljex.webadm.client.constants.Const;
-import se.saljex.webadm.client.rpcobject.IsSQLTable;
 import se.saljex.webadm.client.rpcobject.Kund;
 import se.saljex.webadm.client.rpcobject.SQLTableList;
 

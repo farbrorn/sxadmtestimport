@@ -24,13 +24,20 @@ public class KundInfoSheetWidget extends TabLayoutPanel implements HasData2Form<
 
 	TabLayoutPanel tabLayoutPanel = new TabLayoutPanel(2, Unit.EM);
 	Kund currKund=null;
-	KundFormWidget kundForm = new KundFormWidget();
+	KundFormWidget kundForm;
 	KundresListWidget kundresListWidget = new KundresListWidget(null, null);
 	OffertListaWidget offertListWidget = new OffertListaWidget(false);
 	KundStatistikWidget kundStatistikWidget = new KundStatistikWidget();
 
+	private PageLoad<Kund> pageLoad;
 	public KundInfoSheetWidget() {
+		this(null);
+	}
+
+	public KundInfoSheetWidget(PageLoad<Kund> pageLoad) {
 		super(2, Unit.EM);
+		this.pageLoad = pageLoad;
+		kundForm = new KundFormWidget(pageLoad);
 		addData2FormWidget(kundForm, kundForm, "Kundinfo");
 		addData2FormWidget(kundresListWidget, kundresListWidget, "Reskontra");
 		addData2FormWidget(offertListWidget, offertListWidget, "Offert");
@@ -46,7 +53,7 @@ public class KundInfoSheetWidget extends TabLayoutPanel implements HasData2Form<
 	}
 
 
-	public void addData2FormWidget(Widget widget, HasData2Form<Kund> data2FormWidget, String title) {
+	public final void addData2FormWidget(Widget widget, HasData2Form<Kund> data2FormWidget, String title) {
 		add(new ScrollContainer(widget, data2FormWidget), title);
 	}
 

@@ -5,7 +5,7 @@
 
 package se.saljex.webadm.client;
 
-import com.google.gwt.event.dom.client.KeyCodes;
+import se.saljex.webadm.client.constants.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.KeyDownHandler;
 import com.google.gwt.user.client.ui.Button;
@@ -17,6 +17,8 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import se.saljex.webadm.client.rpcobject.Kund;
+import se.saljex.webadm.client.rpcobject.SQLTableList;
+import se.saljex.webadm.server.SQLTableHandler;
 
 /**
  *
@@ -24,7 +26,12 @@ import se.saljex.webadm.client.rpcobject.Kund;
  */
 public class KundFormWidget extends FlowPanel implements HasFormUpdater<Kund>{
 
+	private PageLoad<Kund> pageLoad;
 	public KundFormWidget() {
+		this(null);
+	}
+	public KundFormWidget(PageLoad<Kund> pageLoad) {
+		this.pageLoad = pageLoad;
 		init();
 	}
 
@@ -287,7 +294,11 @@ public class KundFormWidget extends FlowPanel implements HasFormUpdater<Kund>{
 	final KeyDownHandler standardKeyDownHandler = new KeyDownHandler() {
 			@Override
 			public void onKeyDown(KeyDownEvent event) {
-
+				int code=event.getNativeKeyCode();
+				if (pageLoad!=null) {
+					if (code==KeyCodes.F7 && !event.isAnyModifierKeyDown()) pageLoad.previous();
+					else if(code == KeyCodes.F8 && !event.isAnyModifierKeyDown()) pageLoad.next();
+				}
 			}
 		};
 
@@ -385,11 +396,33 @@ public class KundFormWidget extends FlowPanel implements HasFormUpdater<Kund>{
 		addInputWithStandardKeyDownHandler(groupPanel, "Kräv ordermarke", kravordermarke);
 		addInputWithStandardKeyDownHandler(groupPanel, "Skicka faktura som epost", skickafakturaepost);
 
-
 		add(inputTable);
 
+		nummer.addKeyDownHandler(new KeyDownHandler() {	@Override	public void onKeyDown(KeyDownEvent event) {	doSetKeyCodeSearch("nummer", nummer.getValue(), event);	}	});
+		namn.addKeyDownHandler(new KeyDownHandler() {@Override	public void onKeyDown(KeyDownEvent event) {	doSetKeyCodeSearch("namn", namn.getValue(), event);		}	});
+		adr1.addKeyDownHandler(new KeyDownHandler() {@Override	public void onKeyDown(KeyDownEvent event) {	doSetKeyCodeSearch("adr1", adr1.getValue(), event);		}	});
+		adr2.addKeyDownHandler(new KeyDownHandler() {@Override	public void onKeyDown(KeyDownEvent event) {	doSetKeyCodeSearch("adr2", adr2.getValue(), event);		}	});
+		adr3.addKeyDownHandler(new KeyDownHandler() {@Override	public void onKeyDown(KeyDownEvent event) {	doSetKeyCodeSearch("adr3", adr3.getValue(), event);		}	});
+		lnamn.addKeyDownHandler(new KeyDownHandler() {@Override	public void onKeyDown(KeyDownEvent event) {	doSetKeyCodeSearch("lnamn", lnamn.getValue(), event);		}	});
+		ladr2.addKeyDownHandler(new KeyDownHandler() {@Override	public void onKeyDown(KeyDownEvent event) {	doSetKeyCodeSearch("ladr2", ladr2.getValue(), event);		}	});
+		ladr3.addKeyDownHandler(new KeyDownHandler() {@Override	public void onKeyDown(KeyDownEvent event) {	doSetKeyCodeSearch("ladr3", ladr3.getValue(), event);		}	});
+		ref.addKeyDownHandler(new KeyDownHandler() {@Override	public void onKeyDown(KeyDownEvent event) {	doSetKeyCodeSearch("ref", ref.getValue(), event);		}	});
+		saljare.addKeyDownHandler(new KeyDownHandler() {@Override	public void onKeyDown(KeyDownEvent event) {	doSetKeyCodeSearch("saljare", saljare.getValue(), event);		}	});
+		tel.addKeyDownHandler(new KeyDownHandler() {@Override	public void onKeyDown(KeyDownEvent event) {	doSetKeyCodeSearch("tel", tel.getValue(), event);		}	});
+		biltel.addKeyDownHandler(new KeyDownHandler() {@Override	public void onKeyDown(KeyDownEvent event) {	doSetKeyCodeSearch("biltel", biltel.getValue(), event);		}	});
+		email.addKeyDownHandler(new KeyDownHandler() {@Override	public void onKeyDown(KeyDownEvent event) {	doSetKeyCodeSearch("email", email.getValue(), event);		}	});
+		hemsida.addKeyDownHandler(new KeyDownHandler() {@Override	public void onKeyDown(KeyDownEvent event) {	doSetKeyCodeSearch("hemsida", hemsida.getValue(), event);		}	});
+		regnr.addKeyDownHandler(new KeyDownHandler() {@Override	public void onKeyDown(KeyDownEvent event) {	doSetKeyCodeSearch("regnr", regnr.getValue(), event);		}	});
+		nettolst.addKeyDownHandler(new KeyDownHandler() {@Override	public void onKeyDown(KeyDownEvent event) {	doSetKeyCodeSearch("nettolst", nettolst.getValue(), event);		}	});
 	}
 
+	private void doSetKeyCodeSearch(String field, String value, KeyDownEvent event) {
+		if (pageLoad!=null) {
+			int code=event.getNativeKeyCode();
+			if (code==KeyCodes.F9 && !event.isAnyModifierKeyDown()) pageLoad.setSearch(field, value, field, SQLTableList.COMPARE_GREATER_EQUALS , SQLTableList.SORT_ASCENDING);
+			else if(code == KeyCodes.F5 && !event.isAnyModifierKeyDown()) pageLoad.setSearch(field, value, "nummer", SQLTableList.COMPARE_SUPERSOK, SQLTableList.SORT_ASCENDING);
+		}
+	}
 
 	@Override
 	public Kund form2Data() {

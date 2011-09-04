@@ -490,7 +490,7 @@ public class GWTServiceImpl extends RemoteServiceServlet implements GWTService {
 			stm.close();
 			stm = con.prepareStatement("select year(betdat), month(betdat), sum(betdat-f1.datum-f1.ktid), count(*) "
 					+ " from betjour b, faktura1 f1 where f1.faktnr=b.faktnr and b.kundnr=? and year(betdat)>=? " +
-					" group by year(betdat), month(betdat) order by year(betdat), month(betdat) ");
+					" group by year(betdat), month(betdat) order by year(betdat) desc, month(betdat) ");
 			stm.setString(1, kundnr);
 			stm.setInt(2, startAr);
 			rs = stm.executeQuery();

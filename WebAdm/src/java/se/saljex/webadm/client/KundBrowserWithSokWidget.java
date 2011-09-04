@@ -65,6 +65,8 @@ public class KundBrowserWithSokWidget extends FlowPanel {
 		add(browseWidget);
 	}
 
+	public KundBrowserWidget getBrowserWidget() { return browseWidget; }
+	
 	private void sok() {
 		browseWidget.getPageLoad().setSearch("nummer", sokInput.getText(), "namn", SQLTableList.COMPARE_SUPERSOK, SQLTableList.SORT_ASCENDING);
 	}
