@@ -18,18 +18,7 @@ import se.saljex.webadm.client.rpcobject.Kund;
  * @author Ulf
  */
 public class KundListWidget extends ListWidget<Kund> {
-/*
-	static class Cell extends AbstractCell<Kund> {
-		@Override
-		public void render(Kund value, Object key, SafeHtmlBuilder sb) {
-		  if (value == null) {    return;      }
-		  sb.appendEscaped(value.namn);
-		}
-	}
-
-*/
 	public KundListWidget(HasFormUpdater<Kund> formUpdat, HasShowMessage showError) {
-//		super(formUpdat, new Cell(), new PageLoadKund(3, 50, 100, null), showError);
 		super(null, new PageLoadKund(3, 50, 100, null), showError);
 	}
 

@@ -8,67 +8,84 @@ package se.saljex.webadm.client;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
-import com.google.gwt.event.shared.HandlerRegistration;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.TabLayoutPanel;
-import com.google.gwt.user.client.ui.VerticalPanel;
+import com.google.gwt.user.client.ui.Widget;
 import java.util.ArrayList;
 import se.saljex.webadm.client.rpcobject.Kund;
-import se.saljex.webadm.client.rpcobject.SQLTableList;
 
 /**
  *
  * @author Ulf
  */
-public class KundInfoSheetWidget extends TabLayoutPanel implements HasFormUpdater<Kund>{
+public class KundInfoSheetWidget extends TabLayoutPanel implements HasData2Form<Kund>{
 
+	TabLayoutPanel tabLayoutPanel = new TabLayoutPanel(2, Unit.EM);
+	Kund currKund=null;
 	KundFormWidget kundForm = new KundFormWidget();
 	KundresListWidget kundresListWidget = new KundresListWidget(null, null);
 	OffertListaWidget offertListWidget = new OffertListaWidget(false);
+	KundStatistikWidget kundStatistikWidget = new KundStatistikWidget();
 
 	public KundInfoSheetWidget() {
 		super(2, Unit.EM);
-
-		this.add(new ScrollPanel(kundForm), "Kundinfo");
-		this.add(new ScrollPanel(kundresListWidget), "Reskontra");
-		this.add(new ScrollPanel(offertListWidget), "Offert");
+		addData2FormWidget(kundForm, kundForm, "Kundinfo");
+		addData2FormWidget(kundresListWidget, kundresListWidget, "Reskontra");
+		addData2FormWidget(offertListWidget, offertListWidget, "Offert");
+		addData2FormWidget(kundStatistikWidget, kundStatistikWidget, "Statistik");
 
 		this.addSelectionHandler(new SelectionHandler<Integer>() {
 					@Override
 					public void onSelection(SelectionEvent<Integer> event) {
-//						selectTab(event.getSelectedItem());
+						updateTab(event.getSelectedItem(), currKund);
 					}
 		})	;
 
 	}
 
-	ArrayList<HasFormUpdater<Kund>> widgetList = new ArrayList<HasFormUpdater<Kund>>();
 
-
-
-
-
-
-
-	public void addHasUpdateWidget(HasFormUpdater<Kund> updateFormWidget, String title) {
-		widgetList.add(updateFormWidget);
-
-
+	public void addData2FormWidget(Widget widget, HasData2Form<Kund> data2FormWidget, String title) {
+		add(new ScrollContainer(widget, data2FormWidget), title);
 	}
 
 	@Override
 	public void data2Form(Kund data) {
-		kundForm.data2Form(data);
-		offertListWidget.setSearch("kundnr", data.nummer, "offertnr", SQLTableList.COMPARE_EQUALS, SQLTableList.SORT_DESCANDING);
-		kundresListWidget.getPageLoad().setSearch("kundnr", data.nummer, "faktnr", SQLTableList.COMPARE_EQUALS, SQLTableList.SORT_DESCANDING);
+		currKund = data;
+		updateTab(this.getSelectedIndex(), data);
+
+//		kundForm.data2Form(data);
+//		offertListWidget.setSearch("kundnr", data.nummer, "offertnr", SQLTableList.COMPARE_EQUALS, SQLTableList.SORT_DESCANDING);
+//		kundresListWidget.getPageLoad().setSearch("kundnr", data.nummer, "faktnr", SQLTableList.COMPARE_EQUALS, SQLTableList.SORT_DESCANDING);
+//		kundStatistikWidget.setKund(data.nummer);
 	}
 
+	private void updateTab(int index, Kund data) {
+		//if (this.getTabWidget(index) instanceof ScrollContainer) {
 
-	@Override
-	public Kund form2Data() {
-		return null;
+			((ScrollContainer)this.getWidget(index)).data2Form(data);
+		//}
+
+	}
+
+	class ScrollContainer extends ScrollPanel  {
+		public Kund kund=null;
+		private HasData2Form<Kund> data2FormWidget;
+
+		public ScrollContainer(Widget widget, HasData2Form<Kund> data2FormWidget) {
+			super(widget);
+			this.data2FormWidget = data2FormWidget;
+		}
+
+		public void data2Form(Kund kund) {
+			if (this.kund!=kund) {
+				if (data2FormWidget!=null) data2FormWidget.data2Form(kund);
+				this.kund = kund;
+			}
+		}
+
+		
 	}
 
 

@@ -4,60 +4,74 @@
     font-weight: bolder;
 }
 .sx-tb-s3 {
-	width: 1.5em;
+	width: 2em;
 	vertical-align:top;
 }
 .sx-tb-s5 {
-	width: 2.5em;
+	width: 3.5em;
 	vertical-align:top;
 }
 .sx-tb-s10 {
-	width: 5em;
+	width: 6em;
 	vertical-align:top;
 }
+.sx-tb-s13 {
+	width: 7em;
+	vertical-align:top;
+}
+
 .sx-tb-s15 {
-	width: 7.5em;
+	width: 8em;
 	vertical-align:top;
 }
 .sx-tb-s20 {
-	width: 10em;
+	width: 11em;
 	vertical-align:top;
 }
 .sx-tb-s30 {
-	width: 24em;
+	width: 16em;
+	vertical-align:top;
+}
+.sx-tb-s35 {
+	width: 19em;
 	vertical-align:top;
 }
 .sx-tb-s40 {
-	width: 20em;
+	width: 21em;
 	vertical-align:top;
 }
 .sx-tb-s50 {
-	width: 25em;
+	width: 26em;
 	vertical-align:top;
 }
 
 .sx-tb-n20 {
-	width: 10em;
+	width: 11em;
 	vertical-align:top;
     text-align: right;
 }
 .sx-tb-n15 {
-	width: 7.5em;
+	width: 8em;
+	vertical-align:top;
+    text-align: right;
+}
+.sx-tb-n13 {
+	width: 7em;
 	vertical-align:top;
     text-align: right;
 }
 .sx-tb-n10 {
-	width: 5em;
+	width: 6em;
 	vertical-align:top;
     text-align: right;
 }
 .sx-tb-n5 {
-	width: 2.5em;
+	width: 3.5em;
 	vertical-align:top;
     text-align: right;
 }
 .sx-tb-n3 {
-	width: 1.5em;
+	width: 2em;
 	vertical-align:top;
     text-align: right;
 }
@@ -216,7 +230,7 @@
 	border-width: 1 px;
 	border-color: black;
 	border-style: solid;
-	margin: 0 2px 4px 0;
+	margin: 0 0.4em 0.8em 0;
 	padding: 1px 1px 1px 1px;
 }
 

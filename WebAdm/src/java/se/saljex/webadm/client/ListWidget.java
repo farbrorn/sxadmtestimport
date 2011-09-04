@@ -34,7 +34,7 @@ public abstract class ListWidget<T extends IsSQLTable> extends ScrollPanel {
 //	private  final CellList<T> cellList;
 private final CellTable<T> cellList;
 	private  final ListDataProvider<T>	listDataProvider ;
-	private  final HasFormUpdater<T> formUpdater;
+	private  final HasData2Form<T> formUpdater;
 	private  final PageLoad<T> pageLoad;
 	private  final SingleSelectionModel<T> selectionModel  = new SingleSelectionModel<T>();
 	protected final HasShowMessage showError;
@@ -59,7 +59,7 @@ private final CellTable<T> cellList;
 	};
 
 
-	public ListWidget(HasFormUpdater<T> formUpdat, final PageLoad<T> pageLoad, HasShowMessage showError) {
+	public ListWidget(HasData2Form<T> formUpdat, final PageLoad<T> pageLoad, HasShowMessage showError) {
 		super();
 		VerticalPanel mainPanel = new VerticalPanel();
 		this.showError=showError;

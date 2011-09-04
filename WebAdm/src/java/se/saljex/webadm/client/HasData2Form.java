@@ -9,6 +9,7 @@ package se.saljex.webadm.client;
  *
  * @author Ulf
  */
-public interface HasFormUpdater<T> extends HasData2Form<T>{
-	public T form2Data();
+public interface HasData2Form<T> {
+	public void data2Form(T data);
+
 }

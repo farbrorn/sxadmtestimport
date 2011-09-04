@@ -20,10 +20,11 @@ import com.google.gwt.user.client.ui.Widget;
  */
 public class Util {
 
-	private final static NumberFormat fmt0Dec = NumberFormat.getFormat("0");
-	private final static NumberFormat fmt1Dec = NumberFormat.getFormat("0.0");
-	private final static NumberFormat fmt2Dec = NumberFormat.getFormat("0.00");
+	public final static NumberFormat fmt0Dec = NumberFormat.getFormat("0");
+	public final static NumberFormat fmt1Dec = NumberFormat.getFormat("0.0");
+	public final static NumberFormat fmt2Dec = NumberFormat.getFormat("0.00");
 
+	private static PopupPanel messageBox=null;
 	public static String format0Dec(Double value) {
 		if (value==null)  return "";
 		return fmt0Dec.format(value);
@@ -45,4 +46,13 @@ public class Util {
 	}
 
 
+	public static void showMessage(String text) {
+		showMessage(new Label(text));
+	}
+	public static void showMessage(Widget widget) {
+		if (messageBox==null) messageBox = new PopupPanel(true, true);
+		messageBox.setWidget(widget);
+		messageBox.center();
+		messageBox.show();
+	}
 }

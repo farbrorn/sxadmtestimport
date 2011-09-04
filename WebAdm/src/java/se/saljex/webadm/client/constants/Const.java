@@ -13,15 +13,18 @@ public class Const {
 public static final String Style_S3 = "sx-tb-s3";
 public static final String Style_S5 = "sx-tb-s5";
 public static final String Style_S10 = "sx-tb-s10";
+public static final String Style_S13 = "sx-tb-s13";
 public static final String Style_S15 = "sx-tb-s15";
 public static final String Style_S20 = "sx-tb-s20";
 public static final String Style_S30 = "sx-tb-s30";
+public static final String Style_S35 = "sx-tb-s35";
 public static final String Style_S40 = "sx-tb-s40";
 public static final String Style_S50 = "sx-tb-s50";
 
 public static final String Style_N3 = "sx-tb-s3";
 public static final String Style_N5 = "sx-tb-s5";
 public static final String Style_N10 = "sx-tb-s10";
+public static final String Style_N13 = "sx-tb-s13";
 public static final String Style_N15 = "sx-tb-s15";
 public static final String Style_N20 = "sx-tb-s20";
 
@@ -43,5 +46,8 @@ public static final String Style_ErrorLabel="sx-errorlabel";
 public static final String Style_InfoLabel="sx-infolabel";
 
 public static final String Style_AlignRight="sx-alignright";
+
+public static final String Style_BoxedScroll="sx-boxed-scroll";
+
 
 }

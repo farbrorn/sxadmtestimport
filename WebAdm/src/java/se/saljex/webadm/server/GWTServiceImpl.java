@@ -7,11 +7,13 @@ package se.saljex.webadm.server;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import java.lang.reflect.Field;
+import java.net.URLEncoder;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import javax.ejb.EJB;
 import javax.sql.DataSource;
 import se.saljex.sxlibrary.SXUtil;
@@ -20,6 +22,7 @@ import se.saljex.sxserver.LocalWebSupportLocal;
 import se.saljex.sxserver.SxServerMainLocal;
 import se.saljex.sxserver.tables.TableArtikel;
 import se.saljex.sxserver.tables.TableKund;
+import se.saljex.sxserver.websupport.GoogleChartHandler;
 
 import se.saljex.webadm.client.GWTService;
 import se.saljex.webadm.client.rpcobject.Epost;
@@ -400,6 +403,121 @@ public class GWTServiceImpl extends RemoteServiceServlet implements GWTService {
 		} catch (Exception e) {throw new ServerErrorException(e.getMessage()); }
 		return id;
 	}
+
+
+	public ArrayList<String> getChartKund(String kundnr, int width, int height) throws ServerErrorException{
+		ArrayList<String> retArr = new ArrayList<String>();
+		ensureLoggedIn();
+		Connection con=null;
+		if (width < 1) width = 400;
+		if (height < 1) height = 200;
+
+		int antalArBakat = 5;
+		if (antalArBakat<0) antalArBakat=antalArBakat*(-1);
+		if(antalArBakat > 100) antalArBakat=100;	//Bara så vi inte får in orinligt stora tal
+		int startAr;
+		Calendar c = Calendar.getInstance();
+		c.setTime(new java.util.Date());
+		startAr = c.get(Calendar.YEAR) - antalArBakat;
+
+		GoogleChartHandler gch = new GoogleChartHandler();
+		gch.setEtiketterJanToDec();
+		gch.setSize(width, height);
+		gch.setTile("Inköp");
+		gch.clearSerier();
+
+		GoogleChartHandler gchTB = new GoogleChartHandler();
+		gchTB.setEtiketterJanToDec();
+		gchTB.setSize(width, height);
+		gchTB.setTile("Täckning");
+		gchTB.clearSerier();
+
+		GoogleChartHandler gchTBProc = new GoogleChartHandler();
+		gchTBProc.setEtiketterJanToDec();
+		gchTBProc.setSize(width, height);
+		gchTBProc.setTile("Täckning %");
+		gchTBProc.clearSerier();
+		gchTBProc.setScaleMax(100.0);
+
+		double[] row = null;
+		double[] rowTB = null;
+		double[] rowTBProc = null;
+
+		try {
+			con = sxadm.getConnection();
+			PreparedStatement stm = con.prepareStatement(
+				"select year(f1.datum), month(f1.datum), round(cast(sum(t_netto) as numeric),0), round(cast(sum(t_netto-t_innetto) as numeric),0) from faktura1 f1 "+
+				" where f1.kundnr=? and year(f1.datum)>=? "+
+				" group by year(f1.datum), month(f1.datum) "+
+				" order by year(f1.datum) desc, month(f1.datum)"
+			);
+			stm.setString(1, kundnr);
+			stm.setInt(2, startAr);
+			ResultSet rs = stm.executeQuery();
+			int currentAr=0;
+
+			row=null;
+			while (rs.next()) {
+				if (rs.getInt(1) != currentAr) {
+					if (row!=null) { //Om vi har data för ett år så sparar vi det//Om vi har data för ett år så sparar vi det
+						gch.addSerie(""+currentAr, row);
+						gchTB.addSerie(""+currentAr, rowTB);
+						gchTBProc.addSerie(""+currentAr, rowTBProc);
+					}
+					row=new double[12];
+					rowTB=new double[12];
+					rowTBProc=new double[12];
+					currentAr=rs.getInt(1);
+				}
+				if (rs.getInt(2)-1 >= 0) row[rs.getInt(2)-1] = rs.getDouble(3);
+				if (rs.getInt(2)-1 >= 0) rowTB[rs.getInt(2)-1] = rs.getDouble(4);
+				if (rs.getInt(2)-1 >= 0) {
+					rowTBProc[rs.getInt(2)-1] = rs.getDouble(3)!=0 ? rs.getDouble(4)/rs.getDouble(3)*100 : 0;
+				}
+			}
+			retArr.add(gch.getURL());
+			retArr.add(gchTB.getURL());
+			retArr.add(gchTBProc.getURL());
+
+
+			gch = new GoogleChartHandler();
+			gch.setEtiketterJanToDec();
+			gch.setSize(width, height);
+			gch.setTile("Betaltid (överskridna dagar)");
+			gch.clearSerier();
+
+			//Betalningstider
+			stm.close();
+			stm = con.prepareStatement("select year(betdat), month(betdat), sum(betdat-f1.datum-f1.ktid), count(*) "
+					+ " from betjour b, faktura1 f1 where f1.faktnr=b.faktnr and b.kundnr=? and year(betdat)>=? " +
+					" group by year(betdat), month(betdat) order by year(betdat), month(betdat) ");
+			stm.setString(1, kundnr);
+			stm.setInt(2, startAr);
+			rs = stm.executeQuery();
+			currentAr=0;
+			row=null;
+			while (rs.next()) {
+				if (rs.getInt(1) != currentAr) {
+					if (row!=null) { //Om vi har data för ett år så sparar vi det//Om vi har data för ett år så sparar vi det
+						gch.addSerie(""+currentAr, row);
+					}
+					row=new double[12];
+					currentAr=rs.getInt(1);
+				}
+				if (rs.getInt(2)-1 >= 0) row[rs.getInt(2)-1] = rs.getDouble(4) > 0 ? rs.getDouble(3) / rs.getDouble(4) : 0;
+			}
+			retArr.add(gch.getURL());
+
+
+
+		} catch (SQLException e) { e.printStackTrace(); throw(new ServerErrorException("Fel vid kommunikation med databasen"));}
+		catch (Exception ee) {ee.printStackTrace();throw(new ServerErrorException("Okänt fel: " + ee.getMessage()));}
+		finally {
+			try { con.close(); } catch (Exception e) {}
+		}
+		return retArr;
+	}
+
 
 	private void ensureLoggedIn()  {}
 

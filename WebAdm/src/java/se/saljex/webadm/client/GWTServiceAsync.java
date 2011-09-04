@@ -29,5 +29,6 @@ public interface GWTServiceAsync {
 	public void getKundEpostLista(String kundnr, AsyncCallback<ArrayList<Epost>> callback);
 	public void sendOffertEpost(String anvandare, String epost, int id, AsyncCallback<Integer> callback);
 	public void sendFakturaEpost(String anvandare, String epost, int id, AsyncCallback<Integer> callback);
+	public void getChartKund(String kundnr, int width, int height, AsyncCallback<ArrayList<String>> callback);
 
 }

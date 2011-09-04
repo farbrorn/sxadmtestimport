@@ -21,24 +21,6 @@ import se.saljex.webadm.client.rpcobject.SQLTableList;
  * @author Ulf
  */
 public class KundBrowserWidget extends ListWidget<Kund> {
-/*
-	static class Cell extends AbstractCell<Kund> {
-		@Override
-		public void render(Kund value, Object key, SafeHtmlBuilder sb) {
-		  if (value == null) {    return;      }
-			build(sb, value.namn, value.adr3);
-
-		}
-	}
-
-	private static void build(SafeHtmlBuilder sb, String c1, String c2) {
-			sb.appendHtmlConstant("<table><tr><td style=\"width: 250px\">");
-			sb.appendEscaped(c1==null?"":c1);
-			sb.appendHtmlConstant("</td><td style=\"width:	200px\">");
-			sb.appendEscaped(c2==null?"":c2);
-			sb.appendHtmlConstant("</td></tr></table>");
-	}
-*/
 	public KundBrowserWidget(HasFormUpdater<Kund> formUpdat) {
 		super(formUpdat, new PageLoadKund(10, 100, 1000, null) ,null);
 		this.getPageLoad().setSearch("nummer", "0", "namn", SQLTableList.COMPARE_NONE, SQLTableList.SORT_ASCENDING);
@@ -62,7 +44,7 @@ public class KundBrowserWidget extends ListWidget<Kund> {
 			public String getValue(Kund object) {
 				return object.adr3;
 			} };
-		cellTable.addColumn(c2, "adr3");
+		cellTable.addColumn(c2, "Adress");
 	}
 
 
