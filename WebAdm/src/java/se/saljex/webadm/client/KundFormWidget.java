@@ -43,9 +43,6 @@ public class KundFormWidget extends FlowPanel implements HasFormUpdater<Kund>{
 
 	Kund originalSQLTableRow;
 
-	ModalMessageBox modalMessageBox = new ModalMessageBox();
-
-	MessagePopupPanel errorLabel = new MessagePopupPanel();
 
 	Button closBtn = new Button("Stäng detta fönster");
 	Label vlabel = new Label();
@@ -428,7 +425,6 @@ public class KundFormWidget extends FlowPanel implements HasFormUpdater<Kund>{
 	public Kund form2Data() {
 		Kund kund = new Kund(originalSQLTableRow);
 		focusForm.get(kund);
-		errorLabel.showErr("Industri ny: " + kund.industri + " old: " + originalSQLTableRow.industri + " check: " + industri.getValue());
 		return kund;
 
 	}
