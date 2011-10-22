@@ -196,6 +196,7 @@ public class LocalWebSupportBean implements LocalWebSupportLocal, LocalWebSuppor
 				cn = w.updateWArt();
 				ret = ret + " - Klart! Antal rader: " + cn;
 			} catch (java.sql.SQLException e) { ret = ret + "<br/>Undantag vid updateWArtikel " + e.toString(); }
+			 catch (Exception e2) { ret = ret + "<br/>Okänt undantag " + e2.toString() + " Mess:" + e2.getMessage(); }
 		} catch (java.sql.SQLException e) { ret = ret + "<br/>Undantag vid getConnection " + e.toString(); }
 		finally { try { conSe.close(); } catch (Exception e) {} }
 		return ret;

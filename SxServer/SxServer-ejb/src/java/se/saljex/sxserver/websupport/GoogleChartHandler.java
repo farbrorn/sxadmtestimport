@@ -5,7 +5,10 @@
 
 package se.saljex.sxserver.websupport;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
+import se.saljex.sxlibrary.SXUtil;
 
 /**
  *
@@ -21,6 +24,8 @@ public class GoogleChartHandler {
 	private int sizeX = 400;
 	private int sizeY = 200;
 
+	private String title =null;
+
 	private Double scaleMax = null;
 
 	private String type="lc";
@@ -30,7 +35,7 @@ public class GoogleChartHandler {
 	private static final String[] COLORS = {"FF0000","00FF00","0000FF","FFFF00","FF00FF","888800","008888","102030","302010"};
 
 	public SerieInfo addSerie(String namn) {
-		SerieInfo sf = new SerieInfo(namn,serieCn <= COLORS.length ? COLORS[serieCn] : COLORS[0]);
+		SerieInfo sf = new SerieInfo(namn,serieCn < COLORS.length ? COLORS[serieCn] : COLORS[0]);
 		serier.add(sf);
 		serieCn++;
 		return sf;
@@ -77,6 +82,8 @@ public class GoogleChartHandler {
 	public void addEtikett(String s) {
 		etiketter.add(s);
 	}
+
+	public void setTile(String title) { this.title = title; }
 
 	public void setEtiketterJanToDec() {
 		addEtikett("Jan");
@@ -149,6 +156,9 @@ public class GoogleChartHandler {
 		} else {maxValue = scaleMax;}
 
 		sb.append("&chxr=0,0," + Math.round(maxValue) + "," + Math.round(maxValue/5));
+		try {
+			if (!SXUtil.isEmpty(title)) sb.append("&chtt="+URLEncoder.encode(title, "UTF-8"));
+		} catch (UnsupportedEncodingException e) { }
 		return sb.toString();
 	}
 
@@ -186,7 +196,7 @@ public class GoogleChartHandler {
 			}
 			sb.append(",");
 		}
-		sb.deleteCharAt(sb.length()-1);
+		if (sb.length()>0) sb.deleteCharAt(sb.length()-1);
 
 		return sb.toString();
 	}
