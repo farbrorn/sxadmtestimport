@@ -167,7 +167,7 @@ public class JobbHandler {
 			} else {
 				epost=t.getEpost();
 			}
-			sendFakturaEpost(t.getExternidint(), epost);
+			sendOffertEpost(t.getExternidint(), epost);
 			ServerUtil.log("Offert " + t.getExternidint() +  " skickad e-post");
 			markSlutfort(t.getJobbid());
 		}
@@ -347,7 +347,7 @@ public class JobbHandler {
 			ServerUtil.sendMessage(em, "Beställning " + be1.getBestnr() + " till " + be1.getLevnr() + " är inte mottagen.",
 								"Kontrollera mottagandet!", be1.getVarRef());
 			try {
-				if (be1.getAntalpamin() > 4 ) {
+				if (be1.getAntalpamin() >= 2 ) {
 					be1.setStatus("Fel");
 				}
 				TableBesthand beh = new TableBesthand(be1.getBestnr(),ServerUtil.getSXReg(em, SXConstant.SXREG_SERVERANVANDARE, SXConstant.SXREG_SERVERANVANDARE_DEFAULT),"Påminnelse skickad",0);

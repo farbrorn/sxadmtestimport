@@ -26,7 +26,7 @@ import javax.mail.MessagingException;
  */
 @Local
 public interface SxServerMainLocal {
-    void handleTimer(Timer timer);
+    void handleTimer(Timer timer) throws Exception;
 
     void startTimers();
 //    public ByteArrayOutputStream getPdfFaktura(int faktnr) throws IOException;
@@ -50,6 +50,9 @@ public interface SxServerMainLocal {
 
 	void doSamfaktByEmail(String anvandare, SamfaktByEpostHandler samfak) throws SQLException;
 
+	void doUpdateWebArtikel() throws SQLException;
+	void doUpdateWebArtikelTrad() throws SQLException;
+	void doUpdateLagersaldo() throws SQLException;
 //	ArrayList<Integer> saveSxShopOrder(int kontaktId, String kundnr, String kontaktNamn, short lagerNr, String marke) throws KreditSparrException;
 
 //	boolean sendSimpleMail(String adress, String header, String bodytext);
@@ -66,6 +69,9 @@ public interface SxServerMainLocal {
 	int faktureraBvOrderMedAnvandare(int ordernr, String anvandare) throws SxOrderLastException;
 
 	ByteArrayOutputStream getTestPdf() throws IOException;
+
+	void sendOffertEpost(String anvandare, String epost, int id) throws SXEntityNotFoundException;
+	void sendFakturaEpost(String anvandare, String epost, int id) throws SXEntityNotFoundException;
 
 	
 }

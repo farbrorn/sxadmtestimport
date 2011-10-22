@@ -37,6 +37,7 @@ import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.mail.MessagingException;
 import javax.naming.NamingException;
+import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.NoResultException;
@@ -91,16 +92,20 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 	
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	@Timeout
-	public void handleTimer(Timer timer)   {
+	public void handleTimer(Timer timer)   throws Exception{
 
-		ServerUtil.logDebug("handleTimer startad: " + timer.getInfo());
-
-		if (timer.getInfo().equals("JobbTimer")) handleJobbTimer();
-		else if (timer.getInfo().equals("KvartTimer")) handleKvartTimer();
-		else if (timer.getInfo().equals("TimTimer")) handleTimTimer();
-		else if (timer.getInfo().equals("DygnsTimer")) handleDygnsTimer();
-		else if (timer.getInfo().equals("VeckoTimer")) handleVeckoTimer();
-		else if (timer.getInfo().equals("SamfaktTimer")) handleSamfaktTimer();
+		ServerUtil.log("handleTimer startad: " + timer.getInfo());
+		try {
+			if (timer.getInfo().equals("JobbTimer")) handleJobbTimer();
+			else if (timer.getInfo().equals("KvartTimer")) handleKvartTimer();
+			else if (timer.getInfo().equals("TimTimer")) handleTimTimer();
+			else if (timer.getInfo().equals("DygnsTimer")) handleDygnsTimer();
+			else if (timer.getInfo().equals("VeckoTimer")) handleVeckoTimer();
+			else if (timer.getInfo().equals("SamfaktTimer")) handleSamfaktTimer();
+		} catch (Exception e) {
+			ServerUtil.log("Undantag i handleTimer " + timer.getInfo() + ": " + e.toString());
+			throw(e);
+		}
 	}
 
 	private void handleSamfaktTimer() {
@@ -130,55 +135,84 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 	
 	private void handleDygnsTimer() {
 		//Uppdatera priser mm på nätet
-		Connection con = null;
-		Connection conSe = null;
 		try {
-			con = sxadm.getConnection();
-			conSe = saljexse.getConnection();
-			try {
-				WebArtikelUpdater w = new WebArtikelUpdater(em, conSe);
-				w.updateWArt();
-			} catch (SQLException e) { ServerUtil.log("Undantag i handleDygnsTimer vid WebArtikelUpdater: " + e.toString()); }
-
-			// Räkna om alla lagervärden
-			try {
-				LagerCheck lagerCheck = new LagerCheck(con);
-				lagerCheck.run();
-			} catch (SQLException e) { ServerUtil.log("Undantag i handleDygnsTimer vid LagerCheck: " + e.toString()); }
-		} catch (SQLException e) {
+			sxServerMainBean.doUpdateWebArtikel();
+			sxServerMainBean.doUpdateLagersaldo();
+		} catch (Exception e) {
 			ServerUtil.log("Undantag i handleDygnsTimer: " + e.toString());
 		} finally {
-			try { con.close(); } catch (Exception e) {}
-			try { conSe.close(); } catch (Exception e) {}
 			startDygnsTimer();
 		}
 	}
-	
-	private void handleVeckoTimer() {
-		// Uppdatera trädstrukturen
-		Connection con = null;
+
+
+
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+	@Override
+	public void doUpdateWebArtikel() throws SQLException{
 		Connection conSe = null;
 		try {
-			con = sxadm.getConnection();
 			conSe = saljexse.getConnection();
+			WebArtikelUpdater w = new WebArtikelUpdater(em, conSe);
+			w.updateWArt();
 
-			// Updatera aerikelträdet på webben
-			try {
-				WebArtikelUpdater w = new WebArtikelUpdater(em, conSe);
-				w.updateWArtGrp();
-				w.updateWArtGrpLank();
-				w.updateWArtKlase();
-				w.updateWArtKlaseLank();
-			} catch (SQLException e) { ServerUtil.log("Undantag i handleVeckoTimer vid WebArtikelUpdater: " + e.toString()); }
 		} catch (SQLException e) {
-			ServerUtil.log("Undantag i handleVeckoTimer: " + e.toString());
+			ServerUtil.log("Undantag i doUpdateWebArtikel: " + e.toString());
+			throw(e);
+		} finally {
+			try { conSe.close(); } catch (Exception e) {}
+		}
+	}
+
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+	@Override
+	public void doUpdateLagersaldo() throws SQLException{
+		Connection con = null;
+		try {
+			con = sxadm.getConnection();
+			LagerCheck lagerCheck = new LagerCheck(con);
+			lagerCheck.run();
+
+		} catch (SQLException e) {
+			ServerUtil.log("Undantag i doUpdateLagersaldo: " + e.toString());
+			throw(e);
 		} finally {
 			try { con.close(); } catch (Exception e) {}
-			try { conSe.close(); } catch (Exception e) {}
+		}
+	}
+
+	private void handleVeckoTimer() {
+		// Uppdatera trädstrukturen
+		try {
+			sxServerMainBean.doUpdateWebArtikelTrad();
+		} catch (Exception e) {
+			ServerUtil.log("Undantag i handleVeckoTimer: " + e.toString());
+		} finally {
 			startVeckoTimer();
 		}
 	}
-	
+
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+	@Override
+	public void doUpdateWebArtikelTrad() throws SQLException{
+		Connection conSe = null;
+		try {
+			conSe = saljexse.getConnection();
+			WebArtikelUpdater w = new WebArtikelUpdater(em, conSe);
+			w.updateWArtGrp();
+			w.updateWArtGrpLank();
+			w.updateWArtKlase();
+			w.updateWArtKlaseLank();
+
+		} catch (SQLException e) {
+			ServerUtil.log("Undantag i doUpdateArtikelTrad: " + e.toString());
+			throw(e);
+		} finally {
+			try { conSe.close(); } catch (Exception e) {}
+		}
+	}
+
+
 	private void handleJobbTimer() {
 			JobbHandler jobbHandler;
 
@@ -335,6 +369,7 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 	}
 	private void startDygnsTimer() {
 		sxServerMainBean.startTimer(24*60*60*1000,"DygnsTimer");	//Måste startas som EJB-anrop för att new transaction skall funka
+//		sxServerMainBean.startTimer(3*60*1000,"DygnsTimer");	//Måste startas som EJB-anrop för att new transaction skall funka
 	}
 	private void startVeckoTimer() {
 		sxServerMainBean.startTimer(7*24*60*60*1000,"VeckoTimer");	//Måste startas som EJB-anrop för att new transaction skall funka
@@ -492,7 +527,9 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 			ServerUtil.log("checkWorder slutförd");
 		}
 	}
-	
+
+
+
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public ArrayList<Integer> saveWorder(int worderNr) throws java.sql.SQLException, KreditSparrException {
 		// Spara angiven weborder i egen transaktion
@@ -611,6 +648,15 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 		catch (NoResultException e) {}
 		return null;
 	}
+
+	public void sendOffertEpost(String anvandare, String epost, int id) throws SXEntityNotFoundException{
+		SxServJobbHandler.sendOffertEpost(em, anvandare, id, epost);
+	}
+	public void sendFakturaEpost(String anvandare, String epost, int id) throws SXEntityNotFoundException{
+		SxServJobbHandler.sendFakturaEpost(em, anvandare, id, epost);
+	}
+
+
 
 
 }
