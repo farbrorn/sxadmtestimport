@@ -433,21 +433,6 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 			ret = ret + "<tr><td>" + timer.getInfo() + "</td><td>" + timer.getNextTimeout().toString() + "</td></tr>";
 		}
 		ret = ret + "</table>";
-
-		Connection conSe = null;
-		try {
-			conSe = saljexse.getConnection();
-			Statement s = conSe.createStatement();
-			ResultSet r = s.executeQuery("select * from weborder1 order by wordernr");
-			ret = ret + "<table>";
-			while (r.next()) {
-				ret = ret + "<tr><td>" + r.getString(1) + "</td><td>" + r.getString(2) + "</td><td>" + r.getString(3) + "</td><td>" + r.getString(4) + "</td><td>" + r.getString(5) + "</td><td>" + r.getString(6) + "</td><td>" + r.getString(7) + "</td><td>" + r.getString(8) + "</td><td>" + r.getString(9);
-				ret = ret + "</td></tr>";
-			}
-			ret = ret + "</table>";
-			
-		} catch (Exception e) { ret = ret + e.toString(); }
-		finally { try { conSe.close(); } catch (Exception e) {} }
 		return ret;
 	}
 
