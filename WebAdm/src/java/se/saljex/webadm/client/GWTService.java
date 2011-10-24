@@ -34,4 +34,9 @@ public interface GWTService extends RemoteService {
 	public Integer sendFakturaEpost(String anvandare, String epost, int id) throws ServerErrorException;
 	public ArrayList<String> getChartKund(String kundnr, int width, int height) throws ServerErrorException;
 
+	public String serverUpdateWebArtikel() throws ServerErrorException;
+	public String serverUpdateWebArtikelTrad() throws ServerErrorException;
+	public String serverUpdateLagersaldon() throws ServerErrorException;
+	public String serverGetStatus() throws ServerErrorException;
+
 }

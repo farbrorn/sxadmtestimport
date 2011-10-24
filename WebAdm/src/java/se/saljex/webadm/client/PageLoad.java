@@ -18,8 +18,9 @@ import se.saljex.webadm.client.rpcobject.SQLTableList;
  *
  * @author Ulf
  */
-abstract class PageLoad<T extends IsSQLTable> {
+ public class PageLoad<T extends IsSQLTable> {
 
+	 private T tableObject=null;
 	private boolean hasMoreRows = false;
 
 	private int pageSize;
@@ -41,7 +42,8 @@ abstract class PageLoad<T extends IsSQLTable> {
 	protected boolean isForwardOnly = false;
 	private AbstractHasData<T> hasData =null;
 
-	public PageLoad(int pageSize, int prefetchPageSize, int maxBufferSize, PageLoadCallback<T> callback) {
+	public PageLoad(T tableObject, int pageSize, int prefetchPageSize, int maxBufferSize, PageLoadCallback<T> callback) {
+		this.tableObject=tableObject;
 		this.pageSize=pageSize>=0 ? pageSize : 10;		//PageSize på noll betyder hela resultatsetet
 		this.prefetchPageSize=prefetchPageSize>=0 ? prefetchPageSize : 20;
 	//	this.maxBufferSize=maxBufferSize>pageSize ? maxBufferSize : pageSize*2;
@@ -67,8 +69,9 @@ abstract class PageLoad<T extends IsSQLTable> {
 	}
 
 
-	abstract void getList(GWTServiceAsync service, String sokString, String sokField, String sortField, int compareType, int sortOrder, int offset, int limit, AsyncCallback<SQLTableList> callback);
-//			MainEntryPoint.getService().getKundList(sokString, currSokField , currSortField, isSuperSok ? SQLTableList.COMPARE_SUPERSOK : SQLTableList.COMPARE_GREATER_EQUALS, SQLTableList.SORT_ASCENDING, 0, pageSize, callbackSok);
+	protected void getList(GWTServiceAsync service, String sokString, String sokField, String sortField, int compareType, int sortOrder, int offset, int limit, AsyncCallback<SQLTableList> callback) {
+		service.getTableList(tableObject, sokString, sokField , sortField, compareType, sortOrder, offset, limit, callback);
+	}
 
 	public void setCellList(final AbstractHasData<T> hasData) {
 		this.hasData = hasData;
@@ -268,3 +271,4 @@ abstract class PageLoad<T extends IsSQLTable> {
 	public boolean getHasMoreRows() { return hasMoreRows;  }
 
 }
+

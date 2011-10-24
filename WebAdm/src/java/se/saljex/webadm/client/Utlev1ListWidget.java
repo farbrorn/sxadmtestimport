@@ -8,56 +8,57 @@ package se.saljex.webadm.client;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.TextColumn;
 import se.saljex.webadm.client.constants.Const;
-import se.saljex.webadm.client.rpcobject.Offert1;
+import se.saljex.webadm.client.rpcobject.Order1;
+import se.saljex.webadm.client.rpcobject.Utlev1;
 
 /**
  *
  * @author Ulf
  */
-public class Offert1ListWidget extends ListWidget<Offert1> {
+public class Utlev1ListWidget extends ListWidget<Utlev1> {
 
-	public Offert1ListWidget(HasData2Form<Offert1> formUpdat) {
-		super(formUpdat, new PageLoad<Offert1>(new Offert1(), 10, 100, 1000, null) ,null);
+	public Utlev1ListWidget(HasData2Form<Utlev1> formUpdat) {
+		super(formUpdat, new PageLoad<Utlev1>(new Utlev1(), 10, 100, 1000, null) ,null);
 	}
 
 	@Override
-	void addListColumns(CellTable<Offert1> cellTable) {
+	void addListColumns(CellTable<Utlev1> cellTable) {
 		getCellTable().addColumnStyleName(0, Const.Style_S10);
 		getCellTable().addColumnStyleName(1, Const.Style_S10);
 		getCellTable().addColumnStyleName(2, Const.Style_S30);
-//		getCellTable().addColumnStyleName(2, Const.Style_S30);
 
-		TextColumn<Offert1> c1 = new TextColumn<Offert1>() {
+		TextColumn<Utlev1> c1 = new TextColumn<Utlev1>() {
 			@Override
-			public String getValue(Offert1 object) {
-				return object.offertnr.toString();
+			public String getValue(Utlev1 object) {
+				return object.ordernr.toString();
 			}
 		};
-		cellTable.addColumn(c1, "Offert");
+		cellTable.addColumn(c1, "Order");
 
-		c1 = new TextColumn<Offert1>() {
+		c1 = new TextColumn<Utlev1>() {
 			@Override
-			public String getValue(Offert1 object) {
+			public String getValue(Utlev1 object) {
 				return Util.formatDate(object.datum);
 			}
 		};
 		cellTable.addColumn(c1, "Datum");
 
-		c1 = new TextColumn<Offert1>() {
+		c1 = new TextColumn<Utlev1>() {
 			@Override
-			public String getValue(Offert1 object) {
+			public String getValue(Utlev1 object) {
 				return object.namn;
 			}
 		};
 		cellTable.addColumn(c1, "Kund");
 
-		c1 = new TextColumn<Offert1>() {
+		c1 = new TextColumn<Utlev1>() {
 			@Override
-			public String getValue(Offert1 object) {
+			public String getValue(Utlev1 object) {
 				return object.marke;
 			}
 		};
 		cellTable.addColumn(c1, "Märke");
+
 	}
 
 

@@ -14,8 +14,8 @@ import se.saljex.webadm.client.rpcobject.IsSQLTable;
  *
  * @author Ulf
  */
-public class FormLayoutFlowPanel<T extends IsSQLTable> extends FormLayoutPanel<T>{
-
+public class FormLayoutFlowPanel {//<T extends IsSQLTable> extends FormLayoutPanel<T>{
+/*
 	FlowPanel p = new FlowPanel();
 
 	public FormLayoutFlowPanel() {
@@ -36,5 +36,5 @@ public class FormLayoutFlowPanel<T extends IsSQLTable> extends FormLayoutPanel<T
 		return p;
 	}
 
-
+*/
 }

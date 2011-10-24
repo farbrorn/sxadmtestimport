@@ -85,7 +85,7 @@ System.out.print(where);
 		
 
 
-		if (sortField!=null) {
+		if (sortField!=null) if (!sortField.isEmpty()){
 			if (SQLTableHandler.isColumnNameValid(sortField, table)) {
 				orderBy = orderBy + " " + sortField + (sortOrder == SQLTableList.SORT_DESCANDING ? " desc" : "");
 			} else throw new ServerErrorException("Ogiltigt kolumnnamn för Order By: " + sortField);

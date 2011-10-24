@@ -14,8 +14,8 @@ import com.google.gwt.user.client.ui.Widget;
  *
  * @author Ulf
  */
-public class FormLayoutGroupFlexTable extends FormLayoutGroup {
-
+public class FormLayoutGroupFlexTable{ //extends FormLayoutGroup {
+/*
 	FlexTable layoutWidget = new FlexTable();
 	int row = 0;
 	public FormLayoutGroupFlexTable(FormLayoutPanel panel) {
@@ -38,5 +38,5 @@ public class FormLayoutGroupFlexTable extends FormLayoutGroup {
 		getPanel().addLayoutGroup(layoutWidget);
 	}
 
-
+*/
 }

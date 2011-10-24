@@ -519,6 +519,33 @@ public class GWTServiceImpl extends RemoteServiceServlet implements GWTService {
 	}
 
 
+	public String serverUpdateWebArtikel() throws ServerErrorException {
+		ensureLoggedIn();
+		try {
+			return webBean.updateWebArtikelWithHTMLResponse();
+		} catch (Exception e) {throw new ServerErrorException(e.getMessage()); }
+	}
+	public String serverUpdateWebArtikelTrad() throws ServerErrorException {
+		ensureLoggedIn();
+		try {
+			return webBean.updateWebArtikelTradWithHTMLResponse();
+		} catch (Exception e) {throw new ServerErrorException(e.getMessage()); }
+	}
+	public String serverUpdateLagersaldon() throws ServerErrorException {
+		ensureLoggedIn();
+		try {
+			return webBean.updateLagerSaldonWithHTMLResponse();
+		} catch (Exception e) {throw new ServerErrorException(e.getMessage()); }
+	}
+	public String serverGetStatus() throws ServerErrorException {
+		ensureLoggedIn();
+		try {
+			return webBean.getHTMLStatus();
+		} catch (Exception e) {throw new ServerErrorException(e.getMessage()); }
+	}
+
+
+
 	private void ensureLoggedIn()  {}
 
 }

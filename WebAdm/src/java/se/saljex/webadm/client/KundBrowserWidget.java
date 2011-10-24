@@ -17,7 +17,7 @@ import se.saljex.webadm.client.rpcobject.SQLTableList;
  */
 public class KundBrowserWidget extends ListWidget<Kund> {
 	public KundBrowserWidget(HasFormUpdater<Kund> formUpdat) {
-		super(formUpdat, new PageLoadKund(10, 100, 1000, null) ,null);
+		super(formUpdat, new PageLoad<Kund>(new Kund(), 10, 100, 1000, null) ,null);
 		this.getPageLoad().setSearch("nummer", "0", "namn", SQLTableList.COMPARE_NONE, SQLTableList.SORT_ASCENDING);
 	}
 

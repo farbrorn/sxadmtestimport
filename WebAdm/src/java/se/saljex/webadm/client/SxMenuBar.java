@@ -43,13 +43,17 @@ public class SxMenuBar extends MenuBar {
 		add(menuUnderhall, "Artikel", new Command() {	@Override	public void execute() {	windowHandler.addWindow(new WelcomeWindow(windowHandler, "Välkommen"));	}	});
 		add(menuUnderhall,"Kund", new Command() {	@Override	public void execute() {	windowHandler.addWindow(new KundForm(windowHandler, "Kunder"));	}	});
 		add(menuUnderhall,"Kundlista", new Command() {	@Override	public void execute() {	windowHandler.addWindow(new KundInfoMainWidget(), "Kund");	}	});
-		add(menuUnderhall,"Offertlista", new Command() {	@Override	public void execute() {	windowHandler.addWindow(new OffertListaWidget(), "Offert");	}	});
+		add(menuUnderhall,"Orderlista", new Command() {	@Override	public void execute() {	windowHandler.addWindow(new OrderListaWidget(true,true), "Order");	}	});
+		add(menuUnderhall,"Offertlista", new Command() {	@Override	public void execute() {	windowHandler.addWindow(new OffertListaWidget(true,true), "Offert");	}	});
+		add(menuUnderhall,"Fakturalista", new Command() {	@Override	public void execute() {	windowHandler.addWindow(new FakturaListWidget(true,true), "Fakturor");	}	});
+		add(menuUnderhall,"Utleveranser", new Command() {	@Override	public void execute() {	windowHandler.addWindow(new UtlevListWidget(true,true), "Utleveranser");	}	});
 
 		//Frågor
 		add(menuFragor, "Tomt", new Command() {	@Override	public void execute() {		}	});
 
 		//SystemAdmin
-		add(menuSystemAdmin, "Tomt", new Command() {	@Override	public void execute() {	windowHandler.addWindow(new ServerStatus(), "Välkommen");	}	});
+		add(menuSystemAdmin, "Serverstatus", new Command() {	@Override	public void execute() {	windowHandler.addWindow(new ServerStatus(), "Välkommen");	}	});
+		add(menuSystemAdmin, "Serverstatus", new Command() {	@Override	public void execute() {	windowHandler.addWindow(new ServerStatus(), "Välkommen");	}	});
 
 		//Lägg till huvudmenybaren
 		addItem("Arkiv", menuArkiv);

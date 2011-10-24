@@ -19,7 +19,7 @@ import se.saljex.webadm.client.rpcobject.Kund;
  */
 public class KundListWidget extends ListWidget<Kund> {
 	public KundListWidget(HasFormUpdater<Kund> formUpdat, HasShowMessage showError) {
-		super(null, new PageLoadKund(3, 50, 100, null), showError);
+		super(null, new PageLoad<Kund>(new Kund(), 3, 50, 100, null), showError);
 	}
 
 	@Override

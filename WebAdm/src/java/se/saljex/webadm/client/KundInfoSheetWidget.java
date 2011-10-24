@@ -27,7 +27,10 @@ public class KundInfoSheetWidget extends TabLayoutPanel implements HasData2Form<
 	KundFormWidget kundForm;
 	KundresListWidget kundresListWidget = new KundresListWidget(null, null);
 	OffertListaWidget offertListWidget = new OffertListaWidget(false);
+	OrderListaWidget orderListWidget = new OrderListaWidget(false);
 	KundStatistikWidget kundStatistikWidget = new KundStatistikWidget();
+	FakturaListWidget fakturaListWidget = new FakturaListWidget(false);
+	UtlevListWidget utlevListWidget = new UtlevListWidget(false);
 
 	private PageLoad<Kund> pageLoad;
 	public KundInfoSheetWidget() {
@@ -40,7 +43,10 @@ public class KundInfoSheetWidget extends TabLayoutPanel implements HasData2Form<
 		kundForm = new KundFormWidget(pageLoad);
 		addData2FormWidget(kundForm, kundForm, "Kundinfo");
 		addData2FormWidget(kundresListWidget, kundresListWidget, "Reskontra");
-		addData2FormWidget(offertListWidget, offertListWidget, "Offert");
+		addData2FormWidget(orderListWidget, orderListWidget, "Order");
+		addData2FormWidget(offertListWidget, offertListWidget, "Offerter");
+		addData2FormWidget(fakturaListWidget, fakturaListWidget, "Fakturor");
+		addData2FormWidget(utlevListWidget, utlevListWidget, "Utleveranser");
 		addData2FormWidget(kundStatistikWidget, kundStatistikWidget, "Statistik");
 
 		this.addSelectionHandler(new SelectionHandler<Integer>() {

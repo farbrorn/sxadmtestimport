@@ -30,5 +30,9 @@ public interface GWTServiceAsync {
 	public void sendOffertEpost(String anvandare, String epost, int id, AsyncCallback<Integer> callback);
 	public void sendFakturaEpost(String anvandare, String epost, int id, AsyncCallback<Integer> callback);
 	public void getChartKund(String kundnr, int width, int height, AsyncCallback<ArrayList<String>> callback);
+	public void serverUpdateWebArtikel(AsyncCallback<String> callback);
+	public void serverUpdateWebArtikelTrad(AsyncCallback<String> callback);
+	public void serverUpdateLagersaldon(AsyncCallback<String> callback);
+	public void serverGetStatus(AsyncCallback<String> callback);
 
 }

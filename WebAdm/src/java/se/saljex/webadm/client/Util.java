@@ -39,10 +39,10 @@ public class Util {
 	}
 
 	public static String formatDate(java.sql.Date date) {
-		return date.toString();
+		return date==null ? "" : date.toString();
 	}
 	public static String formatDate(java.util.Date date) {
-		return date.toString();
+		return date==null ? "" : date.toString();
 	}
 
 
@@ -54,5 +54,16 @@ public class Util {
 		messageBox.setWidget(widget);
 		messageBox.center();
 		messageBox.show();
+	}
+
+	public static boolean isEmpty(String s) {
+		if (s==null) return true;
+		if (s.isEmpty()) return true;
+		return false;
+	}
+
+	public static String noNull(String s) {
+		if (s==null) return "";
+		return s;
 	}
 }

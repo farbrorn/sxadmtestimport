@@ -21,9 +21,9 @@ import se.saljex.webadm.client.rpcobject.SQLTableList;
  *
  * @author Ulf
  */
-public class OffertListaWidget extends FlowPanel implements HasData2Form<Kund>{
-	Offert2ListWidget o2 = new Offert2ListWidget();
-	Offert1ListWidget o1 = new Offert1ListWidget(o2);
+public class OrderListaWidget extends FlowPanel implements HasData2Form<Kund>{
+	Order2ListWidget o2 = new Order2ListWidget();
+	Order1ListWidget o1 = new Order1ListWidget(o2);
 
 	FlowPanel o2Widget = new FlowPanel();
 
@@ -36,7 +36,7 @@ public class OffertListaWidget extends FlowPanel implements HasData2Form<Kund>{
 	TextBox sokInput;
 	String previousSok=null;
 
-
+/*
 	Button epostBtn = new Button("Sänd som e-post", new ClickHandler() {
 
 		@Override
@@ -44,21 +44,29 @@ public class OffertListaWidget extends FlowPanel implements HasData2Form<Kund>{
 			showEpostSelect();
 		}
 	});
+*/
+	Button btnInfo = new Button("Info", new ClickHandler() {
+
+		@Override
+		public void onClick(ClickEvent event) {
+			showInfo();
+		}
+	});
 
 
-	public OffertListaWidget() {
+	public OrderListaWidget() {
 		this(true, false);
 	}
-	public OffertListaWidget(boolean loadInitialData) {
+	public OrderListaWidget(boolean loadInitialData) {
 		this(loadInitialData, false);
 	}
 
-	public OffertListaWidget(boolean loadInitialData, boolean showSok) {
-		if(loadInitialData) o1.setSearch("kundnr", "0", "offertnr", SQLTableList.COMPARE_NONE, SQLTableList.SORT_DESCANDING);
+	public OrderListaWidget(boolean loadInitialData, boolean showSok) {
+		if(loadInitialData) o1.setSearch("kundnr", "0", "ordernr", SQLTableList.COMPARE_NONE, SQLTableList.SORT_DESCANDING);
 
 		this.setHeight("100%");
-		o1.setHeight("45%");
-		o2.setHeight("45%");
+		o1.setHeight("40%");
+		o2.setHeight("40%");
 		o1.setWidth("65em");
 		o2.setWidth("65em");
 		o1.addStyleName(Const.Style_BoxedScroll);
@@ -91,25 +99,25 @@ public class OffertListaWidget extends FlowPanel implements HasData2Form<Kund>{
 
 
 		o2Widget.add(o2);
-		o2Widget.add(epostBtn);
+//		o2Widget.add(epostBtn);
 
 		add(o1);
 		add(o2Widget);
-
+		add(btnInfo);
 	}
 
 	private void sok() {
-		if (Util.isEmpty(sokInput.getText())) o1.setSearch("kundnr", "0", "offertnr", SQLTableList.COMPARE_NONE, SQLTableList.SORT_DESCANDING);
-		else o1.getPageLoad().setSearch("offertnr", sokInput.getText(), "offertnr", SQLTableList.COMPARE_SUPERSOK, SQLTableList.SORT_DESCANDING);
+		if (Util.isEmpty(sokInput.getText())) o1.setSearch("kundnr", "0", "ordernr", SQLTableList.COMPARE_NONE, SQLTableList.SORT_DESCANDING);
+		else o1.getPageLoad().setSearch("ordernr", sokInput.getText(), "ordernr", SQLTableList.COMPARE_SUPERSOK, SQLTableList.SORT_DESCANDING);
 	}
 
 	@Override
 	public void data2Form(Kund data) {
-		setSearch("kundnr", data.nummer, "offertnr", SQLTableList.COMPARE_EQUALS, SQLTableList.SORT_DESCANDING);
+		setSearch("kundnr", data.nummer, "ordernr", SQLTableList.COMPARE_EQUALS, SQLTableList.SORT_DESCANDING);
 	}
 
 
-	private void showEpostSelect() {
+/*	private void showEpostSelect() {
 
 		epostSelect = new KundEpostSelectWidget(o1.getSelectedObject().kundnr, new SendOffertEpostHandler("00", o1.getSelectedObject().offertnr, messagePanel), new HasRequestCompleted() {
 
@@ -123,8 +131,16 @@ public class OffertListaWidget extends FlowPanel implements HasData2Form<Kund>{
 		epostSelect.center();
 		epostSelect.show();
 	}
+*/
+	protected Order1ListWidget getO1() { return o1; }
 
-	protected Offert1ListWidget getO1() { return o1; }
+	private void showInfo() {
+		MessagePopupPanel m = new MessagePopupPanel(true);
+		m.setHeight("70%");
+		OrderInfoWidget oi = new OrderInfoWidget();
+		oi.showOrder(o1.getSelectedObject());
+		m.showWidget(oi.getWidget());
+	}
 
 	public void setSearch(String sokField, String sokString, String sortField, int sokTyp, int sortOrder) {
 		o2.getPageLoad().getBufferList().clear();	//Rensar innehåll så det inte visas felaktig vid uppdatering av O1 utan sökresultat

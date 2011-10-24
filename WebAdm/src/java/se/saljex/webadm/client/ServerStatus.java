@@ -20,6 +20,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.ui.HTML;
 import se.saljex.sxserver.tables.TableArtikel;
 
 /**
@@ -28,53 +29,41 @@ import se.saljex.sxserver.tables.TableArtikel;
  * @author Ulf
  */
 public class ServerStatus extends VerticalPanel {
-    private Label lblServerReply = new Label();
-    private TextBox txtUserInput = new TextBox();
-    private Button btnSend = new Button("Send to server");
+      final AsyncCallback<String> callback = new AsyncCallback<String>() {
+            public void onSuccess(String result) {
+                addResponse(result);
+            }
+
+            public void onFailure(Throwable caught) {
+                addResponse("Exception: " + caught.toString() + " " + caught.getMessage());
+            }
+        };
+
+	private final VerticalPanel responsePanel = new VerticalPanel();
+    private final Button btnUpdateArtikel = new Button("Uppdatera Webartiklar", new ClickHandler() {
+		@Override		public void onClick(ClickEvent event) { addResponse("Startar UpdateWebArtikel");        getService().serverUpdateWebArtikel(callback);	}	});
+    private final Button btnUpdateArtikelTrad = new Button("Uppdatera Webartikelträd", new ClickHandler() {
+		@Override		public void onClick(ClickEvent event) { addResponse("Startar UpdateWebArtikelTräd");        getService().serverUpdateWebArtikelTrad(callback);	}	});
+    private final Button btnUpdateLagersaldo = new Button("Uppdatera Lagersaldo", new ClickHandler() {
+		@Override		public void onClick(ClickEvent event) { addResponse("Startar UpdateLagersaldon");        getService().serverUpdateLagersaldon(callback);	}	});
+    private final Button btnGetStatus = new Button("Status", new ClickHandler() {
+		@Override		public void onClick(ClickEvent event) {  addResponse("Startar GetStatus");       getService().serverGetStatus(callback);	}	});
     
     public ServerStatus() {
-        add(new Label("Input your text: "));
-        add(txtUserInput);
-        add(btnSend);
-        add(lblServerReply);
+        add(btnUpdateArtikel);
+		add(btnUpdateArtikelTrad);
+		add(btnUpdateLagersaldo);
+		add(btnGetStatus);
+        add(responsePanel);
+	}
 
-        // Create an asynchronous callback to handle the result.
-        final AsyncCallback<String> callback = new AsyncCallback<String>() {
-            public void onSuccess(String result) {
-                lblServerReply.setText(result);
-            }
+	private void addResponse(String s) {
+		responsePanel.add(new HTML(s,true));
+	}
 
-            public void onFailure(Throwable caught) {
-                lblServerReply.setText("Communication failed");
-            }
-        };
-      final AsyncCallback<String> callbackArt = new AsyncCallback<String>() {
-            public void onSuccess(String result) {
-                lblServerReply.setText("Artnr: " + result);
-            }
-
-            public void onFailure(Throwable caught) {
-                lblServerReply.setText("Communication failed");
-            }
-        };
-
-        // Listen for the button clicks
-        btnSend.addClickHandler(new ClickHandler(){
-            public void onClick(ClickEvent event) {
-                // Make remote call. Control flow will continue immediately and later
-                // 'callback' will be invoked when the RPC completes.
-//                getService().myMethod(txtUserInput.getText(), callback);
-                getService().getArtikel(txtUserInput.getText(), callbackArt);
-            }
-        });
-    }
-    
     public static GWTServiceAsync getService() {
-        // Create the client proxy. Note that although you are creating the
-        // service interface proper, you cast the result to the asynchronous
-        // version of the interface. The cast is always safe because the
-        // generated proxy implements the asynchronous interface automatically.
-
         return GWT.create(GWTService.class);
     }
+
+
 }

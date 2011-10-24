@@ -24,7 +24,7 @@ import se.saljex.webadm.client.rpcobject.SQLTableList;
 public class KundresListWidget extends ListWidget<Kundres> implements HasData2Form<Kund> {
 	public KundresListWidget(HasFormUpdater<Kundres> formUpdat, HasShowMessage showError) {
 
-		super(formUpdat, new PageLoadKundres(3, 50, 100, null), showError);
+		super(formUpdat, new PageLoad<Kundres>(new Kundres(), 3, 50, 100, null), showError);
 	}
 
 	@Override
