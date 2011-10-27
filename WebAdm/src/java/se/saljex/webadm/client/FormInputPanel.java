@@ -9,13 +9,13 @@ import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.KeyDownHandler;
 import java.util.ArrayList;
-import se.saljex.webadm.client.rpcobject.Kund;
+import se.saljex.webadm.client.rpcobject.IsSQLTable;
 
 /**
  *
  * @author Ulf
  */
-public class FormInputPanel {
+public class FormInputPanel<T extends IsSQLTable> {
 
 	private ArrayList<FormWidgetInterface> focusWidgets = new ArrayList();
 	public FormInputPanel() {
@@ -41,14 +41,14 @@ public class FormInputPanel {
 
 	}
 
-	public void set(Kund value) {
+	public void set(T value) {
 		for (FormWidgetInterface w : focusWidgets) {
 			w.getFormWidgetGetSet().set(value);
 		}
 	}
-	public void get(Kund kund) {
+	public void get(T value) {
 		for (FormWidgetInterface w : focusWidgets) {
-			w.getFormWidgetGetSet().get(kund);
+			w.getFormWidgetGetSet().get(value);
 		}
 	}
 

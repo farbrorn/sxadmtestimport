@@ -41,8 +41,9 @@ public class SxMenuBar extends MenuBar {
 
 		//Underhåll
 		add(menuUnderhall, "Artikel", new Command() {	@Override	public void execute() {	windowHandler.addWindow(new WelcomeWindow(windowHandler, "Välkommen"));	}	});
-		add(menuUnderhall,"Kund", new Command() {	@Override	public void execute() {	windowHandler.addWindow(new KundForm(windowHandler, "Kunder"));	}	});
+//		add(menuUnderhall,"Kund", new Command() {	@Override	public void execute() {	windowHandler.addWindow(new KundForm(windowHandler, "Kunder"));	}	});
 		add(menuUnderhall,"Kundlista", new Command() {	@Override	public void execute() {	windowHandler.addWindow(new KundInfoMainWidget(), "Kund");	}	});
+		add(menuUnderhall,"Artikellista", new Command() {	@Override	public void execute() {	windowHandler.addWindow(new ArtikelInfoMainWidget(), "Artikel");	}	});
 		add(menuUnderhall,"Orderlista", new Command() {	@Override	public void execute() {	windowHandler.addWindow(new OrderListaWidget(true,true), "Order");	}	});
 		add(menuUnderhall,"Offertlista", new Command() {	@Override	public void execute() {	windowHandler.addWindow(new OffertListaWidget(true,true), "Offert");	}	});
 		add(menuUnderhall,"Fakturalista", new Command() {	@Override	public void execute() {	windowHandler.addWindow(new FakturaListWidget(true,true), "Fakturor");	}	});

@@ -53,7 +53,7 @@ public class KundFormWidget extends FlowPanel implements HasFormUpdater<Kund>{
 	ScrollPanel listScroll = new ScrollPanel(listPanel);
 
 	//mainPanel
-	FormInputPanel focusForm = new FormInputPanel();
+	FormInputPanel<Kund> focusForm = new FormInputPanel();
 	private FormTextBox nummer = new FormTextBox(new FormWidgetGetSet<Kund>() {
 		@Override	void get(Kund table) {	table.nummer = nummer.getSQLTableValue();}
 		@Override	void set(Kund table) {	nummer.setSQLTableValue(table.nummer);	}
