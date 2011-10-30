@@ -5,28 +5,19 @@
 
 package se.saljex.webadm.client;
 
-import se.saljex.webadm.client.constants.KeyCodes;
+import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.KeyDownHandler;
-import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.ScrollPanel;
-import com.google.gwt.user.client.ui.VerticalPanel;
 import se.saljex.webadm.client.rpcobject.Kund;
-import se.saljex.webadm.client.rpcobject.SQLTableList;
-import se.saljex.webadm.server.SQLTableHandler;
 
 /**
  *
  * @author Ulf
  */
-public class KundFormWidget extends FlowPanel implements HasFormUpdater<Kund>{
+public class KundFormWidget extends TableFormWidget<Kund> {
 
-	private PageLoad<Kund> pageLoad;
 	public KundFormWidget() {
 		this(null);
 	}
@@ -37,23 +28,8 @@ public class KundFormWidget extends FlowPanel implements HasFormUpdater<Kund>{
 
 
 
-//	FlexTable mainGrid = new FlexTable();
-	VerticalPanel mainVp = new VerticalPanel();
-	Grid kundHp = new Grid(1, 2);
-
-	Kund originalSQLTableRow;
-
-
-	Button closBtn = new Button("Stäng detta fönster");
-	Label vlabel = new Label();
-	DoubleTextBox nt = new DoubleTextBox();
-	VerticalPanel mainPanel = new VerticalPanel();
-	VerticalPanel listPanel = new VerticalPanel();
-	ScrollPanel mainScroll = new ScrollPanel(mainPanel);
-	ScrollPanel listScroll = new ScrollPanel(listPanel);
 
 	//mainPanel
-	FormInputPanel<Kund> focusForm = new FormInputPanel();
 	private FormTextBox nummer = new FormTextBox(new FormWidgetGetSet<Kund>() {
 		@Override	void get(Kund table) {	table.nummer = nummer.getSQLTableValue();}
 		@Override	void set(Kund table) {	nummer.setSQLTableValue(table.nummer);	}
@@ -288,32 +264,10 @@ public class KundFormWidget extends FlowPanel implements HasFormUpdater<Kund>{
 		@Override	void set(Kund table) {	samfakgrans.setSQLTableValue(table.samfakgrans);	}
 	});
 
-	final KeyDownHandler standardKeyDownHandler = new KeyDownHandler() {
-			@Override
-			public void onKeyDown(KeyDownEvent event) {
-				int code=event.getNativeKeyCode();
-				if (pageLoad!=null) {
-					if (code==KeyCodes.F7 && !event.isAnyModifierKeyDown()) pageLoad.previous();
-					else if(code == KeyCodes.F8 && !event.isAnyModifierKeyDown()) pageLoad.next();
-				}
-			}
-		};
-
-
-	private void addInput(FlexTable ft, String label, FormWidgetInterface widget) {
-		int row = ft.getRowCount();
-		ft.setWidget(row, 0, new Label(label));
-		ft.setWidget(row, 1, widget.asWidget());
-		focusForm.addFocusWidget(widget);
-
-	}
-
-	private void addInputWithStandardKeyDownHandler(FlexTable ft, String label, FormWidgetInterface widget) {
-		addInput(ft, label, widget);
-		widget.addKeyDownHandler(standardKeyDownHandler);
-	}
 
 	private void init() {
+		add(saveBtn);
+
 		FlexTable inputTable = new FlexTable();
 		inputTable.getRowFormatter().setVerticalAlign(0, HasVerticalAlignment.ALIGN_TOP);
 		FlexTable groupPanel;
@@ -413,13 +367,6 @@ public class KundFormWidget extends FlowPanel implements HasFormUpdater<Kund>{
 		nettolst.addKeyDownHandler(new KeyDownHandler() {@Override	public void onKeyDown(KeyDownEvent event) {	doSetKeyCodeSearch("nettolst", nettolst.getValue(), event);		}	});
 	}
 
-	private void doSetKeyCodeSearch(String field, String value, KeyDownEvent event) {
-		if (pageLoad!=null) {
-			int code=event.getNativeKeyCode();
-			if (code==KeyCodes.F9 && !event.isAnyModifierKeyDown()) pageLoad.setSearch(field, value, field, SQLTableList.COMPARE_GREATER_EQUALS , SQLTableList.SORT_ASCENDING);
-			else if(code == KeyCodes.F5 && !event.isAnyModifierKeyDown()) pageLoad.setSearch(field, value, "nummer", SQLTableList.COMPARE_SUPERSOK, SQLTableList.SORT_ASCENDING);
-		}
-	}
 
 	@Override
 	public Kund form2Data() {

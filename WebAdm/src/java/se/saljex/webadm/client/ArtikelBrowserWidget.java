@@ -24,7 +24,7 @@ public class ArtikelBrowserWidget extends ListWidget<Artikel> {
 
 	@Override
 	void addListColumns(CellTable<Artikel> cellTable) {
-		getCellTable().addColumnStyleName(0, Const.Style_S13);
+		getCellTable().addColumnStyleName(0, Const.Style_S10);
 		getCellTable().addColumnStyleName(1, Const.Style_S20);
 
 		TextColumn<Artikel> c1 = new TextColumn<Artikel>() {

@@ -23,6 +23,7 @@ import se.saljex.webadm.client.rpcobject.ErrorConvertingFromResultsetException;
 import se.saljex.webadm.client.rpcobject.IsSQLTable;
 import se.saljex.webadm.client.rpcobject.Offert2;
 import se.saljex.webadm.client.rpcobject.SQLTableList;
+import se.saljex.webadm.client.rpcobject.ServerErrorException;
 
 /**
  *
@@ -46,6 +47,16 @@ public class SQLTableHandler {
 		}
 		return sqlField.toString();
 	}
+
+	//Hämtar värdet från angiven column
+	public static Object getColumnValue(IsSQLTable table, String column) throws IllegalAccessException {
+		Field[] fields = table.getClass().getFields();
+		for (Field f : fields) {
+			if (f.getName().equals(column)) return f.get(table);
+		}
+		throw new IllegalAccessException("Kolumn " + column + " finns inte i tabellen.");
+	}
+
 
 	public static String getSelectStatement(IsSQLTable o) {
 		return "select " + getSelectColumns(o.getClass()) + " from " + o.getSQLTableName();
@@ -206,6 +217,102 @@ public class SQLTableHandler {
 			} catch (IllegalAccessException e) {}
 		}
 		return list;
+	}
+
+
+	public static void  updateTableRow(Connection con, String anvandare, IsSQLTable newRow, IsSQLTable oldRow) throws ServerErrorException, SQLException {
+		try {
+			if (newRow != null) {
+				if (oldRow== null) {
+					//OldRow är tom - indikerar en insert
+					throw new ServerErrorException("Insert är inte implementerat");
+				} else {	//Vi har två issqltable-object
+					if(newRow.getClass().getCanonicalName().equals(oldRow.getClass().getCanonicalName())) {	//Kolla så det är samma typ
+						StringBuilder updateSB = new StringBuilder();
+						StringBuilder whereSB = new StringBuilder();
+						ArrayList<Object> updateParams = new ArrayList();
+						ArrayList<Object> whereParams = new ArrayList();
+						Object newValue;
+						Object oldValue;
+
+						//Tillåt inte ändring av primary key, ej heller null primary key
+						String[] pKeys = newRow.getPrimaryKeyLabels();
+						for (String pKey : pKeys) {
+							newValue = getColumnValue(newRow, pKey);
+							oldValue = getColumnValue(oldRow, pKey);
+
+							//Lägg till wheresats på primary key
+							if (whereSB.length()>0) whereSB.append(" and ");
+							whereSB.append(pKey+" = ?");
+							whereParams.add(oldValue);
+
+							//Kolla så värdena på primary key är giltiga
+							if (newValue != null) {
+								if (!newValue.equals(oldValue))  throw new ServerErrorException("Kan inte ändra primary key");
+							} else {
+								throw new ServerErrorException("Kan inte ändra primary key till null");
+							}
+						}
+
+						// Gå nu igenom vilka kolumner som är ändrade och lägg till dem i sql update.
+						// Lägg till gamla värdet i sql where för att se så ingen annan har uppdaterat under tiden
+						Field[] fields = newRow.getClass().getFields();
+						for (Field field : fields) {
+							newValue = field.get(newRow);
+							oldValue = field.get(oldRow);
+							//Kolumnen ska uppdateras om den har ändrats
+							if ((newValue!=null && !newValue.equals(oldValue)) || (newValue==null && oldValue!=null)) {
+								if (updateSB.length()>0) updateSB.append(", ");
+								updateSB.append(field.getName());
+								if (newValue==null) {
+									updateSB.append("=null");
+								} else {
+									updateSB.append("=?");
+									if (newValue instanceof String) newValue=SXUtil.rightTrim((String)newValue);	//Ta bort avslutande blanksteg
+									updateParams.add(newValue);
+								}
+
+								if (whereSB.length()>0) whereSB.append(" and ");
+
+								whereSB.append(field.getName());
+								if (oldValue==null) {
+									whereSB.append(" is null");
+								} else {
+									whereSB.append("=?");
+									whereParams.add(oldValue);
+								}
+
+							}
+
+						}
+
+						if (updateSB.length()>0) {
+							String sql = " update " + newRow.getSQLTableName() + " set " + updateSB.toString() + " where " + whereSB.toString();
+							updateParams.addAll(whereParams);
+							PreparedStatement stm = con.prepareStatement(sql);
+
+							int cn=0;
+							for (Object p : updateParams) {
+								cn++;
+								stm.setObject(cn, p);
+							}
+							int result = stm.executeUpdate();
+							if (result > 1) throw new ServerErrorException("Internt serverfel: Servern försöker uppdatera fler kunder.");
+							if (result < 1) throw new ServerErrorException("Kunde inte spara. Kunden kan vara ändrad av annan användare. Prova att söka kunden på nytt, gör ändringarna och spara igen");
+	//	System.out.print(sql);
+	//	for (Object o : updateParams) { System.out.print(o.toString()); }
+
+						}
+
+					} else {
+						throw new ServerErrorException("Hopblandning av objekt. Försöker uppdatera " + oldRow.getClass().getCanonicalName() + " med " + newRow.getClass().getCanonicalName());
+					}
+				}
+			} else {
+				throw new ServerErrorException("Raden med nya värden är tom. Kan inte uppdatera.");
+			}
+		} catch(IllegalAccessException e) {throw new ServerErrorException("IllegalAcces: " + e.getMessage());}
+
 	}
 
 }

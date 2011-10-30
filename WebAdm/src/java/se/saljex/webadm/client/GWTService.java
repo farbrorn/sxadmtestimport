@@ -27,7 +27,7 @@ public interface GWTService extends RemoteService {
 	public SQLTableList getTableList(IsSQLTable table, Integer sokString, String sokField, String sortField, int compareType, int sortOrder, int offset, int limit) throws ServerErrorException;
 	public SQLTableList getTableList(IsSQLTable table, java.sql.Date sokString, String sokField, String sortField, int compareType, int sortOrder, int offset, int limit) throws ServerErrorException;
 	public SQLTableList getTableList(IsSQLTable table, Double sokString, String sokField, String sortField, int compareType, int sortOrder, int offset, int limit) throws ServerErrorException;
-	public void putKund(Kund newValues, Kund oldValues) throws ServerErrorException;
+	public void putTableRow(String anvandare, IsSQLTable newValues, IsSQLTable oldValues) throws ServerErrorException;
 	public void deleteKund(String kundnr) throws ServerErrorException;
 	public ArrayList<Epost> getKundEpostLista(String kundnr) throws ServerErrorException;
 	public Integer sendOffertEpost(String anvandare, String epost, int id) throws ServerErrorException;

@@ -6,6 +6,7 @@
 package se.saljex.webadm.server;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.net.URLEncoder;
 import java.sql.Connection;
@@ -25,6 +26,7 @@ import se.saljex.sxserver.tables.TableKund;
 import se.saljex.sxserver.websupport.GoogleChartHandler;
 
 import se.saljex.webadm.client.GWTService;
+import se.saljex.webadm.client.rpcobject.Artikel;
 import se.saljex.webadm.client.rpcobject.Epost;
 import se.saljex.webadm.client.rpcobject.ErrorConvertingFromResultsetException;
 import se.saljex.webadm.client.rpcobject.IsSQLTable;
@@ -199,100 +201,114 @@ public class GWTServiceImpl extends RemoteServiceServlet implements GWTService {
 
 
 
-	public void putKund(Kund newValues, Kund oldValues) throws ServerErrorException {
+	@Override
+	public void putTableRow(String anvandare, IsSQLTable newValues, IsSQLTable oldValues) throws ServerErrorException {
 		ensureLoggedIn();
-		Object newObject;
-		Object oldObject;
-		StringBuilder updateSB = new StringBuilder();
-		StringBuilder whereSB = new StringBuilder();
-		ArrayList<Object> updateParams = new ArrayList();
-		ArrayList<Object> whereParams = new ArrayList();
 		Connection con=null;
-
-		//Tillåt inte ändring av kundnummer
-		if (newValues.nummer==null || !newValues.nummer.equals(oldValues.nummer)) throw new ServerErrorException("Kan inte ändra kundnummer. Inget sparat");
-
-		//Tillåt inte tomt kundnr
-		if (newValues.nummer==null || newValues.nummer.isEmpty()) throw new ServerErrorException("Kundnumret får inte vara tomt. Inget sparat.");
 
 		try {
 			con = sxadm.getConnection();
-			if (oldValues==null) {			//Vi har en insert av ny kund
-				throw new ServerErrorException("Ny kund r inte implementerat...");
-			} else { //Vi har en update
-				boolean doUpdate;
-				Field[] fields = Kund.class.getFields();
-
-				//Sätt upp primary key
-				whereSB.append("nummer=?");
-				whereParams.add(oldValues.nummer);
-
-				for (Field field : fields) {
-					doUpdate = false;
-					newObject = field.get(newValues);
-					oldObject = field.get(oldValues);
-//System.out.print(field.getName());
-					if (newObject==null) {
-						if (oldObject!=null) { doUpdate = true; }
-					} else {
-						if (!newObject.equals(oldObject)) {
-							doUpdate = true;
-						//System.out.print("--" + field.getName() + " old " +
-						//		(oldObject==null ? "null" : oldObject.toString()) + " new " +
-						//		(newObject==null ? "null" : newObject.toString()));
-						}
-
-					}
-
-
-					if (doUpdate) {
-						if (updateSB.length()>0) updateSB.append(", ");
-						updateSB.append(field.getName());
-						if (newObject==null) {
-							updateSB.append("=null");
-						} else {
-							updateSB.append("=?");
-							if (newObject instanceof String) newObject=SXUtil.rightTrim((String)newObject);	//Ta bort avslutande blanksteg
-							updateParams.add(newObject);
-						}
-
-						if (whereSB.length()>0) whereSB.append(" and ");
-
-						whereSB.append(field.getName());
-						if (oldObject==null) {
-							whereSB.append(" is null");
-						} else {
-							whereSB.append("=?");
-							whereParams.add(oldObject);
-						}
-					}
-				}
-
-				if (updateSB.length()>0) {
-					String sql = " update " + newValues.getSQLTableName() + " set " + updateSB.toString() + " where " + whereSB.toString();
-	//System.out.print(sql);
-					updateParams.addAll(whereParams);
-					PreparedStatement stm = con.prepareStatement(sql);
-
-					int cn=0;
-					for (Object p : updateParams) {
-						cn++;
-						stm.setObject(cn, p);
-					}
-					int result = stm.executeUpdate();
-					if (result > 1) throw new ServerErrorException("Internt serverfel: Servern försöker uppdatera fler kunder.");
-					if (result < 1) throw new ServerErrorException("Kunde inte spara. Kunden kan vara ändrad av annan användare. Prova att söka kunden på nytt, gör ändringarna och spara igen");
-				}
-			}
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
+			SQLTableHandler.updateTableRow(con, anvandare, newValues, oldValues);
 		} catch (SQLException e) {
 			e.printStackTrace();
 			throw new ServerErrorException("SQL-Fel");
 		} finally {
 			try { con.close(); } catch (Exception e) {}
-
 		}
+
+//		
+//		Object newObject;
+//		Object oldObject;
+//		StringBuilder updateSB = new StringBuilder();
+//		StringBuilder whereSB = new StringBuilder();
+//		ArrayList<Object> updateParams = new ArrayList();
+//		ArrayList<Object> whereParams = new ArrayList();
+//		Connection con=null;
+//
+//		//Tillåt inte ändring av kundnummer
+//		if (newValues.nummer==null || !newValues.nummer.equals(oldValues.nummer)) throw new ServerErrorException("Kan inte ändra kundnummer. Inget sparat");
+//
+//		//Tillåt inte tomt kundnr
+//		if (newValues.nummer==null || newValues.nummer.isEmpty()) throw new ServerErrorException("Kundnumret får inte vara tomt. Inget sparat.");
+//
+//		try {
+//			con = sxadm.getConnection();
+//			if (oldValues==null) {			//Vi har en insert av ny kund
+//				throw new ServerErrorException("Ny kund r inte implementerat...");
+//			} else { //Vi har en update
+//				boolean doUpdate;
+//				Field[] fields = Kund.class.getFields();
+//
+//				//Sätt upp primary key
+//				whereSB.append("nummer=?");
+//				whereParams.add(oldValues.nummer);
+//
+//				for (Field field : fields) {
+//					doUpdate = false;
+//					newObject = field.get(newValues);
+//					oldObject = field.get(oldValues);
+////System.out.print(field.getName());
+//					if (newObject==null) {
+//						if (oldObject!=null) { doUpdate = true; }
+//					} else {
+//						if (!newObject.equals(oldObject)) {
+//							doUpdate = true;
+//						//System.out.print("--" + field.getName() + " old " +
+//						//		(oldObject==null ? "null" : oldObject.toString()) + " new " +
+//						//		(newObject==null ? "null" : newObject.toString()));
+//						}
+//
+//					}
+//
+//
+//					if (doUpdate) {
+//						if (updateSB.length()>0) updateSB.append(", ");
+//						updateSB.append(field.getName());
+//						if (newObject==null) {
+//							updateSB.append("=null");
+//						} else {
+//							updateSB.append("=?");
+//							if (newObject instanceof String) newObject=SXUtil.rightTrim((String)newObject);	//Ta bort avslutande blanksteg
+//		 					updateParams.add(newObject);
+//						}
+//
+//						if (whereSB.length()>0) whereSB.append(" and ");
+//
+//						whereSB.append(field.getName());
+//						if (oldObject==null) {
+//							whereSB.append(" is null");
+//						} else {
+//							whereSB.append("=?");
+//							whereParams.add(oldObject);
+//						}
+//					}
+//				}
+//
+//				if (updateSB.length()>0) {
+//					String sql = " update " + newValues.getSQLTableName() + " set " + updateSB.toString() + " where " + whereSB.toString();
+//	//System.out.print(sql);
+//					updateParams.addAll(whereParams);
+//					PreparedStatement stm = con.prepareStatement(sql);
+//
+//					int cn=0;
+//					for (Object p : updateParams) {
+//						cn++;
+//						stm.setObject(cn, p);
+//					}
+//					int result = stm.executeUpdate();
+//					if (result > 1) throw new ServerErrorException("Internt serverfel: Servern försöker uppdatera fler kunder.");
+//					if (result < 1) throw new ServerErrorException("Kunde inte spara. Kunden kan vara ändrad av annan användare. Prova att söka kunden på nytt, gör ändringarna och spara igen");
+//				}
+//			}
+//		} catch (IllegalAccessException e) {
+//			e.printStackTrace();
+//		} catch (SQLException e) {
+//			e.printStackTrace();
+//			throw new ServerErrorException("SQL-Fel");
+//		} finally {
+//			try { con.close(); } catch (Exception e) {}
+//
+//		}
 
 	}
 
