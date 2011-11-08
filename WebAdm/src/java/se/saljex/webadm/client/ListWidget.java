@@ -24,12 +24,13 @@ import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import java.util.List;
 import se.saljex.webadm.client.rpcobject.IsSQLTable;
+import se.saljex.webadm.client.rpcobject.Kund;
 
 /**
  *
  * @author Ulf
  */
-public abstract class ListWidget<T extends IsSQLTable> extends ScrollPanel {
+public abstract class ListWidget<T extends IsSQLTable> extends ScrollPanel implements TableFormRowUpdatedInterface<T>{
 
 //	private  final CellList<T> cellList;
 private final CellTable<T> cellList;
@@ -40,6 +41,13 @@ private final CellTable<T> cellList;
 	protected final HasShowMessage showError;
 	private Anchor merAnchor  = new Anchor("Visa fler rader...");
 
+	@Override
+	public void onRowUpdated(T newRow, T oldRow) {
+		int id = listDataProvider.getList().indexOf(oldRow);
+		if (id>=0) {
+			listDataProvider.getList().set(id, newRow);
+		}
+	}
 	protected PageLoadCallback<T> callback = new PageLoadCallback<T>() {
 
 		@Override
@@ -76,7 +84,6 @@ cellList.addStyleName("sx-cellpanel");
 
 		listDataProvider = new ListDataProvider<T>();
 		listDataProvider.addDataDisplay(cellList);
-
 		pageLoad.setBufferList(listDataProvider.getList());
 		cellList.setSelectionModel(selectionModel);
 		pageLoad.setCellList(cellList);		//Anropas efter att setSelectionModel

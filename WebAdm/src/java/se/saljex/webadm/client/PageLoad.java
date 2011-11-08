@@ -13,6 +13,7 @@ import java.util.List;
 import se.saljex.webadm.client.rpcobject.IsSQLTable;
 import se.saljex.webadm.client.rpcobject.RPCBlockedException;
 import se.saljex.webadm.client.rpcobject.SQLTableList;
+import se.saljex.webadm.client.rpcobject.SqlSelectParameters;
 
 /**
  *
@@ -28,19 +29,20 @@ import se.saljex.webadm.client.rpcobject.SQLTableList;
 //	private int maxBufferSize;
 	private PageLoadCallback<T> callback;
 	private Integer currBufferPos=null;
-	private Integer currSortOrder=null;
+//	private Integer currSortOrder=null;
 	private List<T> currBuffer=new ArrayList();
 	private boolean blockRPC = false;
 	private boolean cancelPrefetch = false;
-	private String currSortField;
-	private String currSokField;
-	private String currSokString=null;
+//	private String currSortField;
+//	private String currSokField;
+//	private String currSokString=null;
 	private int currNextOffset=0;
 	private int currPreviousOffset=0;
-	private int currOriginalSokTyp=0;
-	protected boolean isSuperSok = false;
-	protected boolean isForwardOnly = false;
+//	private int currOriginalSokTyp=0;
+//	protected boolean isSuperSok = false;
+//	protected boolean isForwardOnly = false;
 	private AbstractHasData<T> hasData =null;
+	protected SqlSelectParameters currSqlSelectParameters=null;
 
 	public PageLoad(T tableObject, int pageSize, int prefetchPageSize, int maxBufferSize, PageLoadCallback<T> callback) {
 		this.tableObject=tableObject;
@@ -69,9 +71,13 @@ import se.saljex.webadm.client.rpcobject.SQLTableList;
 	}
 
 
-	protected void getList(GWTServiceAsync service, String sokString, String sokField, String sortField, int compareType, int sortOrder, int offset, int limit, AsyncCallback<SQLTableList> callback) {
-		service.getTableList(tableObject, sokString, sokField , sortField, compareType, sortOrder, offset, limit, callback);
+	protected void getList(GWTServiceAsync service, SqlSelectParameters sqlSelectParameters, int offset, int limit, AsyncCallback<SQLTableList> callback) {
+
+		service.getTableList(tableObject, sqlSelectParameters, offset, limit, callback);
 	}
+//	protected void getList(GWTServiceAsync service, String sokString, String sokField, String sortField, int compareType, int sortOrder, int offset, int limit, AsyncCallback<SQLTableList> callback) {
+//		service.getTableList(tableObject, sokString, sokField , sortField, compareType, sortOrder, offset, limit, callback);
+//	}
 
 	public void setCellList(final AbstractHasData<T> hasData) {
 		this.hasData = hasData;
@@ -87,29 +93,51 @@ import se.saljex.webadm.client.rpcobject.SQLTableList;
 		}
 	}
 
-	public void setSearch(String field, String sokString, boolean isSuperSok) {
-		setSearch(field, sokString, field, isSuperSok ? SQLTableList.COMPARE_SUPERSOK : SQLTableList.COMPARE_GREATER_EQUALS, SQLTableList.SORT_DESCANDING);
+//	public void setSearch(String field, String sokString, boolean isSuperSok) {
+//		setSearch(field, sokString, field, isSuperSok ? SQLTableList.COMPARE_SUPERSOK : SQLTableList.COMPARE_GREATER_EQUALS, SQLTableList.SORT_DESCANDING);
 
 //			getList(MainEntryPoint.getService(), sokString, currSokField , currSortField, isSuperSok ? SQLTableList.COMPARE_SUPERSOK : SQLTableList.COMPARE_GREATER_EQUALS, SQLTableList.SORT_DESCANDING, 0, pageSize, callbackSok);
-	}
+//	}
 
 	public void setSearch(String sokField, String sokString, String sortField, int sokTyp, int sortOrder) {
+		SqlSelectParameters sqlSelectParameters = new SqlSelectParameters();
+		sqlSelectParameters.addWhereParameter(SQLTableList.BOOL_CONNECTOR_NONE, 0, sokField, sokTyp, sokString,0);
+		sqlSelectParameters.addOrderByParameter(sortField, sortOrder);
+		setSearch(sqlSelectParameters);
+
+	}
+
+//	public void setSearch(String sokField, String sokString, String sortField, int sokTyp, int sortOrder) {
+//		if (blockRPC) {
+//			sendBlockedFailure();
+//		} else {
+//			blockRPC=true;
+//			cancelPrefetch=true;
+//			currSokField = sokField;
+//			currSortField = sortField;
+//			currSokString = sokString;
+//			currNextOffset=0;
+//			currPreviousOffset=0;
+//			currOriginalSokTyp=sokTyp;
+//			currSortOrder = sortOrder;
+//			this.isSuperSok=sokTyp==SQLTableList.COMPARE_SUPERSOK;
+//			this.isForwardOnly = sokTyp==SQLTableList.COMPARE_SUPERSOK || sokTyp == SQLTableList.COMPARE_NONE || sokTyp == SQLTableList.COMPARE_EQUALS;
+//
+//			getList(MainEntryPoint.getService(), sokString, currSokField , currSortField, currOriginalSokTyp, sortOrder, 0, pageSize, callbackSok);
+//		}
+//	}
+
+	public void setSearch(SqlSelectParameters sqlSelectParameters) {
 		if (blockRPC) {
 			sendBlockedFailure();
 		} else {
 			blockRPC=true;
 			cancelPrefetch=true;
-			currSokField = sokField;
-			currSortField = sortField;
-			currSokString = sokString;
+			currSqlSelectParameters=sqlSelectParameters;
 			currNextOffset=0;
 			currPreviousOffset=0;
-			currOriginalSokTyp=sokTyp;
-			currSortOrder = sortOrder;
-			this.isSuperSok=sokTyp==SQLTableList.COMPARE_SUPERSOK;
-			this.isForwardOnly = sokTyp==SQLTableList.COMPARE_SUPERSOK || sokTyp == SQLTableList.COMPARE_NONE || sokTyp == SQLTableList.COMPARE_EQUALS;
 
-			getList(MainEntryPoint.getService(), sokString, currSokField , currSortField, currOriginalSokTyp, sortOrder, 0, pageSize, callbackSok);
+			getList(MainEntryPoint.getService(), sqlSelectParameters, 0, pageSize, callbackSok);
 		}
 	}
 
@@ -150,32 +178,34 @@ import se.saljex.webadm.client.rpcobject.SQLTableList;
 			if (hasData!= null) hasData.getSelectionModel().setSelected(currBuffer.get(currBufferPos), true); else
 			callback.onRowUpdate(currBuffer.get(currBufferPos));
 		} else {
-			if (!getPreviousBufferPage()) sendBlockedFailure();
-			cancelPrefetch=true;
+//			if (!getPreviousBufferPage()) sendBlockedFailure();
+//			cancelPrefetch=true;
 		}
 
 	}
 
-	private boolean getPreviousBufferPage() {
-		if (isSuperSok || isForwardOnly) { callback.onRowUpdate(null); return true; }
-		if (blockRPC) return false;
-		blockRPC=true;
-		int sort = currSortOrder==SQLTableList.SORT_ASCENDING ? SQLTableList.SORT_DESCANDING : SQLTableList.SORT_ASCENDING;
-		getList(MainEntryPoint.getService(), currSokString, currSokField , currSortField, SQLTableList.COMPARE_LESS, sort, currPreviousOffset, pageSize, callbackPreviousPage);
-		return true;
-	}
+//	private boolean getPreviousBufferPage() {
+//		if (isSuperSok || isForwardOnly) { callback.onRowUpdate(null); return true; }
+//		if (blockRPC) return false;
+//		blockRPC=true;
+//		int sort = currSortOrder==SQLTableList.SORT_ASCENDING ? SQLTableList.SORT_DESCANDING : SQLTableList.SORT_ASCENDING;
+//		getList(MainEntryPoint.getService(), currSokString, currSokField , currSortField, SQLTableList.COMPARE_LESS, sort, currPreviousOffset, pageSize, callbackPreviousPage);
+//		return true;
+//	}
 
 	private boolean getNextBufferPage() {
 		if (blockRPC) return false;
 		blockRPC=true;
-		getList(MainEntryPoint.getService(), currSokString, currSokField , currSortField, currOriginalSokTyp, currSortOrder, currNextOffset, pageSize, callbackNextPage);
+		getList(MainEntryPoint.getService(), currSqlSelectParameters, currNextOffset, pageSize, callbackNextPage);
+//		getList(MainEntryPoint.getService(), currSokString, currSokField , currSortField, currOriginalSokTyp, currSortOrder, currNextOffset, pageSize, callbackNextPage);
 		return true;
 
 	}
 
 	public boolean prefetchNextBufferPage() {
 		if (cancelPrefetch || prefetchPageSize == 0) return false;		//Strunta i prefetch om vi inte har satt prefetchBuuferSize
-		getList(MainEntryPoint.getService(), currSokString, currSokField , currSortField, currOriginalSokTyp, currSortOrder, currNextOffset, prefetchPageSize, callbackPrefetchNextPage);
+		getList(MainEntryPoint.getService(), currSqlSelectParameters, currNextOffset, prefetchPageSize, callbackPrefetchNextPage);
+//		getList(MainEntryPoint.getService(), currSokString, currSokField , currSortField, currOriginalSokTyp, currSortOrder, currNextOffset, prefetchPageSize, callbackPrefetchNextPage);
 		return true;
 	}
 
@@ -193,6 +223,7 @@ import se.saljex.webadm.client.rpcobject.SQLTableList;
 		}
 
 		public void onFailure(Throwable caught) {
+DebugMessagePanel.addMessage("CallbackSok - OnFailure -" + caught.getMessage() + " - " + caught.toString() );
 			blockRPC=false;
 			callback.onFailure(caught);
 		}

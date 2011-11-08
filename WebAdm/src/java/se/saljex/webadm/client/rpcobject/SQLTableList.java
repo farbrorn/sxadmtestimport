@@ -23,20 +23,25 @@ public class SQLTableList<T extends IsSQLTable> implements IsSerializable {
 	public static final int COMPARE_GREATER_EQUALS = 3;
 	public static final int COMPARE_EQUALS = 4;
 	public static final int COMPARE_SUPERSOK = 5;
-	public static final int COMPARE_NONE = 6;
+	public static final int COMPARE_NOTEQUALS = 6;
+	public static final int COMPARE_NONE = 7;
 
+	public static final int BOOL_CONNECTOR_NONE = 0;
+	public static final int BOOL_CONNECTOR_AND = 1;
+	public static final int BOOL_CONNECTOR_OR = 2;
 
 	public SQLTableList() {
 	}
 
 	public ArrayList<T> lista = new ArrayList();
-	public String sokString = null;
+//	public String sokString = null;
 	public Integer offset = null;	//Offset in i resultsetet
 	public Integer limit = null;	//Max antal rader returnerade
 	public Boolean hasMoreRows = null; //Sökfrågan har fler resultatrader
-	public int sortField;
-	public int sokField;
-	public int sortOrder;
-	public int compareType;
+//	public int sortField;
+//	public int sokField;
+//	public int sortOrder;
+//	public int compareType;
+	public SqlSelectParameters sqlSelectParameters = null;
 
 }

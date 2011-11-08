@@ -12,6 +12,7 @@ import se.saljex.webadm.client.rpcobject.Kund;
  * @author Ulf
  */
 public class KundInfoSheetWidget extends InfoSheetWidget<Kund>{
+		KundFormWidget kundForm;
 
 
 	public KundInfoSheetWidget() {
@@ -22,9 +23,11 @@ public class KundInfoSheetWidget extends InfoSheetWidget<Kund>{
 		super(pageLoad);
 	}
 
+	public KundFormWidget getForm() { return kundForm; }
+
+
 	@Override
 	protected void setup() {
-		KundFormWidget kundForm;
 		KundresListWidget kundresListWidget = new KundresListWidget(null, null);
 		OffertListaWidget offertListWidget = new OffertListaWidget(false);
 		OrderListaWidget orderListWidget = new OrderListaWidget(false);

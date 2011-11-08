@@ -27,6 +27,7 @@ public class KundInfoMainWidget extends FlowPanel implements HasFormUpdater<Kund
 		sheet.addStyleName("sx-float-left");
 		kunList.addStyleName("sx-float-left");
 		add(sheet);
+		sheet.getForm().addTableRowUpdatedListener(kunList.getBrowserWidget());
 	}
 
 	@Override

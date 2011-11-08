@@ -35,6 +35,7 @@ import se.saljex.webadm.client.rpcobject.Kund;
 import se.saljex.webadm.client.rpcobject.NotLoggedInException;
 import se.saljex.webadm.client.rpcobject.Order1;
 import se.saljex.webadm.client.rpcobject.SQLTableList;
+import se.saljex.webadm.client.rpcobject.SqlSelectParameters;
 
 /**
  *
@@ -167,6 +168,14 @@ public class GWTServiceImpl extends RemoteServiceServlet implements GWTService {
 		SQLTableList<IsSQLTable> tableList = new SQLTableList<IsSQLTable>();
 		SQLTableGetList g = new SQLTableGetList(sxadm);
 		g.fillList(tableList, table, sokString.toString(), sokField, sortField, compareType, sortOrder, offset, limit);
+		return tableList;
+	}
+
+	public SQLTableList<IsSQLTable> getTableList(IsSQLTable table, SqlSelectParameters sqlSelectParameters, int offset, int limit) throws ServerErrorException{
+		ensureLoggedIn();
+		SQLTableList<IsSQLTable> tableList = new SQLTableList<IsSQLTable>();
+		SQLTableGetList g = new SQLTableGetList(sxadm);
+		g.fillList(tableList, table, sqlSelectParameters, offset, limit);
 		return tableList;
 	}
 

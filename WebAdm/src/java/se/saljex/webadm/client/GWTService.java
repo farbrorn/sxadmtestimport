@@ -13,6 +13,7 @@ import se.saljex.webadm.client.rpcobject.IsSQLTable;
 import se.saljex.webadm.client.rpcobject.Kund;
 import se.saljex.webadm.client.rpcobject.SQLTableList;
 import se.saljex.webadm.client.rpcobject.ServerErrorException;
+import se.saljex.webadm.client.rpcobject.SqlSelectParameters;
 
 /**
  *
@@ -38,5 +39,6 @@ public interface GWTService extends RemoteService {
 	public String serverUpdateWebArtikelTrad() throws ServerErrorException;
 	public String serverUpdateLagersaldon() throws ServerErrorException;
 	public String serverGetStatus() throws ServerErrorException;
+	public SQLTableList<IsSQLTable> getTableList(IsSQLTable table, SqlSelectParameters sqlSelectParameters, int offset, int limit) throws ServerErrorException;
 
 }

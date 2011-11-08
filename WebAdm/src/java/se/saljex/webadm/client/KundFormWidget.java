@@ -370,7 +370,7 @@ public class KundFormWidget extends TableFormWidget<Kund> {
 
 	@Override
 	public Kund form2Data() {
-		Kund kund = new Kund(originalSQLTableRow);
+		Kund kund = new Kund(originalSQLTableRow);		//Skapa den nya från originalet eftersom den kan innehålla kolumenr som inte finns med i formen
 		focusForm.get(kund);
 		return kund;
 
@@ -383,7 +383,7 @@ public class KundFormWidget extends TableFormWidget<Kund> {
 			focusForm.set(new Kund());
 		} else {
 			focusForm.set(kund);
-			originalSQLTableRow = new Kund(kund);
+			originalSQLTableRow = kund;//new Kund(kund);
 		}
 	}
 

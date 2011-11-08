@@ -11,6 +11,7 @@ import se.saljex.webadm.client.rpcobject.Epost;
 import se.saljex.webadm.client.rpcobject.IsSQLTable;
 import se.saljex.webadm.client.rpcobject.Kund;
 import se.saljex.webadm.client.rpcobject.SQLTableList;
+import se.saljex.webadm.client.rpcobject.SqlSelectParameters;
 
 /**
  *
@@ -34,5 +35,6 @@ public interface GWTServiceAsync {
 	public void serverUpdateWebArtikelTrad(AsyncCallback<String> callback);
 	public void serverUpdateLagersaldon(AsyncCallback<String> callback);
 	public void serverGetStatus(AsyncCallback<String> callback);
+	public void getTableList(IsSQLTable table, SqlSelectParameters sqlSelectParameters, int offset, int limit, AsyncCallback<SQLTableList> callback);
 
 }

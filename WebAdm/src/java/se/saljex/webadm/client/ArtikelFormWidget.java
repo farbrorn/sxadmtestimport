@@ -25,9 +25,8 @@ import se.saljex.webadm.server.SQLTableHandler;
  *
  * @author Ulf
  */
-public class ArtikelFormWidget extends FlowPanel implements HasFormUpdater<Artikel>{
+public class ArtikelFormWidget extends TableFormWidget<Artikel>{
 
-	private PageLoad<Artikel> pageLoad;
 	public ArtikelFormWidget() {
 		this(null);
 	}
@@ -38,23 +37,8 @@ public class ArtikelFormWidget extends FlowPanel implements HasFormUpdater<Artik
 
 
 
-//	FlexTable mainGrid = new FlexTable();
-	VerticalPanel mainVp = new VerticalPanel();
-	Grid artHp = new Grid(1, 2);
-
-	Artikel originalSQLTableRow;
-
-
-	Button closBtn = new Button("Stäng detta fönster");
-	Label vlabel = new Label();
-	DoubleTextBox nt = new DoubleTextBox();
-	VerticalPanel mainPanel = new VerticalPanel();
-	VerticalPanel listPanel = new VerticalPanel();
-	ScrollPanel mainScroll = new ScrollPanel(mainPanel);
-	ScrollPanel listScroll = new ScrollPanel(listPanel);
 
 	//mainPanel
-	FormInputPanel<Artikel> focusForm = new FormInputPanel();
 	private FormTextBox nummer = new FormTextBox(new FormWidgetGetSet<Artikel>() {
 		@Override	void get(Artikel table) {	table.nummer = nummer.getSQLTableValue();}
 		@Override	void set(Artikel table) {	nummer.setSQLTableValue(table.nummer);	}
@@ -389,34 +373,10 @@ public class ArtikelFormWidget extends FlowPanel implements HasFormUpdater<Artik
 
 
 
-
-
-	final KeyDownHandler standardKeyDownHandler = new KeyDownHandler() {
-			@Override
-			public void onKeyDown(KeyDownEvent event) {
-				int code=event.getNativeKeyCode();
-				if (pageLoad!=null) {
-					if (code==KeyCodes.F7 && !event.isAnyModifierKeyDown()) pageLoad.previous();
-					else if(code == KeyCodes.F8 && !event.isAnyModifierKeyDown()) pageLoad.next();
-				}
-			}
-		};
-
-
-	private void addInput(FlexTable ft, String label, FormWidgetInterface widget) {
-		int row = ft.getRowCount();
-		ft.setWidget(row, 0, new Label(label));
-		ft.setWidget(row, 1, widget.asWidget());
-		focusForm.addFocusWidget(widget);
-
-	}
-
-	private void addInputWithStandardKeyDownHandler(FlexTable ft, String label, FormWidgetInterface widget) {
-		addInput(ft, label, widget);
-		widget.addKeyDownHandler(standardKeyDownHandler);
-	}
-
 	private void init() {
+		add(saveBtn);
+
+
 		FlexTable inputTable = new FlexTable();
 		inputTable.getRowFormatter().setVerticalAlign(0, HasVerticalAlignment.ALIGN_TOP);
 		FlexTable groupPanel;
@@ -516,13 +476,6 @@ public class ArtikelFormWidget extends FlowPanel implements HasFormUpdater<Artik
 		rsk.addKeyDownHandler(new KeyDownHandler() {@Override	public void onKeyDown(KeyDownEvent event) {	doSetKeyCodeSearch("rsk", rsk.getValue(), event);		}	});
 	}
 
-	private void doSetKeyCodeSearch(String field, String value, KeyDownEvent event) {
-		if (pageLoad!=null) {
-			int code=event.getNativeKeyCode();
-			if (code==KeyCodes.F9 && !event.isAnyModifierKeyDown()) pageLoad.setSearch(field, value, field, SQLTableList.COMPARE_GREATER_EQUALS , SQLTableList.SORT_ASCENDING);
-			else if(code == KeyCodes.F5 && !event.isAnyModifierKeyDown()) pageLoad.setSearch(field, value, "nummer", SQLTableList.COMPARE_SUPERSOK, SQLTableList.SORT_ASCENDING);
-		}
-	}
 
 	@Override
 	public Artikel form2Data() {
@@ -533,13 +486,13 @@ public class ArtikelFormWidget extends FlowPanel implements HasFormUpdater<Artik
 	}
 
 	@Override
-	public void data2Form(Artikel Artikel) {
-		if (Artikel==null) {
+	public void data2Form(Artikel artikel) {
+		if (artikel==null) {
 			originalSQLTableRow=null;
 			focusForm.set(new Artikel());
 		} else {
-			focusForm.set(Artikel);
-			originalSQLTableRow = new Artikel(Artikel);
+			focusForm.set(artikel);
+			originalSQLTableRow = artikel;
 		}
 	}
 

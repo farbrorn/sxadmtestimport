@@ -12,16 +12,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.ParseException;
-import java.util.AbstractCollection;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.zip.DataFormatException;
-import javax.persistence.OrderBy;
 import se.saljex.sxlibrary.SXUtil;
 import se.saljex.webadm.client.rpcobject.ErrorConvertingFromResultsetException;
 import se.saljex.webadm.client.rpcobject.IsSQLTable;
-import se.saljex.webadm.client.rpcobject.Offert2;
 import se.saljex.webadm.client.rpcobject.SQLTableList;
 import se.saljex.webadm.client.rpcobject.ServerErrorException;
 

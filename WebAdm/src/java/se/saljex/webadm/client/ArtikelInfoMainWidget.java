@@ -27,6 +27,7 @@ public class ArtikelInfoMainWidget extends FlowPanel implements HasFormUpdater<A
 		sheet.addStyleName("sx-float-left");
 		kunList.addStyleName("sx-float-left");
 		add(sheet);
+		sheet.getForm().addTableRowUpdatedListener(kunList.getBrowserWidget());
 	}
 
 	@Override
