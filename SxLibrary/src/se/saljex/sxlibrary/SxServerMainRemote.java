@@ -23,6 +23,7 @@ public interface SxServerMainRemote {
 	ArrayList<Integer> saveSxShopOrder(int kontaktId, String kundnr, String kontaktNamn, short lagerNr, String marke) throws KreditSparrException;
 	boolean sendSimpleMail(String adress, String header, String bodytext);
 	int overforBVOrder(String sxKundnr, int bvOrdernr, String bvAnvandare, String sxAnvandare, short sxLagernr) throws SXEntityNotFoundException;
+	int overforOrder(String mainKundnr, int localOrdernr, String localAnvandare, String mainAnvandare, short mainLagernr) throws SXEntityNotFoundException;
 
 
 }
