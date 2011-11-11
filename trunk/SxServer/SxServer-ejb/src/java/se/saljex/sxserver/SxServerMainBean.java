@@ -81,6 +81,7 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 	@Resource(name="sxmail", mappedName="sxmail") private Session mailsxmail;
     @PersistenceContext(unitName="SxServer-ejbPU") private EntityManager em;
     @PersistenceContext(unitName="SxServer-ejbPU-BV") private EntityManager embv;
+    @PersistenceContext(unitName="SxServer-ejbPU-Main") private EntityManager emMain;
 	
 		@EJB		SxServerMainLocal sxServerMainBean;// = new JobbHandlerBean();
 	
@@ -605,6 +606,30 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 		bvOrder.updateBvOrder();
 		return bvOrder.getSxOrdernr();
 	}
+
+
+
+	//Utför sparandet av MainOrder i ny transaktion eftersom det inte gåår att göra uppdateringar i emLocal och emMain i samma transaktion
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+	public void overforOrderSaveMainOrder(OverforOrder localOrder) throws SXEntityNotFoundException {
+		localOrder.saveMainOrder();
+	}
+
+	// Hämtar en Local order till Main order
+	//Returnerar Main ordernr
+	public int overforOrder(String mainKundnr, int localOrdernr, String localAnvandare, String mainAnvandare, short mainLagernr) throws SXEntityNotFoundException {
+		OverforOrder localOrder = new OverforOrder(emMain, em, localOrdernr, mainKundnr, localAnvandare, mainAnvandare, mainLagernr );
+		localOrder.loadLocalOrder();
+		sxServerMainBean.overforOrderSaveMainOrder(localOrder);
+		localOrder.updateLocalOrder();
+		return localOrder.getMainOrdernr();
+	}
+
+
+
+
+
+
 
 	public int faktureraOrder(int ordernr) throws SxOrderLastException {
 		return faktureraOrderMedAnvandare(ordernr, "00");

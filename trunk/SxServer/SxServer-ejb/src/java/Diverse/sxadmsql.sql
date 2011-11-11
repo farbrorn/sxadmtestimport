@@ -2291,3 +2291,60 @@ alter table utlev1 add betalsatt varchar(20);
 
 /* Ändringar 2011-02-18 */
 alter table kund add samfakgrans float not null default 0; /* Minsta belopp för att automatisk samfaktura ska gå ut */
+
+/* Ändringar 2011-11-06 */
+create view orderview as (
+select
+o1.ordernr, o1.dellev, o1.namn as kundnamn, adr1, adr2, adr3, levadr1, levadr2, levadr3, saljare, kundnr,
+marke, datum, moms, status, ktid, bonus, faktor, o1.levdat as orderlevdat, levvillkor, mottagarfrakt, fraktkundnr,
+fraktbolag, fraktfrigrans, lagernr, direktlevnr, returorder, lastav, lastdatum, lasttid, tid,
+veckolevdag, doljdatum, tillannanfilial, utlevbokad, annanlevadress, ordermeddelande, tidigastfaktdatum,
+wordernr, linjenr1, linjenr2, linjenr3, kundordernr, forskatt, forskattbetald, betalsatt, pos, prisnr,
+artnr, o2.namn as artnamn, levnr, best, rab, lev, text, pris, summa, konto, netto, enh, o2.levdat as radlevdat,
+utskrivendatum, utskriventid, stjid
+from order1 o1 left outer join order2 o2 on o1.ordernr=o2.ordernr);
+
+create view fakturaview as (
+select
+f1.faktnr, kundnr, f1.namn as kundnamn, adr1, adr2, adr3, levadr1, levadr2, levadr3,
+datum, saljare, referens, marke, moms, ktid, ranta, bonus, faktor, text1, text2, text3, text4, text5,
+faktortext1, faktortext2, faktortext3, rantfakt, t_netto, t_moms, t_orut, t_attbetala, t_innetto, lagernr,
+ momsproc, inkassostatus, inkassodatum,
+pos, prisnr, artnr, rab, lev, text, pris, summa, konto, netto, enh, f2.namn as artnamn, bon_nr,
+f2.ordernr,rantafakturanr, rantafalldatum, rantabetaldatum, rantabetalbelopp, rantaproc, stjid
+from faktura1 f1 left outer join faktura2 f2 on f1.faktnr=f2.faktnr
+);
+
+
+create view utlevview as (
+select
+o1.ordernr, o1.dellev, o1.namn as kundnamn, adr1, adr2, adr3, levadr1, levadr2, levadr3, saljare, kundnr,
+marke, datum, moms, status, ktid, bonus, faktor, o1.levdat as orderlevdat, levvillkor, mottagarfrakt, fraktkundnr,
+fraktbolag, fraktfrigrans, lagernr, direktlevnr, returorder,  tid, o1.faktnr
+veckolevdag, annanlevadress, ordermeddelande,
+wordernr, linjenr1, linjenr2, linjenr3, kundordernr, forskatt, forskattbetald, betalsatt,
+ pos, prisnr, artnr, rab, lev, text, pris, summa, konto, netto, enh, f2.namn as artnamn, bon_nr,
+rantafakturanr, rantafalldatum, rantabetaldatum, rantabetalbelopp, rantaproc, stjid
+from utlev1 o1 left outer join faktura2 f2 on f2.ordernr=o1.ordernr);
+
+create view bestview as (
+select b1.bestnr, b1.levnr, levnamn, levadr0, levadr1, levadr2, levadr3, var_ref, er_ref, leverans,
+marke, datum, b1.summa as totalsumma, b1.bekrdat, bestejpris, b1.lagernr, ordernr, autobestalld, skickasom, status, meddelande,
+sakerhetskod, antalfelinloggningar, sxservsandforsok, pamindat, antalpamin, sanddat,
+rad, b2.enh, b2.artnr, artnamn, bartnr, best, pris, rab, b2.summa, b2.bekrdat as radbekrdat, inp_miljo, inp_frakt, inp_fraktproc, b2.stjid
+from best1 b1 left outer join best2 b2 on b1.bestnr=b2.bestnr
+);
+
+create view inlevview as (
+select b1.id, priskolldat, b1.bestnr, b1.levnr, levnamn, levadr0, levadr1, levadr2, levadr3,
+marke, datum, b1.lagernr, ordernr,
+rad, b2.enh, b2.artnr, artnamn, antal, pris, rab, b2.stjid
+from inlev1 b1 left outer join inlev2 b2 on b1.id=b2.id
+);
+
+--s.artnr as stjartnr, s.namn as stjartnamn, s.kundnr as stjkundnr, s.lagernr as stjlagernr, s.antal as stjantal, s.enh as stjenh,
+--s.inpris as stjinpris, s.regdatum as stjregdatum, s.autobestall as stjautobestall, s.bestdat as stjbestdat, s.bestnr as stjbestnr,
+--s.anvandare as stjanvandare, s.finnsilager as stjfinnsilager, s.inkomdatum as stjinkomdatum, s.fakturanr as stjfakturanr
+--from best1 b1 left outer join best2 b2 on b1.bestnr=b2.bestnr left outer join stjarnrad s on s.stjid=b2.stjid and b2.stjid<>0
+
+
