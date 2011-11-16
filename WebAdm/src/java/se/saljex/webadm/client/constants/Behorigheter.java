@@ -3,16 +3,13 @@
  * and open the template in the editor.
  */
 
-package se.saljex.webadm.client.rpcobject;
-
-import com.google.gwt.user.client.rpc.IsSerializable;
-import java.util.ArrayList;
+package se.saljex.webadm.client.constants;
 
 /**
  *
  * @author Ulf
  */
-public class User implements IsSerializable{
+public class Behorigheter {
 	public static final String FaktAdmin = "FaktAdmin";
 	public static final String FaktArtAndra = "FaktArtAndra";
 	public static final String FaktArtAndraPris = "FaktArtAndraPris";
@@ -46,39 +43,5 @@ public class User implements IsSerializable{
 	public static final String FaktSamfakt = "FaktSamfakt";
 	public static final String BokLogin = "BokLogin";
 	public static final String LonLogin = "LonLogin";
-
-	public User() {
-	}
-
-	private String anvandareKort=null;
-	private String namn=null;
-	private  String email=null;
-	private  ArrayList<String> behorighetList = new ArrayList();
-	private boolean isFaktAdmin=false;
-
-	public void setUser(String anvandareKort, String namn, String email, ArrayList<String> behorighetList) {
-		this.anvandareKort=anvandareKort;
-		this.namn=namn;
-		this.email=email;
-		this.behorighetList=behorighetList;
-		isFaktAdmin = isBehorig(FaktAdmin);
-	}
-
-	public String getAnvandareKort() {
-		return anvandareKort;
-	}
-
-	public String getEmail() {
-		return email;
-	}
-
-	public String getNamn() {
-		return namn;
-	}
-
-	public boolean isBehorig(String behorighet) {
-		return isFaktAdmin || behorighetList.contains(behorighet);
-	}
-
 
 }

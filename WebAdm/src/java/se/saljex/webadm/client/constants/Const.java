@@ -10,6 +10,15 @@ package se.saljex.webadm.client.constants;
  * @author Ulf
  */
 public class Const {
+	public static final  String ORDER_STATUS_SPARAD = "Sparad";
+	public static final  String ORDER_STATUS_DIREKTLEV = "Direkt";
+	public static final  String ORDER_STATUS_SIMPLEORDER = "Simple";
+	public static final  String ORDER_STATUS_VANTAR = "Väntar";
+	public static final  String ORDER_STATUS_AVVAKT = "Avvakt";
+	public static final  String ORDER_STATUS_OVERFORD = "Överf";
+	public static final  String ORDER_STATUS_SAMFAK = "Samfak";
+	public static final  String ORDER_STATUS_HAMT = "Hamt";
+	
 public static final String Style_S3 = "sx-tb-s3";
 public static final String Style_S5 = "sx-tb-s5";
 public static final String Style_S10 = "sx-tb-s10";

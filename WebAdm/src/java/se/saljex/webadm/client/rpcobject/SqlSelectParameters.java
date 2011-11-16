@@ -19,7 +19,15 @@ public class SqlSelectParameters implements IsSerializable{
 	public ArrayList<SqlOrderByParameter> sqlOrderByParameters = new ArrayList<SqlOrderByParameter>();
 	
 	public SqlSelectParameters() {}
+
 	
+	public void addFirstWhereParameter(String column, int operator, String value) {
+		sqlWhereParameters.add(new SqlWhereParameter(SQLTableList.BOOL_CONNECTOR_NONE, 0, column, operator, value, 0));
+	}
+	public void addWhereParameter(int boolConnector, String column, int operator, String value) {
+		sqlWhereParameters.add(new SqlWhereParameter(boolConnector, 0, column, operator, value, 0));
+	}
+
 	public void addWhereParameter(int boolConnector, int noStartPar, String column, int operator, String value, int noEndPar) {
 		sqlWhereParameters.add(new SqlWhereParameter(boolConnector, noStartPar, column, operator, value, noEndPar));
 	}

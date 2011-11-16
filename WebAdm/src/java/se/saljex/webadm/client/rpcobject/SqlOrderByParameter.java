@@ -10,6 +10,12 @@ public class SqlOrderByParameter implements IsSerializable {
 	public SqlOrderByParameter() {
 	}
 
+
+	// Create with ascending sort
+	public SqlOrderByParameter(String column) {
+		this(column, SQLTableList.SORT_ASCENDING);
+	}
+
 	public SqlOrderByParameter(String column, int sortorder) {
 		this.column = column;
 		this.sortorder = sortorder;

@@ -25,6 +25,7 @@ import com.google.gwt.view.client.SingleSelectionModel;
 import java.util.List;
 import se.saljex.webadm.client.rpcobject.IsSQLTable;
 import se.saljex.webadm.client.rpcobject.Kund;
+import se.saljex.webadm.client.rpcobject.SqlSelectParameters;
 
 /**
  *
@@ -66,6 +67,7 @@ private final CellTable<T> cellList;
 		}
 	};
 
+	public ListDataProvider<T> getListDataProvider() {return listDataProvider; }
 
 	public ListWidget(HasData2Form<T> formUpdat, final PageLoad<T> pageLoad, HasShowMessage showError) {
 		super();
@@ -78,7 +80,6 @@ private final CellTable<T> cellList;
 
 //		cellList = new CellList<T>(cell);
 cellList = new CellTable<T>();
-
 addListColumns(cellList);
 cellList.addStyleName("sx-cellpanel");
 
@@ -130,6 +131,9 @@ cellList.addStyleName("sx-cellpanel");
 
 	public void setSearch(String field, String sokString, String sortField, int sokTyp, int sortOrder) {
 		pageLoad.setSearch(sortField, sokString, sortField, sokTyp, sortOrder);
+	}
+	public void setSearch(SqlSelectParameters s) {
+		pageLoad.setSearch(s);
 	}
 
 	abstract void addListColumns(CellTable<T> cellTable) ;

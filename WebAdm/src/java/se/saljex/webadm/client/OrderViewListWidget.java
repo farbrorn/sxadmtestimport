@@ -18,7 +18,7 @@ import se.saljex.webadm.client.rpcobject.SQLTableList;
  */
 public class OrderViewListWidget extends ListWidget<OrderView> implements HasData2Form<Artikel>{
 	public OrderViewListWidget() {
-		super(null, new PageLoad<OrderView>(new OrderView(), 0, 100, 1000, null) ,null);
+		super(null, new PageLoad<OrderView>(new OrderView(), 10, 50, 1000, null) ,null);
 	}
 
 

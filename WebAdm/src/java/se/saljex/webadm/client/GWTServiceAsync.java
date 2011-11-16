@@ -8,6 +8,7 @@ package se.saljex.webadm.client;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import java.util.ArrayList;
 import se.saljex.webadm.client.rpcobject.Epost;
+import se.saljex.webadm.client.rpcobject.InloggadAnvandare;
 import se.saljex.webadm.client.rpcobject.IsSQLTable;
 import se.saljex.webadm.client.rpcobject.Kund;
 import se.saljex.webadm.client.rpcobject.SQLTableList;
@@ -17,7 +18,7 @@ import se.saljex.webadm.client.rpcobject.SqlSelectParameters;
  *
  * @author Ulf
  */
-public interface GWTServiceAsync {
+public interface GWTServiceAsync { 
     public void myMethod(String s, AsyncCallback<String> callback);
 	public void getArtikel(String artnr, AsyncCallback<String> callback);
 	public void getKund(String kundnr, AsyncCallback<Kund> callback);
@@ -25,6 +26,7 @@ public interface GWTServiceAsync {
 	public void getTableList(IsSQLTable table, Integer sokString, String sokField, String sortField, int compareType, int sortOrder, int offset, int limit, AsyncCallback<SQLTableList> callback);
 	public void getTableList(IsSQLTable table, java.sql.Date sokString, String sokField, String sortField, int compareType, int sortOrder, int offset, int limit, AsyncCallback<SQLTableList> callback);
 	public void getTableList(IsSQLTable table, Double sokString, String sokField, String sortField, int compareType, int sortOrder, int offset, int limit, AsyncCallback<SQLTableList> callback);
+	public void getTableList(IsSQLTable table, SqlSelectParameters sqlSelectParameters, int offset, int limit, AsyncCallback<SQLTableList> callback);
 	public void putTableRow(String anvandare, IsSQLTable newValues, IsSQLTable oldValues, AsyncCallback callback);
 	public void deleteKund(String kundnr, AsyncCallback callback);
 	public void getKundEpostLista(String kundnr, AsyncCallback<ArrayList<Epost>> callback);
@@ -35,6 +37,8 @@ public interface GWTServiceAsync {
 	public void serverUpdateWebArtikelTrad(AsyncCallback<String> callback);
 	public void serverUpdateLagersaldon(AsyncCallback<String> callback);
 	public void serverGetStatus(AsyncCallback<String> callback);
-	public void getTableList(IsSQLTable table, SqlSelectParameters sqlSelectParameters, int offset, int limit, AsyncCallback<SQLTableList> callback);
+	public void overforOrder(int ordernr, String anvandare, short lagernr, AsyncCallback<Integer> callback);
+	public void logIn(String anvandare, String losen, AsyncCallback<InloggadAnvandare> callback);
+	public void logout(AsyncCallback callback);
 
 }

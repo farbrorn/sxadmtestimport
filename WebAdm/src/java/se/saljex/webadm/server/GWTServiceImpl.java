@@ -2,7 +2,6 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package se.saljex.webadm.server;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
@@ -17,7 +16,12 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import javax.ejb.EJB;
 import javax.sql.DataSource;
+import se.saljex.sxlibrary.SXConstant;
+import se.saljex.sxlibrary.SXSession;
 import se.saljex.sxlibrary.SXUtil;
+import se.saljex.sxlibrary.SxServerMainRemote;
+import se.saljex.sxlibrary.WebSupport;
+import se.saljex.sxlibrary.exceptions.SXEntityNotFoundException;
 
 import se.saljex.sxserver.LocalWebSupportLocal;
 import se.saljex.sxserver.SxServerMainLocal;
@@ -29,6 +33,7 @@ import se.saljex.webadm.client.GWTService;
 import se.saljex.webadm.client.rpcobject.Artikel;
 import se.saljex.webadm.client.rpcobject.Epost;
 import se.saljex.webadm.client.rpcobject.ErrorConvertingFromResultsetException;
+import se.saljex.webadm.client.rpcobject.InloggadAnvandare;
 import se.saljex.webadm.client.rpcobject.IsSQLTable;
 import se.saljex.webadm.client.rpcobject.ServerErrorException;
 import se.saljex.webadm.client.rpcobject.Kund;
@@ -42,26 +47,30 @@ import se.saljex.webadm.client.rpcobject.SqlSelectParameters;
  * @author Ulf
  */
 public class GWTServiceImpl extends RemoteServiceServlet implements GWTService {
+
 	@EJB
 	private SxServerMainLocal sxServerMainBean;
 	@EJB
+	private SxServerMainRemote sxServerMainBeanRemote;
+	@EJB
 	private LocalWebSupportLocal webBean;
-
 	@javax.annotation.Resource(name = "sxadm")
 	private DataSource sxadm;
 
-    public String myMethod(String s) {
-        // Do something interesting with 's' here on the server.
-		String t = (String)getThreadLocalRequest().getSession().getAttribute("test");
-		if (t==null) t = "Null";
-        return "Server says: " + s + " test: " + t;
-    }
+	public String myMethod(String s) {
+		// Do something interesting with 's' here on the server.
+		String t = (String) getThreadLocalRequest().getSession().getAttribute("test");
+		if (t == null) {
+			t = "Null";
+		}
+		return "Server says: " + s + " test: " + t;
+	}
 
-	public ArrayList<Epost> getKundEpostLista(String kundnr) throws ServerErrorException {
+	public ArrayList<Epost> getKundEpostLista(String kundnr) throws ServerErrorException, NotLoggedInException {
 		ensureLoggedIn();
 		ArrayList<Epost> ret = new ArrayList<Epost>();
 		Epost epost;
-		Connection con=null;
+		Connection con = null;
 
 		try {
 			con = sxadm.getConnection();
@@ -74,7 +83,7 @@ public class GWTServiceImpl extends RemoteServiceServlet implements GWTService {
 					epost = new Epost();
 					epost.namn = rs.getString(1);
 					epost.epost = rs.getString(2);
-					epost.typ="Allmän";
+					epost.typ = "Allmän";
 					ret.add(epost);
 				}
 			}
@@ -89,9 +98,15 @@ public class GWTServiceImpl extends RemoteServiceServlet implements GWTService {
 					epost = new Epost();
 					epost.namn = rs.getString(1);
 					epost.epost = rs.getString(2);
-					if (rs.getInt(3)!=0) epost.typ="Ekonomi";
-					if (rs.getInt(4)!=0) {
-						if (epost.typ!=null) epost.typ = epost.typ + ", " + "Info"; else epost.typ="Info";
+					if (rs.getInt(3) != 0) {
+						epost.typ = "Ekonomi";
+					}
+					if (rs.getInt(4) != 0) {
+						if (epost.typ != null) {
+							epost.typ = epost.typ + ", " + "Info";
+						} else {
+							epost.typ = "Info";
+						}
 					}
 					ret.add(epost);
 				}
@@ -102,7 +117,10 @@ public class GWTServiceImpl extends RemoteServiceServlet implements GWTService {
 			e.printStackTrace();
 			throw new ServerErrorException("SQL-Fel");
 		} finally {
-			try { con.close(); } catch (Exception e) {}
+			try {
+				con.close();
+			} catch (Exception e) {
+			}
 
 		}
 
@@ -115,11 +133,10 @@ public class GWTServiceImpl extends RemoteServiceServlet implements GWTService {
 		return "123";
 	}
 
-
-	public Kund getKund(String kundnr) throws ServerErrorException {
+	public Kund getKund(String kundnr) throws ServerErrorException, NotLoggedInException {
 		ensureLoggedIn();
-		String sqlField="";
-		Connection con=null;
+		String sqlField = "";
+		Connection con = null;
 
 		Kund kund = new Kund();
 
@@ -134,7 +151,7 @@ public class GWTServiceImpl extends RemoteServiceServlet implements GWTService {
 			if (rs.next()) {
 				SQLTableHandler.getValues(kund, rs);
 			} else {
-				kund=null;
+				kund = null;
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -143,27 +160,26 @@ public class GWTServiceImpl extends RemoteServiceServlet implements GWTService {
 			ec.printStackTrace();
 			throw new ServerErrorException("Fel vid konvertering av SQL ResultSet");
 		} finally {
-			try { con.close(); } catch (Exception e) {}
+			try {
+				con.close();
+			} catch (Exception e) {
+			}
 
 		}
 
 		return kund;
 	}
 
-
-
-
-
-/*
+	/*
 	public SQLTableList<Kund> getKundList(String sokString, int sokField, int sortField, int compareType, int sortOrder, int offset, int limit) throws ServerErrorException{
-		ensureLoggedIn();
-		SQLTableKundGetList g = new SQLTableKundGetList(sxadm);
-		SQLTableList<Kund> tableList = new SQLTableList<Kund>();
-		g.fillList(tableList, new Kund(), sokString, "nummer", "nummer", compareType, sortOrder, offset, limit);
-		return tableList;
+	ensureLoggedIn();
+	SQLTableKundGetList g = new SQLTableKundGetList(sxadm);
+	SQLTableList<Kund> tableList = new SQLTableList<Kund>();
+	g.fillList(tableList, new Kund(), sokString, "nummer", "nummer", compareType, sortOrder, offset, limit);
+	return tableList;
 	}
-*/
-	private SQLTableList<IsSQLTable> doGetTableList(IsSQLTable table, Object sokString, String sokField, String sortField, int compareType, int sortOrder, int offset, int limit) throws ServerErrorException{
+	 */
+	private SQLTableList<IsSQLTable> doGetTableList(IsSQLTable table, Object sokString, String sokField, String sortField, int compareType, int sortOrder, int offset, int limit) throws ServerErrorException, NotLoggedInException {
 		ensureLoggedIn();
 		SQLTableList<IsSQLTable> tableList = new SQLTableList<IsSQLTable>();
 		SQLTableGetList g = new SQLTableGetList(sxadm);
@@ -171,7 +187,7 @@ public class GWTServiceImpl extends RemoteServiceServlet implements GWTService {
 		return tableList;
 	}
 
-	public SQLTableList<IsSQLTable> getTableList(IsSQLTable table, SqlSelectParameters sqlSelectParameters, int offset, int limit) throws ServerErrorException{
+	public SQLTableList<IsSQLTable> getTableList(IsSQLTable table, SqlSelectParameters sqlSelectParameters, int offset, int limit) throws ServerErrorException, NotLoggedInException {
 		ensureLoggedIn();
 		SQLTableList<IsSQLTable> tableList = new SQLTableList<IsSQLTable>();
 		SQLTableGetList g = new SQLTableGetList(sxadm);
@@ -179,41 +195,39 @@ public class GWTServiceImpl extends RemoteServiceServlet implements GWTService {
 		return tableList;
 	}
 
-	public SQLTableList<IsSQLTable> getTableList(IsSQLTable table, String sokString, String sokField, String sortField, int compareType, int sortOrder, int offset, int limit) throws ServerErrorException{
+	public SQLTableList<IsSQLTable> getTableList(IsSQLTable table, String sokString, String sokField, String sortField, int compareType, int sortOrder, int offset, int limit) throws ServerErrorException, NotLoggedInException {
 		return doGetTableList(table, sokString, sokField, sortField, compareType, sortOrder, offset, limit);
 	}
 
-	public SQLTableList<IsSQLTable> getTableList(IsSQLTable table, Integer sokString, String sokField, String sortField, int compareType, int sortOrder, int offset, int limit) throws ServerErrorException{
-		return doGetTableList(table, sokString, sokField, sortField, compareType, sortOrder, offset, limit);
-	}
-	public SQLTableList<IsSQLTable> getTableList(IsSQLTable table, java.sql.Date sokString, String sokField, String sortField, int compareType, int sortOrder, int offset, int limit) throws ServerErrorException{
-		return doGetTableList(table, sokString, sokField, sortField, compareType, sortOrder, offset, limit);
-	}
-	public SQLTableList<IsSQLTable> getTableList(IsSQLTable table, Double sokString, String sokField, String sortField, int compareType, int sortOrder, int offset, int limit) throws ServerErrorException{
+	public SQLTableList<IsSQLTable> getTableList(IsSQLTable table, Integer sokString, String sokField, String sortField, int compareType, int sortOrder, int offset, int limit) throws ServerErrorException, NotLoggedInException {
 		return doGetTableList(table, sokString, sokField, sortField, compareType, sortOrder, offset, limit);
 	}
 
-/*	public SQLTableList getOrder1List(IsSQLTable table, String kundnr,  int offset, int limit) throws ServerErrorException{
-		ensureLoggedIn();
-		Class c = table.getClass();
-		SQLTableList nn = new SQLTableList();
-		ArrayList  ar; ar.
-		SQLTableKundGetList g = new SQLTableKundGetList(sxadm);
-		return g.getList(sokString, sokField, sortField, compareType, sortOrder, offset, limit);
+	public SQLTableList<IsSQLTable> getTableList(IsSQLTable table, java.sql.Date sokString, String sokField, String sortField, int compareType, int sortOrder, int offset, int limit) throws ServerErrorException, NotLoggedInException {
+		return doGetTableList(table, sokString, sokField, sortField, compareType, sortOrder, offset, limit);
+	}
+
+	public SQLTableList<IsSQLTable> getTableList(IsSQLTable table, Double sokString, String sokField, String sortField, int compareType, int sortOrder, int offset, int limit) throws ServerErrorException, NotLoggedInException {
+		return doGetTableList(table, sokString, sokField, sortField, compareType, sortOrder, offset, limit);
+	}
+
+	/*	public SQLTableList getOrder1List(IsSQLTable table, String kundnr,  int offset, int limit) throws ServerErrorException{
+	ensureLoggedIn();
+	Class c = table.getClass();
+	SQLTableList nn = new SQLTableList();
+	ArrayList  ar; ar.
+	SQLTableKundGetList g = new SQLTableKundGetList(sxadm);
+	return g.getList(sokString, sokField, sortField, compareType, sortOrder, offset, limit);
 	}*/
-
-
-	public void deleteKund(String kundnr) throws ServerErrorException {
+	public void deleteKund(String kundnr) throws ServerErrorException, NotLoggedInException {
 		ensureLoggedIn();
 		throw new ServerErrorException("Inte implementerat");
 	}
 
-
-
 	@Override
-	public void putTableRow(String anvandare, IsSQLTable newValues, IsSQLTable oldValues) throws ServerErrorException {
+	public void putTableRow(String anvandare, IsSQLTable newValues, IsSQLTable oldValues) throws ServerErrorException, NotLoggedInException {
 		ensureLoggedIn();
-		Connection con=null;
+		Connection con = null;
 
 		try {
 			con = sxadm.getConnection();
@@ -222,7 +236,10 @@ public class GWTServiceImpl extends RemoteServiceServlet implements GWTService {
 			e.printStackTrace();
 			throw new ServerErrorException("SQL-Fel");
 		} finally {
-			try { con.close(); } catch (Exception e) {}
+			try {
+				con.close();
+			} catch (Exception e) {
+			}
 		}
 
 //		
@@ -321,9 +338,10 @@ public class GWTServiceImpl extends RemoteServiceServlet implements GWTService {
 
 	}
 
-
 	private Kund tableKund2Kund(TableKund tk) {
-		if (tk==null) return null;
+		if (tk == null) {
+			return null;
+		}
 		Kund k = new Kund();
 
 		k.nummer = tk.getNummer();
@@ -384,62 +402,76 @@ public class GWTServiceImpl extends RemoteServiceServlet implements GWTService {
 		k.linjenr3 = tk.getLinjenr3();
 		k.skickafakturaepost = tk.getSkickafakturaepost();
 		k.samfakgrans = tk.getSamfakgrans();
-		String sqlSelect=" SQL:";
+		String sqlSelect = " SQL:";
 		Field[] fl = TableKund.class.getDeclaredFields();
-		for (Field f : fl ) {
+		for (Field f : fl) {
 
 			javax.persistence.Column a = f.getAnnotation(javax.persistence.Column.class);
-			if (a!=null) sqlSelect = sqlSelect + a.name() +"(" + f.getName() +")" + ", ";
+			if (a != null) {
+				sqlSelect = sqlSelect + a.name() + "(" + f.getName() + ")" + ", ";
+			}
 		}
-		k.namn=sqlSelect;
+		k.namn = sqlSelect;
 
 		return k;
 
 	}
 
-
-
 	public void s() throws ServerErrorException, NotLoggedInException {
 		ensureLoggedIn();
-		Connection con=null;
+		Connection con = null;
 		try {
 			con = sxadm.getConnection();
 		} catch (SQLException e) {
 			throw new ServerErrorException("SQL-Fel");
 		} finally {
-			try { con.close(); } catch (Exception e) {}
+			try {
+				con.close();
+			} catch (Exception e) {
+			}
 
 		}
 
 	}
 
-	public Integer sendOffertEpost(String anvandare, String epost, int id) throws ServerErrorException {
+	public Integer sendOffertEpost(String anvandare, String epost, int id) throws ServerErrorException, NotLoggedInException {
 		ensureLoggedIn();
 		try {
 			sxServerMainBean.sendOffertEpost(anvandare, epost, id);
-		} catch (Exception e) {throw new ServerErrorException(e.getMessage()); }
+		} catch (Exception e) {
+			throw new ServerErrorException(e.getMessage());
+		}
 		return id;
 	}
 
-	public Integer sendFakturaEpost(String anvandare, String epost, int id) throws ServerErrorException {
+	public Integer sendFakturaEpost(String anvandare, String epost, int id) throws ServerErrorException, NotLoggedInException {
 		ensureLoggedIn();
 		try {
 			sxServerMainBean.sendFakturaEpost(anvandare, epost, id);
-		} catch (Exception e) {throw new ServerErrorException(e.getMessage()); }
+		} catch (Exception e) {
+			throw new ServerErrorException(e.getMessage());
+		}
 		return id;
 	}
 
-
-	public ArrayList<String> getChartKund(String kundnr, int width, int height) throws ServerErrorException{
+	public ArrayList<String> getChartKund(String kundnr, int width, int height) throws ServerErrorException, NotLoggedInException {
 		ArrayList<String> retArr = new ArrayList<String>();
 		ensureLoggedIn();
-		Connection con=null;
-		if (width < 1) width = 400;
-		if (height < 1) height = 200;
+		Connection con = null;
+		if (width < 1) {
+			width = 400;
+		}
+		if (height < 1) {
+			height = 200;
+		}
 
 		int antalArBakat = 5;
-		if (antalArBakat<0) antalArBakat=antalArBakat*(-1);
-		if(antalArBakat > 100) antalArBakat=100;	//Bara så vi inte får in orinligt stora tal
+		if (antalArBakat < 0) {
+			antalArBakat = antalArBakat * (-1);
+		}
+		if (antalArBakat > 100) {
+			antalArBakat = 100;	//Bara så vi inte får in orinligt stora tal
+		}
 		int startAr;
 		Calendar c = Calendar.getInstance();
 		c.setTime(new java.util.Date());
@@ -471,33 +503,36 @@ public class GWTServiceImpl extends RemoteServiceServlet implements GWTService {
 		try {
 			con = sxadm.getConnection();
 			PreparedStatement stm = con.prepareStatement(
-				"select year(f1.datum), month(f1.datum), round(cast(sum(t_netto) as numeric),0), round(cast(sum(t_netto-t_innetto) as numeric),0) from faktura1 f1 "+
-				" where f1.kundnr=? and year(f1.datum)>=? "+
-				" group by year(f1.datum), month(f1.datum) "+
-				" order by year(f1.datum) desc, month(f1.datum)"
-			);
+					"select year(f1.datum), month(f1.datum), round(cast(sum(t_netto) as numeric),0), round(cast(sum(t_netto-t_innetto) as numeric),0) from faktura1 f1 "
+					+ " where f1.kundnr=? and year(f1.datum)>=? "
+					+ " group by year(f1.datum), month(f1.datum) "
+					+ " order by year(f1.datum) desc, month(f1.datum)");
 			stm.setString(1, kundnr);
 			stm.setInt(2, startAr);
 			ResultSet rs = stm.executeQuery();
-			int currentAr=0;
+			int currentAr = 0;
 
-			row=null;
+			row = null;
 			while (rs.next()) {
 				if (rs.getInt(1) != currentAr) {
-					if (row!=null) { //Om vi har data för ett år så sparar vi det//Om vi har data för ett år så sparar vi det
-						gch.addSerie(""+currentAr, row);
-						gchTB.addSerie(""+currentAr, rowTB);
-						gchTBProc.addSerie(""+currentAr, rowTBProc);
+					if (row != null) { //Om vi har data för ett år så sparar vi det//Om vi har data för ett år så sparar vi det
+						gch.addSerie("" + currentAr, row);
+						gchTB.addSerie("" + currentAr, rowTB);
+						gchTBProc.addSerie("" + currentAr, rowTBProc);
 					}
-					row=new double[12];
-					rowTB=new double[12];
-					rowTBProc=new double[12];
-					currentAr=rs.getInt(1);
+					row = new double[12];
+					rowTB = new double[12];
+					rowTBProc = new double[12];
+					currentAr = rs.getInt(1);
 				}
-				if (rs.getInt(2)-1 >= 0) row[rs.getInt(2)-1] = rs.getDouble(3);
-				if (rs.getInt(2)-1 >= 0) rowTB[rs.getInt(2)-1] = rs.getDouble(4);
-				if (rs.getInt(2)-1 >= 0) {
-					rowTBProc[rs.getInt(2)-1] = rs.getDouble(3)!=0 ? rs.getDouble(4)/rs.getDouble(3)*100 : 0;
+				if (rs.getInt(2) - 1 >= 0) {
+					row[rs.getInt(2) - 1] = rs.getDouble(3);
+				}
+				if (rs.getInt(2) - 1 >= 0) {
+					rowTB[rs.getInt(2) - 1] = rs.getDouble(4);
+				}
+				if (rs.getInt(2) - 1 >= 0) {
+					rowTBProc[rs.getInt(2) - 1] = rs.getDouble(3) != 0 ? rs.getDouble(4) / rs.getDouble(3) * 100 : 0;
 				}
 			}
 			retArr.add(gch.getURL());
@@ -514,135 +549,146 @@ public class GWTServiceImpl extends RemoteServiceServlet implements GWTService {
 			//Betalningstider
 			stm.close();
 			stm = con.prepareStatement("select year(betdat), month(betdat), sum(betdat-f1.datum-f1.ktid), count(*) "
-					+ " from betjour b, faktura1 f1 where f1.faktnr=b.faktnr and b.kundnr=? and year(betdat)>=? " +
-					" group by year(betdat), month(betdat) order by year(betdat) desc, month(betdat) ");
+					+ " from betjour b, faktura1 f1 where f1.faktnr=b.faktnr and b.kundnr=? and year(betdat)>=? "
+					+ " group by year(betdat), month(betdat) order by year(betdat) desc, month(betdat) ");
 			stm.setString(1, kundnr);
 			stm.setInt(2, startAr);
 			rs = stm.executeQuery();
-			currentAr=0;
-			row=null;
+			currentAr = 0;
+			row = null;
 			while (rs.next()) {
 				if (rs.getInt(1) != currentAr) {
-					if (row!=null) { //Om vi har data för ett år så sparar vi det//Om vi har data för ett år så sparar vi det
-						gch.addSerie(""+currentAr, row);
+					if (row != null) { //Om vi har data för ett år så sparar vi det//Om vi har data för ett år så sparar vi det
+						gch.addSerie("" + currentAr, row);
 					}
-					row=new double[12];
-					currentAr=rs.getInt(1);
+					row = new double[12];
+					currentAr = rs.getInt(1);
 				}
-				if (rs.getInt(2)-1 >= 0) row[rs.getInt(2)-1] = rs.getDouble(4) > 0 ? rs.getDouble(3) / rs.getDouble(4) : 0;
+				if (rs.getInt(2) - 1 >= 0) {
+					row[rs.getInt(2) - 1] = rs.getDouble(4) > 0 ? rs.getDouble(3) / rs.getDouble(4) : 0;
+				}
 			}
 			retArr.add(gch.getURL());
 
 
 
-		} catch (SQLException e) { e.printStackTrace(); throw(new ServerErrorException("Fel vid kommunikation med databasen"));}
-		catch (Exception ee) {ee.printStackTrace();throw(new ServerErrorException("Okänt fel: " + ee.getMessage()));}
-		finally {
-			try { con.close(); } catch (Exception e) {}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw (new ServerErrorException("Fel vid kommunikation med databasen"));
+		} catch (Exception ee) {
+			ee.printStackTrace();
+			throw (new ServerErrorException("Okänt fel: " + ee.getMessage()));
+		} finally {
+			try {
+				con.close();
+			} catch (Exception e) {
+			}
 		}
 		return retArr;
 	}
 
-
-	public String serverUpdateWebArtikel() throws ServerErrorException {
+	public String serverUpdateWebArtikel() throws ServerErrorException, NotLoggedInException {
 		ensureLoggedIn();
 		try {
 			return webBean.updateWebArtikelWithHTMLResponse();
-		} catch (Exception e) {throw new ServerErrorException(e.getMessage()); }
+		} catch (Exception e) {
+			throw new ServerErrorException(e.getMessage());
+		}
 	}
-	public String serverUpdateWebArtikelTrad() throws ServerErrorException {
+
+	public String serverUpdateWebArtikelTrad() throws ServerErrorException, NotLoggedInException {
 		ensureLoggedIn();
 		try {
 			return webBean.updateWebArtikelTradWithHTMLResponse();
-		} catch (Exception e) {throw new ServerErrorException(e.getMessage()); }
+		} catch (Exception e) {
+			throw new ServerErrorException(e.getMessage());
+		}
 	}
-	public String serverUpdateLagersaldon() throws ServerErrorException {
+
+	public String serverUpdateLagersaldon() throws ServerErrorException, NotLoggedInException {
 		ensureLoggedIn();
 		try {
 			return webBean.updateLagerSaldonWithHTMLResponse();
-		} catch (Exception e) {throw new ServerErrorException(e.getMessage()); }
+		} catch (Exception e) {
+			throw new ServerErrorException(e.getMessage());
+		}
 	}
-	public String serverGetStatus() throws ServerErrorException {
+
+	public String serverGetStatus() throws ServerErrorException, NotLoggedInException {
 		ensureLoggedIn();
 		try {
 			return webBean.getHTMLStatus();
-		} catch (Exception e) {throw new ServerErrorException(e.getMessage()); }
+		} catch (Exception e) {
+			throw new ServerErrorException(e.getMessage());
+		}
 	}
 
+	//Överför order eller utleverans till mainsupplier. T.ex. från SX Norge till SX Sverige
+	//Returnerar local ordernr
+	public Integer overforOrder(int ordernr, String anvandare, short lagernr) throws ServerErrorException, NotLoggedInException {
+		try {
+			sxServerMainBean.overforOrder(ordernr, anvandare, lagernr);
+			return ordernr;  //Local ordernr - används för att hitta rätt rad att uppdatera klientens lista
+		} catch (Exception e) {
+			throw new ServerErrorException(e.getMessage());
+		}
+	}
 
+	public InloggadAnvandare logIn(String anvandare, String losen) throws NotLoggedInException, ServerErrorException {
+		//Kör vi i testläge?  Gör då automatisk inloggning om anvandare är tomt
+		if (!sxServerMainBeanRemote.getSXReg(SXConstant.SXREG_TESTLAGE, SXConstant.SXREG_TESTLAGE_DEFAULT).equals("Nej")) {
+			if (SXUtil.isEmpty(anvandare)) {
+				getThreadLocalRequest().getSession().setAttribute(SXConstant.SXREG_TESTLAGE, "Ja");
+				InloggadAnvandare inloggadAnvandare = new InloggadAnvandare();
+				inloggadAnvandare.anvandare = "Ulf Berg";
+				inloggadAnvandare.anvandareKort = "UB";
+				inloggadAnvandare.arrBehorighet = new ArrayList<String>();
+				inloggadAnvandare.arrBehorighet.add(SXConstant.BEHORIGHET_INTRA_SUPERUSER);
+				inloggadAnvandare.defaultLagernr = 0;
+				return inloggadAnvandare;
+			}
+		}
 
-	private void ensureLoggedIn()  {}
+		Connection sxCon = null;
+		try {
+			sxCon = sxadm.getConnection();
+			if (WebSupport.loginIntra(sxCon, getThreadLocalRequest().getSession(), anvandare, losen)) {
+				SXSession sxSession = WebSupport.getSXSession(getThreadLocalRequest().getSession());
+				InloggadAnvandare inloggadAnvandare = new InloggadAnvandare();
+				inloggadAnvandare.anvandare = sxSession.getIntraAnvandare();
+				inloggadAnvandare.anvandareKort = sxSession.getIntraAnvandareKort();
+				inloggadAnvandare.arrBehorighet = sxSession.getArrBehorighet();
+				inloggadAnvandare.defaultLagernr = sxSession.getIntraAnvandareLagerNr();
+				return inloggadAnvandare;
+			} else {
+				throw new NotLoggedInException("Felaktig användare/Lösen");
+			}
 
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw (new ServerErrorException());
+		} finally {
+			try {
+				sxCon.close();
+			} catch (Exception e) {
+			}
+		}
+	}
+
+	public void logout() throws ServerErrorException{
+		try {
+			WebSupport.logOutIntra(null, getThreadLocalRequest().getSession());
+		} catch (Exception e) { throw new ServerErrorException(e.getMessage()); }
+	}
+
+	private void ensureLoggedIn() throws NotLoggedInException{
+		String testlage = (String)getThreadLocalRequest().getSession().getAttribute(SXConstant.SXREG_TESTLAGE);
+		if (testlage!=null && testlage.equals("Ja")) {
+		} else {
+			SXSession sxSession = WebSupport.getSXSession(getThreadLocalRequest().getSession());
+			if (!sxSession.getInloggad()) {
+				throw new NotLoggedInException();
+			}
+		}
+	}
 }
-
-
-
-/*
-		nummer
-		namn
-		adr1
-		adr2
-		adr3
-		lnamn
-		ladr2
-		ladr3
-		ref
-		saljare
-		tel
-		biltel
-		fax
-		sokare
-		email
-		hemsida
-		kDag
-		kTid
-		kDatum
-		regnr
-		rantfakt
-		faktor
-		kgrans
-		ktid
-		nettolst
-		bonus
-		elkund
-		vvskund
-		ovrigkund
-		installator
-		butik
-		industri
-		oem
-		grossist
-		levvillkor
-		mottagarfrakt
-		fraktbolag
-		fraktkundnr
-		fraktfrigrans
-		ant1
-		ant2
-		ant3
-		distrikt
-		vakund
-		fastighetskund
-		basrab
-		golvkund
-		ejfakturerbar
-		skrivfakturarskenr
-		sarfaktura
-		momsfri
-		kgransforfall30
-		kravordermarke
-		linjenr1
-		linjenr2
-		linjenr3
-		ickafakturaepost
- *
- *
- *
- *
- *
-				kund.nummer=rs.getString(1);
-
- *
- *
-
-*/

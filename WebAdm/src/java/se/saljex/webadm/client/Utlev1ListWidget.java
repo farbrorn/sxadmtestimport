@@ -18,7 +18,7 @@ import se.saljex.webadm.client.rpcobject.Utlev1;
 public class Utlev1ListWidget extends ListWidget<Utlev1> {
 
 	public Utlev1ListWidget(HasData2Form<Utlev1> formUpdat) {
-		super(formUpdat, new PageLoad<Utlev1>(new Utlev1(), 10, 100, 1000, null) ,null);
+		super(formUpdat, new PageLoad<Utlev1>(new Utlev1(), 10, 50, 1000, null) ,null);
 	}
 
 	@Override

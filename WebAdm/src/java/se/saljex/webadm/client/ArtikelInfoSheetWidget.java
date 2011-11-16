@@ -28,10 +28,20 @@ public class ArtikelInfoSheetWidget extends InfoSheetWidget<Artikel>{
 	//	OffertListaWidget offertListWidget = new OffertListaWidget(false);
 	//	OrderListaWidget orderListWidget = new OrderListaWidget(false);
 		OrderViewListWidget orderViewListWidget = new OrderViewListWidget();
+		FakturaViewListWidget fakturaViewListWidget = new FakturaViewListWidget();
+		BestViewListWidget bestViewListWidget = new BestViewListWidget();
+		InlevViewListWidget inlevViewListWidget = new InlevViewListWidget();
+		LagerhandListWidget lagerhandListWidget = new LagerhandListWidget();
+		LagerListWidget lagerListWidget = new LagerListWidget();
 
 		formWidget = new ArtikelFormWidget(pageLoad);
 		addData2FormWidget(formWidget, formWidget, "Artikelinfo");
 		addData2FormWidget(orderViewListWidget, orderViewListWidget, "Order");
+		addData2FormWidget(fakturaViewListWidget, fakturaViewListWidget, "Faktura");
+		addData2FormWidget(bestViewListWidget, bestViewListWidget, "Beställda");
+		addData2FormWidget(inlevViewListWidget, inlevViewListWidget, "Inleveranser");
+		addData2FormWidget(lagerhandListWidget, lagerhandListWidget, "Lagerhändelser");
+		addData2FormWidget(lagerListWidget, lagerListWidget, "Lager");
 
 
 //		addData2FormWidget(orderListWidget, orderListWidget, "Order");

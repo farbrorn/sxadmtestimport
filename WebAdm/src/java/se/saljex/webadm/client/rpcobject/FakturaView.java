@@ -34,13 +34,11 @@ public class FakturaView implements IsSerializable, IsSQLTable{
 	public Integer faktnr;
 	public Date datum;
 	public short lagernr;
-	public int kundordernr;
 
 	public short pos;
 
 	public String artnr;
 	public String artnamn;
-	public String levnr;
 	public double rab;
 	public double lev;
 	public String text;

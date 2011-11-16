@@ -29,7 +29,7 @@ public class UtlevListWidget extends FlowPanel implements HasData2Form<Kund>{
 
 	MessagePopupPanel messagePanel = new MessagePopupPanel(true);
 
-	KundEpostSelectWidget epostSelect;
+//	KundEpostSelectWidget epostSelect;
 
 	FlowPanel sokPanel;
 	Label sokLabel;

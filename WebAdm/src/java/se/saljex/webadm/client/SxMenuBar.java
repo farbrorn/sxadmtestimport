@@ -8,8 +8,7 @@ package se.saljex.webadm.client;
 import se.saljex.webadm.client.window.WindowHandler;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.MenuBar;
-import com.google.gwt.user.client.ui.MenuItem;
-import se.saljex.webadm.client.rpcobject.User;
+import java.util.ArrayList;
 
 /**
  *
@@ -22,12 +21,15 @@ public class SxMenuBar extends MenuBar {
 	private final MenuBar menuUnderhall = new MenuBar(true);
 	private final MenuBar menuFragor = new MenuBar(true);
 	private final MenuBar menuSystemAdmin = new MenuBar(true);
-	private final User user;
+//	private final User user;
+	private ArrayList<String> arrBehorighet=null;
+
 	private final WindowHandler windowHandler;
 
-	public SxMenuBar(WindowHandler windowHandler, User user) {
+	public SxMenuBar(WindowHandler windowHandler, ArrayList<String> arrBehorighet) {
 		super();
-		this.user=user;
+		this.arrBehorighet=arrBehorighet;
+//		this.user=user;
 		this.windowHandler=windowHandler;
 		init();
 	}
@@ -48,6 +50,7 @@ public class SxMenuBar extends MenuBar {
 		add(menuUnderhall,"Offertlista", new Command() {	@Override	public void execute() {	windowHandler.addWindow(new OffertListaWidget(true,true), "Offert");	}	});
 		add(menuUnderhall,"Fakturalista", new Command() {	@Override	public void execute() {	windowHandler.addWindow(new FakturaListWidget(true,true), "Fakturor");	}	});
 		add(menuUnderhall,"Utleveranser", new Command() {	@Override	public void execute() {	windowHandler.addWindow(new UtlevListWidget(true,true), "Utleveranser");	}	});
+		add(menuUnderhall,"Överför", new Command() {	@Override	public void execute() {	windowHandler.addWindow(new OverforUtlevWidget(), "Överför order");	}	});
 
 		//Frågor
 		add(menuFragor, "Tomt", new Command() {	@Override	public void execute() {		}	});
@@ -59,16 +62,12 @@ public class SxMenuBar extends MenuBar {
 		//Lägg till huvudmenybaren
 		addItem("Arkiv", menuArkiv);
 		addItem("Registrera", menuRegistrera);
-		if (user.isBehorig(user.FaktArtAndraPris)) {
-			addItem("Underhåll", menuUnderhall);
-		}
+		addItem("Underhåll", menuUnderhall);
 		addItem("Frågor", menuFragor);
-		if (user.isBehorig(user.FaktAdmin)) {
-			addItem("System adm", menuSystemAdmin);
-		}
+		addItem("System adm", menuSystemAdmin);
 	}
 	private void add(String behorighet, MenuBar menu, String text, Command cmd) {
-		if (behorighet==null || user.isBehorig(behorighet)) {
+		if (behorighet==null || (arrBehorighet!= null && arrBehorighet.contains(behorighet))) {
 			menu.addItem(text, cmd);
 		}
 	}
