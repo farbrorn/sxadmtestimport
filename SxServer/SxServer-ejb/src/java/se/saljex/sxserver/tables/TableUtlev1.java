@@ -25,7 +25,9 @@ import se.saljex.sxserver.OrderHandler;
 @Entity
 @Table(name = "utlev1")
 @NamedQueries({
-	@NamedQuery(name = "TableUtlev1.findAll", query = "SELECT t FROM TableUtlev1 t")})
+	@NamedQuery(name = "TableUtlev1.findAll", query = "SELECT t FROM TableUtlev1 t"),
+	@NamedQuery(name = "TableUtlev1.findByOrdernr", query = "SELECT t FROM TableUtlev1 t where t.ordernr = :ordernr")
+})
 public class TableUtlev1 implements Serializable {
 	private static final long serialVersionUID = 1L;
 	@Id

@@ -60,6 +60,8 @@ public interface SxServerMainLocal {
 //	int overforBVOrder(String sxKundnr, int bvOrdernr, String bvAnvandare, String sxAnvandare, short sxLagernr) throws SXEntityNotFoundException;
 	void overforBVOrderSaveSxOrder(BvOrder bvOrder) throws SXEntityNotFoundException;
 	void overforOrderSaveMainOrder(OverforOrder localOrder) throws SXEntityNotFoundException;
+	void doOverforOrder(OverforOrder localOrder) throws SXEntityNotFoundException;
+	int overforOrder(int localOrdernr, String localAnvandare, short mainLagernr) throws SXEntityNotFoundException;
 
 	int faktureraOrder(int ordernr) throws SxOrderLastException;
 

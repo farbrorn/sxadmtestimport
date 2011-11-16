@@ -22,7 +22,9 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "FAKTURA2")
-@NamedQueries({@NamedQuery(name = "TableFaktura2.findByFaktnr", query = "SELECT t FROM TableFaktura2 t WHERE t.tableFaktura2PK.faktnr = :faktnr order by t.tableFaktura2PK.pos")})
+@NamedQueries({@NamedQuery(name = "TableFaktura2.findByFaktnr", query = "SELECT t FROM TableFaktura2 t WHERE t.tableFaktura2PK.faktnr = :faktnr order by t.tableFaktura2PK.pos"),
+@NamedQuery(name = "TableFaktura2.findByOrdernr", query = "SELECT t FROM TableFaktura2 t WHERE t.ordernr = :ordernr order by t.tableFaktura2PK.pos")
+})
 
 public class TableFaktura2 implements Serializable {
 	private static final long serialVersionUID = 1L;
