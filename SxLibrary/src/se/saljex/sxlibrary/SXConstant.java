@@ -100,6 +100,13 @@ public class SXConstant {
 	public static final	String SXREG_WORDER_SPARRAD_ORDER_BODY = "sxServWorderSparradOrderBody";
 	public static final	String SXREG_WORDER_SPARRAD_ORDER_BODY_DEFAULT = "Hej!<br/>Vi har mottagit en order i vår webb-shop som vi inte kan behandla därför att kreditgränsen är överskriden.<br/><br/>Var vänlig kontakta oss så vi kan reda ut ev. missförstånd.<br/><br/><br/>Med vänlig hälsning<br/>Säljex AB";
 
+
+	public static final	String SXREG_OVERFOR_ORDER_KUNDNR = "sxServOverforOrderKundnr";
+	public static final	String SXREG_OVERFOR_ORDER_KUNDNR_DEFAULT = "1";
+	public static final	String SXREG_TESTLAGE = "sxServTestlage";
+	public static final	String SXREG_TESTLAGE_DEFAULT = "Ja";
+
+
 	public static final String BEST_SKICKASOM_EPOST = "epost";
 	public static final String BEST_STATUS_SKAPAD = "Skapad";
 	public static final String BEST_STATUS_VANTAR = "Väntar";

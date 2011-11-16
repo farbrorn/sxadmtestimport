@@ -40,6 +40,8 @@ public class SXSession {
 
 	private boolean gastLogin=false;
 
+
+
         private ArrayList<String> arrBehorighet = new ArrayList();
 
 //	private ArrayList<RappEdit> arrRappEdit = new ArrayList();
@@ -57,6 +59,8 @@ public class SXSession {
         public void clearBehorighet() {
             arrBehorighet.clear();
         }
+
+		public ArrayList<String> getArrBehorighet() { return arrBehorighet; }
 
 	public boolean checkBehorighetKund() {
 		if (inloggad) {
