@@ -12,8 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.EntityManager;
 import se.saljex.sxserver.tables.TableArtikel;
+import se.saljex.sxserver.tables.TableFaktura2;
 import se.saljex.sxserver.tables.TableOrder1;
 import se.saljex.sxserver.tables.TableOrder2;
+import se.saljex.sxserver.tables.TableUtlev1;
 
 /**
  *
@@ -27,7 +29,7 @@ public class OverforOrder {
 	private String mainAnvandare;
 	private String localAnvandar;
 	private short mainLagernr;
-	private TableOrder1 localOrder1=null; //Skall sättas till null här för att indiker att loadBvOrder inte är utförd
+	private LocalOrder localOrder=null; //Skall sättas till null här för att indiker att loadLocalOrder inte är utförd
 	private ArrayList<LocalOrderRad> localOrderRader = null;
 	private int mainOrdernr = 0;
 
@@ -43,64 +45,105 @@ public class OverforOrder {
 
 
 
-	public void loadLocalOrder() throws SXEntityNotFoundException  {
+	private void loadLocalUtlev() throws SXEntityNotFoundException  {
 		// Kolla så att vi inte har sparat en order oh inte avslutat hanteringe av bvordern
-		if (localOrder1!=null) throw new SXEntityNotFoundException("Internt fel: loadLocalOrder är redan utförd, och kan inte utföras igen.");
+		if (localOrder!=null) throw new SXEntityNotFoundException("Internt fel: loadLocalOrder är redan utförd, och kan inte utföras igen.");
 
 		localOrderRader = new ArrayList();
-		localOrder1 = emLocal.find(TableOrder1.class, localOrdernr);
-		if (localOrder1==null) { throw new SXEntityNotFoundException("Ordernr " + localOrdernr + " finns inte."); }
-		if (localOrder1.getLastdatum()!=null) { throw new SXEntityNotFoundException("Ordernr " + localOrdernr + " är låst av användare '" + localOrder1.getLastav() + "' " + localOrder1.getLastdatum() + " " + localOrder1.getLasttid() + " och kan inte behandlas." ); }
-		if (SXConstant.ORDER_STATUS_OVERFORD.equals(localOrder1.getStatus())) { throw new SXEntityNotFoundException("Ordernr " + localOrdernr + " är redan överförd. Du måste ändra orderns status till 'Sparad' om du vill överföra igen."); }
-		List<TableOrder2> localOrder2List = emLocal.createNamedQuery("TableOrder2.findByOrdernr").setParameter("ordernr", localOrdernr).getResultList();
-		TableArtikel localArtikel;
+		List<TableUtlev1> localUtlev1List = emLocal.createNamedQuery("TableUtlev1.findByOrdernr").setParameter("ordernr", localOrdernr).getResultList();
+		if (localUtlev1List.size()>1) throw new SXEntityNotFoundException("Det finns flera utleveranser på ordernr " + localOrdernr + ". Kan inte göra överföring.");
+		else if (localUtlev1List.isEmpty()) throw new SXEntityNotFoundException("Ordernr " + localOrdernr + " finns inte.");
+		else {
+			TableUtlev1 utlev1 = localUtlev1List.get(0);
+			localOrder = new LocalOrder();
+			localOrder.utlev1 = utlev1;
+	//		if (localOrder1.getLastdatum()!=null) { throw new SXEntityNotFoundException("Ordernr " + localOrdernr + " är låst av användare '" + localOrder1.getLastav() + "' " + localOrder1.getLastdatum() + " " + localOrder1.getLasttid() + " och kan inte behandlas." ); }
+			if (SXConstant.ORDER_STATUS_OVERFORD.equals(localOrder.utlev1.getStatus())) { throw new SXEntityNotFoundException("Ordernr " + localOrdernr + " är redan överförd. Du måste ändra orderns status till 'Sparad' om du vill överföra igen."); }
+			List<TableFaktura2> localOrder2List = emLocal.createNamedQuery("TableFaktura2.findByOrdernr").setParameter("ordernr", localOrdernr).getResultList();
 
-		double nyttAntal=0;
-		double nyttPris=0;
-		double enhetsfaktor;
-		String mainArtnr;
-
-		for (TableOrder2 localOrder2 : localOrder2List) {
-			if(!SXUtil.isEmpty(localOrder2.getArtnr())) {	//Hoppa över tomma rader
-				nyttAntal = localOrder2.getBest();
-				nyttPris = localOrder2.getPris();
-				mainArtnr=localOrder2.getArtnr();
-
-				localArtikel = emLocal.find(TableArtikel.class, localOrder2.getArtnr());
-				if (localArtikel!=null) {
-					enhetsfaktor = localArtikel.getInpEnhetsfaktor().doubleValue();
-					if (localArtikel.getInpEnhetsfaktor().compareTo(new BigDecimal(0))!=0) {
-						nyttAntal = localOrder2.getBest() * enhetsfaktor;
-						nyttPris = localOrder2.getPris() / enhetsfaktor;
-					}
-					if (!SXUtil.isEmpty(localArtikel.getBestnr())) mainArtnr=localArtikel.getBestnr();
-				}
-				localOrderRader.add(new LocalOrderRad(localOrder2, mainArtnr, nyttAntal, nyttPris));
+			for (TableFaktura2 localFaktura2 : localOrder2List) {
+				addLocalOrderWithArtikelLookup(localFaktura2.getLev(),localFaktura2.getArtnr(), localFaktura2.getNamn(), "", localFaktura2.getEnh(), localFaktura2.getNetto(), localFaktura2.getPris(), localFaktura2.getRab() );
 			}
 		}
 	}
 
+
+	//Kolla först om det finns en order. Om inte så kollar vi efter en utleverans
+	public void loadLocalOrder() throws SXEntityNotFoundException  {
+		// Kolla så att vi inte har sparat en order oh inte avslutat hanteringe av bvordern
+		if (localOrder!=null) throw new SXEntityNotFoundException("Internt fel: loadLocalOrder är redan utförd, och kan inte utföras igen.");
+
+		TableOrder1 order1 = emLocal.find(TableOrder1.class, localOrdernr);
+		if (order1==null) {
+			//Om inte ordern finns så kolla istället Utlev
+			loadLocalUtlev();
+		} else {
+			localOrderRader = new ArrayList();
+			localOrder = new LocalOrder();
+			localOrder.order1=order1;
+			if (localOrder.order1.getLastdatum()!=null) { throw new SXEntityNotFoundException("Ordernr " + localOrdernr + " är låst av användare '" + localOrder.order1.getLastav() + "' " + localOrder.order1.getLastdatum() + " " + localOrder.order1.getLasttid() + " och kan inte behandlas." ); }
+			if (SXConstant.ORDER_STATUS_OVERFORD.equals(localOrder.order1.getStatus())) { throw new SXEntityNotFoundException("Ordernr " + localOrdernr + " är redan överförd. Du måste ändra orderns status till 'Sparad' om du vill överföra igen."); }
+			List<TableOrder2> localOrder2List = emLocal.createNamedQuery("TableOrder2.findByOrdernr").setParameter("ordernr", localOrdernr).getResultList();
+
+			for (TableOrder2 localOrder2 : localOrder2List) {
+				addLocalOrderWithArtikelLookup(localOrder2.getBest(),localOrder2.getArtnr(), localOrder2.getNamn(), localOrder2.getLevnr(), localOrder2.getEnh(), localOrder2.getNetto(), localOrder2.getPris(), localOrder2.getRab() );
+			}
+		}
+	}
+
+
+
+	//Lägg till i LocalOrder och slå upp artikel för att räkna om inköpsenheter
+	private void addLocalOrderWithArtikelLookup(double lev, String artnr, String namn, String levnr, String enh, double netto, double pris, double rab) {
+		double nyttAntal=0;
+		double nyttPris=0;
+		double enhetsfaktor;
+		String mainArtnr;
+		TableArtikel localArtikel;
+
+		if(!SXUtil.isEmpty(artnr)) {	//Hoppa över tomma rader
+			nyttAntal = lev;
+			nyttPris = pris;
+			mainArtnr=artnr;
+
+			localArtikel = emLocal.find(TableArtikel.class, artnr);
+			if (localArtikel!=null) {
+				enhetsfaktor = localArtikel.getInpEnhetsfaktor().doubleValue();
+				if (localArtikel.getInpEnhetsfaktor().compareTo(new BigDecimal(0))!=0) {
+					nyttAntal = lev * enhetsfaktor;
+					nyttPris = pris / enhetsfaktor;
+				}
+				if (!SXUtil.isEmpty(localArtikel.getBestnr())) mainArtnr=localArtikel.getBestnr();
+			}
+			localOrderRader.add(new LocalOrderRad(mainArtnr, nyttAntal, nyttPris, artnr, namn, levnr, enh, netto, pris, rab));
+		}
+
+	}
+
+
+
+
 	public int saveMainOrder() throws SXEntityNotFoundException{
 		// Kolla om loadlocalorder är utförd korrekt innan denna funktion körs
-		if (localOrder1==null) throw new SXEntityNotFoundException("Internt fel: Local Order är inte laddad vid försök att spara. Är loadLocalOrder()utförd korrekt?");
+		if (localOrder==null) throw new SXEntityNotFoundException("Internt fel: Local Order är inte laddad vid försök att spara. Är loadLocalOrder()utförd korrekt?");
 
 		OrderHandler mainOrderHandler = new OrderHandler(emMain, mainKundnr, mainLagernr, mainAnvandare);
-		if (!SXUtil.isEmpty(localOrder1.getLevadr1())) {
-			mainOrderHandler.setLevAdr(localOrder1.getLevadr1(), localOrder1.getLevadr2(), localOrder1.getLevadr3());
+		if (!SXUtil.isEmpty(localOrder.getLevadr1())) {
+			mainOrderHandler.setLevAdr(localOrder.getLevadr1(), localOrder.getLevadr2(), localOrder.getLevadr3());
 		} else {
-			mainOrderHandler.setLevAdr(localOrder1.getNamn(), localOrder1.getAdr1(), localOrder1.getAdr3());
+			mainOrderHandler.setLevAdr(localOrder.getNamn(), localOrder.getAdr1(), localOrder.getAdr3());
 		}
-		mainOrderHandler.setMarke(localOrder1.getMarke());
+		mainOrderHandler.setMarke(localOrder.getMarke());
 		mainOrderHandler.setStatus(SXConstant.ORDER_STATUS_AVVAKT);
-		mainOrderHandler.setKundordernr(localOrder1.getOrdernr());
-		mainOrderHandler.setForskatt(localOrder1.getForskatt());
-		mainOrderHandler.setForskattbetald(localOrder1.getForskattbetald());
+		mainOrderHandler.setKundordernr(localOrder.getOrdernr());
+		mainOrderHandler.setForskatt(localOrder.getForskatt());
+		mainOrderHandler.setForskattbetald(localOrder.getForskattbetald());
 		for (LocalOrderRad localOrderRad : localOrderRader) {
 			try {
 				mainOrderHandler.addRow(localOrderRad.mainArtnr, localOrderRad.nyttAntal);
 			} catch (SXEntityNotFoundException e) {
 				//Artikeln finns inte. Vi måste lägga in en *-rad
-				mainOrderHandler.addStjRow(localOrderRad.order2.getArtnr(), localOrderRad.order2.getNamn(), localOrderRad.order2.getLevnr(), localOrderRad.nyttAntal, localOrderRad.order2.getEnh(), localOrderRad.order2.getNetto(), localOrderRad.order2.getPris(), localOrderRad.order2.getRab());
+				mainOrderHandler.addStjRow(localOrderRad.artnr, localOrderRad.namn, localOrderRad.levnr, localOrderRad.nyttAntal, localOrderRad.enh, localOrderRad.netto, localOrderRad.pris, localOrderRad.rab);
 			}
 
 		}
@@ -109,25 +152,65 @@ public class OverforOrder {
 
 	}
 
+
+
+
 	public void updateLocalOrder() throws SXEntityNotFoundException{
 		// Kolla så att vi har fått ett sxordernr innan denna funktion körs
 		if (mainOrdernr==0) throw new SXEntityNotFoundException("Internt fel: MainOrdernr finns inte vid försök att uppdatera localorder. Är saveMainOrder()utförd korrekt?");
 
-		localOrder1.setWordernr(mainOrdernr);
-		localOrder1.setStatus(SXConstant.ORDER_STATUS_OVERFORD);
+		if (localOrder.order1!=null) {
+			localOrder.order1.setWordernr(mainOrdernr);
+			localOrder.order1.setStatus(SXConstant.ORDER_STATUS_OVERFORD);
+		} else if (localOrder.utlev1!=null){
+			localOrder.utlev1.setWordernr(mainOrdernr);
+			localOrder.utlev1.setStatus(SXConstant.ORDER_STATUS_OVERFORD);
+		}
 		emLocal.flush();
 	}
 
 	public int getMainOrdernr() { return mainOrdernr; }
 
 
+	class LocalOrder {
+		TableUtlev1 utlev1=null;
+		TableOrder1 order1=null;
+		public String getLevadr1() { return utlev1==null ? order1.getLevadr1() : utlev1.getLevadr1(); }
+		public String getLevadr2() { return utlev1==null ? order1.getLevadr2() : utlev1.getLevadr2(); }
+		public String getLevadr3() { return utlev1==null ? order1.getLevadr3() : utlev1.getLevadr3(); }
+		public String getAdr1() { return utlev1==null ? order1.getAdr1() : utlev1.getAdr1(); }
+		public String getAdr3() { return utlev1==null ? order1.getAdr3() : utlev1.getAdr3(); }
+		public String getNamn() { return utlev1==null ? order1.getNamn() : utlev1.getNamn(); }
+		public String getMarke() { return utlev1==null ? order1.getMarke() : utlev1.getMarke(); }
+		public boolean getForskatt() { return utlev1==null ? order1.getForskatt() : utlev1.getForskatt(); }
+		public boolean getForskattbetald() { return utlev1==null ? order1.getForskattbetald() : utlev1.getForskattbetald(); }
+		public int getOrdernr() { return utlev1==null ? order1.getOrdernr() : utlev1.getOrdernr(); }
+	}
+
+
 	class LocalOrderRad {
-		public TableOrder2 order2=null;
+//		public TableOrder2 order2=null;
+		public String artnr=null;
+		public String namn=null;
+		public String levnr=null;
+		public String enh=null;
+		public Double netto=null;
+		public Double pris=null;
+		public Double rab=null;
+
 		public double nyttAntal=0;
 		public double nyttPris=0;
 		public String mainArtnr=null;
-		public LocalOrderRad(TableOrder2 order2, String mainArtnr, double nyttAntal, double nyttPris) {
-			this.order2 = order2;
+		public LocalOrderRad(String mainArtnr, double nyttAntal, double nyttPris, String artnr,String namn, String levnr, String enh, Double netto, Double pris, Double rab ) {
+//			this.order2 = order2;
+			this.artnr=artnr;
+			this.namn=namn;
+			this.levnr=levnr;
+			this.enh=enh;
+			this.netto=netto;
+			this.pris=pris;
+			this.rab=rab;
+
 			this.mainArtnr=mainArtnr;
 			this.nyttAntal=nyttAntal;
 			this.nyttPris=nyttPris;

@@ -614,17 +614,32 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 	public void overforOrderSaveMainOrder(OverforOrder localOrder) throws SXEntityNotFoundException {
 		localOrder.saveMainOrder();
 	}
-
-	// Hämtar en Local order till Main order
-	//Returnerar Main ordernr
-	public int overforOrder(String mainKundnr, int localOrdernr, String localAnvandare, String mainAnvandare, short mainLagernr) throws SXEntityNotFoundException {
-		OverforOrder localOrder = new OverforOrder(emMain, em, localOrdernr, mainKundnr, localAnvandare, mainAnvandare, mainLagernr );
+	//Utför själva hanterandet i ny transaktion eftersom det inte gåår att göra uppdateringar i emLocal och emMain i samma transaktion
+	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+	public void doOverforOrder(OverforOrder localOrder) throws SXEntityNotFoundException {
 		localOrder.loadLocalOrder();
 		sxServerMainBean.overforOrderSaveMainOrder(localOrder);
 		localOrder.updateLocalOrder();
+	}
+
+
+
+	// Hämtar en Local order till Main order
+	//Returnerar Main ordernr
+	// Själva hanteringen sker i annat bean-anrop (i ny transaktion)för att det inte går att blanda emLocal och emMain i samma transaktion
+	public int overforOrder(int localOrdernr, String localAnvandare, short mainLagernr) throws SXEntityNotFoundException {
+		String mainKundnr = ServerUtil.getSXReg(em, SXConstant.SXREG_OVERFOR_ORDER_KUNDNR, SXConstant.SXREG_OVERFOR_ORDER_KUNDNR_DEFAULT);
+		String mainAnvandare = ServerUtil.getSXReg(em, SXConstant.SXREG_SERVERANVANDARE, SXConstant.SXREG_SERVERANVANDARE_DEFAULT);
+		
+		OverforOrder localOrder = new OverforOrder(emMain, em, localOrdernr, mainKundnr, localAnvandare, mainAnvandare, mainLagernr );
+		sxServerMainBean.doOverforOrder(localOrder);
 		return localOrder.getMainOrdernr();
 	}
 
+
+	public String getSXReg(String nyckel, String defaultVarde) {
+		return ServerUtil.getSXReg(em, nyckel, defaultVarde);
+	}
 
 
 
