@@ -9,6 +9,7 @@ import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 import java.util.ArrayList;
 import se.saljex.webadm.client.rpcobject.Epost;
+import se.saljex.webadm.client.rpcobject.InitialData;
 import se.saljex.webadm.client.rpcobject.InloggadAnvandare;
 import se.saljex.webadm.client.rpcobject.IsSQLTable;
 import se.saljex.webadm.client.rpcobject.Kund;
@@ -16,6 +17,7 @@ import se.saljex.webadm.client.rpcobject.NotLoggedInException;
 import se.saljex.webadm.client.rpcobject.SQLTableList;
 import se.saljex.webadm.client.rpcobject.ServerErrorException;
 import se.saljex.webadm.client.rpcobject.SqlSelectParameters;
+import se.saljex.webadm.client.rpcobject.WelcomeData;
 
 /**
  *
@@ -46,5 +48,7 @@ public interface GWTService extends RemoteService {
 
 	public InloggadAnvandare logIn(String anvandare, String losen) throws NotLoggedInException, ServerErrorException;
 	public void logout() throws ServerErrorException;
+	public InitialData getInitialData() throws ServerErrorException;
+	public WelcomeData getWelcomeData(short lagernr) throws ServerErrorException, NotLoggedInException;
 
 }

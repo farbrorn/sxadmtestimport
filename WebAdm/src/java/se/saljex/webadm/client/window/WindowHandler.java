@@ -10,11 +10,8 @@ import com.google.gwt.core.client.Scheduler.ScheduledCommand;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.user.client.ui.FlowPanel;
-import se.saljex.webadm.client.window.Window;
 import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ScrollPanel;
-import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import java.util.ArrayList;
@@ -40,7 +37,6 @@ public class WindowHandler extends VerticalPanel implements WindowHandlerInterfa
 		add(windowScrollPanel);
 
 		setWindowScrollPanelSize();
-		addWindow(new Label("Tab4"), "Tebben n4");
 
 		com.google.gwt.user.client.Window.addResizeHandler(new ResizeHandler() {
 			@Override

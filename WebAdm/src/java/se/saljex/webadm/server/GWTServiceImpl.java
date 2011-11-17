@@ -33,6 +33,7 @@ import se.saljex.webadm.client.GWTService;
 import se.saljex.webadm.client.rpcobject.Artikel;
 import se.saljex.webadm.client.rpcobject.Epost;
 import se.saljex.webadm.client.rpcobject.ErrorConvertingFromResultsetException;
+import se.saljex.webadm.client.rpcobject.InitialData;
 import se.saljex.webadm.client.rpcobject.InloggadAnvandare;
 import se.saljex.webadm.client.rpcobject.IsSQLTable;
 import se.saljex.webadm.client.rpcobject.ServerErrorException;
@@ -41,6 +42,7 @@ import se.saljex.webadm.client.rpcobject.NotLoggedInException;
 import se.saljex.webadm.client.rpcobject.Order1;
 import se.saljex.webadm.client.rpcobject.SQLTableList;
 import se.saljex.webadm.client.rpcobject.SqlSelectParameters;
+import se.saljex.webadm.client.rpcobject.WelcomeData;
 
 /**
  *
@@ -653,13 +655,8 @@ public class GWTServiceImpl extends RemoteServiceServlet implements GWTService {
 		try {
 			sxCon = sxadm.getConnection();
 			if (WebSupport.loginIntra(sxCon, getThreadLocalRequest().getSession(), anvandare, losen)) {
-				SXSession sxSession = WebSupport.getSXSession(getThreadLocalRequest().getSession());
-				InloggadAnvandare inloggadAnvandare = new InloggadAnvandare();
-				inloggadAnvandare.anvandare = sxSession.getIntraAnvandare();
-				inloggadAnvandare.anvandareKort = sxSession.getIntraAnvandareKort();
-				inloggadAnvandare.arrBehorighet = sxSession.getArrBehorighet();
-				inloggadAnvandare.defaultLagernr = sxSession.getIntraAnvandareLagerNr();
-				return inloggadAnvandare;
+//				SXSession sxSession = WebSupport.getSXSession(getThreadLocalRequest().getSession());
+				return setUpInloggadAnvandare();
 			} else {
 				throw new NotLoggedInException("Felaktig användare/Lösen");
 			}
@@ -681,6 +678,19 @@ public class GWTServiceImpl extends RemoteServiceServlet implements GWTService {
 		} catch (Exception e) { throw new ServerErrorException(e.getMessage()); }
 	}
 
+	private InloggadAnvandare setUpInloggadAnvandare() {
+		SXSession sxSession = WebSupport.getSXSession(getThreadLocalRequest().getSession());
+		try {
+			ensureLoggedIn();
+			InloggadAnvandare inloggadAnvandare = new InloggadAnvandare();
+			inloggadAnvandare.anvandare = sxSession.getIntraAnvandare();
+			inloggadAnvandare.anvandareKort = sxSession.getIntraAnvandareKort();
+			inloggadAnvandare.arrBehorighet = sxSession.getArrBehorighet();
+			inloggadAnvandare.defaultLagernr = sxSession.getIntraAnvandareLagerNr();
+			return inloggadAnvandare;
+		} catch (NotLoggedInException e) { return null; }
+	}
+
 	private void ensureLoggedIn() throws NotLoggedInException{
 		String testlage = (String)getThreadLocalRequest().getSession().getAttribute(SXConstant.SXREG_TESTLAGE);
 		if (testlage!=null && testlage.equals("Ja")) {
@@ -691,4 +701,113 @@ public class GWTServiceImpl extends RemoteServiceServlet implements GWTService {
 			}
 		}
 	}
+
+	public InitialData getInitialData() throws ServerErrorException{
+		InitialData data = new InitialData();
+		Connection con=null;
+		try {
+			con = sxadm.getConnection();
+			PreparedStatement stm = con.prepareStatement("select namn from fuppg");
+
+			ResultSet rs = stm.executeQuery();
+			if (rs.next()) {
+				data.foretagNamn = rs.getString(1);
+			} else {
+				throw new ServerErrorException("Inga företagsdata finns. Kontrollera med administratör.");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new ServerErrorException("SQL-Fel");
+		} finally {
+			try {
+				con.close();
+			} catch (Exception e) { }
+		}
+		data.inloggadAnvandare = setUpInloggadAnvandare();
+		return data;
+	}
+
+
+	private void doGetWelcomeDataFillChartForsaljning(ResultSet rs, GoogleChartHandler gch) throws SQLException{
+		double[] row = null;
+		int currentAr = 0;
+
+		row = null;
+		while (rs.next()) {
+			if (rs.getInt(1) != currentAr) {
+				if (row != null) { //Om vi har data för ett år så sparar vi det//Om vi har data för ett år så sparar vi det
+					gch.addSerie("" + currentAr, row);
+				}
+				row = new double[12];
+				currentAr = rs.getInt(1);
+			}
+			if (rs.getInt(2) - 1 >= 0) {
+				row[rs.getInt(2) - 1] = rs.getDouble(3);
+			}
+		}
+
+	}
+
+	public WelcomeData getWelcomeData(short lagernr) throws ServerErrorException, NotLoggedInException {
+		WelcomeData welcomeData = new WelcomeData();
+		Connection con = null;
+		int width = 400;
+		int height = 200;
+
+		int antalArBakat = 3;
+
+		int startAr;
+		
+		Calendar c = Calendar.getInstance();
+		c.setTime(new java.util.Date());
+		startAr = c.get(Calendar.YEAR) - antalArBakat;
+
+		GoogleChartHandler gch = new GoogleChartHandler();
+		gch.setEtiketterJanToDec();
+		gch.setSize(width, height);
+
+		try {
+			con = sxadm.getConnection();
+			PreparedStatement stm = con.prepareStatement(
+					"select year(f1.datum), month(f1.datum), round(cast(sum(t_netto) as numeric),0) from faktura1 f1 "
+					+ " where (f1.lagernr=? or 1=?) and year(f1.datum)>=? "
+					+ " group by year(f1.datum), month(f1.datum) "
+					+ " order by year(f1.datum) desc, month(f1.datum)");
+			stm.setShort(1, lagernr);
+			stm.setInt(2, 0);	//Bara för angivet lager
+			stm.setInt(3, startAr);
+			ResultSet rs = stm.executeQuery();
+
+			gch.setTile("Försäljning Filial " + lagernr);
+			gch.clearSerier();
+			doGetWelcomeDataFillChartForsaljning(rs, gch);
+			welcomeData.forsaljningChartURLFilial = gch.getURL();
+
+			stm.setShort(1, lagernr);
+			stm.setInt(2, 1);	//Ta med allt
+			stm.setInt(3, startAr);
+			rs = stm.executeQuery();
+			gch.setTile("Försäljning Totalt ");
+			gch.clearSerier();
+			doGetWelcomeDataFillChartForsaljning(rs, gch);
+			welcomeData.forsaljningChartURLTotalt = gch.getURL();
+
+
+
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw (new ServerErrorException("Fel vid kommunikation med databasen"));
+		} catch (Exception ee) {
+			ee.printStackTrace();
+			throw (new ServerErrorException("Okänt fel: " + ee.getMessage()));
+		} finally {
+			try {
+				con.close();
+			} catch (Exception e) {
+			}
+		}
+		return welcomeData;
+	}
+
 }

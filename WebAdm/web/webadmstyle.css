@@ -88,6 +88,9 @@
 .sx-bold {
     font-weight: bold;
 }
+.sx-bolder {
+    font-weight: bolder;
+}
 
 .sx-table-rubrik {
 
@@ -125,6 +128,38 @@
 }
 .sx-text-medium {
 	font-size: medium;
+}
+
+.sx-red {
+	color: red;
+}
+.sx-blue {
+	color: blue;
+}
+.sx-green {
+	color: green;
+}
+.sx-yellow {
+	color: yellow;
+}
+.sx-brown {
+	color: brown;
+}
+.sx-cyan {
+	color: cyan;
+}
+
+.sx-lightgreen {
+	color: lightgreen;
+}
+.sx-lightblue {
+	color: lightblue;
+}
+.sx-orange {
+	color: orange;
+}
+.sx-pink {
+	color: pink;
 }
 
 .w-tabtitle-btn {

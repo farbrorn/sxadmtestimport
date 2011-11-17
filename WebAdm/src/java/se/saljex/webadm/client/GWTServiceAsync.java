@@ -8,11 +8,13 @@ package se.saljex.webadm.client;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import java.util.ArrayList;
 import se.saljex.webadm.client.rpcobject.Epost;
+import se.saljex.webadm.client.rpcobject.InitialData;
 import se.saljex.webadm.client.rpcobject.InloggadAnvandare;
 import se.saljex.webadm.client.rpcobject.IsSQLTable;
 import se.saljex.webadm.client.rpcobject.Kund;
 import se.saljex.webadm.client.rpcobject.SQLTableList;
 import se.saljex.webadm.client.rpcobject.SqlSelectParameters;
+import se.saljex.webadm.client.rpcobject.WelcomeData;
 
 /**
  *
@@ -40,5 +42,7 @@ public interface GWTServiceAsync {
 	public void overforOrder(int ordernr, String anvandare, short lagernr, AsyncCallback<Integer> callback);
 	public void logIn(String anvandare, String losen, AsyncCallback<InloggadAnvandare> callback);
 	public void logout(AsyncCallback callback);
+	public void getInitialData(AsyncCallback<InitialData> callback);
+	public void getWelcomeData(short lagernr, AsyncCallback<WelcomeData> callback);
 
 }

@@ -38,6 +38,7 @@ public static final String Style_N15 = "sx-tb-s15";
 public static final String Style_N20 = "sx-tb-s20";
 
 public static final String Style_Bold = "sx-bold";
+public static final String Style_Bolder = "sx-bolder";
 
 public static final String Style_FloatNone = "sx-float-none";
 public static final String Style_FloatLeft = "sx-float-left";
@@ -58,5 +59,15 @@ public static final String Style_AlignRight="sx-alignright";
 
 public static final String Style_BoxedScroll="sx-boxed-scroll";
 
+public static final String Style_Red = "sx-red";
+public static final String Style_Blue = "sx-blue";
+public static final String Style_Green = "sx-green";
+public static final String Style_Yellow = "sx-yellow";
+public static final String Style_Brown = "sx-brown";
+public static final String Style_Cyan = "sx-cyan";
+public static final String Style_LightGreen = "sx-lightgreen";
+public static final String Style_LightBlue = "sx-lightblue";
+public static final String Style_Orange = "sx-orange";
+public static final String Style_Pink = "sx-pink";
 
 }
