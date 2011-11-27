@@ -112,7 +112,7 @@ public class SQLTableGetList {
 			SQLTableHandler.fillSQLTable(con, table, list, where, orderBy, null, parameters.toArray(), true, false, offset, limit);
 		} catch (SQLException e) {
 			e.printStackTrace();
-			throw new ServerErrorException("SQL-Fel");
+			throw new ServerErrorException("SQL-Fel (SQLTableGetList.fillist): " + e.getMessage());
 		} catch (ErrorConvertingFromResultsetException ee) {
 			throw new ServerErrorException();
 		} finally {

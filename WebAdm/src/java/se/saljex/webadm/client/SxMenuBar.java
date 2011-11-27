@@ -58,7 +58,8 @@ public class SxMenuBar extends MenuBar {
 		add(menuUnderhall,"Offertlista", new Command() {	@Override	public void execute() {	windowHandler.addWindow(new OffertListaWidget(true,true), "Offert");	}	});
 		add(menuUnderhall,"Fakturalista", new Command() {	@Override	public void execute() {	windowHandler.addWindow(new FakturaListWidget(true,true), "Fakturor");	}	});
 		add(menuUnderhall,"Utleveranser", new Command() {	@Override	public void execute() {	windowHandler.addWindow(new UtlevListWidget(true,true), "Utleveranser");	}	});
-		add(menuUnderhall,"Överför", new Command() {	@Override	public void execute() {	windowHandler.addWindow(new OverforUtlevWidget(), "Överför order");	}	});
+		add(menuUnderhall,"Överför Utleverans", new Command() {	@Override	public void execute() {	windowHandler.addWindow(new OverforUtlevMainWidget(), "Överför Utleverans");	}	});
+		add(menuUnderhall,"Överför Order", new Command() {	@Override	public void execute() {	windowHandler.addWindow(new OverforOrderMainWidget(), "Överför Order");	}	});
 
 		//Frågor
 		add(menuFragor, "Tomt", new Command() {	@Override	public void execute() {		}	});

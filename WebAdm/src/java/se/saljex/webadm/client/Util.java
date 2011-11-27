@@ -30,9 +30,9 @@ public class Util {
 	public final static NumberFormat fmt2Dec = NumberFormat.getFormat("0.00");
 	private static GWTServiceAsync service=null;
 
-	private static final DialogBox waitModalPopup = new DialogBox(false, true);
+	private static final PopupPanel waitModalPopup = new PopupPanel(false, true);
 
-	private static PopupPanel messageBox=null;
+	private static DialogBox messageBox=null;
 
 	public static void showModalWait() {
 		if (waitModalPopup.getWidget()==null) waitModalPopup.setWidget(new Label("Arbetar..."));
@@ -79,7 +79,7 @@ public class Util {
 		showModalMessage(new Label(text));
 	}
 	public static void showModalMessage(Widget widget) {
-		if (messageBox==null) messageBox = new PopupPanel(true, true);
+		if (messageBox==null) messageBox = new DialogBox(true, true);
 		messageBox.setWidget(widget);
 		messageBox.center();
 		messageBox.show();

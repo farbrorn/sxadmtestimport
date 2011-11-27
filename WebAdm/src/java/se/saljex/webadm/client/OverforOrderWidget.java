@@ -5,9 +5,7 @@
 
 package se.saljex.webadm.client;
 
-import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.ActionCell;
-import com.google.gwt.cell.client.Cell;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
@@ -19,66 +17,75 @@ import java.util.List;
 import se.saljex.webadm.client.constants.Const;
 import se.saljex.webadm.client.rpcobject.SQLTableList;
 import se.saljex.webadm.client.rpcobject.SqlSelectParameters;
-import se.saljex.webadm.client.rpcobject.Utlev1;
+import se.saljex.webadm.client.rpcobject.Order1Utlev1Combo;
 
 /**
  *
  * @author Ulf
  */
-public class OverforUtlevWidget extends ListWidget<Utlev1>{
+public class OverforOrderWidget<T extends Order1Utlev1Combo> extends ListWidget<T>{
 
-	HasData2Form<Utlev1> formUpdat;
+	HasData2Form<T> formUpdat;
 
-	public OverforUtlevWidget() {
-		super(null, new PageLoad<Utlev1>(new Utlev1(), 30, 100, 1000, null) ,null);
+
+	MessagePopupPanel msg = new MessagePopupPanel(true, "Överför order");
+
+	public OverforOrderWidget(T tableObject) {
+		super(null, new PageLoad<T>(tableObject, 30, 100, 1000, null) ,null);
 		SqlSelectParameters s = new SqlSelectParameters();
-		s.addOrderByParameter("faktnr", SQLTableList.SORT_DESCANDING);
+		s.addOrderByParameter("ordernr", SQLTableList.SORT_DESCANDING);
 		setSearch(s);
 	}
 
 	@Override
-	void addListColumns(CellTable<Utlev1> cellTable) {
+	void addListColumns(CellTable<T> cellTable) {
 		getCellTable().addColumnStyleName(0, Const.Style_S10);
 		getCellTable().addColumnStyleName(1, Const.Style_S10);
 		getCellTable().addColumnStyleName(2, Const.Style_S10);
 		getCellTable().addColumnStyleName(3, Const.Style_S10);
 
-		cellTable.addColumn(new SxNumberColumn<Utlev1>(Util.fmt0Dec) {@Override public Number getValue(Utlev1 object) {return object.ordernr;}}
+		cellTable.addColumn(new SxNumberColumn<T>(Util.fmt0Dec) {@Override public Number getValue(T object) {return object.ordernr;}}
 							, "Order");
 
-		cellTable.addColumn(new TextColumn<Utlev1>() {@Override public String getValue(Utlev1 object) {return Util.formatDate(object.datum);}}
+		cellTable.addColumn(new TextColumn<T>() {@Override public String getValue(T object) {return Util.formatDate(object.datum);}}
 							, "Orderdatum");
-		cellTable.addColumn(new TextColumn<Utlev1>() {@Override public String getValue(Utlev1 object) {return object.status;}}
+		cellTable.addColumn(new TextColumn<T>() {@Override public String getValue(T object) {return object.status;}}
 							, "Status");
 
 
-		ActionCell<Utlev1> ac = new ActionCell<Utlev1>("Överför", new ActionCell.Delegate<Utlev1>() {
+		ActionCell<T> ac = new ActionCell<T>("Överför", new ActionCell.Delegate<T>() {
 			@Override
-			public void execute(Utlev1 object) {
+			public void execute(T object) {
 				if (Const.ORDER_STATUS_OVERFORD.equals(object.status)) {
 					ModalMessage.show("Ordern är redan överförd");
 				} else {
-					Util.showModalWait();
-					Util.getService().overforOrder(object.ordernr, Util.getAnvandareKort(), (short)0, overforCallback);
+					final T objectFinal = object;
+					msg.showWithOkAvbryt("Överför order " + object.ordernr + "?", new MessagePopuCallback() {
+						@Override
+						public void btnClicked(int btnId) {
+							if (btnId==0) doOverfor(objectFinal);
+						}
+					});
 				}
 			}
 		});
-		cellTable.addColumn(new Column<Utlev1, Utlev1>(ac) {
+
+		cellTable.addColumn(new Column<T, T>(ac) {
 			@Override
-			public Utlev1 getValue(Utlev1 object) {
-			return object;}
+			public T getValue(T object) {
+				return object;
+			}
 			@Override
-			public void render(Utlev1 u, ProvidesKey p , SafeHtmlBuilder h) {
+			public void render(T u, ProvidesKey<T> p , SafeHtmlBuilder h) {
 				if (!Const.ORDER_STATUS_OVERFORD.equals(u.status)) {
 					super.render(u, p, h);
 				}
 			}
-
 		});
 
-		cellTable.addColumn(new TextColumn<Utlev1>() {@Override public String getValue(Utlev1 object) {return object.namn;}}
+		cellTable.addColumn(new TextColumn<T>() {@Override public String getValue(T object) {return object.namn;}}
 							, "Kund");
-		cellTable.addColumn(new TextColumn<Utlev1>() {@Override public String getValue(Utlev1 object) {return object.marke;}}
+		cellTable.addColumn(new TextColumn<T>() {@Override public String getValue(T object) {return object.marke;}}
 							, "Märke");
 
 	}
@@ -98,11 +105,17 @@ public class OverforUtlevWidget extends ListWidget<Utlev1>{
 		}
 	};
 
+	private void doOverfor(T object) {
+//		Util.showModalMessage("Order " + object==null ? "null" : ""+object.ordernr);
+		Util.showModalWait();
+		Util.getService().overforOrder(((T)object).ordernr, Util.getAnvandareKort(), (short)0, overforCallback);
+	}
+
 	private void updateRow(Integer ordernr) {
 		if (ordernr!=null) {
-			ListDataProvider<Utlev1> liProvider = this.getListDataProvider();
-			List<Utlev1> list = liProvider.getList();
-			for (Utlev1 u : list) {
+			ListDataProvider<T> liProvider = this.getListDataProvider();
+			List<T> list = liProvider.getList();
+			for (T u : list) {
 				if (ordernr.equals(u.ordernr)) {
 					u.status =  Const.ORDER_STATUS_OVERFORD;
 					break;

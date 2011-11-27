@@ -117,7 +117,7 @@ public class MainEntryPoint implements EntryPoint {
 
 		@Override
 		public void onFailure(Throwable caught) {
-			Util.showModalMessage("Inloggningen misslyckades.");
+			Util.showModalMessage("Inloggningen misslyckades. Fel: " + caught.getMessage());
 		}
 
 		@Override

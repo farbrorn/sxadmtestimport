@@ -117,7 +117,7 @@ public class GWTServiceImpl extends RemoteServiceServlet implements GWTService {
 
 		} catch (SQLException e) {
 			e.printStackTrace();
-			throw new ServerErrorException("SQL-Fel");
+			throw new ServerErrorException("SQL-Fel (GetKundEpostLista): " + e.getMessage());
 		} finally {
 			try {
 				con.close();
@@ -157,7 +157,7 @@ public class GWTServiceImpl extends RemoteServiceServlet implements GWTService {
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
-			throw new ServerErrorException("SQL-Fel");
+			throw new ServerErrorException("SQL-Fel (GetKund)" + e.getMessage());
 		} catch (ErrorConvertingFromResultsetException ec) {
 			ec.printStackTrace();
 			throw new ServerErrorException("Fel vid konvertering av SQL ResultSet");
@@ -236,7 +236,7 @@ public class GWTServiceImpl extends RemoteServiceServlet implements GWTService {
 			SQLTableHandler.updateTableRow(con, anvandare, newValues, oldValues);
 		} catch (SQLException e) {
 			e.printStackTrace();
-			throw new ServerErrorException("SQL-Fel");
+			throw new ServerErrorException("SQL-Fel (putTableRow)" + e.getMessage());
 		} finally {
 			try {
 				con.close();
@@ -425,7 +425,7 @@ public class GWTServiceImpl extends RemoteServiceServlet implements GWTService {
 		try {
 			con = sxadm.getConnection();
 		} catch (SQLException e) {
-			throw new ServerErrorException("SQL-Fel");
+			throw new ServerErrorException("SQL-Fel" + e.getMessage());
 		} finally {
 			try {
 				con.close();
@@ -717,7 +717,7 @@ public class GWTServiceImpl extends RemoteServiceServlet implements GWTService {
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
-			throw new ServerErrorException("SQL-Fel");
+			throw new ServerErrorException("SQL-Fel (getInitialData)" + e.getMessage());
 		} finally {
 			try {
 				con.close();
