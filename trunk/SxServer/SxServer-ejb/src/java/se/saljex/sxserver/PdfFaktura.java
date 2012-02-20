@@ -25,7 +25,6 @@ public class PdfFaktura extends PdfHandler {
 	private Image logoImage = null; 
 	private TableFaktura1 fa1;
 	private TableFaktura2 fa2;
-	private TableArtikel art;
 	private TableFuppg fup;
 	private TableBilder bil;
 	private TableKund kun;
@@ -50,10 +49,11 @@ public class PdfFaktura extends PdfHandler {
     }
 
 
-    private void getArtikelRskEnr(String artnr) {
-		Query q = em.createQuery("SELECT a.rsk, a.enummer FROM TableArtikel a WHERE a.nummer = ?1");
-		q.setParameter(1, artnr);
-		art = (TableArtikel)q.getSingleResult();
+    private TableArtikel getArtikel(String artnr) {
+		return em.find(TableArtikel.class, artnr);
+//		Query q = em.createQuery("SELECT a.rsk, a.enummer FROM TableArtikel a WHERE a.nummer = ?1");
+//		q.setParameter(1, artnr);
+//		art = (TableArtikel)q.getSingleResult();
     }
     
     
@@ -128,8 +128,8 @@ public class PdfFaktura extends PdfHandler {
 				if (KundSkrivFakturaRskEnr) {
                     artnr = fa2.getArtnr();
                     if (artnr.length() > 0 && !artnr.startsWith("*")) {
-                        try {       //Fånga SQLException som uppstår om aritkeln saknas. Vi vill fortsätta köra då, utan att skriva ut rsk/enr.
-							getArtikelRskEnr(artnr);
+						TableArtikel art = getArtikel(artnr);
+						if (art!=null) {
 							rsk = art.getRsk();
 							enr = art.getEnummer();
 							if (rsk == null) {rsk = "";}
@@ -140,7 +140,7 @@ public class PdfFaktura extends PdfHandler {
 								offsetY -= detailArtHeight;
 								printDetailRskEnr(rsk,enr, offsetY);
 							}
-						} catch (NoResultException esql) { }
+						}
                     }
                 }
             }

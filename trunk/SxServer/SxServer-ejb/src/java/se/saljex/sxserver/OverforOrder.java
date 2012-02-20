@@ -32,8 +32,9 @@ public class OverforOrder {
 	private LocalOrder localOrder=null; //Skall sättas till null här för att indiker att loadLocalOrder inte är utförd
 	private ArrayList<LocalOrderRad> localOrderRader = null;
 	private int mainOrdernr = 0;
+	private boolean allowUseBestnr=true;
 
-	public OverforOrder(EntityManager emMain, EntityManager emLocal, int localOrdernr, String mainKundnr, String localAnvandare, String mainAnvandare, short mainLagernr) {
+	public OverforOrder(EntityManager emMain, EntityManager emLocal, int localOrdernr, String mainKundnr, String localAnvandare, String mainAnvandare, short mainLagernr, boolean allowUseBestnr) {
 		this.emLocal = emLocal;
 		this.emMain = emMain;
 		this.localOrdernr = localOrdernr;
@@ -41,6 +42,7 @@ public class OverforOrder {
 		this.localAnvandar = localAnvandare;
 		this.mainAnvandare = mainAnvandare;
 		this.mainLagernr = mainLagernr;
+		this.allowUseBestnr=allowUseBestnr;
 	}
 
 
@@ -86,7 +88,7 @@ public class OverforOrder {
 			List<TableOrder2> localOrder2List = emLocal.createNamedQuery("TableOrder2.findByOrdernr").setParameter("ordernr", localOrdernr).getResultList();
 
 			for (TableOrder2 localOrder2 : localOrder2List) {
-				addLocalOrderWithArtikelLookup(localOrder2.getBest(),localOrder2.getArtnr(), localOrder2.getNamn(), localOrder2.getLevnr(), localOrder2.getEnh(), localOrder2.getNetto(), localOrder2.getPris(), localOrder2.getRab() );
+				addLocalOrderWithArtikelLookup(localOrder2.getBest(),localOrder2.getArtnr(), localOrder2.getNamn(), localOrder2.getLevnr(), localOrder2.getEnh(), localOrder2.getNetto(), localOrder2.getPris(), localOrder2.getRab());
 			}
 		}
 	}
@@ -98,7 +100,7 @@ public class OverforOrder {
 		double nyttAntal=0;
 		double nyttPris=0;
 		double enhetsfaktor;
-		String mainArtnr;
+		String mainArtnr = null;
 		TableArtikel localArtikel;
 
 		if(!SXUtil.isEmpty(artnr)) {	//Hoppa över tomma rader
@@ -113,7 +115,7 @@ public class OverforOrder {
 					nyttAntal = lev * enhetsfaktor;
 					nyttPris = pris / enhetsfaktor;
 				}
-				if (!SXUtil.isEmpty(localArtikel.getBestnr())) mainArtnr=localArtikel.getBestnr();
+				if (!SXUtil.isEmpty(localArtikel.getBestnr()) && allowUseBestnr) mainArtnr=localArtikel.getBestnr();
 			}
 			localOrderRader.add(new LocalOrderRad(mainArtnr, nyttAntal, nyttPris, artnr, namn, levnr, enh, netto, pris, rab));
 		}
