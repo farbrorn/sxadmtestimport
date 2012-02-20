@@ -2276,8 +2276,8 @@ cr timestamp default current_timestamp
 
 /* Ändringar 2010-06-15 */
 alter table artikel add inp_enh varchar(3);	/*Leverantörens enhet */
-alter table artikel add inp_enhetsfaktor numeric(12,6) not null default 0.0;	/* Hur många av leverantörens enheter som motsvarar försäljningsenheten 
-																											ex. leverantör har 6 m rör och säljer som m, men vi har enhet st så blir faktorn 6
+alter table artikel add inp_enhetsfaktor numeric(12,6) not null default 0.0;	/* Hur många av leverantörens enheter som motsvarar försäljningsenheten  */
+																											/*ex. leverantör har 6 m rör och säljer som m, men vi har enhet st så blir faktorn 6 */
 /* Ändringar 2010-08-01 */
 alter table order1 add kundordernr integer not null default 0;
 alter table order1 add forskatt smallint not null default 0;
@@ -2320,7 +2320,7 @@ create view utlevview as (
 select
 o1.ordernr, o1.dellev, o1.namn as kundnamn, adr1, adr2, adr3, levadr1, levadr2, levadr3, saljare, kundnr,
 marke, datum, moms, status, ktid, bonus, faktor, o1.levdat as orderlevdat, levvillkor, mottagarfrakt, fraktkundnr,
-fraktbolag, fraktfrigrans, lagernr, direktlevnr, returorder,  tid, o1.faktnr
+fraktbolag, fraktfrigrans, lagernr, direktlevnr, returorder,  tid, o1.faktnr,
 veckolevdag, annanlevadress, ordermeddelande,
 wordernr, linjenr1, linjenr2, linjenr3, kundordernr, forskatt, forskattbetald, betalsatt,
  pos, prisnr, artnr, rab, lev, text, pris, summa, konto, netto, enh, f2.namn as artnamn, bon_nr,

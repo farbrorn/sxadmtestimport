@@ -480,9 +480,9 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 					ResultSet r = st.executeQuery("select u.epost from webuser u, weborder1 o where u.loginnamn = o.loginnamn and o.wordernr = " + o);
 					if (r.next()) {
 						try {
-							String testlage  = ServerUtil.getSXReg(em,"SxServTestlage","Ja" );
+							String testlage  = ServerUtil.getSXReg(em,SXConstant.SXREG_TESTLAGE, SXConstant.SXREG_TESTLAGE_DEFAULT );
 
-							if (!testlage.equals("Nej")) {
+							if (!"Nej".equals(testlage)) {
 								mailTo = "ulf.hemma@saljex.se";
 							} else {
 								mailTo = r.getString(1);
@@ -630,8 +630,9 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 	public int overforOrder(int localOrdernr, String localAnvandare, short mainLagernr) throws SXEntityNotFoundException {
 		String mainKundnr = ServerUtil.getSXReg(em, SXConstant.SXREG_OVERFOR_ORDER_KUNDNR, SXConstant.SXREG_OVERFOR_ORDER_KUNDNR_DEFAULT);
 		String mainAnvandare = ServerUtil.getSXReg(em, SXConstant.SXREG_SERVERANVANDARE, SXConstant.SXREG_SERVERANVANDARE_DEFAULT);
-		
-		OverforOrder localOrder = new OverforOrder(emMain, em, localOrdernr, mainKundnr, localAnvandare, mainAnvandare, mainLagernr );
+		String allowUseBestnrString = ServerUtil.getSXReg(em, SXConstant.SXREG_OVERFOR_ORDER_ALLOWUSEBESTNR, SXConstant.SXREG_OVERFOR_ORDER_ALLOWUSEBESTNR_DEFAULT);
+		boolean allowUseBestnr = "true".equals(allowUseBestnrString);
+		OverforOrder localOrder = new OverforOrder(emMain, em, localOrdernr, mainKundnr, localAnvandare, mainAnvandare, mainLagernr, allowUseBestnr );
 		sxServerMainBean.doOverforOrder(localOrder);
 		return localOrder.getMainOrdernr();
 	}
@@ -681,6 +682,11 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 		SxServJobbHandler.sendFakturaEpost(em, anvandare, id, epost);
 	}
 
+	
+	public String getHtmlOffert (int offertnr, boolean inkMoms, String logoUrl) {
+		return null;
+		
+	}
 
 
 
