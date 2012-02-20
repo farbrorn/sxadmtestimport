@@ -19,6 +19,7 @@ public class SXConstant {
 	public static final  String ORDER_STATUS_OVERFORD = "Överf";
 	public static final  String ORDER_STATUS_SAMFAK = "Samfak";
 	public static final  String ORDER_STATUS_HAMT = "Hamt";
+	public static final  String ORDER_STATUS_FORSKOTT = "Försk";
 
 	
 	public static final  String ORDERHAND_SKAPAD = "Skapad";
@@ -103,7 +104,9 @@ public class SXConstant {
 
 	public static final	String SXREG_OVERFOR_ORDER_KUNDNR = "sxServOverforOrderKundnr";
 	public static final	String SXREG_OVERFOR_ORDER_KUNDNR_DEFAULT = "1";
-	public static final	String SXREG_TESTLAGE = "sxServTestlage";
+	public static final  String SXREG_OVERFOR_ORDER_ALLOWUSEBESTNR = "SxServOverforOrderAllowUseBestnr";
+	public static final  String SXREG_OVERFOR_ORDER_ALLOWUSEBESTNR_DEFAULT = "true";
+	public static final	String SXREG_TESTLAGE = "SxServTestlage";
 	public static final	String SXREG_TESTLAGE_DEFAULT = "Ja";
 
 
