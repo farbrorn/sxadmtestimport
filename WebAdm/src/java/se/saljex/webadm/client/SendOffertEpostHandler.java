@@ -12,34 +12,18 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
  *
  * @author Ulf
  */
-public class SendOffertEpostHandler implements HasSendEpost{
+public class SendOffertEpostHandler extends SendEpostHandler{
 
-	HasShowMessage showMessage;
-	int offertnr;
-	String anvandare;
-
-	public SendOffertEpostHandler(String anvandare, int offertnr, HasShowMessage showMessage) {
-		this.showMessage = showMessage;
-		this.anvandare=anvandare;
-		this.offertnr=offertnr;
+	public SendOffertEpostHandler(String anvandare, int fakturanr) {
+		super(anvandare, fakturanr);
+	}
+	public SendOffertEpostHandler(String anvandare, int fakturanr, HasShowMessage showMessage) {
+		super(anvandare, fakturanr, showMessage);
 	}
 
 	@Override
 	public void sendEpost(String epost) {
-		MainEntryPoint.getService().sendOffertEpost(anvandare, epost, offertnr, callback);
+		MainEntryPoint.getService().sendOffertEpost(anvandare, epost, id, callback);
 	}
-
-	AsyncCallback<Integer> callback = new AsyncCallback<Integer>() {
-
-		@Override
-		public void onFailure(Throwable caught) {
-			showMessage.showErr("Kunde inte skaicka e-post, Fel: " + caught.getMessage());
-		}
-
-		@Override
-		public void onSuccess(Integer result) {
-			showMessage.showInfo("Offert " + result + " är lagd i kö för att skickas.");
-		}
-	};
 
 }

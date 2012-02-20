@@ -44,5 +44,5 @@ public interface GWTServiceAsync {
 	public void logout(AsyncCallback callback);
 	public void getInitialData(AsyncCallback<InitialData> callback);
 	public void getWelcomeData(short lagernr, AsyncCallback<WelcomeData> callback);
-
+	public void verifyAnvandareKort(String anvandareKort, AsyncCallback<String> callback);
 }

@@ -176,6 +176,84 @@
 	float: none;
 }
 
+.sx-display-inline {
+	display: inline;
+}
+
+.sx-margin-1em {
+	margin: 1em;
+}
+.sx-margin-1em-left {
+	margin-left: 1em;
+}
+.sx-margin-1em-right {
+	margin-right: 1em;
+}
+.sx-margin-1em-top {
+	margin-top: 1em;
+}
+.sx-margin-1em-bottom {
+	margin-bottom: 1em;
+}
+
+.sx-margin-05em {
+	margin: 0.5em;
+}
+.sx-margin-05em-left {
+	margin-left: 0.5em;
+}
+.sx-margin-05em-right {
+	margin-right: 0.5em;
+}
+.sx-margin-05em-top {
+	margin-top: 0.5em;
+}
+.sx-margin-05em-bottom {
+	margin-bottom: 0.5em;
+}
+
+.sx-padding-1em {
+	padding: 1em;
+}
+.sx-padding-1em-left {
+	padding-left: 1em;
+}
+.sx-padding-1em-right {
+	padding-right: 1em;
+}
+.sx-padding-1em-top {
+	padding-top: 1em;
+}
+.sx-padding-1em-bottom {
+	padding-bottom: 1em;
+}
+
+.sx-padding-05em {
+	padding: 0.5em;
+}
+.sx-padding-05em-left {
+	padding-left: 0.5em;
+}
+.sx-padding-05em-right {
+	padding-right: 0.5em;
+}
+.sx-padding-05em-top {
+	padding-top: 0.5em;
+}
+.sx-padding-05em-bottom {
+	padding-bottom: 0.5em;
+}
+
+
+.sx-popupmenu {
+  border-color: gray;
+  border-width: 1px 3px 3px 1px;
+  border-style: solid;
+}
+
+.sx-popupmenu-item {
+	font-weight: normal;
+}
 .sx-errorlabel {
 
     font-style: italic;
@@ -254,12 +332,13 @@
 
 .w-windowpanel {
 	width: 100%;
-
 }
 .w-windowhandler {
 	width: 100%;
 
 }
+
+
 
 .sx-boxed-scroll {
 	border-width: 1 px;

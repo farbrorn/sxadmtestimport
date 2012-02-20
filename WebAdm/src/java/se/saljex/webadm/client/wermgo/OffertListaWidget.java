@@ -3,8 +3,9 @@
  * and open the template in the editor.
  */
 
-package se.saljex.webadm.client;
+package se.saljex.webadm.client.wermgo;
 
+import se.saljex.webadm.client.*;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyUpEvent;
@@ -21,11 +22,13 @@ import se.saljex.webadm.client.rpcobject.SQLTableList;
  *
  * @author Ulf
  */
-public class FakturaListWidget extends FlowPanel implements HasData2Form<Kund>{
-	Faktura2ListWidget o2 = new Faktura2ListWidget();
-	Faktura1ListWidget o1 = new Faktura1ListWidget(o2);
+public class OffertListaWidget extends FlowPanel implements HasData2Form<Kund>{
+	Offert2ListWidget o2 = new Offert2ListWidget();
+	Offert1ListWidget o1 = new Offert1ListWidget(o2);
 
 	FlowPanel o2Widget = new FlowPanel();
+
+
 
 	FlowPanel sokPanel;
 	Label sokLabel;
@@ -33,24 +36,25 @@ public class FakturaListWidget extends FlowPanel implements HasData2Form<Kund>{
 	String previousSok=null;
 
 
-	SendEpostButton  epostBtn = new SendEpostButtonFaktura(MainEntryPoint.getInitialData().inloggadAnvandare.anvandareKort, new SendEpostInterface() {
-		@Override	public String getKundnr() {	return o1.getSelectedObject().kundnr;	}
-		@Override	public Integer getId() { return o1.getSelectedObject().faktnr;		}
-	});
+//	SendEpostButton  epostBtn = new SendEpostButtonOffert(MainEntryPoint.getInitialData().inloggadAnvandare.anvandareKort, new SendEpostInterface() {
+//		@Override	public String getKundnr() {	return o1.getSelectedObject().kundnr;	}
+//		@Override	public Integer getId() { return o1.getSelectedObject().offertnr;		}
+//	});
+	Button epostBtn = new Button("E-Post med Wermgo inkl moms");
 
-	public FakturaListWidget() {
+	public OffertListaWidget() {
 		this(true, false);
 	}
-	public FakturaListWidget(boolean loadInitialData) {
+	public OffertListaWidget(boolean loadInitialData) {
 		this(loadInitialData, false);
 	}
 
-	public FakturaListWidget(boolean loadInitialData, boolean showSok) {
-		if(loadInitialData) o1.setSearch("kundnr", "0", "faktnr", SQLTableList.COMPARE_NONE, SQLTableList.SORT_DESCANDING);
+	public OffertListaWidget(boolean loadInitialData, boolean showSok) {
+		if(loadInitialData) o1.setSearch("kundnr", "0", "offertnr", SQLTableList.COMPARE_NONE, SQLTableList.SORT_DESCANDING);
 
 		this.setHeight("100%");
-		o1.setHeight("45%");
-		o2.setHeight("45%");
+		o1.setHeight("40%");
+		o2.setHeight("40%");
 		o1.setWidth("65em");
 		o2.setWidth("65em");
 		o1.addStyleName(Const.Style_BoxedScroll);
@@ -82,24 +86,27 @@ public class FakturaListWidget extends FlowPanel implements HasData2Form<Kund>{
 		}
 
 
+		o2Widget.add(epostBtn);
 		o2Widget.add(o2);
-//		o2Widget.add(epostBtn);
 
 		add(o1);
-		add(epostBtn);
 		add(o2Widget);
 
 	}
 
 	private void sok() {
-		if (Util.isEmpty(sokInput.getText())) o1.setSearch("kundnr", "0", "faktnr", SQLTableList.COMPARE_NONE, SQLTableList.SORT_DESCANDING);
-		else o1.getPageLoad().setSearch("faktnr", sokInput.getText(), "faktnr", SQLTableList.COMPARE_SUPERSOK, SQLTableList.SORT_DESCANDING);
+		if (Util.isEmpty(sokInput.getText())) o1.setSearch("kundnr", "0", "offertnr", SQLTableList.COMPARE_NONE, SQLTableList.SORT_DESCANDING);
+		else o1.getPageLoad().setSearch("offertnr", sokInput.getText(), "offertnr", SQLTableList.COMPARE_SUPERSOK, SQLTableList.SORT_DESCANDING);
 	}
 
 	@Override
 	public void data2Form(Kund data) {
-		setSearch("kundnr", data.nummer, "faktnr", SQLTableList.COMPARE_EQUALS, SQLTableList.SORT_DESCANDING);
+		setSearch("kundnr", data.nummer, "offertnr", SQLTableList.COMPARE_EQUALS, SQLTableList.SORT_DESCANDING);
 	}
+
+
+
+	protected Offert1ListWidget getO1() { return o1; }
 
 	public void setSearch(String sokField, String sokString, String sortField, int sokTyp, int sortOrder) {
 		o2.getPageLoad().getBufferList().clear();	//Rensar innehåll så det inte visas felaktig vid uppdatering av O1 utan sökresultat

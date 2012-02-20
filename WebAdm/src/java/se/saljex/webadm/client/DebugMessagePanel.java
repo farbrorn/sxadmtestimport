@@ -8,13 +8,11 @@ package se.saljex.webadm.client;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import se.saljex.webadm.client.constants.Const;
 
 /**
  *
@@ -34,6 +32,7 @@ public class DebugMessagePanel  {
 			scrollPanel = new ScrollPanel();
 			popupPanel = new PopupPanel();
 			messagePanel = new VerticalPanel();
+			scrollPanel.setSize("10em", "30em");
 
 			hideBtn=new Button("Dölj", new ClickHandler() {
 

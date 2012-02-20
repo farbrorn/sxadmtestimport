@@ -27,9 +27,7 @@ public class OffertListaWidget extends FlowPanel implements HasData2Form<Kund>{
 
 	FlowPanel o2Widget = new FlowPanel();
 
-	MessagePopupPanel messagePanel = new MessagePopupPanel(true);
 
-	KundEpostSelectWidget epostSelect;
 
 	FlowPanel sokPanel;
 	Label sokLabel;
@@ -37,14 +35,10 @@ public class OffertListaWidget extends FlowPanel implements HasData2Form<Kund>{
 	String previousSok=null;
 
 
-	Button epostBtn = new Button("Sänd som e-post", new ClickHandler() {
-
-		@Override
-		public void onClick(ClickEvent event) {
-			showEpostSelect();
-		}
+	SendEpostButton  epostBtn = new SendEpostButtonOffert(MainEntryPoint.getInitialData().inloggadAnvandare.anvandareKort, new SendEpostInterface() {
+		@Override	public String getKundnr() {	return o1.getSelectedObject().kundnr;	}
+		@Override	public Integer getId() { return o1.getSelectedObject().offertnr;		}
 	});
-
 
 	public OffertListaWidget() {
 		this(true, false);
@@ -57,8 +51,8 @@ public class OffertListaWidget extends FlowPanel implements HasData2Form<Kund>{
 		if(loadInitialData) o1.setSearch("kundnr", "0", "offertnr", SQLTableList.COMPARE_NONE, SQLTableList.SORT_DESCANDING);
 
 		this.setHeight("100%");
-		o1.setHeight("45%");
-		o2.setHeight("45%");
+		o1.setHeight("40%");
+		o2.setHeight("40%");
 		o1.setWidth("65em");
 		o2.setWidth("65em");
 		o1.addStyleName(Const.Style_BoxedScroll);
@@ -90,8 +84,8 @@ public class OffertListaWidget extends FlowPanel implements HasData2Form<Kund>{
 		}
 
 
-		o2Widget.add(o2);
 		o2Widget.add(epostBtn);
+		o2Widget.add(o2);
 
 		add(o1);
 		add(o2Widget);
@@ -109,20 +103,6 @@ public class OffertListaWidget extends FlowPanel implements HasData2Form<Kund>{
 	}
 
 
-	private void showEpostSelect() {
-
-		epostSelect = new KundEpostSelectWidget(o1.getSelectedObject().kundnr, new SendOffertEpostHandler("00", o1.getSelectedObject().offertnr, messagePanel), new HasRequestCompleted() {
-
-			@Override
-			public void requestCompleted(String info) {		}
-
-			@Override
-			public void requestCancelled(String info) {				}
-		});
-
-		epostSelect.center();
-		epostSelect.show();
-	}
 
 	protected Offert1ListWidget getO1() { return o1; }
 

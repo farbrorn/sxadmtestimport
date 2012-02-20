@@ -33,6 +33,7 @@ import se.saljex.webadm.client.GWTService;
 import se.saljex.webadm.client.rpcobject.Artikel;
 import se.saljex.webadm.client.rpcobject.Epost;
 import se.saljex.webadm.client.rpcobject.ErrorConvertingFromResultsetException;
+import se.saljex.webadm.client.rpcobject.HtmlMail;
 import se.saljex.webadm.client.rpcobject.InitialData;
 import se.saljex.webadm.client.rpcobject.InloggadAnvandare;
 import se.saljex.webadm.client.rpcobject.IsSQLTable;
@@ -446,6 +447,7 @@ public class GWTServiceImpl extends RemoteServiceServlet implements GWTService {
 		return id;
 	}
 
+
 	public Integer sendFakturaEpost(String anvandare, String epost, int id) throws ServerErrorException, NotLoggedInException {
 		ensureLoggedIn();
 		try {
@@ -628,6 +630,7 @@ public class GWTServiceImpl extends RemoteServiceServlet implements GWTService {
 	//Överför order eller utleverans till mainsupplier. T.ex. från SX Norge till SX Sverige
 	//Returnerar local ordernr
 	public Integer overforOrder(int ordernr, String anvandare, short lagernr) throws ServerErrorException, NotLoggedInException {
+		ensureLoggedIn();
 		try {
 			sxServerMainBean.overforOrder(ordernr, anvandare, lagernr);
 			return ordernr;  //Local ordernr - används för att hitta rätt rad att uppdatera klientens lista
@@ -635,6 +638,29 @@ public class GWTServiceImpl extends RemoteServiceServlet implements GWTService {
 			throw new ServerErrorException(e.getMessage());
 		}
 	}
+
+	//Check om användare finns.
+	//Returnerar Forkortning om användare finns, annars null
+	public String verifyAnvandareKort(String anvandareKort) throws ServerErrorException, NotLoggedInException {
+		ensureLoggedIn();
+		Connection con = null;
+		try {
+			con = sxadm.getConnection();
+			PreparedStatement stm = con.prepareStatement("select count(*) from saljare where forkortning=?");
+			stm.setString(1, anvandareKort);
+			ResultSet rs = stm.executeQuery();
+			rs.next();
+			if (rs.getInt(1)>0)	return anvandareKort;
+			else return null;
+		} catch (SQLException e) {
+			throw new ServerErrorException("SQL-Fel" + e.getMessage());
+		} finally {
+			try {
+				con.close();
+			} catch (Exception e) {			}
+		}
+	}
+
 
 	public InloggadAnvandare logIn(String anvandare, String losen) throws NotLoggedInException, ServerErrorException {
 		//Kör vi i testläge?  Gör då automatisk inloggning om anvandare är tomt
@@ -808,6 +834,12 @@ public class GWTServiceImpl extends RemoteServiceServlet implements GWTService {
 			}
 		}
 		return welcomeData;
+	}
+	
+	public HtmlMail getHtmlOffert (int offertnr, boolean inkMoms, String logoUrl) throws ServerErrorException, NotLoggedInException { 
+		ensureLoggedIn();
+		return null;
+		
 	}
 
 }

@@ -26,7 +26,7 @@ import se.saljex.webadm.client.rpcobject.Epost;
  */
 public class KundEpostSelectWidget  extends PopupPanel{
 	HasSendEpost callbackSandEpost;
-	HasRequestCompleted requestCompleted;
+//	HasRequestCompleted requestCompleted;
 	VerticalPanel mainPanel = new VerticalPanel();
 	FlexTable listTable = new FlexTable();
 	HorizontalPanel btnPanel = new HorizontalPanel();
@@ -44,7 +44,7 @@ public class KundEpostSelectWidget  extends PopupPanel{
 
 		@Override
 		public void onClick(ClickEvent event) {
-			requestCompleted.requestCancelled(null);
+//			if (requestCompleted!=null) requestCompleted.requestCancelled(null);
 			closePanel();
 		}
 	});
@@ -63,9 +63,9 @@ public class KundEpostSelectWidget  extends PopupPanel{
 		}
 	};
 
-	public KundEpostSelectWidget(String Kundnr, HasSendEpost callbackSandEpost, HasRequestCompleted requestCompleted) {
+	public KundEpostSelectWidget(String Kundnr, HasSendEpost callbackSandEpost) {
 		this.callbackSandEpost = callbackSandEpost;
-		this.requestCompleted=requestCompleted;
+//		this.requestCompleted=requestCompleted;
 		MainEntryPoint.getService().getKundEpostLista(Kundnr, callbackGetEpost);
 		setUpWindow();
 
@@ -144,7 +144,7 @@ public class KundEpostSelectWidget  extends PopupPanel{
 		}
 
 		callbackSandEpost.sendEpost(r);
-		requestCompleted.requestCompleted(null);
+//		if (requestCompleted!=null) requestCompleted.requestCompleted(null);
 		closePanel();
 	}
 

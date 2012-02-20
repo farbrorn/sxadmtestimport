@@ -18,6 +18,7 @@ public class Const {
 	public static final  String ORDER_STATUS_OVERFORD = "Överf";
 	public static final  String ORDER_STATUS_SAMFAK = "Samfak";
 	public static final  String ORDER_STATUS_HAMT = "Hamt";
+	public static final  String ORDER_STATUS_FORSKOTT = "Försk";
 	
 public static final String Style_S3 = "sx-tb-s3";
 public static final String Style_S5 = "sx-tb-s5";
@@ -43,6 +44,8 @@ public static final String Style_Bolder = "sx-bolder";
 public static final String Style_FloatNone = "sx-float-none";
 public static final String Style_FloatLeft = "sx-float-left";
 public static final String Style_FloatRight = "sx-float-right";
+
+public static final String Style_Display_Inline = "sx-display-inline";
 
 public static final String Style_CellPanel = "sx-cellpanel";
 
@@ -70,4 +73,27 @@ public static final String Style_LightBlue = "sx-lightblue";
 public static final String Style_Orange = "sx-orange";
 public static final String Style_Pink = "sx-pink";
 
+public static final String Style_Margin_1em = "sx-margin-1em";
+public static final String Style_Margin_1em_Left = "sx-margin-1em-left";
+public static final String Style_Margin_1em_Right = "sx-margin-1em-right";
+public static final String Style_Margin_1em_Top = "sx-margin-1em-top";
+public static final String Style_Margin_1em_Bottom = "sx-margin-1em-bottom";
+
+public static final String Style_Margin_05em = "sx-margin-05em";
+public static final String Style_Margin_05em_Left = "sx-margin-05em-left";
+public static final String Style_Margin_05em_Right = "sx-margin-05em-right";
+public static final String Style_Margin_05em_Top = "sx-margin-05em-top";
+public static final String Style_Margin_05em_Bottom = "sx-margin-05em-bottom";
+
+public static final String Style_Padding_1em = "sx-padding-1em";
+public static final String Style_Padding_1em_Left = "sx-padding-1em-left";
+public static final String Style_Padding_1em_Right = "sx-padding-1em-right";
+public static final String Style_Padding_1em_Top = "sx-padding-1em-top";
+public static final String Style_Padding_1em_Bottom = "sx-padding-1em-bottom";
+
+public static final String Style_Padding_05em = "sx-padding-05em";
+public static final String Style_Padding_05em_Left = "sx-padding-05em-left";
+public static final String Style_Padding_05em_Right = "sx-padding-05em-right";
+public static final String Style_Padding_05em_Top = "sx-padding-05em-top";
+public static final String Style_Padding_05em_Bottom = "sx-padding-05em-bottom";
 }

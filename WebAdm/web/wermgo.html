@@ -1,0 +1,41 @@
+<!DOCTYPE html">
+<html>
+    <head>
+        <meta name='gwt:module' content='se.saljex.webadm.Main=se.saljex.webadm.Main'>
+        <title>Wermgo tilläggsmodul</title>
+    </head>
+    <body onkeydown="return capturaTeclasFuncion(event)" >
+        <script type="text/javascript">
+function capturaTeclasFuncion(e){
+
+    var tecla = (document.all)?e.keyCode:e.which;
+    var pista = '';
+
+    if (tecla >= 112 && tecla <= 123){
+
+       // Para FF, Chrome
+       if (e.preventDefault) {
+            pista = 'preventDefault';
+            e.preventDefault();
+       } else {
+       // Para IE
+          pista = 'x IE ';
+          if (window.event && (window.event.keyCode >= 113 && window.event.keyCode <= 123)) {
+              window.event.keyCode = 9999;
+          }
+          if (window.event && window.event.keyCode == 9999) {
+            // try to cancel the backspace
+            window.event.cancelBubble = true;
+            window.event.returnValue = false;
+          }
+       }
+
+        return false;
+
+    } else return true;
+}
+
+		</script>
+        <script type="text/javascript"  src="se.saljex.webadm.wermgoMain/se.saljex.webadm.wermgoMain.nocache.js"></script>
+    </body>
+</html>

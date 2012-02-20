@@ -42,7 +42,11 @@ public class MessagePopupPanel extends DialogBox implements HasShowMessage{
 		this(modal,null);
 	}
 	public MessagePopupPanel(boolean modal, String titel) {
-		super(false,modal);
+		this(false, modal, titel);
+	}
+
+	public MessagePopupPanel(boolean autoHide, boolean modal, String titel) {
+		super(autoHide,modal);
 		this.setText(titel);
 		messageGrid.setWidget(1, 0, btnPanel);
 		setWidget(messageGrid);

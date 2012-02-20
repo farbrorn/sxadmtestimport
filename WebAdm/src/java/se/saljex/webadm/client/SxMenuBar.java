@@ -9,6 +9,7 @@ import se.saljex.webadm.client.window.WindowHandler;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.MenuBar;
 import java.util.ArrayList;
+import se.saljex.webadm.client.orderregistrering.OrderMain;
 
 /**
  *
@@ -47,7 +48,7 @@ public class SxMenuBar extends MenuBar {
 		add(menuArkiv, "Logga Ut", logoutCommand);
 
 		//Registrera
-		add(menuRegistrera, "Tomt", new Command() {	@Override	public void execute() {		}	});
+		add(menuRegistrera, "Order", new Command() {	@Override	public void execute() {windowHandler.addWindow(new OrderMain(), "Registrera Order");	}	});
 
 		//Underhåll
 		add(menuUnderhall, "Artikel", new Command() {	@Override	public void execute() {	windowHandler.addWindow(new WelcomeWindow(windowHandler, "Välkommen"));	}	});

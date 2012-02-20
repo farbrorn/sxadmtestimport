@@ -18,6 +18,7 @@ import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.event.dom.client.KeyCodes;
+import se.saljex.webadm.client.constants.Const;
 
 /**
  *
@@ -33,6 +34,8 @@ public class Util {
 	private static final PopupPanel waitModalPopup = new PopupPanel(false, true);
 
 	private static DialogBox messageBox=null;
+	private static VerticalPanel messageBoxPanel;
+	private static Button messageBoxOkBtn;
 
 	public static void showModalWait() {
 		if (waitModalPopup.getWidget()==null) waitModalPopup.setWidget(new Label("Arbetar..."));
@@ -79,10 +82,36 @@ public class Util {
 		showModalMessage(new Label(text));
 	}
 	public static void showModalMessage(Widget widget) {
-		if (messageBox==null) messageBox = new DialogBox(true, true);
-		messageBox.setWidget(widget);
+		showModalMessage(widget, true);
+	}
+	public static void showModalMessage(Widget widget, boolean showOkBtn) {
+		if (messageBox==null) { 
+			messageBox = new DialogBox(true, true);
+			messageBoxPanel = new VerticalPanel();
+			messageBoxOkBtn = new Button("OK", new ClickHandler() {
+
+				@Override
+				public void onClick(ClickEvent event) {
+					hideModalMessage();
+				}
+			});
+			messageBoxOkBtn.addStyleName(Const.Style_Margin_1em_Top);
+			messageBoxPanel.addStyleName(Const.Style_Padding_05em);
+		}
+		if (showOkBtn) {
+			messageBoxPanel.clear();
+			messageBoxPanel.add(widget);
+			messageBoxPanel.add(messageBoxOkBtn);
+			messageBox.setWidget(messageBoxPanel);
+		} else {
+			messageBox.setWidget(widget);
+		}
 		messageBox.center();
 		messageBox.show();
+	}
+
+	public static void hideModalMessage() {
+		messageBox.hide();
 	}
 
 	public static boolean isEmpty(String s) {

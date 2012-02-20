@@ -51,4 +51,6 @@ public interface GWTService extends RemoteService {
 	public InitialData getInitialData() throws ServerErrorException;
 	public WelcomeData getWelcomeData(short lagernr) throws ServerErrorException, NotLoggedInException;
 
+	public String verifyAnvandareKort(String anvandareKort) throws ServerErrorException, NotLoggedInException;
+
 }

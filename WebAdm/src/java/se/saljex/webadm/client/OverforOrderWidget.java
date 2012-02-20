@@ -6,11 +6,19 @@
 package se.saljex.webadm.client;
 
 import com.google.gwt.cell.client.ActionCell;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.TextColumn;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
 import java.util.List;
@@ -28,13 +36,29 @@ public class OverforOrderWidget<T extends Order1Utlev1Combo> extends ListWidget<
 	HasData2Form<T> formUpdat;
 
 
-	MessagePopupPanel msg = new MessagePopupPanel(true, "Överför order");
+
+	MessagePopupPanel msg = new MessagePopupPanel(true);
+	Order2ListWidget order2ListWidget= new Order2ListWidget();
+	OrderInfoWidget orderInfoWidget = new OrderInfoWidget();
+	FlowPanel orderInfoPanel = new FlowPanel();
+	ScrollPanel orderInfoScroll = new ScrollPanel(orderInfoWidget);
+	ScrollPanel orderListScroll = new ScrollPanel(order2ListWidget);
 
 	public OverforOrderWidget(T tableObject) {
 		super(null, new PageLoad<T>(tableObject, 30, 100, 1000, null) ,null);
 		SqlSelectParameters s = new SqlSelectParameters();
 		s.addOrderByParameter("ordernr", SQLTableList.SORT_DESCANDING);
 		setSearch(s);
+		orderInfoPanel.add(orderInfoScroll);
+		orderInfoPanel.add(orderListScroll);
+		orderInfoPanel.setWidth("65em");
+		orderListScroll.addStyleName(Const.Style_Margin_1em_Top);
+
+		orderInfoPanel.setHeight(Window.getClientHeight()*0.8 + "px");
+		orderInfoScroll.setHeight("40%");
+		orderInfoScroll.setWidth("65em");
+		orderListScroll.setHeight("50%");
+		orderListScroll.setWidth("65em");
 	}
 
 	@Override
@@ -82,6 +106,29 @@ public class OverforOrderWidget<T extends Order1Utlev1Combo> extends ListWidget<
 				}
 			}
 		});
+
+
+		ActionCell<T> acInfo = new ActionCell<T>("Info", new ActionCell.Delegate<T>() {
+			@Override
+			public void execute(T object) {
+//					final T objectFinal = object;
+					order2ListWidget.loadOrderNr(object.ordernr);
+					orderInfoWidget.showOrder(object.ordernr);
+					msg.showWidgetWithOkAvbryt(orderInfoPanel);
+			}
+		});
+
+		cellTable.addColumn(new Column<T, T>(acInfo) {
+			@Override
+			public T getValue(T object) {
+				return object;
+			}
+			@Override
+			public void render(T u, ProvidesKey<T> p , SafeHtmlBuilder h) {
+				super.render(u, p, h);
+			}
+		});
+
 
 		cellTable.addColumn(new TextColumn<T>() {@Override public String getValue(T object) {return object.namn;}}
 							, "Kund");
