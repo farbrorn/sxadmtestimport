@@ -4,8 +4,11 @@
  */
 package se.saljex.webadm.server;
 
+import java.io.CharArrayWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.SQLException;
 import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
@@ -13,6 +16,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletResponseWrapper;
 import javax.sql.DataSource;
 import se.saljex.sxlibrary.*;
 import se.saljex.sxserver.LocalWebSupportLocal;
@@ -47,33 +51,42 @@ public class api extends HttpServlet {
 	protected void processRequest(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
-		RequestHandler.setLocalWebSupportLocal(request, LocalWebSupportLocal);
-		RequestHandler.setSxServerMainRemote(request, SxServerMainRemote);
-		RequestHandler.setSxServerMainLocal(request, SxServerMainBean);
-		RequestHandler.setSxadm(request, sxadm);
-		
-		SXSession sxSession = WebSupport.getSXSession(request.getSession());
-		
-		if (sxSession.checkIntraBehorighetIntraWebApp())
+		TextResponse textResponse = new TextResponse(response);
 		
 		response.setContentType("text/html;charset=UTF-8");
-		PrintWriter out = response.getWriter();
 		
 		String path = SXUtil.toStr(request.getPathInfo());
 		if (path.length() < 1) path = "/";
 		else if (path.charAt(path.length()-1) != '/')  path = path + "/";
 		
+		Connection sxConnection=null;
+		PrintWriter out= null;
 		try {
+			out = response.getWriter();
+			sxConnection = sxadm.getConnection();
+			
 			ensureLoggedIn(request);
+			
+			RequestHandler.setLocalWebSupportLocal(request, LocalWebSupportLocal);
+			RequestHandler.setSxServerMainRemote(request, SxServerMainRemote);
+			RequestHandler.setSxServerMainLocal(request, SxServerMainBean);
+			RequestHandler.setSxadm(request, sxadm);
+			RequestHandler.setSxConnection(request, sxConnection);
+			
 			try{
 				request.getRequestDispatcher("/WEB-INF/jsp/api" + path +"index.jsp").include(request, response);
+//				request.getRequestDispatcher("/WEB-INF/jsp/api" + path +"index.jsp").include(request, textResponse);
+//				System.out.print(textResponse.getOutput());
 			} catch (IOException e) { out.println("Ogiltig sida"); }
 
 		
+		}  catch (SQLException es) { 
+			out.print("Fel vid anslutning till databas: " + es.getMessage());
 		} catch (NotLoggedInException e) {
 			out.print("Ingen behörighet");
 		} finally {			
-			out.close();
+			try { out.close();  } catch (Exception e) {}
+			try { sxConnection.close(); } catch (Exception e) {}
 		}
 		
 	}
@@ -87,6 +100,24 @@ public class api extends HttpServlet {
 				throw new NotLoggedInException();
 			}
 		}
+	}
+	
+	class TextResponse extends HttpServletResponseWrapper {
+
+		public TextResponse(HttpServletResponse response) {
+			super(response);
+		}
+
+		private final CharArrayWriter charArray = new CharArrayWriter();
+		
+		@Override
+		public PrintWriter getWriter() throws IOException {
+			return new PrintWriter(charArray);
+		}
+
+		public String getOutput() {
+			return charArray.toString();
+		}	
 	}
 
 	// <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

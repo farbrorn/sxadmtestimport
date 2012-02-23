@@ -8,11 +8,13 @@ import se.saljex.webadm.client.window.WindowHandler;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.Command;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import se.saljex.webadm.client.rpcobject.InitialData;
 import se.saljex.webadm.client.rpcobject.InloggadAnvandare;
+import se.saljex.webadm.client.wermgo.WgMenuBar;
 
 /**
  * Main entry point.
@@ -108,9 +110,14 @@ public class MainEntryPoint implements EntryPoint {
 
 	private static void showMain() {
 		rootVP.clear();
-		rootVP.add(new SxMenuBar(windowHandler, initialData.inloggadAnvandare.arrBehorighet, logoutCommand, initialData.foretagNamn));
-		rootVP.add(windowHandler);
-		windowHandler.addWindow(new WelcomeWidget(), "Välkommen");
+		if ("wermgo".equals(Window.Location.getParameter("modul"))) {
+			rootVP.add(new WgMenuBar(windowHandler, initialData.inloggadAnvandare.arrBehorighet, logoutCommand, initialData.foretagNamn));
+			rootVP.add(windowHandler);			
+		} else {
+			rootVP.add(new SxMenuBar(windowHandler, initialData.inloggadAnvandare.arrBehorighet, logoutCommand, initialData.foretagNamn));
+			rootVP.add(windowHandler);
+			windowHandler.addWindow(new WelcomeWidget(), "Välkommen");			
+		}
 	}
 
 	private static AsyncCallback<InloggadAnvandare> callbackLogin = new AsyncCallback<InloggadAnvandare>() {

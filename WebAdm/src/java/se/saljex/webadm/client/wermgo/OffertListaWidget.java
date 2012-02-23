@@ -10,6 +10,8 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
+import com.google.gwt.http.client.URL;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FlowPanel;
@@ -47,7 +49,15 @@ public class OffertListaWidget extends FlowPanel implements HasData2Form<Kund>{
 
 		@Override
 		public void onClick(ClickEvent event) {
-			Util.getService().getHtmlOffert(o1.getSelectedObject().offertnr, true, "http://www.wermgo.se/_/rsrc/1317744750781/config/customLogo.gif?revision=1", 
+			String url = Util.getApiUrlPath() + "getoffert?offertnr=" + o1.getSelectedObject().offertnr +
+					"&inkmoms=true" +
+					"&logourl=" + URL.encode("http://www.wermgo.se/_/rsrc/1317744750781/config/customLogo.gif?revision=1") +
+					"&headerhtml=" + URL.encode("<p style=\"font-weight: bold; margin-bottom: 1em;\">Hej</p><p style=\"margin-bottom: 2em;\">Här kommer din Wermgooffert!</p>") +
+					"&meddelandehtml=" + URL.encodeQueryString("Förslag till materiel. Fraktkostnad tillkommer.") +
+					"&footerhtml=" + URL.encode("");
+			Window.open(url, "_blank", null);
+			
+/*			Util.getService().getHtmlOffert(o1.getSelectedObject().offertnr, true, "http://www.wermgo.se/_/rsrc/1317744750781/config/customLogo.gif?revision=1", 
 						"<p style=\"font-weight: bold; margin-bottom: 1em;\">Hej</p><p style=\"margin-bottom: 2em;\">Här kommer din Wermgooffert!</p>", "Materielet i offerten är endast ett förslag. Fraktkostnad tillkommer.", "Med vänlig hälsning<br>Wermgo AB", new AsyncCallback<HtmlMail>() {
 
 				@Override
@@ -60,6 +70,7 @@ public class OffertListaWidget extends FlowPanel implements HasData2Form<Kund>{
 					Util.showModalMessage(new HTML(result.html));
 				}
 			});
+			* */
 		}
 	});
 
@@ -133,6 +144,10 @@ public class OffertListaWidget extends FlowPanel implements HasData2Form<Kund>{
 		o2.getPageLoad().getBufferList().clear();	//Rensar innehåll så det inte visas felaktig vid uppdatering av O1 utan sökresultat
 		o1.getPageLoad().setSearch(sokField, sokString, sortField, sokTyp, sortOrder);
 	}
+
+//private static native String getURL() /*-{
+//return $wnd.location.href;
+//}-*/;
 
 
 }

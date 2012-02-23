@@ -12,7 +12,7 @@
 <%@page import="javax.naming.InitialContext" %>
 <%@page import="javax.naming.Context" %>
 
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@page contentType="text/html" pageEncoding="utf-8"%>
 <%
 try {
 	SxServerMainLocal sx = RequestHandler.getSxServerMainLocal(request);
@@ -28,7 +28,7 @@ try {
 	String headerHTML = request.getParameter("headerhtml");
 	String meddelandeHTML = request.getParameter("meddelandehtml");
 	String footerHTML = request.getParameter("footerhtml");
-	
+	out.print(headerHTML + meddelandeHTML);
 	out.print(sx.getHtmlOffert(offertnr, inkMoms, logoUrl, headerHTML, meddelandeHTML, footerHTML));
 }
 catch(Exception e) {

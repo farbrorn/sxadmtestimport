@@ -18,6 +18,7 @@ import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.user.client.Window;
 import se.saljex.webadm.client.constants.Const;
 
 /**
@@ -123,5 +124,15 @@ public class Util {
 	public static String noNull(String s) {
 		if (s==null) return "";
 		return s;
+	}
+	
+	public static String getUrlPath() {
+		String path = Window.Location.getHref();
+		int index = path.lastIndexOf('/');
+		return path.substring(0, index+1);
+	}
+	
+	public static String getApiUrlPath() {
+		return getUrlPath() + "api/";
 	}
 }
