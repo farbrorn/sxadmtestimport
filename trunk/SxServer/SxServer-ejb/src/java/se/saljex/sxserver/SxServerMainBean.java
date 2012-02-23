@@ -683,8 +683,12 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 	}
 
 	
-	public String getHtmlOffert (int offertnr, boolean inkMoms, String logoUrl) {
-		return null;
+	public String getHtmlOffert (int offertnr, boolean inkMoms, String logoUrl) throws SXEntityNotFoundException {
+		return HtmlOffertHandler.getHtmlOffert(em, offertnr, inkMoms, logoUrl);
+		
+	}
+	public String getHtmlOffert (int offertnr, boolean inkMoms, String logoUrl, String headerHTML, String meddelandeHTML, String footerHTML) throws SXEntityNotFoundException {
+		return HtmlOffertHandler.getHtmlOffert(em, offertnr, inkMoms, logoUrl, headerHTML, meddelandeHTML, footerHTML);
 		
 	}
 

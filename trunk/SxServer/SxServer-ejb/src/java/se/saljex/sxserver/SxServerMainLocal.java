@@ -75,6 +75,8 @@ public interface SxServerMainLocal {
 
 	void sendOffertEpost(String anvandare, String epost, int id) throws SXEntityNotFoundException;
 	void sendFakturaEpost(String anvandare, String epost, int id) throws SXEntityNotFoundException;
+	String getHtmlOffert (int offertnr, boolean inkMoms, String logoUrl) throws SXEntityNotFoundException;
+	String getHtmlOffert (int offertnr, boolean inkMoms, String logoUrl, String headerHTML, String meddelandeHTML, String footerHTML) throws SXEntityNotFoundException;
 
 	
 }
