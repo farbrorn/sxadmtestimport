@@ -8,6 +8,7 @@ package se.saljex.webadm.client;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import java.util.ArrayList;
 import se.saljex.webadm.client.rpcobject.Epost;
+import se.saljex.webadm.client.rpcobject.HtmlMail;
 import se.saljex.webadm.client.rpcobject.InitialData;
 import se.saljex.webadm.client.rpcobject.InloggadAnvandare;
 import se.saljex.webadm.client.rpcobject.IsSQLTable;
@@ -45,4 +46,7 @@ public interface GWTServiceAsync {
 	public void getInitialData(AsyncCallback<InitialData> callback);
 	public void getWelcomeData(short lagernr, AsyncCallback<WelcomeData> callback);
 	public void verifyAnvandareKort(String anvandareKort, AsyncCallback<String> callback);
+	public void getHtmlOffert (int offertnr, boolean inkMoms, String logoUrl, AsyncCallback<HtmlMail> callback);
+	public void getHtmlOffert (int offertnr, boolean inkMoms, String logoUrl, String headerHTML, String meddelandeHTML, String footerHTML, AsyncCallback<HtmlMail> callback);
+	
 }

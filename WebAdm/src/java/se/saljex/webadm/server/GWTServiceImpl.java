@@ -712,7 +712,7 @@ public class GWTServiceImpl extends RemoteServiceServlet implements GWTService {
 			inloggadAnvandare.anvandare = sxSession.getIntraAnvandare();
 			inloggadAnvandare.anvandareKort = sxSession.getIntraAnvandareKort();
 			inloggadAnvandare.arrBehorighet = sxSession.getArrBehorighet();
-			inloggadAnvandare.defaultLagernr = sxSession.getIntraAnvandareLagerNr();
+			inloggadAnvandare.defaultLagernr = SXUtil.noNull(sxSession.getIntraAnvandareLagerNr());
 			return inloggadAnvandare;
 		} catch (NotLoggedInException e) { return null; }
 	}
@@ -837,9 +837,17 @@ public class GWTServiceImpl extends RemoteServiceServlet implements GWTService {
 	}
 	
 	public HtmlMail getHtmlOffert (int offertnr, boolean inkMoms, String logoUrl) throws ServerErrorException, NotLoggedInException { 
+		return getHtmlOffert(offertnr, inkMoms, logoUrl, null, null, null);
+	}
+	
+	public HtmlMail getHtmlOffert (int offertnr, boolean inkMoms, String logoUrl, String headerHTML, String meddelandeHTML, String footerHTML) throws ServerErrorException, NotLoggedInException { 
 		ensureLoggedIn();
-		return null;
+		HtmlMail ret = new HtmlMail();
+		try {
+			ret.html = sxServerMainBean.getHtmlOffert(offertnr, inkMoms, logoUrl, headerHTML, meddelandeHTML, footerHTML);
+		} catch (SXEntityNotFoundException e) { ret=null; }
 		
+		return ret;
 	}
 
 }

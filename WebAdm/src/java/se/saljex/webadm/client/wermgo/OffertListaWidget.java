@@ -10,11 +10,14 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextBox;
 import se.saljex.webadm.client.constants.Const;
+import se.saljex.webadm.client.rpcobject.HtmlMail;
 import se.saljex.webadm.client.rpcobject.Kund;
 import se.saljex.webadm.client.rpcobject.SQLTableList;
 
@@ -40,7 +43,25 @@ public class OffertListaWidget extends FlowPanel implements HasData2Form<Kund>{
 //		@Override	public String getKundnr() {	return o1.getSelectedObject().kundnr;	}
 //		@Override	public Integer getId() { return o1.getSelectedObject().offertnr;		}
 //	});
-	Button epostBtn = new Button("E-Post med Wermgo inkl moms");
+	Button epostBtn = new Button("E-Post med Wermgo inkl moms", new ClickHandler() {
+
+		@Override
+		public void onClick(ClickEvent event) {
+			Util.getService().getHtmlOffert(o1.getSelectedObject().offertnr, true, "http://www.wermgo.se/_/rsrc/1317744750781/config/customLogo.gif?revision=1", 
+						"<p style=\"font-weight: bold; margin-bottom: 1em;\">Hej</p><p style=\"margin-bottom: 2em;\">Här kommer din Wermgooffert!</p>", "Materielet i offerten är endast ett förslag. Fraktkostnad tillkommer.", "Med vänlig hälsning<br>Wermgo AB", new AsyncCallback<HtmlMail>() {
+
+				@Override
+				public void onFailure(Throwable caught) {
+					Util.showModalMessage("Fel: "  + caught.getMessage());
+				}
+
+				@Override
+				public void onSuccess(HtmlMail result) {
+					Util.showModalMessage(new HTML(result.html));
+				}
+			});
+		}
+	});
 
 	public OffertListaWidget() {
 		this(true, false);
