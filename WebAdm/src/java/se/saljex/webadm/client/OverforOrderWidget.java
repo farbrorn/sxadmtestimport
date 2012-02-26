@@ -5,14 +5,6 @@
 
 package se.saljex.webadm.client;
 
-import se.saljex.webadm.client.common.Util;
-import se.saljex.webadm.client.common.PageLoad;
-import se.saljex.webadm.client.common.MessagePopupPanel;
-import se.saljex.webadm.client.common.MessagePopuCallback;
-import se.saljex.webadm.client.common.ListWidget;
-import se.saljex.webadm.client.common.SxNumberColumn;
-import se.saljex.webadm.client.common.ModalMessage;
-import se.saljex.webadm.client.common.HasData2Form;
 import com.google.gwt.cell.client.ActionCell;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.CellTable;
@@ -26,9 +18,10 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
 import java.util.List;
 import se.saljex.webadm.client.commmon.constants.Const;
+import se.saljex.webadm.client.common.*;
+import se.saljex.webadm.client.common.rpcobject.Order1Utlev1Combo;
 import se.saljex.webadm.client.common.rpcobject.SQLTableList;
 import se.saljex.webadm.client.common.rpcobject.SqlSelectParameters;
-import se.saljex.webadm.client.common.rpcobject.Order1Utlev1Combo;
 
 /**
  *
@@ -84,7 +77,7 @@ public class OverforOrderWidget<T extends Order1Utlev1Combo> extends ListWidget<
 			@Override
 			public void execute(T object) {
 				if (Const.ORDER_STATUS_OVERFORD.equals(object.status)) {
-					ModalMessage.show("Ordern är redan överförd");
+					Util.showModalMessage("Ordern är redan överförd");
 				} else {
 					final T objectFinal = object;
 					msg.showWithOkAvbryt("Överför order " + object.ordernr + "?", new MessagePopuCallback() {
@@ -145,7 +138,7 @@ public class OverforOrderWidget<T extends Order1Utlev1Combo> extends ListWidget<
 		@Override
 		public void onFailure(Throwable caught) {
 			Util.hideModalWait();
-			ModalMessage.show("Fel vid överföring: " + caught.getMessage());
+			Util.showModalMessage("Fel vid överföring: " + caught.getMessage());
 		}
 
 		@Override

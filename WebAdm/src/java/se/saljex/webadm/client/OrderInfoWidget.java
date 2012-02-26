@@ -5,17 +5,14 @@
 
 package se.saljex.webadm.client;
 
-import se.saljex.webadm.client.common.Util;
-import se.saljex.webadm.client.common.ModalMessageBox;
-import se.saljex.webadm.client.common.TableRowLoadCallback;
-import se.saljex.webadm.client.common.TableGetRow;
-import se.saljex.webadm.client.common.HasData2Form;
 import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import se.saljex.webadm.client.common.rpcobject.IsSQLTable;
+import se.saljex.webadm.client.common.HasData2Form;
+import se.saljex.webadm.client.common.TableGetRow;
+import se.saljex.webadm.client.common.TableRowLoadCallback;
+import se.saljex.webadm.client.common.Util;
 import se.saljex.webadm.client.common.rpcobject.Order1;
 import se.saljex.webadm.client.common.rpcobject.Utlev1;
 
@@ -58,7 +55,6 @@ public class OrderInfoWidget extends ScrollPanel implements HasData2Form<Integer
 	TableGetRow<Order1> tO1 = new TableGetRow<Order1>(new Order1(), callbackO1);
 	TableGetRow<Utlev1> tU1 = new TableGetRow<Utlev1>(new Utlev1(), callbackU1);
 
-	ModalMessageBox modalMessageBox = null;
 
 	FlexTable ft = new FlexTable();
 	Label moms = new Label();
@@ -210,8 +206,7 @@ public class OrderInfoWidget extends ScrollPanel implements HasData2Form<Integer
 	}
 	
 	private void showError(String text) {
-		if (modalMessageBox==null) modalMessageBox=new ModalMessageBox();
-		modalMessageBox.show(text, true);
+		Util.showModalMessage(text);
 	}
 
 	public void showOrder(Integer ordernr) {

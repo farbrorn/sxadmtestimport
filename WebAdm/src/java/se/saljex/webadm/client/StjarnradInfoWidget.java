@@ -6,7 +6,6 @@
 package se.saljex.webadm.client;
 
 import se.saljex.webadm.client.common.Util;
-import se.saljex.webadm.client.common.ModalMessageBox;
 import se.saljex.webadm.client.common.TableRowLoadCallback;
 import se.saljex.webadm.client.common.TableGetRow;
 import se.saljex.webadm.client.common.HasData2Form;
@@ -39,7 +38,6 @@ public class StjarnradInfoWidget extends ScrollPanel implements HasData2Form<Int
 
 	TableGetRow<Stjarnrad> tStj = new TableGetRow<Stjarnrad>(new Stjarnrad(), callbackStj);
 
-	ModalMessageBox modalMessageBox = null;
 
 	FlexTable ft = new FlexTable();
 	Label stjid = new Label();
@@ -141,8 +139,7 @@ public class StjarnradInfoWidget extends ScrollPanel implements HasData2Form<Int
 	}
 
 	private void showError(String text) {
-		if (modalMessageBox==null) modalMessageBox=new ModalMessageBox();
-		modalMessageBox.show(text, true);
+		Util.showModalMessage(text);
 	}
 
 	public void show(Integer id) {
