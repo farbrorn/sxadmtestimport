@@ -5,8 +5,9 @@
 
 package se.saljex.webadm.client;
 
+import se.saljex.webadm.client.common.HasFormUpdater;
 import com.google.gwt.user.client.ui.FlowPanel;
-import se.saljex.webadm.client.rpcobject.Artikel;
+import se.saljex.webadm.client.common.rpcobject.Artikel;
 
 /**
  *

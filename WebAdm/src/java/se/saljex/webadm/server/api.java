@@ -21,7 +21,7 @@ import javax.sql.DataSource;
 import se.saljex.sxlibrary.*;
 import se.saljex.sxserver.LocalWebSupportLocal;
 import se.saljex.sxserver.SxServerMainLocal;
-import se.saljex.webadm.client.rpcobject.NotLoggedInException;
+import se.saljex.webadm.client.common.rpcobject.NotLoggedInException;
 
 /**
  *

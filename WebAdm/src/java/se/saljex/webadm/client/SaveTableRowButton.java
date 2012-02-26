@@ -13,8 +13,8 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import se.saljex.webadm.client.rpcobject.IsSQLTable;
-import se.saljex.webadm.client.rpcobject.Kund;
+import se.saljex.webadm.client.common.rpcobject.IsSQLTable;
+import se.saljex.webadm.client.common.rpcobject.Kund;
 
 /**
  *

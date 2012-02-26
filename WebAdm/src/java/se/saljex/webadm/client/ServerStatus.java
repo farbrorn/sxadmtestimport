@@ -5,8 +5,8 @@
 
 package se.saljex.webadm.client;
 
-import se.saljex.webadm.client.GWTServiceAsync;
-import se.saljex.webadm.client.GWTService;
+import se.saljex.webadm.client.common.GWTServiceAsync;
+import se.saljex.webadm.client.common.GWTService;
 import com.google.gwt.core.client.GWT;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;

@@ -5,14 +5,15 @@
 
 package se.saljex.webadm.client;
 
+import se.saljex.webadm.client.common.PageLoad;
+import se.saljex.webadm.client.common.HasData2Form;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.TabLayoutPanel;
 import com.google.gwt.user.client.ui.Widget;
-import se.saljex.webadm.client.rpcobject.Artikel;
-import se.saljex.webadm.client.rpcobject.IsSQLTable;
+import se.saljex.webadm.client.common.rpcobject.IsSQLTable;
 
 /**
  *

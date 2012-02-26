@@ -28,7 +28,6 @@ try {
 	String headerHTML = request.getParameter("headerhtml");
 	String meddelandeHTML = request.getParameter("meddelandehtml");
 	String footerHTML = request.getParameter("footerhtml");
-	out.print(headerHTML + meddelandeHTML);
 	out.print(sx.getHtmlOffert(offertnr, inkMoms, logoUrl, headerHTML, meddelandeHTML, footerHTML));
 }
 catch(Exception e) {

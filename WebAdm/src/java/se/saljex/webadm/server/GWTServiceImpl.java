@@ -29,21 +29,21 @@ import se.saljex.sxserver.tables.TableArtikel;
 import se.saljex.sxserver.tables.TableKund;
 import se.saljex.sxserver.websupport.GoogleChartHandler;
 
-import se.saljex.webadm.client.GWTService;
-import se.saljex.webadm.client.rpcobject.Artikel;
-import se.saljex.webadm.client.rpcobject.Epost;
-import se.saljex.webadm.client.rpcobject.ErrorConvertingFromResultsetException;
-import se.saljex.webadm.client.rpcobject.HtmlMail;
-import se.saljex.webadm.client.rpcobject.InitialData;
-import se.saljex.webadm.client.rpcobject.InloggadAnvandare;
-import se.saljex.webadm.client.rpcobject.IsSQLTable;
-import se.saljex.webadm.client.rpcobject.ServerErrorException;
-import se.saljex.webadm.client.rpcobject.Kund;
-import se.saljex.webadm.client.rpcobject.NotLoggedInException;
-import se.saljex.webadm.client.rpcobject.Order1;
-import se.saljex.webadm.client.rpcobject.SQLTableList;
-import se.saljex.webadm.client.rpcobject.SqlSelectParameters;
-import se.saljex.webadm.client.rpcobject.WelcomeData;
+import se.saljex.webadm.client.common.GWTService;
+import se.saljex.webadm.client.common.rpcobject.Artikel;
+import se.saljex.webadm.client.common.rpcobject.Epost;
+import se.saljex.webadm.client.common.rpcobject.ErrorConvertingFromResultsetException;
+import se.saljex.webadm.client.common.rpcobject.HtmlMail;
+import se.saljex.webadm.client.common.rpcobject.InitialData;
+import se.saljex.webadm.client.common.rpcobject.InloggadAnvandare;
+import se.saljex.webadm.client.common.rpcobject.IsSQLTable;
+import se.saljex.webadm.client.common.rpcobject.ServerErrorException;
+import se.saljex.webadm.client.common.rpcobject.Kund;
+import se.saljex.webadm.client.common.rpcobject.NotLoggedInException;
+import se.saljex.webadm.client.common.rpcobject.Order1;
+import se.saljex.webadm.client.common.rpcobject.SQLTableList;
+import se.saljex.webadm.client.common.rpcobject.SqlSelectParameters;
+import se.saljex.webadm.client.common.rpcobject.WelcomeData;
 
 /**
  *

@@ -23,15 +23,15 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 import java.util.ArrayList;
 import java.util.List;
-import se.saljex.webadm.client.DebugMessagePanel;
-import se.saljex.webadm.client.DoubleTextBox;
-import se.saljex.webadm.client.PageLoad;
-import se.saljex.webadm.client.PageLoadCallback;
+import se.saljex.webadm.client.common.DebugMessagePanel;
+import se.saljex.webadm.client.common.DoubleTextBox;
+import se.saljex.webadm.client.common.PageLoad;
+import se.saljex.webadm.client.common.PageLoadCallback;
 import se.saljex.webadm.client.Util;
-import se.saljex.webadm.client.rpcobject.IsSQLTable;
-import se.saljex.webadm.client.rpcobject.SQLTableList;
-import se.saljex.webadm.client.rpcobject.SqlSelectParameters;
-import se.saljex.webadm.client.rpcobject.VArtKundOrder;
+import se.saljex.webadm.client.common.rpcobject.IsSQLTable;
+import se.saljex.webadm.client.common.rpcobject.SQLTableList;
+import se.saljex.webadm.client.common.rpcobject.SqlSelectParameters;
+import se.saljex.webadm.client.common.rpcobject.VArtKundOrder;
 import se.saljex.webadm.server.SQLTableGetList;
 
 /**
@@ -131,15 +131,15 @@ public class OrderFormWidget extends FlowPanel{
 					upRow();
 				} else if (keycode==KeyCodes.KEY_ENTER) {
 					doArtnrEnter();
-				} else if (keycode==se.saljex.webadm.client.constants.KeyCodes.F9) {
+				} else if (keycode==se.saljex.webadm.client.commmon.constants.KeyCodes.F9) {
 					SqlSelectParameters sp = new SqlSelectParameters();
 					sp.addWhereParameter("kundnr", SQLTableList.COMPARE_EQUALS, "0555");
 					sp.addWhereParameter(SQLTableList.BOOL_CONNECTOR_AND, "lagernr", SQLTableList.COMPARE_EQUALS, "0");
 					sp.addWhereParameter(SQLTableList.BOOL_CONNECTOR_AND, "artnr", SQLTableList.COMPARE_GREATER_EQUALS, artnr.getValue());
 					pageLoadArtikel.setSearch(sp);
-				} else if (keycode==se.saljex.webadm.client.constants.KeyCodes.F8) {
+				} else if (keycode==se.saljex.webadm.client.commmon.constants.KeyCodes.F8) {
 					pageLoadArtikel.next();
-				} else if (keycode==se.saljex.webadm.client.constants.KeyCodes.F7) {
+				} else if (keycode==se.saljex.webadm.client.commmon.constants.KeyCodes.F7) {
 					pageLoadArtikel.previous();
 				}
 			}

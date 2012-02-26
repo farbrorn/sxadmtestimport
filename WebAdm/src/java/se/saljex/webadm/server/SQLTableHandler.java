@@ -15,10 +15,10 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import se.saljex.sxlibrary.SXUtil;
-import se.saljex.webadm.client.rpcobject.ErrorConvertingFromResultsetException;
-import se.saljex.webadm.client.rpcobject.IsSQLTable;
-import se.saljex.webadm.client.rpcobject.SQLTableList;
-import se.saljex.webadm.client.rpcobject.ServerErrorException;
+import se.saljex.webadm.client.common.rpcobject.ErrorConvertingFromResultsetException;
+import se.saljex.webadm.client.common.rpcobject.IsSQLTable;
+import se.saljex.webadm.client.common.rpcobject.SQLTableList;
+import se.saljex.webadm.client.common.rpcobject.ServerErrorException;
 
 /**
  *

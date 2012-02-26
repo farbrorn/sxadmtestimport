@@ -5,13 +5,17 @@
 
 package se.saljex.webadm.client;
 
+import se.saljex.webadm.client.common.PageLoad;
+import se.saljex.webadm.client.common.ListWidget;
+import se.saljex.webadm.client.common.SxNumberColumn;
+import se.saljex.webadm.client.common.HasData2Form;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.TextColumn;
-import se.saljex.webadm.client.constants.Const;
-import se.saljex.webadm.client.rpcobject.Artikel;
-import se.saljex.webadm.client.rpcobject.InlevView;
-import se.saljex.webadm.client.rpcobject.SQLTableList;
-import se.saljex.webadm.client.rpcobject.SqlSelectParameters;
+import se.saljex.webadm.client.commmon.constants.Const;
+import se.saljex.webadm.client.common.rpcobject.Artikel;
+import se.saljex.webadm.client.common.rpcobject.InlevView;
+import se.saljex.webadm.client.common.rpcobject.SQLTableList;
+import se.saljex.webadm.client.common.rpcobject.SqlSelectParameters;
 
 /**
  *
@@ -24,7 +28,7 @@ public class InlevViewListWidget extends ListWidget<InlevView> implements HasDat
 
 
 	@Override
-	void addListColumns(CellTable<InlevView> cellTable) {
+	public void addListColumns(CellTable<InlevView> cellTable) {
 		getCellTable().addColumnStyleName(0, Const.Style_S3);
 		getCellTable().addColumnStyleName(1, Const.Style_S10);
 		getCellTable().addColumnStyleName(2, Const.Style_S10);

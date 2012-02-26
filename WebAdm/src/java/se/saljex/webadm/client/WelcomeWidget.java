@@ -9,8 +9,8 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
-import se.saljex.webadm.client.constants.Const;
-import se.saljex.webadm.client.rpcobject.WelcomeData;
+import se.saljex.webadm.client.commmon.constants.Const;
+import se.saljex.webadm.client.common.rpcobject.WelcomeData;
 
 /**
  *

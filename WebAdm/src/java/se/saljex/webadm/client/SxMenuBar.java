@@ -5,7 +5,7 @@
 
 package se.saljex.webadm.client;
 
-import se.saljex.webadm.client.window.WindowHandler;
+import se.saljex.webadm.client.common.window.WindowHandler;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.MenuBar;
 import java.util.ArrayList;

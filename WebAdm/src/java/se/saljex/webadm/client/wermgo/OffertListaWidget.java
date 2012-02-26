@@ -5,6 +5,7 @@
 
 package se.saljex.webadm.client.wermgo;
 
+import se.saljex.webadm.client.common.HasData2Form;
 import se.saljex.webadm.client.*;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -18,10 +19,10 @@ import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextBox;
-import se.saljex.webadm.client.constants.Const;
-import se.saljex.webadm.client.rpcobject.HtmlMail;
-import se.saljex.webadm.client.rpcobject.Kund;
-import se.saljex.webadm.client.rpcobject.SQLTableList;
+import se.saljex.webadm.client.commmon.constants.Const;
+import se.saljex.webadm.client.common.rpcobject.HtmlMail;
+import se.saljex.webadm.client.common.rpcobject.Kund;
+import se.saljex.webadm.client.common.rpcobject.SQLTableList;
 
 /**
  *
@@ -51,10 +52,11 @@ public class OffertListaWidget extends FlowPanel implements HasData2Form<Kund>{
 		public void onClick(ClickEvent event) {
 			String url = Util.getApiUrlPath() + "getoffert?offertnr=" + o1.getSelectedObject().offertnr +
 					"&inkmoms=true" +
-					"&logourl=" + URL.encode("http://www.wermgo.se/_/rsrc/1317744750781/config/customLogo.gif?revision=1") +
-					"&headerhtml=" + URL.encode("<p style=\"font-weight: bold; margin-bottom: 1em;\">Hej</p><p style=\"margin-bottom: 2em;\">Här kommer din Wermgooffert!</p>") +
-					"&meddelandehtml=" + URL.encodeQueryString("Förslag till materiel. Fraktkostnad tillkommer.") +
-					"&footerhtml=" + URL.encode("");
+					"&logourl=" + URL.encode("http://www.wermgo.se/_/rsrc/1317744750781/config/customLogo.gif?revision=1") ;
+//					"&headerhtml=" + URL.encode("<p style=\"font-weight: bold; margin-bottom: 1em;\">Hej</p><p style=\"margin-bottom: 2em;\">Här kommer din Wermgooffert!</p>") +
+//					"&meddelandehtml=" + URL.encodeQueryString("Förslag till materiel. Fraktkostnad tillkommer.") +
+//					"&footerhtml=" + URL.encode("")
+					
 			Window.open(url, "_blank", null);
 			
 /*			Util.getService().getHtmlOffert(o1.getSelectedObject().offertnr, true, "http://www.wermgo.se/_/rsrc/1317744750781/config/customLogo.gif?revision=1", 

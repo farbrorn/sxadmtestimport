@@ -5,6 +5,7 @@
 
 package se.saljex.webadm.client;
 
+import se.saljex.webadm.client.common.VerifyAnvandare;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyUpEvent;
@@ -19,11 +20,11 @@ import com.google.gwt.user.client.ui.RadioButton;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import se.saljex.sxlibrary.SXConstant;
-import se.saljex.webadm.client.constants.Const;
-import se.saljex.webadm.client.rpcobject.IsSQLTable;
-import se.saljex.webadm.client.rpcobject.Order1Combo;
-import se.saljex.webadm.client.rpcobject.SQLTableList;
-import se.saljex.webadm.client.rpcobject.SqlSelectParameters;
+import se.saljex.webadm.client.commmon.constants.Const;
+import se.saljex.webadm.client.common.rpcobject.IsSQLTable;
+import se.saljex.webadm.client.common.rpcobject.Order1Combo;
+import se.saljex.webadm.client.common.rpcobject.SQLTableList;
+import se.saljex.webadm.client.common.rpcobject.SqlSelectParameters;
 import se.saljex.webadm.server.SQLTableHandler;
 
 /**

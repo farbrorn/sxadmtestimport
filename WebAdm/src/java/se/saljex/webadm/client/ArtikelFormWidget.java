@@ -5,21 +5,19 @@
 
 package se.saljex.webadm.client;
 
-import se.saljex.webadm.client.constants.KeyCodes;
+import se.saljex.webadm.client.common.PageLoad;
+import se.saljex.webadm.client.common.TableFormWidget;
+import se.saljex.webadm.client.common.FormTextBox;
+import se.saljex.webadm.client.common.FormIntegerTextBox;
+import se.saljex.webadm.client.common.FormDoubleTextBox;
+import se.saljex.webadm.client.common.FormDateTextBox;
+import se.saljex.webadm.client.common.FormCheckBox;
+import se.saljex.webadm.client.common.FormWidgetGetSet;
 import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.KeyDownHandler;
-import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.ScrollPanel;
-import com.google.gwt.user.client.ui.VerticalPanel;
-import se.saljex.webadm.client.rpcobject.Artikel;
-import se.saljex.webadm.client.rpcobject.Artikel;
-import se.saljex.webadm.client.rpcobject.SQLTableList;
-import se.saljex.webadm.server.SQLTableHandler;
+import se.saljex.webadm.client.common.rpcobject.Artikel;
 
 /**
  *
@@ -40,333 +38,333 @@ public class ArtikelFormWidget extends TableFormWidget<Artikel>{
 
 	//mainPanel
 	private FormTextBox nummer = new FormTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.nummer = nummer.getSQLTableValue();}
-		@Override	void set(Artikel table) {	nummer.setSQLTableValue(table.nummer);	}
+		@Override	public void get(Artikel table) {	table.nummer = nummer.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	nummer.setSQLTableValue(table.nummer);	}
 	});
 	private FormTextBox namn = new FormTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.namn = namn.getSQLTableValue();}
-		@Override	void set(Artikel table) {	namn.setSQLTableValue(table.namn);	}
+		@Override	public void get(Artikel table) {	table.namn = namn.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	namn.setSQLTableValue(table.namn);	}
 	});
 	private FormTextBox katnamn = new FormTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.katnamn = katnamn.getSQLTableValue();}
-		@Override	void set(Artikel table) {	katnamn.setSQLTableValue(table.katnamn);	}
+		@Override	public void get(Artikel table) {	table.katnamn = katnamn.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	katnamn.setSQLTableValue(table.katnamn);	}
 
 	});
 
 	private FormTextBox lev = new FormTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.lev = lev.getSQLTableValue();}
-		@Override	void set(Artikel table) {	lev.setSQLTableValue(table.lev); }
+		@Override	public void get(Artikel table) {	table.lev = lev.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	lev.setSQLTableValue(table.lev); }
 		});
 
 		private FormTextBox bestnr = new FormTextBox(new FormWidgetGetSet<Artikel>() {
-			@Override	void get(Artikel table) {	table.bestnr = bestnr.getSQLTableValue();}
-			@Override	void set(Artikel table) {	bestnr.setSQLTableValue(table.bestnr); }
+			@Override	public void get(Artikel table) {	table.bestnr = bestnr.getSQLTableValue();}
+			@Override	public void set(Artikel table) {	bestnr.setSQLTableValue(table.bestnr); }
 		});
 
 		private FormTextBox enhet = new FormTextBox(new FormWidgetGetSet<Artikel>() {
-			@Override	void get(Artikel table) {	table.enhet = enhet.getSQLTableValue();}
-			@Override	void set(Artikel table) {	enhet.setSQLTableValue(table.enhet); }
+			@Override	public void get(Artikel table) {	table.enhet = enhet.getSQLTableValue();}
+			@Override	public void set(Artikel table) {	enhet.setSQLTableValue(table.enhet); }
 		});
 
 		private FormDoubleTextBox utpris = new FormDoubleTextBox(new FormWidgetGetSet<Artikel>() {
-			@Override	void get(Artikel table) {	table.utpris = utpris.getSQLTableValue();}
-			@Override	void set(Artikel table) {	utpris.setSQLTableValue(table.utpris); }
+			@Override	public void get(Artikel table) {	table.utpris = utpris.getSQLTableValue();}
+			@Override	public void set(Artikel table) {	utpris.setSQLTableValue(table.utpris); }
 		});
 
 
 	private FormDoubleTextBox staf_Pris1 = new FormDoubleTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.staf_Pris1 = staf_Pris1.getSQLTableValue();}
-		@Override	void set(Artikel table) {	staf_Pris1.setSQLTableValue(table.staf_Pris1); }
+		@Override	public void get(Artikel table) {	table.staf_Pris1 = staf_Pris1.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	staf_Pris1.setSQLTableValue(table.staf_Pris1); }
 	});
 
 	private FormDoubleTextBox staf_Pris2 = new FormDoubleTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.staf_Pris2 = staf_Pris2.getSQLTableValue();}
-		@Override	void set(Artikel table) {	staf_Pris2.setSQLTableValue(table.staf_Pris2); }
+		@Override	public void get(Artikel table) {	table.staf_Pris2 = staf_Pris2.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	staf_Pris2.setSQLTableValue(table.staf_Pris2); }
 	});
 
 	private FormDateTextBox staf_Pris1_Dat = new FormDateTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.staf_Pris1_Dat = staf_Pris1_Dat.getSQLTableValue();}
-		@Override	void set(Artikel table) {	staf_Pris1_Dat.setSQLTableValue(table.staf_Pris1_Dat); }
+		@Override	public void get(Artikel table) {	table.staf_Pris1_Dat = staf_Pris1_Dat.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	staf_Pris1_Dat.setSQLTableValue(table.staf_Pris1_Dat); }
 	});
 
 	private FormDateTextBox staf_Pris2_Dat = new FormDateTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.staf_Pris2_Dat = staf_Pris2_Dat.getSQLTableValue();}
-		@Override	void set(Artikel table) {	staf_Pris2_Dat.setSQLTableValue(table.staf_Pris2_Dat); }
+		@Override	public void get(Artikel table) {	table.staf_Pris2_Dat = staf_Pris2_Dat.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	staf_Pris2_Dat.setSQLTableValue(table.staf_Pris2_Dat); }
 	});
 
 	private FormDoubleTextBox staf_Antal1 = new FormDoubleTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.staf_Antal1 = staf_Antal1.getSQLTableValue();}
-		@Override	void set(Artikel table) {	staf_Antal1.setSQLTableValue(table.staf_Antal1); }
+		@Override	public void get(Artikel table) {	table.staf_Antal1 = staf_Antal1.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	staf_Antal1.setSQLTableValue(table.staf_Antal1); }
 	});
 
 	private FormDoubleTextBox staf_Antal2 = new FormDoubleTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.staf_Antal2 = staf_Antal2.getSQLTableValue();}
-		@Override	void set(Artikel table) {	staf_Antal2.setSQLTableValue(table.staf_Antal2); }
+		@Override	public void get(Artikel table) {	table.staf_Antal2 = staf_Antal2.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	staf_Antal2.setSQLTableValue(table.staf_Antal2); }
 	});
 
 	private FormDoubleTextBox inpris = new FormDoubleTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.inpris = inpris.getSQLTableValue();}
-		@Override	void set(Artikel table) {	inpris.setSQLTableValue(table.inpris); }
+		@Override	public void get(Artikel table) {	table.inpris = inpris.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	inpris.setSQLTableValue(table.inpris); }
 	});
 
 	private FormDoubleTextBox rab = new FormDoubleTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.rab = rab.getSQLTableValue();}
-		@Override	void set(Artikel table) {	rab.setSQLTableValue(table.rab); }
+		@Override	public void get(Artikel table) {	table.rab = rab.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	rab.setSQLTableValue(table.rab); }
 	});
 
 	private FormDoubleTextBox utrab = new FormDoubleTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.utrab = utrab.getSQLTableValue();}
-		@Override	void set(Artikel table) {	utrab.setSQLTableValue(table.utrab); }
+		@Override	public void get(Artikel table) {	table.utrab = utrab.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	utrab.setSQLTableValue(table.utrab); }
 	});
 
 	private FormDoubleTextBox inp_Pris = new FormDoubleTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.inp_Pris = inp_Pris.getSQLTableValue();}
-		@Override	void set(Artikel table) {	inp_Pris.setSQLTableValue(table.inp_Pris); }
+		@Override	public void get(Artikel table) {	table.inp_Pris = inp_Pris.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	inp_Pris.setSQLTableValue(table.inp_Pris); }
 	});
 
 	private FormDoubleTextBox inp_Rab = new FormDoubleTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.inp_Rab = inp_Rab.getSQLTableValue();}
-		@Override	void set(Artikel table) {	inp_Rab.setSQLTableValue(table.inp_Rab); }
+		@Override	public void get(Artikel table) {	table.inp_Rab = inp_Rab.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	inp_Rab.setSQLTableValue(table.inp_Rab); }
 	});
 
 	private FormDoubleTextBox inp_Fraktproc = new FormDoubleTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.inp_Fraktproc = inp_Fraktproc.getSQLTableValue();}
-		@Override	void set(Artikel table) {	inp_Fraktproc.setSQLTableValue(table.inp_Fraktproc); }
+		@Override	public void get(Artikel table) {	table.inp_Fraktproc = inp_Fraktproc.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	inp_Fraktproc.setSQLTableValue(table.inp_Fraktproc); }
 	});
 
 	private FormTextBox inp_Valuta = new FormTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.inp_Valuta = inp_Valuta.getSQLTableValue();}
-		@Override	void set(Artikel table) {	inp_Valuta.setSQLTableValue(table.inp_Valuta); }
+		@Override	public void get(Artikel table) {	table.inp_Valuta = inp_Valuta.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	inp_Valuta.setSQLTableValue(table.inp_Valuta); }
 	});
 
 	private FormDateTextBox inp_Datum = new FormDateTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.inp_Datum = inp_Datum.getSQLTableValue();}
-		@Override	void set(Artikel table) {	inp_Datum.setSQLTableValue(table.inp_Datum); }
+		@Override	public void get(Artikel table) {	table.inp_Datum = inp_Datum.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	inp_Datum.setSQLTableValue(table.inp_Datum); }
 	});
 
 	private FormTextBox konto = new FormTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.konto = konto.getSQLTableValue();}
-		@Override	void set(Artikel table) {	konto.setSQLTableValue(table.konto); }
+		@Override	public void get(Artikel table) {	table.konto = konto.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	konto.setSQLTableValue(table.konto); }
 	});
 
 	private FormTextBox rabkod = new FormTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.rabkod = rabkod.getSQLTableValue();}
-		@Override	void set(Artikel table) {	rabkod.setSQLTableValue(table.rabkod); }
+		@Override	public void get(Artikel table) {	table.rabkod = rabkod.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	rabkod.setSQLTableValue(table.rabkod); }
 	});
 
 	private FormTextBox kod1 = new FormTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.kod1 = kod1.getSQLTableValue();}
-		@Override	void set(Artikel table) {	kod1.setSQLTableValue(table.kod1); }
+		@Override	public void get(Artikel table) {	table.kod1 = kod1.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	kod1.setSQLTableValue(table.kod1); }
 	});
 
 	private FormDateTextBox prisdatum = new FormDateTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.prisdatum = prisdatum.getSQLTableValue();}
-		@Override	void set(Artikel table) {	prisdatum.setSQLTableValue(table.prisdatum); }
+		@Override	public void get(Artikel table) {	table.prisdatum = prisdatum.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	prisdatum.setSQLTableValue(table.prisdatum); }
 	});
 
 	private FormDateTextBox inpdat = new FormDateTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.inpdat = inpdat.getSQLTableValue();}
-		@Override	void set(Artikel table) {	inpdat.setSQLTableValue(table.inpdat); }
+		@Override	public void get(Artikel table) {	table.inpdat = inpdat.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	inpdat.setSQLTableValue(table.inpdat); }
 	});
 
 	private FormTextBox refnr = new FormTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.refnr = refnr.getSQLTableValue();}
-		@Override	void set(Artikel table) {	refnr.setSQLTableValue(table.refnr); }
+		@Override	public void get(Artikel table) {	table.refnr = refnr.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	refnr.setSQLTableValue(table.refnr); }
 	});
 
 	private FormDoubleTextBox vikt = new FormDoubleTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.vikt = vikt.getSQLTableValue();}
-		@Override	void set(Artikel table) {	vikt.setSQLTableValue(table.vikt); }
+		@Override	public void get(Artikel table) {	table.vikt = vikt.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	vikt.setSQLTableValue(table.vikt); }
 	});
 
 	private FormDoubleTextBox volym = new FormDoubleTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.volym = volym.getSQLTableValue();}
-		@Override	void set(Artikel table) {	volym.setSQLTableValue(table.volym); }
+		@Override	public void get(Artikel table) {	table.volym = volym.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	volym.setSQLTableValue(table.volym); }
 	});
 
 	private FormTextBox struktnr = new FormTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.struktnr = struktnr.getSQLTableValue();}
-		@Override	void set(Artikel table) {	struktnr.setSQLTableValue(table.struktnr); }
+		@Override	public void get(Artikel table) {	table.struktnr = struktnr.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	struktnr.setSQLTableValue(table.struktnr); }
 	});
 
 	private FormDoubleTextBox forpack = new FormDoubleTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.forpack = forpack.getSQLTableValue();}
-		@Override	void set(Artikel table) {	forpack.setSQLTableValue(table.forpack); }
+		@Override	public void get(Artikel table) {	table.forpack = forpack.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	forpack.setSQLTableValue(table.forpack); }
 	});
 
 	private FormDoubleTextBox kop_Pack = new FormDoubleTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.kop_Pack = kop_Pack.getSQLTableValue();}
-		@Override	void set(Artikel table) {	kop_Pack.setSQLTableValue(table.kop_Pack); }
+		@Override	public void get(Artikel table) {	table.kop_Pack = kop_Pack.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	kop_Pack.setSQLTableValue(table.kop_Pack); }
 	});
 
 	private FormDateTextBox kampfrdat = new FormDateTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.kampfrdat = kampfrdat.getSQLTableValue();}
-		@Override	void set(Artikel table) {	kampfrdat.setSQLTableValue(table.kampfrdat); }
+		@Override	public void get(Artikel table) {	table.kampfrdat = kampfrdat.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	kampfrdat.setSQLTableValue(table.kampfrdat); }
 	});
 
 	private FormDateTextBox kamptidat = new FormDateTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.kamptidat = kamptidat.getSQLTableValue();}
-		@Override	void set(Artikel table) {	kamptidat.setSQLTableValue(table.kamptidat); }
+		@Override	public void get(Artikel table) {	table.kamptidat = kamptidat.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	kamptidat.setSQLTableValue(table.kamptidat); }
 	});
 
 	private FormDoubleTextBox kamppris = new FormDoubleTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.kamppris = kamppris.getSQLTableValue();}
-		@Override	void set(Artikel table) {	kamppris.setSQLTableValue(table.kamppris); }
+		@Override	public void get(Artikel table) {	table.kamppris = kamppris.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	kamppris.setSQLTableValue(table.kamppris); }
 	});
 
 	private FormDoubleTextBox kampprisstaf1 = new FormDoubleTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.kampprisstaf1 = kampprisstaf1.getSQLTableValue();}
-		@Override	void set(Artikel table) {	kampprisstaf1.setSQLTableValue(table.kampprisstaf1); }
+		@Override	public void get(Artikel table) {	table.kampprisstaf1 = kampprisstaf1.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	kampprisstaf1.setSQLTableValue(table.kampprisstaf1); }
 	});
 
 	private FormDoubleTextBox kampprisstaf2 = new FormDoubleTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.kampprisstaf2 = kampprisstaf2.getSQLTableValue();}
-		@Override	void set(Artikel table) {	kampprisstaf2.setSQLTableValue(table.kampprisstaf2); }
+		@Override	public void get(Artikel table) {	table.kampprisstaf2 = kampprisstaf2.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	kampprisstaf2.setSQLTableValue(table.kampprisstaf2); }
 	});
 
 	private FormDoubleTextBox inp_Miljo = new FormDoubleTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.inp_Miljo = inp_Miljo.getSQLTableValue();}
-		@Override	void set(Artikel table) {	inp_Miljo.setSQLTableValue(table.inp_Miljo); }
+		@Override	public void get(Artikel table) {	table.inp_Miljo = inp_Miljo.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	inp_Miljo.setSQLTableValue(table.inp_Miljo); }
 	});
 
 	private FormDoubleTextBox inp_Frakt = new FormDoubleTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.inp_Frakt = inp_Frakt.getSQLTableValue();}
-		@Override	void set(Artikel table) {	inp_Frakt.setSQLTableValue(table.inp_Frakt); }
+		@Override	public void get(Artikel table) {	table.inp_Frakt = inp_Frakt.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	inp_Frakt.setSQLTableValue(table.inp_Frakt); }
 	});
 
 	private FormTextBox anvisnr = new FormTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.anvisnr = anvisnr.getSQLTableValue();}
-		@Override	void set(Artikel table) {	anvisnr.setSQLTableValue(table.anvisnr); }
+		@Override	public void get(Artikel table) {	table.anvisnr = anvisnr.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	anvisnr.setSQLTableValue(table.anvisnr); }
 	});
 
 	private FormDoubleTextBox staf_Pris1ny = new FormDoubleTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.staf_Pris1ny = staf_Pris1ny.getSQLTableValue();}
-		@Override	void set(Artikel table) {	staf_Pris1ny.setSQLTableValue(table.staf_Pris1ny); }
+		@Override	public void get(Artikel table) {	table.staf_Pris1ny = staf_Pris1ny.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	staf_Pris1ny.setSQLTableValue(table.staf_Pris1ny); }
 	});
 
 	private FormDoubleTextBox staf_Pris2ny = new FormDoubleTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.staf_Pris2ny = staf_Pris2ny.getSQLTableValue();}
-		@Override	void set(Artikel table) {	staf_Pris2ny.setSQLTableValue(table.staf_Pris2ny); }
+		@Override	public void get(Artikel table) {	table.staf_Pris2ny = staf_Pris2ny.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	staf_Pris2ny.setSQLTableValue(table.staf_Pris2ny); }
 	});
 
 	private FormDoubleTextBox inprisny = new FormDoubleTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.inprisny = inprisny.getSQLTableValue();}
-		@Override	void set(Artikel table) {	inprisny.setSQLTableValue(table.inprisny); }
+		@Override	public void get(Artikel table) {	table.inprisny = inprisny.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	inprisny.setSQLTableValue(table.inprisny); }
 	});
 
 	private FormDateTextBox inprisnydat = new FormDateTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.inprisnydat = inprisnydat.getSQLTableValue();}
-		@Override	void set(Artikel table) {	inprisnydat.setSQLTableValue(table.inprisnydat); }
+		@Override	public void get(Artikel table) {	table.inprisnydat = inprisnydat.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	inprisnydat.setSQLTableValue(table.inprisnydat); }
 	});
 
 	private FormDoubleTextBox inprisnyrab = new FormDoubleTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.inprisnyrab = inprisnyrab.getSQLTableValue();}
-		@Override	void set(Artikel table) {	inprisnyrab.setSQLTableValue(table.inprisnyrab); }
+		@Override	public void get(Artikel table) {	table.inprisnyrab = inprisnyrab.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	inprisnyrab.setSQLTableValue(table.inprisnyrab); }
 	});
 
 	private FormDoubleTextBox utprisny = new FormDoubleTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.utprisny = utprisny.getSQLTableValue();}
-		@Override	void set(Artikel table) {	utprisny.setSQLTableValue(table.utprisny); }
+		@Override	public void get(Artikel table) {	table.utprisny = utprisny.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	utprisny.setSQLTableValue(table.utprisny); }
 	});
 
 	private FormDateTextBox utprisnydat = new FormDateTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.utprisnydat = utprisnydat.getSQLTableValue();}
-		@Override	void set(Artikel table) {	utprisnydat.setSQLTableValue(table.utprisnydat); }
+		@Override	public void get(Artikel table) {	table.utprisnydat = utprisnydat.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	utprisnydat.setSQLTableValue(table.utprisnydat); }
 	});
 
 	private FormTextBox rsk = new FormTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.rsk = rsk.getSQLTableValue();}
-		@Override	void set(Artikel table) {	rsk.setSQLTableValue(table.rsk); }
+		@Override	public void get(Artikel table) {	table.rsk = rsk.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	rsk.setSQLTableValue(table.rsk); }
 	});
 
 	private FormTextBox enummer = new FormTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.enummer = enummer.getSQLTableValue();}
-		@Override	void set(Artikel table) {	enummer.setSQLTableValue(table.enummer); }
+		@Override	public void get(Artikel table) {	table.enummer = enummer.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	enummer.setSQLTableValue(table.enummer); }
 	});
 
 	private FormIntegerTextBox kampkundartgrp = new FormIntegerTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.kampkundartgrp = new Integer(kampkundartgrp.getSQLTableValue()).shortValue();}
-		@Override	void set(Artikel table) {	kampkundartgrp.setSQLTableValue(new Integer(table.kampkundartgrp)); }
+		@Override	public void get(Artikel table) {	table.kampkundartgrp = new Integer(kampkundartgrp.getSQLTableValue()).shortValue();}
+		@Override	public void set(Artikel table) {	kampkundartgrp.setSQLTableValue(new Integer(table.kampkundartgrp)); }
 	});
 
 	private FormIntegerTextBox kampkundgrp = new FormIntegerTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.kampkundgrp = new Integer(kampkundgrp.getSQLTableValue()).shortValue();}
-		@Override	void set(Artikel table) {	kampkundgrp.setSQLTableValue(new Integer(table.kampkundgrp)); }
+		@Override	public void get(Artikel table) {	table.kampkundgrp = new Integer(kampkundgrp.getSQLTableValue()).shortValue();}
+		@Override	public void set(Artikel table) {	kampkundgrp.setSQLTableValue(new Integer(table.kampkundgrp)); }
 	});
 
 	private FormTextBox cn8 = new FormTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.cn8 = cn8.getSQLTableValue();}
-		@Override	void set(Artikel table) {	cn8.setSQLTableValue(table.cn8); }
+		@Override	public void get(Artikel table) {	table.cn8 = cn8.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	cn8.setSQLTableValue(table.cn8); }
 	});
 
 	private FormIntegerTextBox fraktvillkor = new FormIntegerTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.fraktvillkor = new Integer(fraktvillkor.getSQLTableValue()).shortValue();}
-		@Override	void set(Artikel table) {	fraktvillkor.setSQLTableValue(new Integer(table.fraktvillkor)); }
+		@Override	public void get(Artikel table) {	table.fraktvillkor = new Integer(fraktvillkor.getSQLTableValue()).shortValue();}
+		@Override	public void set(Artikel table) {	fraktvillkor.setSQLTableValue(new Integer(table.fraktvillkor)); }
 	});
 
 	private FormCheckBox dagspris = new FormCheckBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.dagspris = dagspris.getSQLTableValue();}
-		@Override	void set(Artikel table) {	dagspris.setSQLTableValue(table.dagspris); }
+		@Override	public void get(Artikel table) {	table.dagspris = dagspris.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	dagspris.setSQLTableValue(table.dagspris); }
 	});
 
 	private FormCheckBox hindraexport = new FormCheckBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.hindraexport = hindraexport.getSQLTableValue();}
-		@Override	void set(Artikel table) {	hindraexport.setSQLTableValue(table.hindraexport); }
+		@Override	public void get(Artikel table) {	table.hindraexport = hindraexport.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	hindraexport.setSQLTableValue(table.hindraexport); }
 	});
 
 	private FormDateTextBox utgattdatum = new FormDateTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.utgattdatum = utgattdatum.getSQLTableValue();}
-		@Override	void set(Artikel table) {	utgattdatum.setSQLTableValue(table.utgattdatum); }
+		@Override	public void get(Artikel table) {	table.utgattdatum = utgattdatum.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	utgattdatum.setSQLTableValue(table.utgattdatum); }
 	});
 
 	private FormDoubleTextBox minsaljpack = new FormDoubleTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.minsaljpack = minsaljpack.getSQLTableValue();}
-		@Override	void set(Artikel table) {	minsaljpack.setSQLTableValue(table.minsaljpack); }
+		@Override	public void get(Artikel table) {	table.minsaljpack = minsaljpack.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	minsaljpack.setSQLTableValue(table.minsaljpack); }
 	});
 
 	private FormDoubleTextBox storpack = new FormDoubleTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.storpack = storpack.getSQLTableValue();}
-		@Override	void set(Artikel table) {	storpack.setSQLTableValue(table.storpack); }
+		@Override	public void get(Artikel table) {	table.storpack = storpack.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	storpack.setSQLTableValue(table.storpack); }
 	});
 
 	private FormIntegerTextBox prisgiltighetstid = new FormIntegerTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.prisgiltighetstid = prisgiltighetstid.getSQLTableValue();}
-		@Override	void set(Artikel table) {	prisgiltighetstid.setSQLTableValue(table.prisgiltighetstid); }
+		@Override	public void get(Artikel table) {	table.prisgiltighetstid = prisgiltighetstid.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	prisgiltighetstid.setSQLTableValue(table.prisgiltighetstid); }
 	});
 
 	private FormIntegerTextBox onskattb = new FormIntegerTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.onskattb = onskattb.getSQLTableValue();}
-		@Override	void set(Artikel table) {	onskattb.setSQLTableValue(table.onskattb); }
+		@Override	public void get(Artikel table) {	table.onskattb = onskattb.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	onskattb.setSQLTableValue(table.onskattb); }
 	});
 
 	private FormIntegerTextBox onskattbstaf1 = new FormIntegerTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.onskattbstaf1 = onskattbstaf1.getSQLTableValue();}
-		@Override	void set(Artikel table) {	onskattbstaf1.setSQLTableValue(table.onskattbstaf1); }
+		@Override	public void get(Artikel table) {	table.onskattbstaf1 = onskattbstaf1.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	onskattbstaf1.setSQLTableValue(table.onskattbstaf1); }
 	});
 
 	private FormIntegerTextBox onskattbstaf2 = new FormIntegerTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.onskattbstaf2 = onskattbstaf2.getSQLTableValue();}
-		@Override	void set(Artikel table) {	onskattbstaf2.setSQLTableValue(table.onskattbstaf2); }
+		@Override	public void get(Artikel table) {	table.onskattbstaf2 = onskattbstaf2.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	onskattbstaf2.setSQLTableValue(table.onskattbstaf2); }
 	});
 
 	private FormCheckBox direktlev = new FormCheckBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.direktlev = direktlev.getSQLTableValue();}
-		@Override	void set(Artikel table) {	direktlev.setSQLTableValue(table.direktlev); }
+		@Override	public void get(Artikel table) {	table.direktlev = direktlev.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	direktlev.setSQLTableValue(table.direktlev); }
 	});
 
 	private FormTextBox bildartnr = new FormTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.bildartnr = bildartnr.getSQLTableValue();}
-		@Override	void set(Artikel table) {	bildartnr.setSQLTableValue(table.bildartnr); }
+		@Override	public void get(Artikel table) {	table.bildartnr = bildartnr.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	bildartnr.setSQLTableValue(table.bildartnr); }
 	});
 
 	private FormTextBox plockinstruktion = new FormTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.plockinstruktion = plockinstruktion.getSQLTableValue();}
-		@Override	void set(Artikel table) {	plockinstruktion.setSQLTableValue(table.plockinstruktion); }
+		@Override	public void get(Artikel table) {	table.plockinstruktion = plockinstruktion.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	plockinstruktion.setSQLTableValue(table.plockinstruktion); }
 	});
 
 	private FormTextBox inp_Enh = new FormTextBox(new FormWidgetGetSet<Artikel>() {
-		@Override	void get(Artikel table) {	table.inp_Enh = inp_Enh.getSQLTableValue();}
-		@Override	void set(Artikel table) {	inp_Enh.setSQLTableValue(table.inp_Enh); }
+		@Override	public void get(Artikel table) {	table.inp_Enh = inp_Enh.getSQLTableValue();}
+		@Override	public void set(Artikel table) {	inp_Enh.setSQLTableValue(table.inp_Enh); }
 	});
 
 

@@ -5,17 +5,17 @@
 
 package se.saljex.webadm.client;
 
-import com.google.gwt.cell.client.AbstractCell;
-import com.google.gwt.i18n.client.NumberFormat;
-import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
+import se.saljex.webadm.client.common.PageLoad;
+import se.saljex.webadm.client.common.HasShowMessage;
+import se.saljex.webadm.client.common.ListWidget;
+import se.saljex.webadm.client.common.HasFormUpdater;
+import se.saljex.webadm.client.common.HasData2Form;
 import com.google.gwt.user.cellview.client.CellTable;
-import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.TextColumn;
-import se.saljex.webadm.client.constants.Const;
-import se.saljex.webadm.client.rpcobject.IsSQLTable;
-import se.saljex.webadm.client.rpcobject.Kund;
-import se.saljex.webadm.client.rpcobject.Kundres;
-import se.saljex.webadm.client.rpcobject.SQLTableList;
+import se.saljex.webadm.client.commmon.constants.Const;
+import se.saljex.webadm.client.common.rpcobject.Kund;
+import se.saljex.webadm.client.common.rpcobject.Kundres;
+import se.saljex.webadm.client.common.rpcobject.SQLTableList;
 
 /**
  *
@@ -28,7 +28,7 @@ public class KundresListWidget extends ListWidget<Kundres> implements HasData2Fo
 	}
 
 	@Override
-	void addListColumns(CellTable<Kundres> cellTable) {
+	public void addListColumns(CellTable<Kundres> cellTable) {
 		int cn = 0;
 
 		getCellTable().addColumnStyleName(1, Const.Style_S15);

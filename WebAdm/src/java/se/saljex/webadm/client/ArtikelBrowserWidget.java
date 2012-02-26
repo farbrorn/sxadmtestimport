@@ -5,12 +5,14 @@
 
 package se.saljex.webadm.client;
 
+import se.saljex.webadm.client.common.ListWidget;
+import se.saljex.webadm.client.common.HasFormUpdater;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.TextColumn;
-import se.saljex.webadm.client.constants.Const;
-import se.saljex.webadm.client.rpcobject.Artikel;
-import se.saljex.webadm.client.rpcobject.Kund;
-import se.saljex.webadm.client.rpcobject.SQLTableList;
+import se.saljex.webadm.client.commmon.constants.Const;
+import se.saljex.webadm.client.common.rpcobject.Artikel;
+import se.saljex.webadm.client.common.rpcobject.SQLTableList;
+import se.saljex.webadm.client.common.PageLoad;
 
 /**
  *
@@ -23,7 +25,7 @@ public class ArtikelBrowserWidget extends ListWidget<Artikel> {
 	}
 
 	@Override
-	void addListColumns(CellTable<Artikel> cellTable) {
+	public void addListColumns(CellTable<Artikel> cellTable) {
 		getCellTable().addColumnStyleName(0, Const.Style_S10);
 		getCellTable().addColumnStyleName(1, Const.Style_S20);
 

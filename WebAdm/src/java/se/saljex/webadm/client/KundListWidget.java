@@ -5,13 +5,17 @@
 
 package se.saljex.webadm.client;
 
+import se.saljex.webadm.client.common.PageLoad;
+import se.saljex.webadm.client.common.HasShowMessage;
+import se.saljex.webadm.client.common.ListWidget;
+import se.saljex.webadm.client.common.HasFormUpdater;
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Window;
-import se.saljex.webadm.client.rpcobject.Kund;
+import se.saljex.webadm.client.common.rpcobject.Kund;
 
 /**
  *
@@ -23,7 +27,7 @@ public class KundListWidget extends ListWidget<Kund> {
 	}
 
 	@Override
-	void addListColumns(CellTable<Kund> cellTable) {
+	public void addListColumns(CellTable<Kund> cellTable) {
 
 		TextColumn<Kund> c1 = new TextColumn<Kund>() {
 

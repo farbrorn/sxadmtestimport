@@ -5,10 +5,12 @@
 
 package se.saljex.webadm.client;
 
+import se.saljex.webadm.client.common.ListWidget;
+import se.saljex.webadm.client.common.HasData2Form;
 import com.google.gwt.user.client.ui.Widget;
-import se.saljex.webadm.client.rpcobject.Faktura2;
-import se.saljex.webadm.client.rpcobject.SQLTableList;
-import se.saljex.webadm.client.rpcobject.Utlev1;
+import se.saljex.webadm.client.common.rpcobject.Faktura2;
+import se.saljex.webadm.client.common.rpcobject.SQLTableList;
+import se.saljex.webadm.client.common.rpcobject.Utlev1;
 
 /**
  *

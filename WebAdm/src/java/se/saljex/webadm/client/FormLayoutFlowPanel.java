@@ -8,7 +8,7 @@ package se.saljex.webadm.client;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.Widget;
-import se.saljex.webadm.client.rpcobject.IsSQLTable;
+import se.saljex.webadm.client.common.rpcobject.IsSQLTable;
 
 /**
  *

@@ -6,7 +6,7 @@
 package se.saljex.webadm.client;
 
 import com.google.gwt.event.dom.client.ClickEvent;
-import se.saljex.webadm.client.rpcobject.IsSQLTable;
+import se.saljex.webadm.client.common.rpcobject.IsSQLTable;
 
 /**
  *

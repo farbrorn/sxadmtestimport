@@ -5,15 +5,15 @@
 
 package se.saljex.webadm.client;
 
-import se.saljex.webadm.client.window.WindowHandler;
-import se.saljex.webadm.client.window.Window;
+import se.saljex.webadm.client.common.window.WindowHandler;
+import se.saljex.webadm.client.common.window.Window;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import se.saljex.webadm.client.DoubleTextBox;
+import se.saljex.webadm.client.common.DoubleTextBox;
 
 /**
  *

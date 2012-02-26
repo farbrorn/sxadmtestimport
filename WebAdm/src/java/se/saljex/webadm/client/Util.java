@@ -5,6 +5,8 @@
 
 package se.saljex.webadm.client;
 
+import se.saljex.webadm.client.common.GWTServiceAsync;
+import se.saljex.webadm.client.common.GWTService;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -19,7 +21,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.user.client.Window;
-import se.saljex.webadm.client.constants.Const;
+import se.saljex.webadm.client.commmon.constants.Const;
 
 /**
  *

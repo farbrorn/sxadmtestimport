@@ -5,12 +5,13 @@
 
 package se.saljex.webadm.client;
 
+import se.saljex.webadm.client.common.HasData2Form;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import java.util.ArrayList;
-import se.saljex.webadm.client.rpcobject.Kund;
+import se.saljex.webadm.client.common.rpcobject.Kund;
 
 /**
  *

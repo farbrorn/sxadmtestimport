@@ -7,7 +7,7 @@ package se.saljex.webadm.client.orderregistrering;
 
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.ScrollPanel;
-import se.saljex.webadm.client.constants.Const;
+import se.saljex.webadm.client.commmon.constants.Const;
 
 /**
  *

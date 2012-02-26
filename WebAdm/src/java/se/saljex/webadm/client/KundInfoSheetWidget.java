@@ -5,7 +5,8 @@
 
 package se.saljex.webadm.client;
 
-import se.saljex.webadm.client.rpcobject.Kund;
+import se.saljex.webadm.client.common.PageLoad;
+import se.saljex.webadm.client.common.rpcobject.Kund;
 
 /**
  *

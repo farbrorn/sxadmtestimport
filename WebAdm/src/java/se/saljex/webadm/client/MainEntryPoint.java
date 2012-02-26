@@ -4,16 +4,20 @@
  */
 package se.saljex.webadm.client;
 
-import se.saljex.webadm.client.window.WindowHandler;
+import se.saljex.webadm.client.common.LoginWidget;
+import se.saljex.webadm.client.common.GWTServiceAsync;
+import se.saljex.webadm.client.common.GWTService;
+import se.saljex.webadm.client.common.window.WindowHandler;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.RunAsyncCallback;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import se.saljex.webadm.client.rpcobject.InitialData;
-import se.saljex.webadm.client.rpcobject.InloggadAnvandare;
+import se.saljex.webadm.client.common.rpcobject.InitialData;
+import se.saljex.webadm.client.common.rpcobject.InloggadAnvandare;
 import se.saljex.webadm.client.wermgo.WgMenuBar;
 
 /**
@@ -111,12 +115,29 @@ public class MainEntryPoint implements EntryPoint {
 	private static void showMain() {
 		rootVP.clear();
 		if ("wermgo".equals(Window.Location.getParameter("modul"))) {
-			rootVP.add(new WgMenuBar(windowHandler, initialData.inloggadAnvandare.arrBehorighet, logoutCommand, initialData.foretagNamn));
-			rootVP.add(windowHandler);			
+			GWT.runAsync(new RunAsyncCallback() {
+				public void onFailure(Throwable caught) {
+					Window.alert("Code download failed");
+				}
+
+				public void onSuccess() {
+					rootVP.add(new WgMenuBar(windowHandler, initialData.inloggadAnvandare.arrBehorighet, logoutCommand, initialData.foretagNamn));
+					rootVP.add(windowHandler);			
+				}
+			});
+			
 		} else {
-			rootVP.add(new SxMenuBar(windowHandler, initialData.inloggadAnvandare.arrBehorighet, logoutCommand, initialData.foretagNamn));
-			rootVP.add(windowHandler);
-			windowHandler.addWindow(new WelcomeWidget(), "Välkommen");			
+			GWT.runAsync(new RunAsyncCallback() {
+				public void onFailure(Throwable caught) {
+					Window.alert("Code download failed");
+				}
+
+				public void onSuccess() {
+					rootVP.add(new SxMenuBar(windowHandler, initialData.inloggadAnvandare.arrBehorighet, logoutCommand, initialData.foretagNamn));
+					rootVP.add(windowHandler);
+					windowHandler.addWindow(new WelcomeWidget(), "Välkommen");			
+				}
+			});
 		}
 	}
 

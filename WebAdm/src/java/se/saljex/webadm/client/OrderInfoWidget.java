@@ -5,14 +5,18 @@
 
 package se.saljex.webadm.client;
 
+import se.saljex.webadm.client.common.ModalMessageBox;
+import se.saljex.webadm.client.common.TableRowLoadCallback;
+import se.saljex.webadm.client.common.TableGetRow;
+import se.saljex.webadm.client.common.HasData2Form;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
-import se.saljex.webadm.client.rpcobject.IsSQLTable;
-import se.saljex.webadm.client.rpcobject.Order1;
-import se.saljex.webadm.client.rpcobject.Utlev1;
+import se.saljex.webadm.client.common.rpcobject.IsSQLTable;
+import se.saljex.webadm.client.common.rpcobject.Order1;
+import se.saljex.webadm.client.common.rpcobject.Utlev1;
 
 /**
  *

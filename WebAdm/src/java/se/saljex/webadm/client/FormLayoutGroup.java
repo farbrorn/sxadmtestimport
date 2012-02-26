@@ -5,8 +5,9 @@
 
 package se.saljex.webadm.client;
 
+import se.saljex.webadm.client.common.FormWidgetInterface;
 import com.google.gwt.user.client.ui.Widget;
-import se.saljex.webadm.client.rpcobject.IsSQLTable;
+import se.saljex.webadm.client.common.rpcobject.IsSQLTable;
 
 /**
  *

@@ -5,27 +5,29 @@
 
 package se.saljex.webadm.client;
 
+import se.saljex.webadm.client.common.PageLoad;
+import se.saljex.webadm.client.common.MessagePopupPanel;
+import se.saljex.webadm.client.common.MessagePopuCallback;
+import se.saljex.webadm.client.common.ListWidget;
+import se.saljex.webadm.client.common.SxNumberColumn;
+import se.saljex.webadm.client.common.ModalMessage;
+import se.saljex.webadm.client.common.HasData2Form;
 import com.google.gwt.cell.client.ActionCell;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ScrollPanel;
-import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
 import java.util.List;
-import se.saljex.webadm.client.constants.Const;
-import se.saljex.webadm.client.rpcobject.SQLTableList;
-import se.saljex.webadm.client.rpcobject.SqlSelectParameters;
-import se.saljex.webadm.client.rpcobject.Order1Utlev1Combo;
+import se.saljex.webadm.client.commmon.constants.Const;
+import se.saljex.webadm.client.common.rpcobject.SQLTableList;
+import se.saljex.webadm.client.common.rpcobject.SqlSelectParameters;
+import se.saljex.webadm.client.common.rpcobject.Order1Utlev1Combo;
 
 /**
  *
@@ -62,7 +64,7 @@ public class OverforOrderWidget<T extends Order1Utlev1Combo> extends ListWidget<
 	}
 
 	@Override
-	void addListColumns(CellTable<T> cellTable) {
+	public void addListColumns(CellTable<T> cellTable) {
 		getCellTable().addColumnStyleName(0, Const.Style_S10);
 		getCellTable().addColumnStyleName(1, Const.Style_S10);
 		getCellTable().addColumnStyleName(2, Const.Style_S10);
