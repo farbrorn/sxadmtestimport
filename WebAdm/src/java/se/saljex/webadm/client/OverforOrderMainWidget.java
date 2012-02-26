@@ -5,6 +5,7 @@
 
 package se.saljex.webadm.client;
 
+import se.saljex.webadm.client.common.Util;
 import se.saljex.webadm.client.common.VerifyAnvandare;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;

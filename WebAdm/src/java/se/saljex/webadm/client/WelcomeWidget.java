@@ -5,6 +5,7 @@
 
 package se.saljex.webadm.client;
 
+import se.saljex.webadm.client.common.Util;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Image;

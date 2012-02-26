@@ -27,7 +27,7 @@ import se.saljex.webadm.client.common.DebugMessagePanel;
 import se.saljex.webadm.client.common.DoubleTextBox;
 import se.saljex.webadm.client.common.PageLoad;
 import se.saljex.webadm.client.common.PageLoadCallback;
-import se.saljex.webadm.client.Util;
+import se.saljex.webadm.client.common.Util;
 import se.saljex.webadm.client.common.rpcobject.IsSQLTable;
 import se.saljex.webadm.client.common.rpcobject.SQLTableList;
 import se.saljex.webadm.client.common.rpcobject.SqlSelectParameters;

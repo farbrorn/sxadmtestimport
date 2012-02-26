@@ -3,15 +3,13 @@
  * and open the template in the editor.
  */
 
-package se.saljex.webadm.client;
+package se.saljex.webadm.client.common;
 
 import se.saljex.webadm.client.common.GWTServiceAsync;
 import se.saljex.webadm.client.common.GWTService;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.event.dom.client.KeyDownEvent;
-import com.google.gwt.event.dom.client.KeyDownHandler;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
@@ -19,7 +17,6 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.user.client.Window;
 import se.saljex.webadm.client.commmon.constants.Const;
 

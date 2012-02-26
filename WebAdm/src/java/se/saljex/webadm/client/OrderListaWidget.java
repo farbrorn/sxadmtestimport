@@ -5,6 +5,7 @@
 
 package se.saljex.webadm.client;
 
+import se.saljex.webadm.client.common.Util;
 import se.saljex.webadm.client.common.KundEpostSelectWidget;
 import se.saljex.webadm.client.common.MessagePopupPanel;
 import se.saljex.webadm.client.common.HasData2Form;

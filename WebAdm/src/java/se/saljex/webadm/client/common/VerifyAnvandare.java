@@ -18,7 +18,6 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.TextBox;
 import se.saljex.webadm.client.MainEntryPoint;
-import se.saljex.webadm.client.Util;
 import se.saljex.webadm.client.commmon.constants.Const;
 
 /**

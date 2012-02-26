@@ -4,10 +4,7 @@
  */
 package se.saljex.webadm.client;
 
-import se.saljex.webadm.client.common.LoginWidget;
-import se.saljex.webadm.client.common.GWTServiceAsync;
-import se.saljex.webadm.client.common.GWTService;
-import se.saljex.webadm.client.common.window.WindowHandler;
+import se.saljex.webadm.client.common.Util;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.RunAsyncCallback;
@@ -16,8 +13,13 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import java.util.ArrayList;
+import se.saljex.webadm.client.common.GWTService;
+import se.saljex.webadm.client.common.GWTServiceAsync;
+import se.saljex.webadm.client.common.LoginWidget;
 import se.saljex.webadm.client.common.rpcobject.InitialData;
 import se.saljex.webadm.client.common.rpcobject.InloggadAnvandare;
+import se.saljex.webadm.client.common.window.WindowHandler;
 import se.saljex.webadm.client.wermgo.WgMenuBar;
 
 /**
@@ -31,7 +33,6 @@ public class MainEntryPoint implements EntryPoint {
      */
 	private static final WindowHandler windowHandler = new WindowHandler();
 	private static VerticalPanel rootVP = new VerticalPanel();
-//	private static InloggadAnvandare inloggadAnvandare=null;
 	private static InitialData initialData = null;
 
 	private static AsyncCallback<InitialData> inititalDataCallback = new AsyncCallback<InitialData>() {
@@ -58,11 +59,6 @@ public class MainEntryPoint implements EntryPoint {
      */
 	@Override
     public void onModuleLoad() {
-//		ArrayList<String> behorighetList = new ArrayList();
-//		behorighetList.add("FaktAdmin");
-//		behorighetList.add("FaktLogin");
-//		User user = new User();
-//		user.setUser("UB", "Ulf Berg", "ulf@saljex.se", behorighetList);
 
 	   RootLayoutPanel.get().add(rootVP);
 	   Util.showModalWait();
@@ -116,24 +112,28 @@ public class MainEntryPoint implements EntryPoint {
 		rootVP.clear();
 		if ("wermgo".equals(Window.Location.getParameter("modul"))) {
 			GWT.runAsync(new RunAsyncCallback() {
+				@Override
 				public void onFailure(Throwable caught) {
 					Window.alert("Code download failed");
 				}
 
+				@Override
 				public void onSuccess() {
-					rootVP.add(new WgMenuBar(windowHandler, initialData.inloggadAnvandare.arrBehorighet, logoutCommand, initialData.foretagNamn));
+					rootVP.add(new WgMenuBar(windowHandler, logoutCommand, "Wermgo modul"));
 					rootVP.add(windowHandler);			
 				}
 			});
 			
 		} else {
 			GWT.runAsync(new RunAsyncCallback() {
+				@Override
 				public void onFailure(Throwable caught) {
 					Window.alert("Code download failed");
 				}
 
+				@Override
 				public void onSuccess() {
-					rootVP.add(new SxMenuBar(windowHandler, initialData.inloggadAnvandare.arrBehorighet, logoutCommand, initialData.foretagNamn));
+					rootVP.add(new SxMenuBar(windowHandler, logoutCommand, initialData.foretagNamn));
 					rootVP.add(windowHandler);
 					windowHandler.addWindow(new WelcomeWidget(), "Välkommen");			
 				}
@@ -157,5 +157,6 @@ public class MainEntryPoint implements EntryPoint {
 
 	public static InloggadAnvandare getInloggadAnvandare() { return initialData.inloggadAnvandare; }
 	public static InitialData getInitialData() { return initialData; }
-
+	public static ArrayList<String> getArrBehorighet() { return initialData.inloggadAnvandare.arrBehorighet; }
+	public static boolean isBehorig(String behorighet) { return (getArrBehorighet()!=null && behorighet!=null && getArrBehorighet().contains(behorighet)); }
 }

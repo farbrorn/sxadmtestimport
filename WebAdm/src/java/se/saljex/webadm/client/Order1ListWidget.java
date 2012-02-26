@@ -5,6 +5,7 @@
 
 package se.saljex.webadm.client;
 
+import se.saljex.webadm.client.common.Util;
 import se.saljex.webadm.client.common.PageLoad;
 import se.saljex.webadm.client.common.ListWidget;
 import se.saljex.webadm.client.common.HasData2Form;

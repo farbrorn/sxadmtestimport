@@ -5,6 +5,7 @@
 
 package se.saljex.webadm.client;
 
+import se.saljex.webadm.client.common.Util;
 import se.saljex.webadm.client.common.ModalMessageBox;
 import se.saljex.webadm.client.common.TableRowLoadCallback;
 import se.saljex.webadm.client.common.TableGetRow;

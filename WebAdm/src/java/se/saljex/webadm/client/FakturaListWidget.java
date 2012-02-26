@@ -5,6 +5,7 @@
 
 package se.saljex.webadm.client;
 
+import se.saljex.webadm.client.common.Util;
 import se.saljex.webadm.client.common.SendEpostButton;
 import se.saljex.webadm.client.common.SendEpostInterface;
 import se.saljex.webadm.client.common.SendEpostButtonFaktura;

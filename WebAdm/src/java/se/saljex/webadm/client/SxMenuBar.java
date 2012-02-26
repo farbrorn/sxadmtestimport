@@ -5,17 +5,17 @@
 
 package se.saljex.webadm.client;
 
-import se.saljex.webadm.client.common.window.WindowHandler;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.MenuBar;
-import java.util.ArrayList;
+import se.saljex.webadm.client.common.window.AbstractSxMenuBar;
+import se.saljex.webadm.client.common.window.WindowHandler;
 import se.saljex.webadm.client.orderregistrering.OrderMain;
 
 /**
  *
  * @author Ulf
  */
-public class SxMenuBar extends MenuBar {
+public class SxMenuBar extends AbstractSxMenuBar {
 
 	private final MenuBar menuArkiv = new MenuBar(true);
 	private final MenuBar menuRegistrera = new MenuBar(true);
@@ -23,26 +23,13 @@ public class SxMenuBar extends MenuBar {
 	private final MenuBar menuFragor = new MenuBar(true);
 	private final MenuBar menuSystemAdmin = new MenuBar(true);
 	private final MenuBar menuInfoString = new MenuBar(true);
-//	private final User user;
-	private ArrayList<String> arrBehorighet=null;
 
-	private final WindowHandler windowHandler;
-
-	private String infoString;
-
-	private final Command logoutCommand;
-
-	public SxMenuBar(WindowHandler windowHandler, ArrayList<String> arrBehorighet, Command logoutCommand, String infoString) {
-		super();
-		this.infoString = infoString;
-		this.logoutCommand = logoutCommand;
-		this.arrBehorighet=arrBehorighet;
-//		this.user=user;
-		this.windowHandler=windowHandler;
-		init();
+	public SxMenuBar(WindowHandler windowHandler, Command logoutCommand, String infoString) {
+		super(windowHandler, logoutCommand, infoString);
 	}
 
-	private void init() {
+	@Override
+	protected void init() {
 		//Arkiv
 		add(menuArkiv, "Välkommen", new Command() {	@Override	public void execute() {	windowHandler.addWindow(new WelcomeWidget(), "Välkommen");	}	});
 		add(menuArkiv, "Logga Ut", logoutCommand);
@@ -76,14 +63,6 @@ public class SxMenuBar extends MenuBar {
 		addItem("Frågor", menuFragor);
 		addItem("System adm", menuSystemAdmin);
 		if (infoString!=null) addItem(infoString, menuInfoString);
-	}
-	private void add(String behorighet, MenuBar menu, String text, Command cmd) {
-		if (behorighet==null || (arrBehorighet!= null && arrBehorighet.contains(behorighet))) {
-			menu.addItem(text, cmd);
-		}
-	}
-	private void add(MenuBar menu, String text, Command cmd) {
-		add(null, menu, text, cmd);
 	}
 
 

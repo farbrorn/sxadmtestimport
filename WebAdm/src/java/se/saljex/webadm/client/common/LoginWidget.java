@@ -16,7 +16,6 @@ import com.google.gwt.user.client.ui.PasswordTextBox;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import se.saljex.webadm.client.FormNavigator;
-import se.saljex.webadm.client.Util;
 import se.saljex.webadm.client.commmon.constants.Const;
 import se.saljex.webadm.client.common.rpcobject.InloggadAnvandare;
 
