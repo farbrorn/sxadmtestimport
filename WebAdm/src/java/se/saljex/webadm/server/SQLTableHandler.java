@@ -6,6 +6,7 @@
 package se.saljex.webadm.server;
 
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -116,6 +117,8 @@ public class SQLTableHandler {
 				else if (  f.get(o) instanceof Short || f.getType()==Short.class)  f.set(o, rs.getShort(f.getName()));
 				else if (  f.get(o) instanceof Double || f.getType()==Double.class)  f.set(o, rs.getDouble(f.getName()));
 				else if (  f.get(o) instanceof Float || f.getType()==Float.class)  f.set(o, rs.getFloat(f.getName()));
+				else if (  f.get(o) instanceof BigDecimal || f.getType()==BigDecimal.class)  f.set(o, rs.getBigDecimal(f.getName()));
+				else if (  f.get(o) instanceof Byte || f.getType()==Byte.class)  f.set(o, new Byte(rs.getByte(f.getName())));
 				else f.set(o, f.getType().cast(rs.getObject(f.getName())));
 //				System.out.print("set   ----" + f.getName() + " " + f.getType().getName());// + " " + rs.getObject(f.getName()).getClass().getName());
 

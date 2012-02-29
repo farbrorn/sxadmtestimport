@@ -6,6 +6,7 @@
 package se.saljex.webadm.client.orderregistrering;
 
 import com.google.gwt.user.client.rpc.IsSerializable;
+import se.saljex.webadm.client.common.rpcobject.VArtKundOrder;
 
 /**
  *
@@ -34,6 +35,7 @@ public class OrderRad implements IsSerializable {
 	public String enh = null;
 	public double pris = 0;
 	public double rab = 0;
+	public double summa=0;
 	
-
+	public VArtKundOrder vArtKundOrder = null;
 }

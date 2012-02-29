@@ -7,7 +7,7 @@ package se.saljex.webadm.client.wermgo;
 
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.MenuBar;
-import se.saljex.webadm.client.common.window.AbstractSxMenuBar;
+import se.saljex.webadm.client.common.AbstractSxMenuBar;
 import se.saljex.webadm.client.common.window.WindowHandler;
 
 /**
@@ -23,9 +23,10 @@ public class WgMenuBar extends AbstractSxMenuBar {
 
 	public WgMenuBar(WindowHandler windowHandler, Command logoutCommand, String infoString) {
 		super(windowHandler, logoutCommand, infoString);
+		init();
 	}
 
-	protected void init() {
+	private void init() {
 		//Arkiv
 		add(menuArkiv, "Logga Ut", logoutCommand);
 

@@ -7,7 +7,7 @@ package se.saljex.webadm.client;
 
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.MenuBar;
-import se.saljex.webadm.client.common.window.AbstractSxMenuBar;
+import se.saljex.webadm.client.common.AbstractSxMenuBar;
 import se.saljex.webadm.client.common.window.WindowHandler;
 import se.saljex.webadm.client.orderregistrering.OrderMain;
 
@@ -26,10 +26,10 @@ public class SxMenuBar extends AbstractSxMenuBar {
 
 	public SxMenuBar(WindowHandler windowHandler, Command logoutCommand, String infoString) {
 		super(windowHandler, logoutCommand, infoString);
+		init();
 	}
 
-	@Override
-	protected void init() {
+	private void init() {
 		//Arkiv
 		add(menuArkiv, "Välkommen", new Command() {	@Override	public void execute() {	windowHandler.addWindow(new WelcomeWidget(), "Välkommen");	}	});
 		add(menuArkiv, "Logga Ut", logoutCommand);

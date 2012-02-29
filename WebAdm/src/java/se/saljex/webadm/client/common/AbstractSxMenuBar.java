@@ -3,11 +3,12 @@
  * and open the template in the editor.
  */
 
-package se.saljex.webadm.client.common.window;
+package se.saljex.webadm.client.common;
 
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.ui.MenuBar;
 import se.saljex.webadm.client.MainEntryPoint;
+import se.saljex.webadm.client.common.window.WindowHandler;
 
 /**
  *
@@ -25,13 +26,11 @@ public abstract class AbstractSxMenuBar extends MenuBar {
 		this.infoString = infoString;
 		this.logoutCommand = logoutCommand;
 		this.windowHandler=windowHandler;
-		init();
 	}
 
-	protected abstract void init();
 	
 	protected void add(String behorighet, MenuBar menu, String text, Command cmd) {
-		if (behorighet==null || MainEntryPoint.isBehorig(behorighet)) {
+		if (MainEntryPoint.isBehorig(behorighet)) {
 			menu.addItem(text, cmd);
 		}
 	}

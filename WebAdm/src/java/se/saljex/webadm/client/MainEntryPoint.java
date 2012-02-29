@@ -4,7 +4,6 @@
  */
 package se.saljex.webadm.client;
 
-import se.saljex.webadm.client.common.Util;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.RunAsyncCallback;
@@ -17,6 +16,7 @@ import java.util.ArrayList;
 import se.saljex.webadm.client.common.GWTService;
 import se.saljex.webadm.client.common.GWTServiceAsync;
 import se.saljex.webadm.client.common.LoginWidget;
+import se.saljex.webadm.client.common.Util;
 import se.saljex.webadm.client.common.rpcobject.InitialData;
 import se.saljex.webadm.client.common.rpcobject.InloggadAnvandare;
 import se.saljex.webadm.client.common.window.WindowHandler;
@@ -158,5 +158,5 @@ public class MainEntryPoint implements EntryPoint {
 	public static InloggadAnvandare getInloggadAnvandare() { return initialData.inloggadAnvandare; }
 	public static InitialData getInitialData() { return initialData; }
 	public static ArrayList<String> getArrBehorighet() { return initialData.inloggadAnvandare.arrBehorighet; }
-	public static boolean isBehorig(String behorighet) { return (getArrBehorighet()!=null && behorighet!=null && getArrBehorighet().contains(behorighet)); }
+	public static boolean isBehorig(String behorighet) { return (behorighet==null || (getArrBehorighet()!=null && getArrBehorighet().contains(behorighet))); }
 }

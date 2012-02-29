@@ -35,7 +35,7 @@ public class VArtKundOrder implements IsSerializable, IsSQLTable{
 	public String enummer;
 	public String refnr;
 	public String enhet;
-	public String utpris;
+	public double utpris;
 	public double staf_pris1;
 	public double staf_pris2;
 	public double staf_antal1;
@@ -70,8 +70,8 @@ public class VArtKundOrder implements IsSerializable, IsSQLTable{
 	public double best;
 	public String lagerplats;
 //	public double basrab;
-	public String gruppbasrab;
-	public String undergrupprab;
+	public double gruppbasrab;
+	public double undergrupprab;
 	public String nettolst;
 	public double nettopris;
 	public String anvisning;
