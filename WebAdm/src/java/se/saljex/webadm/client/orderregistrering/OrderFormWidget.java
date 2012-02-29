@@ -211,15 +211,14 @@ public class OrderFormWidget extends FlowPanel{
 	private void doArtnrEnter() {
 		// Get artikel
 		doSetSelectParam(selectparamGet, kundnr, artnr.getValue(), lagernr, SQLTableList.COMPARE_EQUALS);
-		pageLoadArtikelGet.setSearch(selectparamSok);		
+		pageLoadArtikelGet.setSearch(selectparamGet);		
 	}
 	
 	private void doAntalEnter() {
-		OrderRad or = getOrderRad(currRow);
-		if (or.vArtKundOrder!=null && or.vArtKundOrder.artnr!=null && or.vArtKundOrder.artnr.equals(artnr.getValue())) {
-			setCalcPris(or.vArtKundOrder, antal.getValue());
+		if (currVArtKundOrder!=null && currVArtKundOrder.artnr!=null && currVArtKundOrder.artnr.equals(artnr.getValue())) {
+			setCalcPris(currVArtKundOrder, antal.getValue());
 		}
-		inputrad2OrderRad(or);
+		inputrad2OrderRad(getOrderRad(currRow));
 		downRow();
 	}
 
@@ -335,7 +334,7 @@ public class OrderFormWidget extends FlowPanel{
 		namn.setValue(art.artnamn);
 		enh.setValue(art.enhet);
 		pris.setValue(art.utpris);
-		setCalcPris(art, 1);
+		setCalcPris(art, 0);
 		
 	}
 	
@@ -343,16 +342,21 @@ public class OrderFormWidget extends FlowPanel{
 		//Börja med baspriset
 		double lagstaBrutto = art.utpris;
 		double hogstaRab = art.undergrupprab > 0.0 ? art.undergrupprab : art.gruppbasrab;
-		double lagstaNetto = 0;
+		double lagstaNetto = art.nettopris;
 		
+		if (art.basrab > hogstaRab) hogstaRab=art.basrab;
+		
+		if (art.kamppris > 0 && art.kamppris < lagstaNetto) lagstaNetto=art.kamppris;
 		
 		//Kolla staf1
 		if (art.staf_antal1 > 0 && antal >= art.staf_antal1 && art.staf_pris1 != 0.0) {
 			if (art.staf_pris1 < lagstaBrutto) lagstaBrutto = art.staf_pris1;
+			if (art.kampprisstaf1 > 0 && art.kampprisstaf1 < lagstaNetto) lagstaNetto = art.kampprisstaf1;
 		}
 		//Kolla staf2
 		if (art.staf_antal2 > 0 && antal >= art.staf_antal2 && art.staf_pris2 != 0.0) {
 			if (art.staf_pris2 < lagstaBrutto) lagstaBrutto = art.staf_pris2;
+			if (art.kampprisstaf2 > 0 && art.kampprisstaf2< lagstaNetto) lagstaNetto = art.kampprisstaf2;
 		}
 		
 		if (lagstaNetto != 0 && lagstaNetto < lagstaBrutto*(1-hogstaRab/100)) {	//Är nettopriset lägre?

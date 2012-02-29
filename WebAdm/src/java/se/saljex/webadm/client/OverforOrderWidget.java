@@ -6,6 +6,7 @@
 package se.saljex.webadm.client;
 
 import com.google.gwt.cell.client.ActionCell;
+import com.google.gwt.cell.client.Cell;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.Column;
@@ -96,9 +97,9 @@ public class OverforOrderWidget<T extends Order1Utlev1Combo> extends ListWidget<
 				return object;
 			}
 			@Override
-			public void render(T u, ProvidesKey<T> p , SafeHtmlBuilder h) {
+			public void render(Cell.Context c, T u , SafeHtmlBuilder h) {
 				if (!Const.ORDER_STATUS_OVERFORD.equals(u.status)) {
-					super.render(u, p, h);
+					super.render(c, u, h);
 				}
 			}
 		});
@@ -120,8 +121,8 @@ public class OverforOrderWidget<T extends Order1Utlev1Combo> extends ListWidget<
 				return object;
 			}
 			@Override
-			public void render(T u, ProvidesKey<T> p , SafeHtmlBuilder h) {
-				super.render(u, p, h);
+			public void render(Cell.Context c, T u , SafeHtmlBuilder h) {
+				super.render(c, u, h);
 			}
 		});
 
