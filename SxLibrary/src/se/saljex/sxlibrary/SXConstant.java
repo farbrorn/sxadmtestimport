@@ -126,6 +126,8 @@ public class SXConstant {
 	public static final int			BEST_PAMIN_DAGAR_EFTER_SAND=2;					// Antal dagar från att fakturan är skickadd innan första påminnelsen går ut
 	public static final int			BEST_PAMIN_DAGAR_MELLAN=2;					// Antal dagarmellan påminnelser
 	
+	
+	//Ändra inte kampbitarnas konstanta värde - de används på fler ställen, t.ex. i SQL VARTKUNDORDER
 	public static final short		KAMPBIT_ELKUND	= 1;
 	public static	final short		KAMPBIT_VVSKUND	= 2;
 	public static	final short		KAMPBIT_VAKUND	= 4;
