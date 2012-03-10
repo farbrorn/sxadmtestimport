@@ -37,5 +37,13 @@ public class OrderRad implements IsSerializable {
 	public double rab = 0;
 	public double summa=0;
 	
-	public VArtKundOrder vArtKundOrder = null;
+	public String konto = null;
+	public String levnr = null;
+	public double netto=0;
+	public short stjAutobestall=0;
+	public short stjFinnsILager = 0;
+	public String textrad=null;
+	
+	
+//	public VArtKundOrder vArtKundOrder = null;
 }

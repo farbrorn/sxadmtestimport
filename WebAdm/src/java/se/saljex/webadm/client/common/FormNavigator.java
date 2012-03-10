@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package se.saljex.webadm.client;
+package se.saljex.webadm.client.common;
 
 import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.event.dom.client.KeyDownEvent;

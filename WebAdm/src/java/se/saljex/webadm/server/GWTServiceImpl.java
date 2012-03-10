@@ -4,6 +4,7 @@
  */
 package se.saljex.webadm.server;
 
+import com.google.gwt.user.client.ui.SuggestOracle;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -14,6 +15,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import javax.ejb.EJB;
 import javax.sql.DataSource;
 import se.saljex.sxlibrary.SXConstant;
@@ -24,26 +26,16 @@ import se.saljex.sxlibrary.WebSupport;
 import se.saljex.sxlibrary.exceptions.SXEntityNotFoundException;
 
 import se.saljex.sxserver.LocalWebSupportLocal;
+import se.saljex.sxserver.OrderHandlerRad;
 import se.saljex.sxserver.SxServerMainLocal;
 import se.saljex.sxserver.tables.TableArtikel;
 import se.saljex.sxserver.tables.TableKund;
+import se.saljex.sxserver.tables.TableOrder1;
 import se.saljex.sxserver.websupport.GoogleChartHandler;
 
 import se.saljex.webadm.client.common.GWTService;
-import se.saljex.webadm.client.common.rpcobject.Artikel;
-import se.saljex.webadm.client.common.rpcobject.Epost;
-import se.saljex.webadm.client.common.rpcobject.ErrorConvertingFromResultsetException;
-import se.saljex.webadm.client.common.rpcobject.HtmlMail;
-import se.saljex.webadm.client.common.rpcobject.InitialData;
-import se.saljex.webadm.client.common.rpcobject.InloggadAnvandare;
-import se.saljex.webadm.client.common.rpcobject.IsSQLTable;
-import se.saljex.webadm.client.common.rpcobject.ServerErrorException;
-import se.saljex.webadm.client.common.rpcobject.Kund;
-import se.saljex.webadm.client.common.rpcobject.NotLoggedInException;
-import se.saljex.webadm.client.common.rpcobject.Order1;
-import se.saljex.webadm.client.common.rpcobject.SQLTableList;
-import se.saljex.webadm.client.common.rpcobject.SqlSelectParameters;
-import se.saljex.webadm.client.common.rpcobject.WelcomeData;
+import se.saljex.webadm.client.common.rpcobject.*;
+import se.saljex.webadm.client.orderregistrering.OrderRad;
 
 /**
  *
@@ -849,5 +841,67 @@ public class GWTServiceImpl extends RemoteServiceServlet implements GWTService {
 		
 		return ret;
 	}
-
+	
+	public Integer saveOrder(String anvandare, Order1 or1, ArrayList<OrderRad> inRader) throws ServerErrorException, NotLoggedInException {
+		ensureLoggedIn();
+		ArrayList<OrderHandlerRad> arr = new ArrayList<OrderHandlerRad>();
+		TableOrder1 tor1 = new TableOrder1();
+		OrderHandlerRad o;
+		for (OrderRad or : inRader) {
+			o = new OrderHandlerRad();
+			o.artnr = or.artnr;
+			o.best = or.antal;
+			o.lev = or.antal;
+			o.enh = or.enh;
+			o.konto = or.konto;
+			o.levnr = or.levnr;
+			o.namn = or.namn;
+			o.netto = or.netto;
+			o.pris = or.pris;
+			o.rab = or.rab;
+			o.stjAutobestall = or.stjAutobestall;
+			o.stjFinnsILager = or.stjFinnsILager;
+			o.summa = or.summa;
+			o.text = or.textrad;
+			arr.add(o);
+		}
+		
+		tor1.setAdr1( or1.adr1);
+		tor1.setAdr2(or1.adr2);
+		tor1.setAdr3(or1.adr3);
+		tor1.setAnnanlevadress(or1.annanlevadress);
+		tor1.setBetalsatt(or1.betalsatt);
+		tor1.setBonus( or1.bonus);
+		tor1.setDoljdatum(or1.doljdatum);
+		tor1.setFaktor( or1.faktor);
+		tor1.setForskatt( or1.forskatt!=0);
+		tor1.setForskattbetald(or1.forskattbetald!=0);
+		tor1.setFraktbolag(or1.fraktbolag);
+		tor1.setFraktfrigrans( or1.fraktfrigrans);
+		tor1.setFraktkundnr(or1.fraktkundnr);
+		tor1.setKtid(or1.ktid);
+		tor1.setKundnr(or1.kundnr);
+		tor1.setKundordernr( or1.kundordernr);
+		tor1.setLagernr( or1.lagernr);
+		tor1.setLevadr1(or1.levadr1);
+		tor1.setLevadr2(or1.levadr2);
+		tor1.setLevadr3(or1.levadr3);
+		tor1.setLevdat(or1.levdat);
+		tor1.setLevvillkor(or1.levvillkor);
+		tor1.setLinjenr1( or1.linjenr1);
+		tor1.setLinjenr2( or1.linjenr2);
+		tor1.setLinjenr3( or1.linjenr3);
+		tor1.setMarke(or1.marke);
+		tor1.setMoms(or1.moms);
+		tor1.setMottagarfrakt(or1.mottagarfrakt);
+		tor1.setNamn(or1.namn);
+		tor1.setOrdermeddelande(or1.ordermeddelande);
+		tor1.setReferens(or1.referens);
+		tor1.setSaljare( or1.saljare);
+		tor1.setTidigastfaktdatum(or1.tidigastfaktdatum);
+		tor1.setVeckolevdag(or1.veckolevdag);
+		tor1.setWordernr(or1.wordernr);
+		return sxServerMainBean.saveOrder(anvandare, tor1, arr);
+	}
+	
 }

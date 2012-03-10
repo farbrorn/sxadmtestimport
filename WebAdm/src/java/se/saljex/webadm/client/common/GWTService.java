@@ -18,7 +18,10 @@ import se.saljex.webadm.client.common.rpcobject.ServerErrorException;
 import se.saljex.webadm.client.common.rpcobject.InitialData;
 import com.google.gwt.user.client.rpc.RemoteService;
 import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
+import com.google.gwt.user.client.ui.SuggestOracle;
 import java.util.ArrayList;
+import se.saljex.webadm.client.common.rpcobject.*;
+import se.saljex.webadm.client.orderregistrering.OrderRad;
 
 /**
  *
@@ -55,5 +58,6 @@ public interface GWTService extends RemoteService {
 	public String verifyAnvandareKort(String anvandareKort) throws ServerErrorException, NotLoggedInException;
 	public HtmlMail getHtmlOffert (int offertnr, boolean inkMoms, String logoUrl) throws ServerErrorException, NotLoggedInException;
 	public HtmlMail getHtmlOffert (int offertnr, boolean inkMoms, String logoUrl, String headerHTML, String meddelandeHTML, String footerHTML) throws ServerErrorException, NotLoggedInException;
+	public Integer saveOrder(String anvandare, Order1 or1, ArrayList<OrderRad> inRader) throws ServerErrorException, NotLoggedInException;
 
 }

@@ -6,16 +6,11 @@
 package se.saljex.webadm.client.common;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.SuggestOracle;
 import java.util.ArrayList;
-import se.saljex.webadm.client.common.rpcobject.Epost;
-import se.saljex.webadm.client.common.rpcobject.HtmlMail;
-import se.saljex.webadm.client.common.rpcobject.InitialData;
-import se.saljex.webadm.client.common.rpcobject.InloggadAnvandare;
-import se.saljex.webadm.client.common.rpcobject.IsSQLTable;
-import se.saljex.webadm.client.common.rpcobject.Kund;
-import se.saljex.webadm.client.common.rpcobject.SQLTableList;
-import se.saljex.webadm.client.common.rpcobject.SqlSelectParameters;
-import se.saljex.webadm.client.common.rpcobject.WelcomeData;
+import java.util.Collection;
+import se.saljex.webadm.client.common.rpcobject.*;
+import se.saljex.webadm.client.orderregistrering.OrderRad;
 
 /**
  *
@@ -48,5 +43,6 @@ public interface GWTServiceAsync {
 	public void verifyAnvandareKort(String anvandareKort, AsyncCallback<String> callback);
 	public void getHtmlOffert (int offertnr, boolean inkMoms, String logoUrl, AsyncCallback<HtmlMail> callback);
 	public void getHtmlOffert (int offertnr, boolean inkMoms, String logoUrl, String headerHTML, String meddelandeHTML, String footerHTML, AsyncCallback<HtmlMail> callback);
-	
+	public void saveOrder(String anvandare, Order1 or1, ArrayList<OrderRad> inRader, AsyncCallback<Integer> callback);
+
 }

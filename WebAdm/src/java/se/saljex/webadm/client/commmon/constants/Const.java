@@ -96,4 +96,26 @@ public static final String Style_Padding_05em_Left = "sx-padding-05em-left";
 public static final String Style_Padding_05em_Right = "sx-padding-05em-right";
 public static final String Style_Padding_05em_Top = "sx-padding-05em-top";
 public static final String Style_Padding_05em_Bottom = "sx-padding-05em-bottom";
+
+public static final String Style_Clear_Left = "sx-clear-left";
+public static final String Style_Clear_Right = "sx-clear-right";
+public static final String Style_Clear_Both = "sx-clear-both";
+
+public static final String Style_Font_Monospace = "sx-font-monospace";
+
+public static final String Style_Orderreg = "sx-orderreg";
+public static final String Style_Orderreg_Head = "sx-orderreg-head";
+public static final String Style_Orderreg_Formarea = "sx-orderreg-formarea";
+public static final String Style_Orderreg_Form = "sx-orderreg-form";
+public static final String Style_Orderreg_Infopanel = "sx-orderreg-infopanel";
+public static final String Style_Orderreg_Infopanel_Label = "sx-orderreg-infopanel-label";
+public static final String Style_Orderreg_Infopanel_Value = "sx-orderreg-infopanel-value";
+public static final String Style_Orderreg_Bottom = "sx-orderreg-bottom";
+
+public static final String Style_FlowLabelWidgetPar = "sx-flowwidgetlabelpair";
+public static final String Style_FlowLabelWidgetPar_Label = "sx-flowwidgetlabelpair-label";
+public static final String Style_FlowLabelWidgetPar_Widget = "sx-flowwidgetlabelpair-widget";
+
+public static final String Style_FlowLabelWidgetParPanel = "sx-flowwidgetlabelpairpanel";
+		
 }

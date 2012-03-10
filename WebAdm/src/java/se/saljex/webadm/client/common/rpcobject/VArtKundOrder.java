@@ -40,9 +40,10 @@ public class VArtKundOrder implements IsSerializable, IsSQLTable{
 	public double staf_pris2;
 	public double staf_antal1;
 	public double staf_antal2;
-	public String rabkod;
-	public String kod1;
-	public double inpris;
+//	public String rabkod;
+//	public String kod1;
+//	public double inpris;
+	public double calc_kostprisin;
 	public java.util.Date prisdatum;
 	public int prisgiltighetstid;
 	public String konto;
@@ -54,6 +55,8 @@ public class VArtKundOrder implements IsSerializable, IsSQLTable{
 	public double kamppris;
 	public double kampprisstaf1;
 	public double kampprisstaf2;
+	public int calc_kampanjgaller;
+	public double calc_hogstarab;
 //	public double inp_miljo;
 //	public double inp_frakt;
 //	public double inp_fraktproc;
@@ -68,11 +71,11 @@ public class VArtKundOrder implements IsSerializable, IsSQLTable{
 	public double ilager;
 	public double iorder;
 	public double best;
-	public String lagerplats;
+//	public String lagerplats;
 	public double basrab;
 	public double gruppbasrab;
 	public double undergrupprab;
-	public String nettolst;
+//	public String nettolst;
 	public double nettopris;
 	public String anvisning;
 
