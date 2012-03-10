@@ -18,6 +18,7 @@ import com.lowagie.text.DocumentException;
 import java.io.*;
 import java.util.ArrayList;
 import javax.mail.MessagingException;
+import se.saljex.sxserver.tables.TableOrder1;
 
 
 /**
@@ -77,6 +78,8 @@ public interface SxServerMainLocal {
 	void sendFakturaEpost(String anvandare, String epost, int id) throws SXEntityNotFoundException;
 	String getHtmlOffert (int offertnr, boolean inkMoms, String logoUrl) throws SXEntityNotFoundException;
 	String getHtmlOffert (int offertnr, boolean inkMoms, String logoUrl, String headerHTML, String meddelandeHTML, String footerHTML) throws SXEntityNotFoundException;
+
+	int saveOrder(String anvandare, TableOrder1 copyFromTableOrder1, ArrayList<OrderHandlerRad> orderRader);
 
 	
 }

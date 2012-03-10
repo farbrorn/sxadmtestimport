@@ -68,6 +68,14 @@ public class OrderHandler {
 		setLagerNr(lagerNr);
 		orderLaddad = false;
 	}
+	
+	public OrderHandler(EntityManager e,  String anvandare, TableOrder1 copyFromTableOrder1) {
+		em = e;
+		or1 = new TableOrder1();
+		setAnvandare(anvandare);		//V iktigt att setAnvandare anropas före setKund() eftersom setKund() använder aktuell användare
+		orderLaddad = false;
+		setOrder1FromCopy(copyFromTableOrder1);
+	}
 
 	//Hämtar in en order utan att låsa upp om den är låst
 	public OrderHandler(EntityManager e, int ordernr, String anvandare) throws SxOrderLastException, EntityNotFoundException {
@@ -121,6 +129,47 @@ public class OrderHandler {
 		}
 
 		orderLaddad = true;
+	}
+	
+	private void setOrder1FromCopy(TableOrder1 copyFromTableOrder1) {
+		or1.setAdr1(copyFromTableOrder1.getAdr1());
+		or1.setAdr2(copyFromTableOrder1.getAdr2());
+		or1.setAdr3(copyFromTableOrder1.getAdr3());
+		or1.setAnnanlevadress(copyFromTableOrder1.getAnnanlevadress());
+		or1.setBetalsatt(copyFromTableOrder1.getBetalsatt());
+		or1.setBonus(copyFromTableOrder1.getBonus());
+		or1.setDoljdatum(copyFromTableOrder1.getDoljdatum());
+		or1.setFaktor(copyFromTableOrder1.getFaktor());
+		or1.setForskatt(copyFromTableOrder1.getForskatt());
+		or1.setForskattbetald(copyFromTableOrder1.getForskattbetald());
+		or1.setFraktbolag(copyFromTableOrder1.getFraktbolag());
+		or1.setFraktfrigrans(copyFromTableOrder1.getFraktfrigrans());
+		or1.setFraktkundnr(copyFromTableOrder1.getFraktkundnr());
+		or1.setKtid(copyFromTableOrder1.getKtid());
+		or1.setKundnr(copyFromTableOrder1.getKundnr());
+		or1.setKundordernr(copyFromTableOrder1.getKundordernr());
+		or1.setLagernr(copyFromTableOrder1.getLagernr());
+		or1.setLevadr1(copyFromTableOrder1.getLevadr1());
+		or1.setLevadr2(copyFromTableOrder1.getLevadr2());
+		or1.setLevadr3(copyFromTableOrder1.getLevadr3());
+		or1.setLevdat(copyFromTableOrder1.getLevdat());
+		or1.setLevvillkor(copyFromTableOrder1.getLevvillkor());
+		or1.setLinjenr1(copyFromTableOrder1.getLinjenr1());
+		or1.setLinjenr2(copyFromTableOrder1.getLinjenr2());
+		or1.setLinjenr3(copyFromTableOrder1.getLinjenr3());
+		or1.setMarke(copyFromTableOrder1.getMarke());
+		or1.setMoms(copyFromTableOrder1.getMoms());
+		or1.setMottagarfrakt(copyFromTableOrder1.getMottagarfrakt());
+		or1.setNamn(copyFromTableOrder1.getNamn());
+		or1.setOrdermeddelande(copyFromTableOrder1.getOrdermeddelande());
+		or1.setReferens(copyFromTableOrder1.getReferens());
+		or1.setReturorder(copyFromTableOrder1.getReturorder());
+		or1.setSaljare(copyFromTableOrder1.getSaljare());
+		or1.setTidigastfaktdatum(copyFromTableOrder1.getTidigastfaktdatum());
+		or1.setTillannanfilial(copyFromTableOrder1.getTillannanfilial());
+		or1.setUtlevbokad(copyFromTableOrder1.getUtlevbokad());
+		or1.setVeckolevdag(copyFromTableOrder1.getVeckolevdag());
+		or1.setWordernr(copyFromTableOrder1.getWordernr());
 	}
 	
 	public final void setLagerNr(short lagernr) {
@@ -269,10 +318,10 @@ public class OrderHandler {
 
 
 
-	public void addTextRow(String text) {
-		addTextRow(text, 0.0, 0.0);
+	public OrderHandlerRad addTextRow(String text) {
+		return addTextRow(text, 0.0, 0.0);
 	}
-	public void addTextRow(String text, double inpris, double utpris) {
+	public OrderHandlerRad addTextRow(String text, double inpris, double utpris) {
 		ord = new OrderHandlerRad();
 
 		ord.text = text;
@@ -294,9 +343,14 @@ public class OrderHandler {
 		ord.stjid=0;
 
 		ordreg.add(ord);
+		return ord;
 	}
 
-	public void addStjRow(String artnr, String namn, String levnr, double antal, String enh, double inpris, double utpris, double utrab) {
+	public OrderHandlerRad addStjRow(String artnr, String namn, String levnr, double antal, String enh, double inpris, double utpris, double utrab) {
+		return addStjRow(artnr, namn, levnr, antal, enh, inpris, utpris, utrab,(short)0,(short)0);
+	}
+	
+	public OrderHandlerRad addStjRow(String artnr, String namn, String levnr, double antal, String enh, double inpris, double utpris, double utrab, short stjAutobestall, short stjFinnsILager) {
 		ord = new OrderHandlerRad();
 		if (!artnr.startsWith("*")) artnr="*"+artnr;
 		ord.best = antal;
@@ -325,8 +379,8 @@ public class OrderHandler {
 		stj.setRegdatum(new Date());
 		stj.setAntal(antal);
 		stj.setArtnr(artnr);
-		stj.setAutobestall((short)0);
-		stj.setFinnsilager((short)0);
+		stj.setAutobestall(stjAutobestall);
+		stj.setFinnsilager(stjFinnsILager);
 		stj.setEnh(enh);
 		stj.setInpris(inpris);
 		stj.setKundnr(or1.getKundnr());
@@ -339,9 +393,51 @@ public class OrderHandler {
 
 		ordreg.add(ord);
 
-
+		return ord;
 	}
 
+	public OrderHandlerRad addRowNoArtikelLookup(String artNr, String artNamn, double antal, String enhet, double pris, double rab, String levNr, String konto, double inpris) {
+		return addRowNoArtikelLookup(artNr, artNamn, antal, enhet, pris, rab, levNr, konto, inpris, 0, 0, 0, 0);
+	}
+	public OrderHandlerRad addRowNoArtikelLookup(String artNr, String artNamn, double antal, String enhet, double pris, double rab, String levNr, String konto, double inpris, double inrab, double inpFraktproc, double inpFrakt, double inpMiljo) {
+		return addRowNoArtikelLookup(artNr, artNamn, antal, enhet, pris, rab, levNr, konto, inpris, inrab, inpFraktproc, inpFrakt, inpMiljo, (short)0, (short)0);
+	}
+	
+	public OrderHandlerRad addRowNoArtikelLookup(String artNr, String artNamn, double antal, String enhet, double pris, double rab, String levNr, String konto, double inpris, double inrab, double inpFraktproc, double inpFrakt, double inpMiljo, short stjAutobestall, short stjFinnsILager) {
+		return addRowNoArtikelLookup(artNr, artNamn, antal, enhet, pris, rab, levNr, konto, inpris, inrab, inpFraktproc, inpFrakt, inpMiljo, (short)0, (short)0, null);
+		
+	}
+	//Lägger till en rad utan att vverifiera om artikelnumret finns som artikel, eller slå upp artikeldata
+	//Om det är en stjärnrad så läggs den till som *-rad
+	//Om det är en textrad så läggs den in
+	public OrderHandlerRad addRowNoArtikelLookup(String artNr, String artNamn, double antal, String enhet, double pris, double rab, String levNr, String konto, double inpris, double inrab, double inpFraktproc, double inpFrakt, double inpMiljo, short stjAutobestall, short stjFinnsILager, String textrad) {
+		ord = new OrderHandlerRad();
+		if (artNr!=null && artNr.startsWith("*")) {
+			ord = addStjRow(artNr, artNamn, levNr, antal, enhet, (inpris * (1-inrab/100) * (1+inpFraktproc/100)) + inpFrakt + inpMiljo, pris, rab, stjAutobestall, stjFinnsILager);
+		} else if (SXUtil.isEmpty(artNr) && !SXUtil.isEmpty(textrad)) {
+			ord = addTextRow(textrad, (inpris * (1-inrab/100) * (1+inpFraktproc/100)) + inpFrakt + inpMiljo, pris*(1-rab/100));
+		} else {
+			ord.best = antal;
+			ord.lev = antal;
+			ord.artnr = artNr;
+			ord.namn = artNamn;
+			ord.konto = konto;
+			ord.enh = enhet;
+			ord.levnr = levNr;
+			ord.prisnr = (short)1;
+
+			setLagerToOrderRad(ord); // Sätt lagersaldon
+
+			ord.pris = pris;
+			ord.rab = rab;
+
+			ord.summa = pris * antal * (1-rab/100);
+			ord.netto = (inpris * (1-inrab/100) * (1+inpFraktproc/100)) + inpFrakt + inpMiljo;
+			ord.netto = inpris;
+			ordreg.add(ord);
+		}
+		return ord;
+	}
 
 	public void addRow(String artnr, double antal, double pris, double rab) throws SXEntityNotFoundException {
 		ord = new OrderHandlerRad();
@@ -360,25 +456,7 @@ public class OrderHandler {
 			} catch (SXToManyIterationsException e) { throw new SXEntityNotFoundException("För många iterationer på strukturartikel " + artnr); }
 
 		} else {
-			ord.best = antal;
-			ord.lev = antal;
-			ord.artnr = art.getNummer();
-			ord.namn = art.getNamn();
-			ord.konto = art.getKonto();
-			ord.enh = art.getEnhet();
-			ord.levnr = art.getLev();
-			ord.artDirektlev = art.getDirektlev();
-			ord.artFraktvillkor = art.getFraktvillkor();
-			ord.prisnr = (short)1;
-
-			setLagerToOrderRad(ord); // Sätt lagersaldon
-
-			ord.pris = pris;
-			ord.rab = rab;
-
-			ord.summa = ord.pris * antal * (1-ord.rab/100);
-			ord.netto = (art.getInpris() * (1-art.getRab()/100) * (1+art.getInpFraktproc()/100)) + art.getInpFrakt() + art.getInpMiljo();
-			ordreg.add(ord);
+			addRowNoArtikelLookup(art.getNummer(), art.getNamn(), antal, art.getEnhet(), pris, rab, art.getLev(), art.getKonto(), art.getInpris(), art.getRab(), art.getInpFraktproc(), art.getInpFrakt(), art.getInpMiljo());
 		}
 
 	}
@@ -832,8 +910,19 @@ public class OrderHandler {
 
 		if (!orderLaddad) em.persist(or1);
 		scn = 0;
+		
+		//Ta bort tomma sista rader
+		OrderHandlerRad tempRad;
+		while (ordreg.size() > 0) {
+			tempRad = ordreg.get(ordreg.size()-1);
+			if (SXUtil.isEmpty(tempRad.artnr) && SXUtil.isEmpty(tempRad.text) && SXUtil.noNull(tempRad.summa)== 0) {
+				ordreg.remove(ordreg.size()-1);
+			} else { break; }
+		}
+		
 		for (OrderHandlerRad o : ordreg) {
 			scn++;
+			o.artnr = SXUtil.toStr(o.artnr); //Se till så att det inte är null eftersom det inte är tillåtet i databasen
 			o.ordernr = or1.getOrdernr();
 			o.dellev = or1.getDellev();
 			o.pos = scn;

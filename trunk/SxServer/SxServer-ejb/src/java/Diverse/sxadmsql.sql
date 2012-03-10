@@ -2176,7 +2176,12 @@ coalesce(r2.rab,0) as gruppbasrab,
 coalesce(r.rab,0) as undergrupprab,
 n.lista as nettolst,
 coalesce(n.pris,0) as nettopris,
-an.anvisning as anvisning
+an.anvisning as anvisning,
+cast (greatest(coalesce(k.basrab,0), coalesce(r2.rab,0), coalesce(r.rab,0)) as real) as calc_hogstarab,
+cast (a.inpris + a.inp_miljo + a.inp_frakt + (a.inpris*a.inp_fraktproc/100) as real) as calc_kostprisin,
+case when (k.elkund*1+k.vvskund*2+k.vakund*4+k.golvkund*8+k.fastighetskund*16) & a.kampkundartgrp > 0 and (k.installator*1+k.butik*2+k.industri*4+k.oem*8+k.grossist*16) & a.kampkundgrp > 0  and now() > a.kampfrdat and now() <= a.kamptidat then 1 else 0 end as calc_kampanjgaller
+
+
 from
 artikel a
 join lagerid lid on 1=1

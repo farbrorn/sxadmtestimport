@@ -44,6 +44,7 @@ import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.sql.DataSource;
 import se.saljex.sxserver.tables.TableOrder1;
+import se.saljex.sxserver.tables.TableOrder2;
 import se.saljex.sxserver.tables.TableVarukorg;
 
 
@@ -578,6 +579,8 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 	}
 
 
+	
+	
 
 	//Returnerar true vid error
 	@RolesAllowed("admin")
@@ -690,6 +693,17 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 	public String getHtmlOffert (int offertnr, boolean inkMoms, String logoUrl, String headerHTML, String meddelandeHTML, String footerHTML) throws SXEntityNotFoundException {
 		return HtmlOffertHandler.getHtmlOffert(em, offertnr, inkMoms, logoUrl, headerHTML, meddelandeHTML, footerHTML);
 		
+	}
+
+	@Override
+	public int saveOrder(String anvandare, TableOrder1 copyFromTableOrder1, ArrayList<OrderHandlerRad> orderRader) {
+		OrderHandler ord = new OrderHandler(em, anvandare, copyFromTableOrder1);
+		
+		for (OrderHandlerRad rad : orderRader) {
+			ord.addRowNoArtikelLookup(rad.artnr, rad.namn, rad.best, rad.enh, rad.pris, rad.rab, rad.levnr, rad.konto, rad.netto, 0, 0, 0, 0, rad.stjAutobestall, rad.stjFinnsILager, rad.text);
+		}
+		int ordernr = ord.persistOrder();
+		return ordernr;
 	}
 
 
