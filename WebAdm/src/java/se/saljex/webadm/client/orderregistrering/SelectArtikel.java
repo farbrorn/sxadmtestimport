@@ -4,19 +4,12 @@
  */
 package se.saljex.webadm.client.orderregistrering;
 
-import com.google.gwt.core.client.Scheduler;
-import com.google.gwt.dom.client.Document;
-import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.event.dom.client.*;
-import com.google.gwt.event.shared.GwtEvent;
-import com.google.gwt.event.shared.GwtEvent.Type;
 import com.google.gwt.user.cellview.client.CellTable;
 import com.google.gwt.user.cellview.client.TextColumn;
-import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import se.saljex.webadm.client.commmon.constants.Const;
-import se.saljex.webadm.client.common.HasData2Form;
 import se.saljex.webadm.client.common.ListWidget;
 import se.saljex.webadm.client.common.PageLoad;
 import se.saljex.webadm.client.common.rpcobject.ArtikelSuggestion;

@@ -80,46 +80,12 @@ public class OrderMain extends FlowPanel implements OrderFormCallback {
 		Util.showModalWait();
 		
 		Order1 tor1 = new Order1();
+		tor1 = head.toOrder1();
 		ArrayList<OrderRad> rader = new ArrayList<OrderRad>();
 		for (OrderFormWidget.Rad rad : form.getRader()) {
 			rader.add(rad.orderRad);
 		}
 		
-		tor1.adr1 = "";
-		tor1.adr2 = "";
-		tor1.adr3 = "";
-		tor1.annanlevadress = 0;
-		tor1.betalsatt = "";
-		tor1.bonus = 1;
-		tor1.doljdatum = null;
-		tor1.faktor = 0;
-		tor1.forskatt = 0;
-		tor1.forskattbetald = 0;
-		tor1.fraktbolag = "";
-		tor1.fraktfrigrans = 0;
-		tor1.fraktkundnr = "";
-		tor1.ktid = 30;
-		tor1.kundnr = "";
-		tor1.kundordernr = 0;
-		tor1.lagernr = 0;
-		tor1.levadr1 = "Lev 1";
-		tor1.levadr2 = "Lev 2";
-		tor1.levadr3 = "Lev 3";
-		tor1.levdat = null;
-		tor1.levvillkor = "";
-		tor1.linjenr1 = "";
-		tor1.linjenr2 = "";
-		tor1.linjenr3 = "";
-		tor1.marke = "Ordermärke";
-		tor1.moms = 1;
-		tor1.mottagarfrakt = 0;
-		tor1.namn = "";
-		tor1.ordermeddelande = "";
-		tor1.referens = "";
-		tor1.saljare = "";
-		tor1.tidigastfaktdatum = null;
-		tor1.veckolevdag = 0;
-		tor1.wordernr = 0;
 		
 		
 		MainEntryPoint.getService().saveOrder(anvandare, tor1, rader, new AsyncCallback<Integer>() {
