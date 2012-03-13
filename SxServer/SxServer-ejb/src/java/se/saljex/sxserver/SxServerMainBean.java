@@ -697,6 +697,7 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 
 	@Override
 	public int saveOrder(String anvandare, TableOrder1 copyFromTableOrder1, ArrayList<OrderHandlerRad> orderRader) {
+		if (orderRader== null || orderRader.size()<1) throw new EntityNotFoundException("Det finns inga artikelrader.");
 		OrderHandler ord = new OrderHandler(em, anvandare, copyFromTableOrder1);
 		
 		for (OrderHandlerRad rad : orderRader) {
@@ -706,6 +707,17 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 		return ordernr;
 	}
 
+	@Override
+	public int saveOffert(String anvandare, TableOrder1 copyFromTableOrder1, ArrayList<OrderHandlerRad> orderRader) {
+		if (orderRader== null || orderRader.size()<1) throw new EntityNotFoundException("Det finns inga artikelrader.");
+		OrderHandler ord = new OrderHandler(em, anvandare, copyFromTableOrder1);
+		
+		for (OrderHandlerRad rad : orderRader) {
+			ord.addRowNoArtikelLookup(rad.artnr, rad.namn, rad.best, rad.enh, rad.pris, rad.rab, rad.levnr, rad.konto, rad.netto, 0, 0, 0, 0, rad.stjAutobestall, rad.stjFinnsILager, rad.text);
+		}
+		int offertnr = ord.persistOffert();
+		return offertnr;
+	}
 
 
 }

@@ -71,6 +71,10 @@ public class OrderHandler {
 	
 	public OrderHandler(EntityManager e,  String anvandare, TableOrder1 copyFromTableOrder1) {
 		em = e;
+		//Kolla om kunden finns
+		kun = em.find(TableKund.class, copyFromTableOrder1.getKundnr());
+		if (kun == null || SXUtil.isEmpty(copyFromTableOrder1.getKundnr())) { throw new EntityNotFoundException("Kan inte hitta kund " + copyFromTableOrder1.getKundnr()==null ? " " : copyFromTableOrder1.getKundnr() +  " för order."); }
+		
 		or1 = new TableOrder1();
 		setAnvandare(anvandare);		//V iktigt att setAnvandare anropas före setKund() eftersom setKund() använder aktuell användare
 		orderLaddad = false;
@@ -417,6 +421,11 @@ public class OrderHandler {
 		} else if (SXUtil.isEmpty(artNr) && !SXUtil.isEmpty(textrad)) {
 			ord = addTextRow(textrad, (inpris * (1-inrab/100) * (1+inpFraktproc/100)) + inpFrakt + inpMiljo, pris*(1-rab/100));
 		} else {
+			if (!SXUtil.isEmpty(artNr)) {
+				TableArtikel art = em.find(TableArtikel.class, artNr);
+				if (art==null) throw new EntityNotFoundException("Artikel " + artNr + " finns inte.");
+			} else if (!SXUtil.isEmpty(artNr) || antal != 0 || pris != 0 || rab!=0) throw new EntityNotFoundException("En artikelrad saknar artikelnummer men innnehåller annan data.");
+			
 			ord.best = antal;
 			ord.lev = antal;
 			ord.artnr = artNr;
