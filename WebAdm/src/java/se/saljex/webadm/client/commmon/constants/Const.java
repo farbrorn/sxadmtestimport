@@ -117,5 +117,7 @@ public static final String Style_FlowLabelWidgetPar_Label = "sx-flowwidgetlabelp
 public static final String Style_FlowLabelWidgetPar_Widget = "sx-flowwidgetlabelpair-widget";
 
 public static final String Style_FlowLabelWidgetParPanel = "sx-flowwidgetlabelpairpanel";
-		
+
+public static final String Style_AutoHideMessage = "sx-autohidemessage";
+
 }

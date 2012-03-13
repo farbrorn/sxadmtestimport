@@ -8,14 +8,12 @@ package se.saljex.webadm.client.orderregistrering;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.user.client.ui.*;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import se.saljex.webadm.client.commmon.constants.Const;
 import se.saljex.webadm.client.common.*;
-import se.saljex.webadm.client.common.rpcobject.Kund;
-import se.saljex.webadm.client.common.rpcobject.Order1;
-import se.saljex.webadm.client.common.rpcobject.SQLTableList;
-import se.saljex.webadm.client.common.rpcobject.SqlSelectParameters;
+import se.saljex.webadm.client.common.rpcobject.*;
 
 /**
  *
@@ -32,18 +30,44 @@ public class OrderHeaderWidget extends FlowPanel {
 	private final TextBox kundadr1 = new TextBox();
 	private final TextBox kundadr2 = new TextBox();
 	private final TextBox kundadr3 = new TextBox();
-		private final TextBox linjenr1 = new TextBox();
-		private final TextBox linjenr2 = new TextBox();
-		private final TextBox linjenr3 = new TextBox();
-		private final TextBox marke = new TextBox();
-		private final TextBox ordermeddelande = new TextBox();
-		private final TextBox referens = new TextBox();
-		private final TextBox saljare = new TextBox();
-		private final IntegerTextBox lagernr = new IntegerTextBox();
-		private final TextBox levAdr1 = new TextBox();
-		private final TextBox levAdr2 = new TextBox();
-		private final TextBox levAdr3 = new TextBox();
-		private final Button btnAnnanLevAdr = new Button("Ändra levadress", new ClickHandler() {
+	private final TextBox linjenr1 = new TextBox();
+	private final TextBox linjenr2 = new TextBox();
+	private final TextBox linjenr3 = new TextBox();
+	private final TextBox marke = new TextBox();
+	private final TextBox ordermeddelande = new TextBox();
+	private final TextBox referens = new TextBox();
+	private final TextBox saljare = new TextBox();
+	private final IntegerTextBox lagernr = new IntegerTextBox();
+	private final TextBox levAdr1 = new TextBox();
+	private final TextBox levAdr2 = new TextBox();
+	private final TextBox levAdr3 = new TextBox();
+	private final TextBox fraktkundnr = new TextBox();
+		
+	private final IntegerTextBox ktid = new IntegerTextBox();
+	
+	private final CheckBox forskatt = new CheckBox("Förskottsbetalning");
+	private final CheckBox forskattBetald = new CheckBox("Förskott betalt");
+	private final CheckBox mottagarfrakt = new CheckBox("Mottagarfrakt");
+	
+	private final TextBox betalsatt = new TextBox();
+	private final DateTextBox doljdatum = new DateTextBox();
+	private final CheckBox faktor = new CheckBox("Faktoring");
+	private final TextBox fraktbolag = new TextBox();
+	private final DoubleTextBox fraktfrigrans = new DoubleTextBox();
+	private final IntegerTextBox kundordernr = new IntegerTextBox();
+	public final DateTextBox levdat = new DateTextBox();
+	private final TextBox levvillkor = new TextBox();
+	private final DateTextBox tidigastfaktdatum = new DateTextBox();
+	private short veckolevdag=0;
+	private int wordernr=0;
+	private int ordernr=0;
+	private short dellev=0;
+	private String status = "";
+	
+	ListBox moms  = new ListBox(false);
+	ListBox bonus  = new ListBox(false);
+
+	private final Button btnAnnanLevAdr = new Button("Ändra levadress", new ClickHandler() {
 
 		@Override
 		public void onClick(ClickEvent event) {
@@ -52,7 +76,7 @@ public class OrderHeaderWidget extends FlowPanel {
 	});
 
 
-		private final TabLayoutPanel tabPanel = new TabLayoutPanel(1.8, Style.Unit.EM);
+		private final TabLayoutPanel tabPanel = new TabLayoutPanel(1.4, Style.Unit.EM);
 
 		ArrayList<DataBinder> dataBinderArr = new ArrayList<DataBinder>();
 
@@ -91,6 +115,23 @@ public class OrderHeaderWidget extends FlowPanel {
 			clearInputDataKund();
 		}
 	};
+	
+	
+	private final SelectKund selectKund = new SelectKund(new SelectCallback<KundSuggestion>() {
+
+		@Override
+		public void onSelect(KundSuggestion object) {
+			kundnr.setValue(object.nummer);
+			doKundnrEnter();
+		}
+
+		@Override
+		public void onCancel() {
+
+		}
+	});
+	
+	
 	private final SqlSelectParameters selectparamSok = new SqlSelectParameters();
 	private final SqlSelectParameters selectparamGet = new SqlSelectParameters();
 		
@@ -101,14 +142,27 @@ public class OrderHeaderWidget extends FlowPanel {
 		
 	public OrderHeaderWidget() {
 		addDataBinders();
-		initVars();
+		moms.addItem("Momsfritt");
+		moms.addItem("Moms 1");
+		moms.addItem("Moms 2");
+		moms.addItem("Moms 3");
+		
+		bonus.addItem("Ingen");
+		bonus.addItem("Normal");
+		bonus.addItem("Samlad");
+		
+		
 		add(createKundWidget());
+		
 		
 		tabPanel.setWidth("45%");
 		tabPanel.setHeight("100%");
 		tabPanel.addStyleName(Const.Style_FloatLeft);
 		tabPanel.getElement().getStyle().setMarginLeft(5, Style.Unit.PX);
 		tabPanel.add(createLevAdrPanel(), "Leverans");
+		tabPanel.add(createFakturaPanel(), "Faktura");
+		tabPanel.add(createFraktPanel(), "Frakt");
+		tabPanel.add(createForskattPanel(), "Förskott");
 		tabPanel.add(createTestPanel(),"Test");
 		add(tabPanel);
 		kundnr.addKeyDownHandler(new KeyDownHandler() {
@@ -117,10 +171,10 @@ public class OrderHeaderWidget extends FlowPanel {
 				int keycode = event.getNativeKeyCode();
 				if (keycode==KeyCodes.KEY_ENTER) {
 					doKundnrEnter();
-//				} else if (keycode==se.saljex.webadm.client.commmon.constants.KeyCodes.F12) {
-//					selectArtikel.show(artnr.getValue(), SQLTableList.COMPARE_GREATER_EQUALS, SelectArtikel.SEARCH_FIELD.ARTNR);
-//				} else if (keycode==se.saljex.webadm.client.commmon.constants.KeyCodes.F5) {
-//					selectArtikel.show(artnr.getValue(), SQLTableList.COMPARE_GREATER_EQUALS, SelectArtikel.SEARCH_FIELD.SUPERSOK);
+				} else if (keycode==se.saljex.webadm.client.commmon.constants.KeyCodes.F12) {
+					selectKund.show(kundnr.getValue(), SQLTableList.COMPARE_GREATER_EQUALS, SelectKund.SEARCH_FIELD.KUNDNR);
+				} else if (keycode==se.saljex.webadm.client.commmon.constants.KeyCodes.F5) {
+					selectKund.show(kundnr.getValue(), SQLTableList.COMPARE_GREATER_EQUALS, SelectKund.SEARCH_FIELD.SUPERSOK);
 				} else if (keycode==se.saljex.webadm.client.commmon.constants.KeyCodes.F9) {
 					doSetSelectParam(selectparamSok, kundnr.getValue(), SQLTableList.COMPARE_GREATER_EQUALS, SOKFIELD.KUNDNR);
 					pageLoadKundSok.setSearch(selectparamSok);
@@ -135,13 +189,13 @@ public class OrderHeaderWidget extends FlowPanel {
 			@Override
 			public void onKeyDown(KeyDownEvent event) {
 				int keycode = event.getNativeKeyCode();
-//				} else if (keycode==se.saljex.webadm.client.commmon.constants.KeyCodes.F12) {
-//					selectArtikel.show(artnr.getValue(), SQLTableList.COMPARE_GREATER_EQUALS, SelectArtikel.SEARCH_FIELD.ARTNR);
-//				} else if (keycode==se.saljex.webadm.client.commmon.constants.KeyCodes.F5) {
-//					selectArtikel.show(artnr.getValue(), SQLTableList.COMPARE_GREATER_EQUALS, SelectArtikel.SEARCH_FIELD.SUPERSOK);
 				if (keycode==se.saljex.webadm.client.commmon.constants.KeyCodes.F9) {
 					doSetSelectParam(selectparamSok, kundnamn.getValue(), SQLTableList.COMPARE_GREATER_EQUALS, SOKFIELD.NAMN);
 					pageLoadKundSok.setSearch(selectparamSok);
+				} else if (keycode==se.saljex.webadm.client.commmon.constants.KeyCodes.F12) {
+					selectKund.show(kundnamn.getValue(), SQLTableList.COMPARE_GREATER_EQUALS, SelectKund.SEARCH_FIELD.KUNDNR);
+				} else if (keycode==se.saljex.webadm.client.commmon.constants.KeyCodes.F5) {
+					selectKund.show(kundnamn.getValue(), SQLTableList.COMPARE_GREATER_EQUALS, SelectKund.SEARCH_FIELD.SUPERSOK);
 				} else if (keycode==se.saljex.webadm.client.commmon.constants.KeyCodes.F8) {
 					pageLoadKundSok.next();
 				} else if (keycode==se.saljex.webadm.client.commmon.constants.KeyCodes.F7) {
@@ -149,6 +203,7 @@ public class OrderHeaderWidget extends FlowPanel {
 				}
 			}
 		});
+		initVars();				//Utföres efter initiering
 
 	}
 	
@@ -172,7 +227,7 @@ public class OrderHeaderWidget extends FlowPanel {
 	
 	private void initVars() {
 		clearHasData();
-		
+		moms.setSelectedIndex(1);
 	}
 	
 	private Panel createKundWidget() {
@@ -187,9 +242,6 @@ public class OrderHeaderWidget extends FlowPanel {
 		addInput(fp, "Adress", kundadr1, "8em", "20em", navigator);
 		addInput(fp, ".", kundadr2, "8em", "20em", navigator);
 		addInput(fp, ".", kundadr3, "8em", "20em", navigator);
-		addInput(fp, "Märke", marke, "8em", "20em", navigator);
-		addInput(fp, "Referens", referens, "8em", "20em", navigator);
-		addInput(fp, "Säljare", saljare, "8em", "20em", navigator);
 		return sp;
 	}
 	
@@ -197,17 +249,67 @@ public class OrderHeaderWidget extends FlowPanel {
 		FlowPanel fp = new FlowPanel();
 		ScrollPanel sp = new ScrollPanel(fp);
 		sp.addStyleName(Const.Style_FloatLeft);
-		sp.setHeight("100%");
-		sp.setWidth("100%");
-		
-//		fp.add(new Label("Tesss"));
+		sp.setHeight("95%");
+		sp.setWidth("95%");
 		
 		FormNavigator navigator = new FormNavigator();
 		addInput(fp, "LevAdress", levAdr1, "8em", "14em", navigator);
 		addInput(fp, ".", levAdr2, "8em", "20em", navigator);
 		addInput(fp, ".", levAdr3, "8em", "20em", navigator);
-//		fp.add(btnAnnanLevAdr);
+		addInput(fp, "Märke", marke, "8em", "20em", navigator);
 		addInput(fp, "", btnAnnanLevAdr, "0em", "6em", navigator);
+		addInput(fp, "Kundordernr", kundordernr, "8em", "7em", navigator);
+		addInput(fp, "Leveransdatum", levdat, "8em", "7em", navigator);
+		return sp;		
+	}
+	
+	private Panel createFraktPanel() {
+		FlowPanel fp = new FlowPanel();
+		ScrollPanel sp = new ScrollPanel(fp);
+		sp.addStyleName(Const.Style_FloatLeft);
+		sp.setHeight("95%");
+		sp.setWidth("95%");
+			
+		FormNavigator navigator = new FormNavigator();
+		addInput(fp, "Fraktkundnr", fraktkundnr, "8em", "20em", null);
+		addInput(fp, null, mottagarfrakt, "8em", "14em", navigator);
+		addInput(fp, "Fraktbolag", fraktbolag, "8em", "20em", navigator);
+		addInput(fp, "Fraktfrigräns",fraktfrigrans , "8em", "7em", navigator);
+		addInput(fp, "Leveransvillkor", levvillkor, "8em", "20em", navigator);
+		return sp;		
+	}
+	private Panel createForskattPanel() {
+		FlowPanel fp = new FlowPanel();
+		ScrollPanel sp = new ScrollPanel(fp);
+		sp.addStyleName(Const.Style_FloatLeft);
+		sp.setHeight("95%");
+		sp.setWidth("95%");
+			
+		FormNavigator navigator = new FormNavigator();
+		addInput(fp, null, forskatt, "8em", "14em", navigator);
+		addInput(fp, null, forskattBetald, "8em", "14em", navigator);
+		addInput(fp, "Betalsätt", betalsatt, "8em", "20em", navigator);
+		return sp;		
+	}
+	
+	private Panel createFakturaPanel() {
+		FlowPanel fp = new FlowPanel();
+		ScrollPanel sp = new ScrollPanel(fp);
+		sp.addStyleName(Const.Style_FloatLeft);
+		sp.setHeight("95%");
+		sp.setWidth("95%");
+		
+		FormNavigator navigator = new FormNavigator();
+		
+		addInput(fp, "Kredittid", ktid, "8em", "4em", navigator);
+		addInput(fp, "Er ref", referens, "8em", "20em", navigator);
+		addInput(fp, "Vår ref", saljare, "8em", "20em", navigator);
+		addInput(fp, "Moms", moms, "8em", "7em", null);
+		addInput(fp, "Bonus", bonus, "8em", "7em", null);
+		addInput(fp, null, faktor, "8em", "14em", navigator);
+		addInput(fp, "Tidigaste faktura", tidigastfaktdatum, "8em", "7em", navigator);
+
+		
 		return sp;		
 	}
 	
@@ -230,32 +332,8 @@ public class OrderHeaderWidget extends FlowPanel {
 		if (navigator!=null) navigator.add(widget);
 	}
 
-	public Order1 toOrder1() {
-		Order1 o1 = new Order1();
-		hasData2Object(o1);
-		o1.annanlevadress=annanLevAdr ? (short)1 : (short)0;
-		o1.betalsatt="";
-		o1.bonus=0;
-		o1.doljdatum=null;
-		o1.faktor=0;
-		o1.forskatt=0;
-		o1.forskattbetald=0;
-		o1.fraktbolag="";
-		o1.fraktfrigrans=0;
-		o1.fraktkundnr="";
-		o1.ktid=0;
-		o1.kundordernr = 0;
-		o1.levdat=null;
-		o1.levvillkor="";
-		o1.moms=1;
-		o1.mottagarfrakt=0;
-		o1.tidigastfaktdatum=null;
-		o1.veckolevdag=0;
-		o1.wordernr=0;
-		o1.ordernr=0;
-		o1.dellev=0;
-		o1.status="";
-		return o1;
+	public Order1 toOrder1() throws ParseException{
+		return hasData2Object();
 	}
 	
 
@@ -274,7 +352,14 @@ public class OrderHeaderWidget extends FlowPanel {
 		levAdr1.setValue(k.lnamn);
 		levAdr2.setValue(k.ladr2);
 		levAdr3.setValue(k.ladr3);
-		
+		bonus.setSelectedIndex(k.bonus<=2 ? k.bonus : 0);
+		fraktkundnr.setValue(k.fraktkundnr);
+		mottagarfrakt.setValue(k.mottagarfrakt!=0);
+		faktor.setValue(k.faktor!=0);
+		fraktbolag.setValue(k.fraktbolag);
+		fraktfrigrans.setValue(k.fraktfrigrans);
+		levvillkor.setValue(k.levvillkor);
+				
 		disableNormalDisabledFields();
 	}
 	
@@ -306,6 +391,13 @@ public class OrderHeaderWidget extends FlowPanel {
 		levAdr1.setValue("");
 		levAdr2.setValue("");
 		levAdr3.setValue("");
+		bonus.setSelectedIndex(0);
+
+		mottagarfrakt.setValue(false);
+		faktor.setValue(false);
+		fraktbolag.setValue("");
+		fraktfrigrans.setValue(0.0);
+		levvillkor.setValue("");
 		
 		disableNormalDisabledFields();
 	}
@@ -324,105 +416,205 @@ public class OrderHeaderWidget extends FlowPanel {
 		private final Button btnAnnanLevAdr = new Button("Ändra levadress", new ClickHandler() {
 		* */
 		
-		dataBinderArr.add(new DataBinder<String, Order1>(kundnr) {
+		dataBinderArr.add(new DataBinder<TextBox, Order1>(kundnr) {
 			@Override	public void hasData2Object(Order1 o) {o.kundnr = v.getValue();		}
 			@Override	public void object2HasData(Order1 o) {	v.setValue(o.kundnr);	}
 			@Override	public void clearHasData() {	v.setValue("");		}
 		});
-		dataBinderArr.add(new DataBinder<String, Order1>(kundnamn) {
+		dataBinderArr.add(new DataBinder<TextBox, Order1>(kundnamn) {
 			@Override	public void hasData2Object(Order1 o) {o.namn = v.getValue();		}
 			@Override	public void object2HasData(Order1 o) {	v.setValue(o.namn);	}
 			@Override	public void clearHasData() {	v.setValue("");		}
 		});
-		dataBinderArr.add(new DataBinder<String, Order1>(kundadr1) {
+		dataBinderArr.add(new DataBinder<TextBox, Order1>(kundadr1) {
 			@Override	public void hasData2Object(Order1 o) {o.adr1 = v.getValue();		}
 			@Override	public void object2HasData(Order1 o) {	v.setValue(o.adr1);	}
 			@Override	public void clearHasData() {	v.setValue("");		}
 		});
-		dataBinderArr.add(new DataBinder<String, Order1>(kundadr2) {
+		dataBinderArr.add(new DataBinder<TextBox, Order1>(kundadr2) {
 			@Override	public void hasData2Object(Order1 o) {o.adr2 = v.getValue();		}
 			@Override	public void object2HasData(Order1 o) {	v.setValue(o.adr2);	}
 			@Override	public void clearHasData() {	v.setValue("");		}
 		});
-		dataBinderArr.add(new DataBinder<String, Order1>(kundadr3) {
+		dataBinderArr.add(new DataBinder<TextBox, Order1>(kundadr3) {
 			@Override	public void hasData2Object(Order1 o) {o.adr3 = v.getValue();		}
 			@Override	public void object2HasData(Order1 o) {	v.setValue(o.adr3);	}
 			@Override	public void clearHasData() {	v.setValue("");		}
 		});
-		dataBinderArr.add(new DataBinder<String, Order1>(linjenr1) {
+		dataBinderArr.add(new DataBinder<TextBox, Order1>(linjenr1) {
 			@Override	public void hasData2Object(Order1 o) {o.linjenr1 = v.getValue();		}
 			@Override	public void object2HasData(Order1 o) {	v.setValue(o.linjenr1);	}
 			@Override	public void clearHasData() {	v.setValue("");		}
 		});
-		dataBinderArr.add(new DataBinder<String, Order1>(linjenr2) {
+		dataBinderArr.add(new DataBinder<TextBox, Order1>(linjenr2) {
 			@Override	public void hasData2Object(Order1 o) {o.linjenr2 = v.getValue();		}
 			@Override	public void object2HasData(Order1 o) {	v.setValue(o.linjenr2);	}
 			@Override	public void clearHasData() {	v.setValue("");		}
 		});
-		dataBinderArr.add(new DataBinder<String, Order1>(linjenr3) {
+		dataBinderArr.add(new DataBinder<TextBox, Order1>(linjenr3) {
 			@Override	public void hasData2Object(Order1 o) {o.linjenr3 = v.getValue();		}
 			@Override	public void object2HasData(Order1 o) {	v.setValue(o.linjenr3);	}
 			@Override	public void clearHasData() {	v.setValue("");		}
 		});
-		dataBinderArr.add(new DataBinder<String, Order1>(marke) {
+		dataBinderArr.add(new DataBinder<TextBox, Order1>(marke) {
 			@Override	public void hasData2Object(Order1 o) {o.marke = v.getValue();		}
 			@Override	public void object2HasData(Order1 o) {	v.setValue(o.marke);	}
 			@Override	public void clearHasData() {	v.setValue("");		}
 		});
-		dataBinderArr.add(new DataBinder<String, Order1>(ordermeddelande) {
+		dataBinderArr.add(new DataBinder<TextBox, Order1>(ordermeddelande) {
 			@Override	public void hasData2Object(Order1 o) {o.ordermeddelande = v.getValue();		}
 			@Override	public void object2HasData(Order1 o) {	v.setValue(o.ordermeddelande);	}
 			@Override	public void clearHasData() {	v.setValue("");		}
 		});
-		dataBinderArr.add(new DataBinder<String, Order1>(referens) {
+		dataBinderArr.add(new DataBinder<TextBox, Order1>(referens) {
 			@Override	public void hasData2Object(Order1 o) {o.referens = v.getValue();		}
 			@Override	public void object2HasData(Order1 o) {	v.setValue(o.referens);	}
 			@Override	public void clearHasData() {	v.setValue("");		}
 		});
-		dataBinderArr.add(new DataBinder<String, Order1>(saljare) {
+		dataBinderArr.add(new DataBinder<TextBox, Order1>(saljare) {
 			@Override	public void hasData2Object(Order1 o) {o.saljare = v.getValue();		}
 			@Override	public void object2HasData(Order1 o) {	v.setValue(o.saljare);	}
 			@Override	public void clearHasData() {	v.setValue("");		}
 		});
-		dataBinderArr.add(new DataBinder<String, Order1>(levAdr1) {
+		dataBinderArr.add(new DataBinder<TextBox, Order1>(levAdr1) {
 			@Override	public void hasData2Object(Order1 o) {o.levadr1 = v.getValue();		}
 			@Override	public void object2HasData(Order1 o) {	v.setValue(o.levadr1);	}
 			@Override	public void clearHasData() {	v.setValue("");		}
 		});
-		dataBinderArr.add(new DataBinder<String, Order1>(levAdr2) {
+		dataBinderArr.add(new DataBinder<TextBox, Order1>(levAdr2) {
 			@Override	public void hasData2Object(Order1 o) {o.levadr2 = v.getValue();		}
 			@Override	public void object2HasData(Order1 o) {	v.setValue(o.levadr2);	}
 			@Override	public void clearHasData() {	v.setValue("");		}
 		});
-		dataBinderArr.add(new DataBinder<String, Order1>(levAdr3) {
+		dataBinderArr.add(new DataBinder<TextBox, Order1>(levAdr3) {
 			@Override	public void hasData2Object(Order1 o) {o.levadr3 = v.getValue();		}
 			@Override	public void object2HasData(Order1 o) {	v.setValue(o.levadr3);	}
 			@Override	public void clearHasData() {	v.setValue("");		}
 		});
-		dataBinderArr.add(new DataBinder<Integer, Order1>(lagernr) {
-			@Override	public void hasData2Object(Order1 o) {o.lagernr = v.getValue().shortValue();		}
+		dataBinderArr.add(new DataBinder<TextBox, Order1>(fraktkundnr) {
+			@Override	public void hasData2Object(Order1 o) {o.fraktkundnr = v.getValue();		}
+			@Override	public void object2HasData(Order1 o) {	v.setValue(o.fraktkundnr);	}
+			@Override	public void clearHasData() {	v.setValue("");		}
+		});
+		dataBinderArr.add(new DataBinder<IntegerTextBox, Order1>(lagernr) {
+			@Override	public void hasData2Object(Order1 o) throws ParseException {o.lagernr = v.getValueOrThrow().shortValue();		}
 			@Override	public void object2HasData(Order1 o) {	v.setValue(((Short)o.lagernr).intValue());	}
 			@Override	public void clearHasData() {	v.setValue(0);		}
 		});
+		dataBinderArr.add(new DataBinder<IntegerTextBox, Order1>(ktid) {
+			@Override	public void hasData2Object(Order1 o) throws ParseException {o.ktid = v.getValueOrThrow().shortValue();		}
+			@Override	public void object2HasData(Order1 o) {	v.setValue(((Short)o.ktid).intValue());	}
+			@Override	public void clearHasData() {	v.setValue(0);		}
+		});
+		dataBinderArr.add(new DataBinder<CheckBox, Order1>(forskatt) {
+			@Override	public void hasData2Object(Order1 o) {o.forskatt = v.getValue() ? (short)1 : (short)0 ;		}
+			@Override	public void object2HasData(Order1 o) {	v.setValue(o.forskatt!=0);	}
+			@Override	public void clearHasData() {	v.setValue(false);		}
+		});
+		dataBinderArr.add(new DataBinder<CheckBox, Order1>(forskattBetald) {
+			@Override	public void hasData2Object(Order1 o) {o.forskattbetald = v.getValue() ? (short)1 : (short)0 ;		}
+			@Override	public void object2HasData(Order1 o) {	v.setValue(o.forskattbetald!=0);	}
+			@Override	public void clearHasData() {	v.setValue(false);		}
+		});
+		dataBinderArr.add(new DataBinder<CheckBox, Order1>(mottagarfrakt) {
+			@Override	public void hasData2Object(Order1 o) {o.mottagarfrakt = v.getValue() ? (short)1 : (short)0 ;		}
+			@Override	public void object2HasData(Order1 o) {	v.setValue(o.mottagarfrakt!=0);	}
+			@Override	public void clearHasData() {	v.setValue(false);		}
+		});
+		dataBinderArr.add(new DataBinder<TextBox, Order1>(betalsatt) {
+			@Override	public void hasData2Object(Order1 o) {o.betalsatt = v.getValue();		}
+			@Override	public void object2HasData(Order1 o) {	v.setValue(o.betalsatt);	}
+			@Override	public void clearHasData() {	v.setValue("");		}
+		});
+		dataBinderArr.add(new DataBinder<DateTextBox, Order1>(doljdatum) {
+			@Override	public void hasData2Object(Order1 o) {o.doljdatum = v.getValue();		}
+			@Override	public void object2HasData(Order1 o) {	v.setValue(o.doljdatum);	}
+			@Override	public void clearHasData() {	v.setValue(null);		}
+		});
+		dataBinderArr.add(new DataBinder<CheckBox, Order1>(faktor) {
+			@Override	public void hasData2Object(Order1 o) {o.faktor = v.getValue() ? (short)1 : (short)0 ;		}
+			@Override	public void object2HasData(Order1 o) {	v.setValue(o.faktor!=0);	}
+			@Override	public void clearHasData() {	v.setValue(false);		}
+		});
+		dataBinderArr.add(new DataBinder<TextBox, Order1>(fraktbolag) {
+			@Override	public void hasData2Object(Order1 o) {o.fraktbolag = v.getValue();		}
+			@Override	public void object2HasData(Order1 o) {	v.setValue(o.fraktbolag);	}
+			@Override	public void clearHasData() {	v.setValue("");		}
+		});
+		dataBinderArr.add(new DataBinder<DoubleTextBox, Order1>(fraktfrigrans) {
+			@Override	public void hasData2Object(Order1 o) {o.fraktfrigrans = v.getValue();		}
+			@Override	public void object2HasData(Order1 o) {	v.setValue(o.fraktfrigrans);	}
+			@Override	public void clearHasData() {	v.setValue(0.0);		}
+		});
+		dataBinderArr.add(new DataBinder<IntegerTextBox, Order1>(kundordernr) {
+			@Override	public void hasData2Object(Order1 o) throws ParseException {o.kundordernr = v.getValueOrThrow();		}
+			@Override	public void object2HasData(Order1 o) {	v.setValue(o.kundordernr);	}
+			@Override	public void clearHasData() {	v.setValue(0);		}
+		});
+		dataBinderArr.add(new DataBinder<DateTextBox, Order1>(levdat) {
+			@Override	public void hasData2Object(Order1 o) throws ParseException {o.levdat = v.getValueOrThrow();		}
+			@Override	public void object2HasData(Order1 o) {	v.setValue(o.levdat);	}
+			@Override	public void clearHasData() {	v.setValue(null);		}
+		});
+		dataBinderArr.add(new DataBinder<DateTextBox, Order1>(tidigastfaktdatum) {
+			@Override	public void hasData2Object(Order1 o) throws ParseException {o.tidigastfaktdatum = v.getValueOrThrow();		}
+			@Override	public void object2HasData(Order1 o) {	v.setValue(o.tidigastfaktdatum);	}
+			@Override	public void clearHasData() {	v.setValue(null);		}
+		});
+		dataBinderArr.add(new DataBinder<TextBox, Order1>(levvillkor) {
+			@Override	public void hasData2Object(Order1 o) {o.levvillkor = v.getValue();		}
+			@Override	public void object2HasData(Order1 o) {	v.setValue(o.levvillkor);	}
+			@Override	public void clearHasData() {	v.setValue("");		}
+		});
+
+		
 	}
 	
-	public void hasData2Object(Order1 o) {
+	public Order1 hasData2Object() throws ParseException{
+		Order1 o = new Order1();
 		for (DataBinder d : dataBinderArr) {
 			d.hasData2Object(o);
 		}
+		o.moms = (short)moms.getSelectedIndex();
+		o.bonus = (short)bonus.getSelectedIndex();
 		disableNormalDisabledFields();
-		if (o.annanlevadress!=0) enableLevAdr();
+		o.annanlevadress = annanLevAdr ? (short)1 : (short)0;
+		o.veckolevdag = veckolevdag;
+		o.wordernr = wordernr;
+		o.ordernr = ordernr ;
+		o.dellev = dellev;
+		o.status= status;
+		return o;
 	}
 	public void object2HasData(Order1 o) {
 		for (DataBinder d : dataBinderArr) {
 			d.object2HasData(o);
 		}
+		if (o.moms<=3) 	moms.setSelectedIndex(o.moms); else moms.setSelectedIndex(1);
+		if (o.bonus<=2) bonus.setSelectedIndex(o.bonus); else bonus.setSelectedIndex(0);
+		annanLevAdr = o.annanlevadress!=0;
+		if (annanLevAdr) enableLevAdr();
+		veckolevdag = o.veckolevdag;
+		wordernr = o.wordernr;
+		ordernr = o.ordernr;
+		dellev = o.dellev;
+		status= o.status;
 	}
 	public void clearHasData() {
 		for (DataBinder d : dataBinderArr) {
 			d.clearHasData();
 		}
 		disableNormalDisabledFields();
+		moms.setSelectedIndex(1);
+		bonus.setSelectedIndex(0);
+		annanLevAdr=false;
+		veckolevdag = 0;
+		wordernr = 0;
+		ordernr = 0;
+		dellev = 0;
+		status= "";
 	}
+	
+
 
 }

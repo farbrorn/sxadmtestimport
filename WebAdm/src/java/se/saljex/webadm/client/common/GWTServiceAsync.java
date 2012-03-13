@@ -44,5 +44,6 @@ public interface GWTServiceAsync {
 	public void getHtmlOffert (int offertnr, boolean inkMoms, String logoUrl, AsyncCallback<HtmlMail> callback);
 	public void getHtmlOffert (int offertnr, boolean inkMoms, String logoUrl, String headerHTML, String meddelandeHTML, String footerHTML, AsyncCallback<HtmlMail> callback);
 	public void saveOrder(String anvandare, Order1 or1, ArrayList<OrderRad> inRader, AsyncCallback<Integer> callback);
+	public void saveOffert(String anvandare, Order1 or1, ArrayList<OrderRad> inRader, AsyncCallback<Integer> callback);
 
 }

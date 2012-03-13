@@ -4,20 +4,21 @@
  */
 package se.saljex.webadm.client.common;
 
-import com.google.gwt.user.client.ui.HasValue;
+import com.google.gwt.user.client.ui.FocusWidget;
+import java.text.ParseException;
 
 /**
  *
  * @author Ulf
  */
-public abstract class DataBinder<T, C> {
-	protected HasValue<T> v;
+public abstract class DataBinder<T extends FocusWidget, C> {
+	protected T v;
 
-	public DataBinder(HasValue<T> v) {
+	public DataBinder(T v) {
 		this.v=v;
 	}
-	
-	public abstract void hasData2Object(C object);
+	public T getWidget() { return v; }
+	public abstract void hasData2Object(C object) throws ParseException;
 	public abstract void object2HasData(C object);
 	public abstract void clearHasData();
 	

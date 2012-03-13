@@ -49,23 +49,6 @@ public class OrderFormWidget extends FlowPanel{
 	private static final String kundnr = "0555";
 	private static final int lagernr = 0;
 	
-	Button btnUp = new Button("Upp", new ClickHandler() {
-
-		@Override
-		public void onClick(ClickEvent event) {
-			upRow();
-		}
-	});
-	Button btnDown = new Button("Ner", new ClickHandler() {
-
-		@Override
-		public void onClick(ClickEvent event) {
-			downRow();
-		}
-	});
-
-
-
 	PageLoadCallback<VArtKundOrder> pageLoadCallbackSok = new PageLoadCallback<VArtKundOrder>() {
 
 		@Override
@@ -168,13 +151,8 @@ public class OrderFormWidget extends FlowPanel{
 		
 
 		mainFormPanel.add(ft);
-		mainFormPanel.add(btnUp);
-		mainFormPanel.add(btnDown);
 		add(formScroll);
 		add(infoScroll);
-		rader.add(new Rad(new OrderRad("1","Rad 1")));
-		rader.add(new Rad(new OrderRad("2","Rad 2")));
-		rader.add(new Rad(new OrderRad("3","Rad 3")));
 		printOrderRaderHeader();
 		printRows();
 
@@ -318,7 +296,7 @@ public class OrderFormWidget extends FlowPanel{
 			}
 		});
 		
-		selectRow(1);
+		clearForm();
 	}
 
 	private void setupInfoPanel() {
@@ -638,6 +616,12 @@ public class OrderFormWidget extends FlowPanel{
 		return rader.get(row-1);
 	}
 
+	public void clearForm() {
+		ft.clear();
+		rader.clear();
+		currRow=null;
+		downRow();
+	}
 	
 	private void deleteRow(int row) {
 		if (row > 0 && rader.size() > row-1) {

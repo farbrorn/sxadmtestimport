@@ -59,5 +59,6 @@ public interface GWTService extends RemoteService {
 	public HtmlMail getHtmlOffert (int offertnr, boolean inkMoms, String logoUrl) throws ServerErrorException, NotLoggedInException;
 	public HtmlMail getHtmlOffert (int offertnr, boolean inkMoms, String logoUrl, String headerHTML, String meddelandeHTML, String footerHTML) throws ServerErrorException, NotLoggedInException;
 	public Integer saveOrder(String anvandare, Order1 or1, ArrayList<OrderRad> inRader) throws ServerErrorException, NotLoggedInException;
+	public Integer saveOffert(String anvandare, Order1 or1, ArrayList<OrderRad> inRader) throws ServerErrorException, NotLoggedInException;
 
 }

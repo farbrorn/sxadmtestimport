@@ -844,8 +844,20 @@ public class GWTServiceImpl extends RemoteServiceServlet implements GWTService {
 	
 	public Integer saveOrder(String anvandare, Order1 or1, ArrayList<OrderRad> inRader) throws ServerErrorException, NotLoggedInException {
 		ensureLoggedIn();
+		try {
+			return sxServerMainBean.saveOrder(anvandare, createTableOrder1(or1), createOrderHandlerRadArray(inRader));
+		} catch (Exception e) { throw new ServerErrorException(e.getMessage()); }
+	}
+	
+	public Integer saveOffert(String anvandare, Order1 or1, ArrayList<OrderRad> inRader) throws ServerErrorException, NotLoggedInException {
+		ensureLoggedIn();
+		try {
+			return sxServerMainBean.saveOffert(anvandare, createTableOrder1(or1), createOrderHandlerRadArray(inRader));
+		} catch (Exception e) { throw new ServerErrorException(e.getMessage()); }
+	}
+	
+	private ArrayList<OrderHandlerRad> createOrderHandlerRadArray(ArrayList<OrderRad> inRader) {
 		ArrayList<OrderHandlerRad> arr = new ArrayList<OrderHandlerRad>();
-		TableOrder1 tor1 = new TableOrder1();
 		OrderHandlerRad o;
 		for (OrderRad or : inRader) {
 			o = new OrderHandlerRad();
@@ -865,7 +877,11 @@ public class GWTServiceImpl extends RemoteServiceServlet implements GWTService {
 			o.text = or.textrad;
 			arr.add(o);
 		}
-		
+		return arr;
+	}
+	
+	private TableOrder1 createTableOrder1(Order1 or1) {
+		TableOrder1 tor1 = new TableOrder1();
 		tor1.setAdr1( or1.adr1);
 		tor1.setAdr2(or1.adr2);
 		tor1.setAdr3(or1.adr3);
@@ -901,7 +917,7 @@ public class GWTServiceImpl extends RemoteServiceServlet implements GWTService {
 		tor1.setTidigastfaktdatum(or1.tidigastfaktdatum);
 		tor1.setVeckolevdag(or1.veckolevdag);
 		tor1.setWordernr(or1.wordernr);
-		return sxServerMainBean.saveOrder(anvandare, tor1, arr);
+		return tor1;
 	}
 	
 }

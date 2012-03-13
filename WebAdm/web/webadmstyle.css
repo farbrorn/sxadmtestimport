@@ -449,3 +449,8 @@ table td {
 .sx-flowwidgetlabelpairpanel {
 	
 }
+
+.sx-autohidemessage {
+	background-color: aqua;
+	text-align: center;
+}

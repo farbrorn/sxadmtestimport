@@ -36,10 +36,10 @@ public class FlowLabelWidgetPar extends FlowPanel{
 	}
 
 	public FlowLabelWidgetPar(String label, Widget widget) {
-		this(new Label(label), widget);
+		this(new Label(Util.noNull(label)), widget);
 	}
 	public FlowLabelWidgetPar(String label, Widget widget, String labelWidth, String widgetWidth) {
-		this(new Label(label), widget, labelWidth, widgetWidth);
+		this(new Label(Util.noNull(label)), widget, labelWidth, widgetWidth);
 	}
 	
 	
