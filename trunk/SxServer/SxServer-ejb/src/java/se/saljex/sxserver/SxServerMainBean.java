@@ -43,6 +43,7 @@ import javax.persistence.EntityNotFoundException;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.sql.DataSource;
+import se.saljex.sxlibrary.exceptions.SxInfoException;
 import se.saljex.sxserver.tables.TableOrder1;
 import se.saljex.sxserver.tables.TableOrder2;
 import se.saljex.sxserver.tables.TableVarukorg;
@@ -474,6 +475,8 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 						logStr = logStr + nr + " ";
 					}
 					ServerUtil.log(logStr);
+				}catch (SxInfoException ie) {
+					ServerUtil.log("Info undantag " + ie.getMessage() + ". Ordern sparas inte." );
 				} catch (KreditSparrException ke) {
 					ServerUtil.log("Kreditspärr vid Weborder " + o + ". Ordern sparas inte." );
 					String mailTo = "";
@@ -518,7 +521,7 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 
 
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	public ArrayList<Integer> saveWorder(int worderNr) throws java.sql.SQLException, KreditSparrException {
+	public ArrayList<Integer> saveWorder(int worderNr) throws java.sql.SQLException, KreditSparrException, SxInfoException {
 		// Spara angiven weborder i egen transaktion
 		// returnerar array med ordernumren som webordern sparades som
 		Connection conSe = null;
@@ -557,7 +560,7 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 	}
 
 	@RolesAllowed("admin")
-	public ArrayList<Integer> saveSxShopOrder(int kontaktId, String kundnr, String kontaktNamn, short lagerNr, String marke) throws KreditSparrException {
+	public ArrayList<Integer> saveSxShopOrder(int kontaktId, String kundnr, String kontaktNamn, short lagerNr, String marke) throws KreditSparrException, SxInfoException {
 		//Spara angiven användares varukorg som en riktig order
 		//Returnerar en lista över de 'riktiga' order somskapas (om flera som t.ex. vid direktleverans)
 		//Returnerar null om ingen order registrerats (mest troligtom varukorgen var tom)
@@ -596,13 +599,13 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 
 	//Utför sparandet av SxOrder i ny transaktion eftersom det inte gåår att göra uppdateringar i emSx och emBv i samma transaktion
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	public void overforBVOrderSaveSxOrder(BvOrder bvOrder) throws SXEntityNotFoundException {
+	public void overforBVOrderSaveSxOrder(BvOrder bvOrder) throws SXEntityNotFoundException , SxInfoException{
 		bvOrder.saveSxOrder();
 	}
 
 	// Hämtar en BV order till SX order
 	//Returnerar SX ordernr
-	public int overforBVOrder(String sxKundnr, int bvOrdernr, String bvAnvandare, String sxAnvandare, short sxLagernr) throws SXEntityNotFoundException {
+	public int overforBVOrder(String sxKundnr, int bvOrdernr, String bvAnvandare, String sxAnvandare, short sxLagernr) throws SXEntityNotFoundException, SxInfoException {
 		BvOrder bvOrder = new BvOrder(em, embv, bvOrdernr, sxKundnr, bvAnvandare, sxAnvandare, sxLagernr );
 		bvOrder.loadBvOrder();
 		sxServerMainBean.overforBVOrderSaveSxOrder(bvOrder);
@@ -614,12 +617,12 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 
 	//Utför sparandet av MainOrder i ny transaktion eftersom det inte gåår att göra uppdateringar i emLocal och emMain i samma transaktion
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	public void overforOrderSaveMainOrder(OverforOrder localOrder) throws SXEntityNotFoundException {
+	public void overforOrderSaveMainOrder(OverforOrder localOrder) throws SXEntityNotFoundException, SxInfoException {
 		localOrder.saveMainOrder();
 	}
 	//Utför själva hanterandet i ny transaktion eftersom det inte gåår att göra uppdateringar i emLocal och emMain i samma transaktion
 	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-	public void doOverforOrder(OverforOrder localOrder) throws SXEntityNotFoundException {
+	public void doOverforOrder(OverforOrder localOrder) throws SXEntityNotFoundException, SxInfoException {
 		localOrder.loadLocalOrder();
 		sxServerMainBean.overforOrderSaveMainOrder(localOrder);
 		localOrder.updateLocalOrder();
@@ -630,7 +633,7 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 	// Hämtar en Local order till Main order
 	//Returnerar Main ordernr
 	// Själva hanteringen sker i annat bean-anrop (i ny transaktion)för att det inte går att blanda emLocal och emMain i samma transaktion
-	public int overforOrder(int localOrdernr, String localAnvandare, short mainLagernr) throws SXEntityNotFoundException {
+	public int overforOrder(int localOrdernr, String localAnvandare, short mainLagernr) throws SXEntityNotFoundException, SxInfoException {
 		String mainKundnr = ServerUtil.getSXReg(em, SXConstant.SXREG_OVERFOR_ORDER_KUNDNR, SXConstant.SXREG_OVERFOR_ORDER_KUNDNR_DEFAULT);
 		String mainAnvandare = ServerUtil.getSXReg(em, SXConstant.SXREG_SERVERANVANDARE, SXConstant.SXREG_SERVERANVANDARE_DEFAULT);
 		String allowUseBestnrString = ServerUtil.getSXReg(em, SXConstant.SXREG_OVERFOR_ORDER_ALLOWUSEBESTNR, SXConstant.SXREG_OVERFOR_ORDER_ALLOWUSEBESTNR_DEFAULT);
@@ -695,28 +698,35 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 		
 	}
 
-	@Override
-	public int saveOrder(String anvandare, TableOrder1 copyFromTableOrder1, ArrayList<OrderHandlerRad> orderRader) {
-		if (orderRader== null || orderRader.size()<1) throw new EntityNotFoundException("Det finns inga artikelrader.");
+	private OrderHandler prepareOrderHandler(String anvandare, TableOrder1 copyFromTableOrder1, ArrayList<OrderHandlerRad> orderRader) throws SXEntityNotFoundException{
+		boolean radHittad = false;
+		if (orderRader!=null) {
+			for (OrderHandlerRad ohr : orderRader) {
+				if (!SXUtil.isEmpty(ohr.artnr) || !SXUtil.isEmpty(ohr.text)) {
+					radHittad=true;
+					break;
+				}
+			}
+		}
+		if (!radHittad || orderRader== null || orderRader.size()<1) throw new SXEntityNotFoundException("Det finns inga artikelrader.");
 		OrderHandler ord = new OrderHandler(em, anvandare, copyFromTableOrder1);
 		
 		for (OrderHandlerRad rad : orderRader) {
 			ord.addRowNoArtikelLookup(rad.artnr, rad.namn, rad.best, rad.enh, rad.pris, rad.rab, rad.levnr, rad.konto, rad.netto, 0, 0, 0, 0, rad.stjAutobestall, rad.stjFinnsILager, rad.text);
-		}
-		int ordernr = ord.persistOrder();
-		return ordernr;
+		}		
+		return ord;
+	}
+	
+	@Override
+	public int saveOrder(String anvandare, TableOrder1 copyFromTableOrder1, ArrayList<OrderHandlerRad> orderRader) throws SXEntityNotFoundException, KreditSparrException, SxInfoException{
+		OrderHandler oh = prepareOrderHandler(anvandare, copyFromTableOrder1, orderRader);
+		oh.checkKreditvardighetOrThrow();
+		return oh.persistOrder();
 	}
 
 	@Override
-	public int saveOffert(String anvandare, TableOrder1 copyFromTableOrder1, ArrayList<OrderHandlerRad> orderRader) {
-		if (orderRader== null || orderRader.size()<1) throw new EntityNotFoundException("Det finns inga artikelrader.");
-		OrderHandler ord = new OrderHandler(em, anvandare, copyFromTableOrder1);
-		
-		for (OrderHandlerRad rad : orderRader) {
-			ord.addRowNoArtikelLookup(rad.artnr, rad.namn, rad.best, rad.enh, rad.pris, rad.rab, rad.levnr, rad.konto, rad.netto, 0, 0, 0, 0, rad.stjAutobestall, rad.stjFinnsILager, rad.text);
-		}
-		int offertnr = ord.persistOffert();
-		return offertnr;
+	public int saveOffert(String anvandare, TableOrder1 copyFromTableOrder1, ArrayList<OrderHandlerRad> orderRader) throws SXEntityNotFoundException{
+		return prepareOrderHandler(anvandare, copyFromTableOrder1, orderRader).persistOffert();
 	}
 
 

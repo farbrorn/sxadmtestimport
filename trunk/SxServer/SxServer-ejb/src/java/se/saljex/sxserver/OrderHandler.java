@@ -31,6 +31,7 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceException;
+import se.saljex.sxlibrary.exceptions.*;
 import se.saljex.sxserver.tables.TableArtstrukt;
 import se.saljex.sxserver.tables.TableBonus;
 import se.saljex.sxserver.tables.TableFaktdat;
@@ -69,11 +70,13 @@ public class OrderHandler {
 		orderLaddad = false;
 	}
 	
-	public OrderHandler(EntityManager e,  String anvandare, TableOrder1 copyFromTableOrder1) {
+	public OrderHandler(EntityManager e,  String anvandare, TableOrder1 copyFromTableOrder1) throws SXEntityNotFoundException{
 		em = e;
+		if (copyFromTableOrder1==null) throw new SXEntityNotFoundException("Inget orderhuvud");
+		if (anvandare==null)  throw new SXEntityNotFoundException("Ingen användare");
 		//Kolla om kunden finns
 		kun = em.find(TableKund.class, copyFromTableOrder1.getKundnr());
-		if (kun == null || SXUtil.isEmpty(copyFromTableOrder1.getKundnr())) { throw new EntityNotFoundException("Kan inte hitta kund " + copyFromTableOrder1.getKundnr()==null ? " " : copyFromTableOrder1.getKundnr() +  " för order."); }
+		if (kun == null || SXUtil.isEmpty(copyFromTableOrder1.getKundnr())) { throw new SXEntityNotFoundException("Kan inte hitta kund " + SXUtil.toStr(copyFromTableOrder1.getKundnr()) +  " för order."); }
 		
 		or1 = new TableOrder1();
 		setAnvandare(anvandare);		//V iktigt att setAnvandare anropas före setKund() eftersom setKund() använder aktuell användare
@@ -186,7 +189,7 @@ public class OrderHandler {
 			setLagerToOrderRad(o);
 		}
 	}
-
+	
 	public void lasOrder() {
 		or1.setLastdatum(SXUtil.getSQLDate());
 		or1.setLasttid(SXUtil.getSQLTime());
@@ -400,21 +403,21 @@ public class OrderHandler {
 		return ord;
 	}
 
-	public OrderHandlerRad addRowNoArtikelLookup(String artNr, String artNamn, double antal, String enhet, double pris, double rab, String levNr, String konto, double inpris) {
+	public OrderHandlerRad addRowNoArtikelLookup(String artNr, String artNamn, double antal, String enhet, double pris, double rab, String levNr, String konto, double inpris) throws SXEntityNotFoundException{
 		return addRowNoArtikelLookup(artNr, artNamn, antal, enhet, pris, rab, levNr, konto, inpris, 0, 0, 0, 0);
 	}
-	public OrderHandlerRad addRowNoArtikelLookup(String artNr, String artNamn, double antal, String enhet, double pris, double rab, String levNr, String konto, double inpris, double inrab, double inpFraktproc, double inpFrakt, double inpMiljo) {
+	public OrderHandlerRad addRowNoArtikelLookup(String artNr, String artNamn, double antal, String enhet, double pris, double rab, String levNr, String konto, double inpris, double inrab, double inpFraktproc, double inpFrakt, double inpMiljo) throws SXEntityNotFoundException{
 		return addRowNoArtikelLookup(artNr, artNamn, antal, enhet, pris, rab, levNr, konto, inpris, inrab, inpFraktproc, inpFrakt, inpMiljo, (short)0, (short)0);
 	}
 	
-	public OrderHandlerRad addRowNoArtikelLookup(String artNr, String artNamn, double antal, String enhet, double pris, double rab, String levNr, String konto, double inpris, double inrab, double inpFraktproc, double inpFrakt, double inpMiljo, short stjAutobestall, short stjFinnsILager) {
+	public OrderHandlerRad addRowNoArtikelLookup(String artNr, String artNamn, double antal, String enhet, double pris, double rab, String levNr, String konto, double inpris, double inrab, double inpFraktproc, double inpFrakt, double inpMiljo, short stjAutobestall, short stjFinnsILager) throws SXEntityNotFoundException{
 		return addRowNoArtikelLookup(artNr, artNamn, antal, enhet, pris, rab, levNr, konto, inpris, inrab, inpFraktproc, inpFrakt, inpMiljo, (short)0, (short)0, null);
 		
 	}
 	//Lägger till en rad utan att vverifiera om artikelnumret finns som artikel, eller slå upp artikeldata
 	//Om det är en stjärnrad så läggs den till som *-rad
 	//Om det är en textrad så läggs den in
-	public OrderHandlerRad addRowNoArtikelLookup(String artNr, String artNamn, double antal, String enhet, double pris, double rab, String levNr, String konto, double inpris, double inrab, double inpFraktproc, double inpFrakt, double inpMiljo, short stjAutobestall, short stjFinnsILager, String textrad) {
+	public OrderHandlerRad addRowNoArtikelLookup(String artNr, String artNamn, double antal, String enhet, double pris, double rab, String levNr, String konto, double inpris, double inrab, double inpFraktproc, double inpFrakt, double inpMiljo, short stjAutobestall, short stjFinnsILager, String textrad) throws SXEntityNotFoundException{
 		ord = new OrderHandlerRad();
 		if (artNr!=null && artNr.startsWith("*")) {
 			ord = addStjRow(artNr, artNamn, levNr, antal, enhet, (inpris * (1-inrab/100) * (1+inpFraktproc/100)) + inpFrakt + inpMiljo, pris, rab, stjAutobestall, stjFinnsILager);
@@ -423,7 +426,7 @@ public class OrderHandler {
 		} else {
 			if (!SXUtil.isEmpty(artNr)) {
 				TableArtikel art = em.find(TableArtikel.class, artNr);
-				if (art==null) throw new EntityNotFoundException("Artikel " + artNr + " finns inte.");
+				if (art==null) throw new SXEntityNotFoundException("Artikel " + artNr + " finns inte.");
 			} else if (!SXUtil.isEmpty(artNr) || antal != 0 || pris != 0 || rab!=0) throw new EntityNotFoundException("En artikelrad saknar artikelnummer men innnehåller annan data.");
 			
 			ord.best = antal;
@@ -753,32 +756,39 @@ public class OrderHandler {
 	}
 
 	public boolean checkKreditvardighet() {
-		Double b;
-		b = (Double)em.createNamedQuery("TableKundres.findSumForKreditTest")
-			.setParameter("kundnr", kun.getNummer())
-			.setParameter("falldat", SXUtil.addDate(new Date(), -60))
-			.getSingleResult();
-		if (b != null)	if (b.compareTo(new Double(1000)) > 0) { return false; }
-
+		try {
+			checkKreditvardighetOrThrow();
+		} catch (KreditSparrException e) { return false; }
+		return true;
+	}
+	
+	public void checkKreditvardighetOrThrow() throws KreditSparrException{
+		if (getOrderSumma() > 0)	{		//Om det inte är en kredit
+			Double b;
 			b = (Double)em.createNamedQuery("TableKundres.findSumForKreditTest")
 				.setParameter("kundnr", kun.getNummer())
-				.setParameter("falldat", SXUtil.addDate(new Date(), -30))
+				.setParameter("falldat", SXUtil.addDate(new Date(), -60))
 				.getSingleResult();
-		if ( kun.getKgransforfall30() > 0) {
-			if (b != null) if (b.compareTo(kun.getKgransforfall30()) > 0) { return false; }
-		} else {
-			if (b != null) if (b.compareTo(new Double(5000)) > 0) { return false; }
-		}
-		
-		if (kun.getKgrans() > 0) {
-			b = (Double)em.createNamedQuery("TableKundres.findSumForKund")
-				.setParameter("kundnr", kun.getNummer())
-				.getSingleResult();
-			if (b != null) if (b.compareTo(kun.getKgrans() - getOrderSumma()) > 0) { return false; }		// Jämför mot nuvarande orderns värde om kunden är kredivärdig
-		}
+			if (b != null)	if (b.compareTo(new Double(1000)) > 0) { throw new KreditSparrException("Det finns fakturor som är förfallna längre än 60 dagar."); }
 
-		// Har vi kommit hit så har alla spärrar passerats, och det är grönt för kunden att handla
-		return true;
+				b = (Double)em.createNamedQuery("TableKundres.findSumForKreditTest")
+					.setParameter("kundnr", kun.getNummer())
+					.setParameter("falldat", SXUtil.addDate(new Date(), -30))
+					.getSingleResult();
+			if ( kun.getKgransforfall30() > 0) {
+				if (b != null) if (b.compareTo(kun.getKgransforfall30()) > 0) { throw new KreditSparrException("Det finns för stort belopp fakturor som är förfallna längre än 30 dagar."); }
+			} else {
+				if (b != null) if (b.compareTo(new Double(5000)) > 0) { throw new KreditSparrException("Det finns fakturor som är förfallna längre än 30 dagar."); }
+			}
+
+			if (kun.getKgrans() > 0) {
+				b = (Double)em.createNamedQuery("TableKundres.findSumForKund")
+					.setParameter("kundnr", kun.getNummer())
+					.getSingleResult();
+				if (b != null) if (b.compareTo(kun.getKgrans() - getOrderSumma()) > 0) { throw new KreditSparrException("Kreditgränsen är överskriden. Aktuell kreditgräns: " + SXUtil.getFormatNumber(kun.getKgrans()) + " Belopp inklusive denna faktura: " + SXUtil.getFormatNumber(getOrderSumma() + b)); }		// Jämför mot nuvarande orderns värde om kunden är kredivärdig
+			}
+		}
+			// Har vi kommit hit så har alla spärrar passerats, och det är grönt för kunden att handla
 	}
 
 	public void setMarke(String marke) {
@@ -894,8 +904,11 @@ public class OrderHandler {
 	  }
 
 	
+	public Integer persistOrder() throws SxInfoException{
+		return persistOrder(false);
+	}
 	
-	public Integer persistOrder() {
+	public Integer persistOrder(boolean isDirektleverans) throws SxInfoException {
 		//Sparar som ny order
 		// Returnerar ordernumret
 		short scn;
@@ -917,6 +930,7 @@ public class OrderHandler {
 		}
 		if (or1.getDellev() == 0) { or1.setDellev((short)1); }
 
+		
 		if (!orderLaddad) em.persist(or1);
 		scn = 0;
 		
@@ -928,7 +942,8 @@ public class OrderHandler {
 				ordreg.remove(ordreg.size()-1);
 			} else { break; }
 		}
-		
+		boolean sammaLeverantor = true;
+		String tempLev=null;
 		for (OrderHandlerRad o : ordreg) {
 			scn++;
 			o.artnr = SXUtil.toStr(o.artnr); //Se till så att det inte är null eftersom det inte är tillåtet i databasen
@@ -938,6 +953,14 @@ public class OrderHandler {
 			or2 = o.getOrder2();
 			if (o.stjid == null) { o.stjid = 0; }
 			em.persist(or2);
+			
+			//Kollar om det är samma leverantör på alla rader med aritkelnummer. Används för direktleveranser
+			//Efter loopen geneom orderraderna är klar kollas om templev==null - då fanns det ingen leverantör alls på ordern och sammaLeverantor=false
+			if (!SXUtil.isEmpty(o.artnr)) {
+				if (tempLev==null && !SXUtil.isEmpty(o.levnr)) tempLev = o.levnr;
+				if (tempLev!=null ) if (!tempLev.equals(o.levnr)) sammaLeverantor=false;
+			}
+			
 			
 			// Uppdatera lagersaldo
 			if (o.artnr != null) {
@@ -980,6 +1003,8 @@ public class OrderHandler {
 				}
 			}
 		}
+		if (tempLev==null) sammaLeverantor=false;		//Om tmepLev==null så fanns ingen leverntör alls på ordern, och sammaLeverantor=false
+		if (!sammaLeverantor && isDirektleverans) throw new SxInfoException("Ordern är markerad för direktleverans, men innehåller olika (eller ingen) leverantör.");
 		em.persist( new TableOrderhand(or1.getOrdernr(), anvandare, SXConstant.ORDERHAND_SKAPAD));
 		em.flush();
 		orderLaddad = true;			// Signalera att ordern nu finns sparad, och aktuell order därför betraktas som laddad

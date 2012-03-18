@@ -13,6 +13,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import javax.persistence.EntityManager;
+import se.saljex.sxlibrary.exceptions.SxInfoException;
 
 /**
  *
@@ -114,6 +115,7 @@ public class SXTester {
 			try {
 				al = soh.saveAsOrder();
 			} catch (KreditSparrException ke) { ServerUtil.log("Kreditspärr exception"); ke.printStackTrace();}
+			 catch (SxInfoException ie) { ServerUtil.log("Info exception: " + ie.getMessage()); ie.printStackTrace();}
 			for (Integer il : al) {
 				ret = ret + "<br> Sparad som ordernr: " + il;
 			}

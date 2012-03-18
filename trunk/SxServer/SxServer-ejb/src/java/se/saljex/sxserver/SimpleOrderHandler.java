@@ -13,6 +13,7 @@ import se.saljex.sxserver.tables.TableOrder1;
 import java.util.ArrayList;
 import java.util.ListIterator;
 import javax.persistence.EntityManager;
+import se.saljex.sxlibrary.exceptions.SxInfoException;
 
 /**
  *
@@ -170,7 +171,7 @@ public SimpleOrderHandler(EntityManager e, String kundNr, String kontaktNamn, sh
 		sor1.setKtid(ktid);
 	}
 	
-	public ArrayList<Integer> saveAsOrder() throws KreditSparrException {
+	public ArrayList<Integer> saveAsOrder() throws KreditSparrException, SxInfoException {
 	ServerUtil.logDebug("SimpleOrderHandler - saveAsOrder() - Start");
 		BestHandler bes;
 		ArrayList<Integer> ordList = new ArrayList();

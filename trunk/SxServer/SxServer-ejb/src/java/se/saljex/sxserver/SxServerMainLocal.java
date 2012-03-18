@@ -18,6 +18,7 @@ import com.lowagie.text.DocumentException;
 import java.io.*;
 import java.util.ArrayList;
 import javax.mail.MessagingException;
+import se.saljex.sxlibrary.exceptions.SxInfoException;
 import se.saljex.sxserver.tables.TableOrder1;
 
 
@@ -47,7 +48,7 @@ public interface SxServerMainLocal {
 
 	  String tester(String testTyp);
 
-	  ArrayList<Integer> saveWorder(int worderNr) throws SQLException, KreditSparrException;
+	  ArrayList<Integer> saveWorder(int worderNr) throws SQLException, KreditSparrException, SxInfoException;
 
 	void doSamfaktByEmail(String anvandare, SamfaktByEpostHandler samfak) throws SQLException;
 
@@ -59,10 +60,10 @@ public interface SxServerMainLocal {
 //	boolean sendSimpleMail(String adress, String header, String bodytext);
 
 //	int overforBVOrder(String sxKundnr, int bvOrdernr, String bvAnvandare, String sxAnvandare, short sxLagernr) throws SXEntityNotFoundException;
-	void overforBVOrderSaveSxOrder(BvOrder bvOrder) throws SXEntityNotFoundException;
-	void overforOrderSaveMainOrder(OverforOrder localOrder) throws SXEntityNotFoundException;
-	void doOverforOrder(OverforOrder localOrder) throws SXEntityNotFoundException;
-	int overforOrder(int localOrdernr, String localAnvandare, short mainLagernr) throws SXEntityNotFoundException;
+	void overforBVOrderSaveSxOrder(BvOrder bvOrder) throws SXEntityNotFoundException, SxInfoException;
+	void overforOrderSaveMainOrder(OverforOrder localOrder) throws SXEntityNotFoundException, SxInfoException;
+	void doOverforOrder(OverforOrder localOrder) throws SXEntityNotFoundException, SxInfoException;
+	int overforOrder(int localOrdernr, String localAnvandare, short mainLagernr) throws SXEntityNotFoundException, SxInfoException;
 
 	int faktureraOrder(int ordernr) throws SxOrderLastException;
 
@@ -79,8 +80,8 @@ public interface SxServerMainLocal {
 	String getHtmlOffert (int offertnr, boolean inkMoms, String logoUrl) throws SXEntityNotFoundException;
 	String getHtmlOffert (int offertnr, boolean inkMoms, String logoUrl, String headerHTML, String meddelandeHTML, String footerHTML) throws SXEntityNotFoundException;
 
-	int saveOrder(String anvandare, TableOrder1 copyFromTableOrder1, ArrayList<OrderHandlerRad> orderRader);
-	int saveOffert(String anvandare, TableOrder1 copyFromTableOrder1, ArrayList<OrderHandlerRad> orderRader);
+	int saveOrder(String anvandare, TableOrder1 copyFromTableOrder1, ArrayList<OrderHandlerRad> orderRader) throws SXEntityNotFoundException, KreditSparrException, SxInfoException;
+	int saveOffert(String anvandare, TableOrder1 copyFromTableOrder1, ArrayList<OrderHandlerRad> orderRader) throws SXEntityNotFoundException;
 
 	
 }

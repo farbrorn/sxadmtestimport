@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.EntityManager;
+import se.saljex.sxlibrary.exceptions.SxInfoException;
 import se.saljex.sxserver.tables.TableArtikel;
 import se.saljex.sxserver.tables.TableOrder1;
 import se.saljex.sxserver.tables.TableOrder2;
@@ -80,7 +81,7 @@ public class BvOrder {
 		}
 	}
 
-	public int saveSxOrder() throws SXEntityNotFoundException{
+	public int saveSxOrder() throws SXEntityNotFoundException, SxInfoException{
 		// Kolla om loadbvorder är utförd korrekt innan denna funktion körs
 		if (bvOrder1==null) throw new SXEntityNotFoundException("Internt fel: BV Order är inte laddad vid försök att spara. Är loadBvOrder()utförd korrekt?");
 
