@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.EntityManager;
+import se.saljex.sxlibrary.exceptions.SxInfoException;
 import se.saljex.sxserver.tables.TableArtikel;
 import se.saljex.sxserver.tables.TableFaktura2;
 import se.saljex.sxserver.tables.TableOrder1;
@@ -125,7 +126,7 @@ public class OverforOrder {
 
 
 
-	public int saveMainOrder() throws SXEntityNotFoundException{
+	public int saveMainOrder() throws SXEntityNotFoundException, SxInfoException{
 		// Kolla om loadlocalorder är utförd korrekt innan denna funktion körs
 		if (localOrder==null) throw new SXEntityNotFoundException("Internt fel: Local Order är inte laddad vid försök att spara. Är loadLocalOrder()utförd korrekt?");
 

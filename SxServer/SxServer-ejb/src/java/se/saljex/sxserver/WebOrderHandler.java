@@ -14,6 +14,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
+import se.saljex.sxlibrary.exceptions.SxInfoException;
 
 /**
  *
@@ -58,7 +59,7 @@ public class WebOrderHandler {
 	}
 	*/
 	
-	public ArrayList<Integer> loadWorderAndSaveSkickadAsOrder(int worderNr)  throws java.sql.SQLException, KreditSparrException {
+	public ArrayList<Integer> loadWorderAndSaveSkickadAsOrder(int worderNr)  throws java.sql.SQLException, KreditSparrException, SxInfoException {
 		// Returnerar lista med de ordernummer som angiven weborder skapar, eller null om något gick fel
 		// Strategi för detta är att från en bean hä'mta lista på webordernr
 		// därefter starta en ny bean för varje wordernr, eller på annat sätt köra en separat transaktion fr varje
@@ -99,7 +100,7 @@ public class WebOrderHandler {
 		
 	}
 	
-	public ArrayList<Integer> saveSkickadAsOrder() throws java.sql.SQLException, KreditSparrException {
+	public ArrayList<Integer> saveSkickadAsOrder() throws java.sql.SQLException, KreditSparrException, SxInfoException {
 		// Returnerar en ArrayList av de ordernummerr som det var sparat som
 		// om vi returnerar null härifrån, eller får ett undantag så behöver transaktionen avbrytas
 	ServerUtil.logDebug("WebOrderHandler - saveSkickadAsOrder() - Start");
