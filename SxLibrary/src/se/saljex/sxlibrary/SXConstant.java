@@ -140,10 +140,39 @@ public class SXConstant {
 	public static	final short		KAMPBIT_OEM			= 8;
 	public static	final short		KAMPBIT_GROSSIST		= 16;
 
-	public static final String		BEHORIGHET_INTRA_LOGIN		= "IntraLogin";
-	public static final String		BEHORIGHET_INTRA_ADMIN		= "IntraAdmin";
-	public static final String		BEHORIGHET_INTRA_SUPERUSER	= "IntraSuperuser";
+	
+	public static final String		BEHORIGHET_BOK_LOGIN			= "BokLogin";
 	public static final String		BEHORIGHET_EKONOMI			= "Ekonomi";
+	public static final String		BEHORIGHET_FAKT_ADMIN			= "FaktAdmin";
+	public static final String		BEHORIGHET_FAKT_FAKTURANEGTB			= "FaktFakturaNegTB";
+	public static final String		BEHORIGHET_FAKT_ART_ANDRA			= "FaktArtAndra";
+	public static final String		BEHORIGHET_FAKT_ART_ANDRA_PRIS			= "FaktArtAndraPris";
+	public static final String		BEHORIGHET_FAKT_ART_NY			= "FaktArtNy";
+	public static final String		BEHORIGHET_FAKT_ART_RADERA			= "FaktArtRadera";
+	public static final String		BEHORIGHET_FAKT_ART_SE_INPRIS			= "FaktArtSeInpris";
+	public static final String		BEHORIGHET_FAKT_BEST		= "FaktBest";
+	public static final String		BEHORIGHET_FAKT_BEST_EJBEHOV			= "FaktBestEjBehov";
+	public static final String		BEHORIGHET_FAKT_BEST_LAGERVARDE			= "FaktBestLagervärde";
+	public static final String		BEHORIGHET_FAKT_FAKTURA			= "FaktFaktura";
+	public static final String		BEHORIGHET_FAKT_FAKTURA_NEG_TB			= "FaktFakturaNegTB";
+	public static final String		BEHORIGHET_FAKT_INLEV			= "FaktInlev";	
+	public static final String		BEHORIGHET_FAKT_KUND_ANDRA			= "FaktKundAndra";
+	public static final String		BEHORIGHET_FAKT_KUND_ANDRA_KGRANS			= "FaktKundAndraKGrans";
+	public static final String		BEHORIGHET_FAKT_KUND_NY			= "FaktKundNy";
+	public static final String		BEHORIGHET_FAKT_KUND_RADERA			= "FaktKundRadera";
+	public static final String		BEHORIGHET_FAKT_KUNDRES			= "FaktKundres";
+	public static final String		BEHORIGHET_FAKT_LEV_ANDRA			= "FaktLevAndra";
+	public static final String		BEHORIGHET_FAKT_LEV_NY			= "FaktLevNy";
+	public static final String		BEHORIGHET_FAKT_LEV_RADERA			= "FaktLevRadera";
+	public static final String		BEHORIGHET_FAKT_LEV_SE_FAKTUROR			= "FaktLevSeFakturor";
+	public static final String		BEHORIGHET_FAKT_LEVRES			= "FaktLevRes";
+	public static final String		BEHORIGHET_FAKT_LOGIN		= "FaktLogin";
+	public static final String		BEHORIGHET_FAKT_ORDER_KGRANS			= "FaktOrderKGrans";
+	public static final String		BEHORIGHET_FAKT_SAMFAKT		= "FaktSamfakt";
+	public static final String		BEHORIGHET_INTRA_ADMIN		= "IntraAdmin";
+	public static final String		BEHORIGHET_INTRA_LOGIN		= "IntraLogin";
+	public static final String		BEHORIGHET_INTRA_SUPERUSER	= "IntraSuperuser";
+	public static final String		BEHORIGHET_LON_LOGIN			= "LonLogin";
 	public static final String		BEHORIGHET_STE_TEKNIK			= "STETeknik";
 
 	public static final int DEFAULT_FT = 0; // Förvalt företag vid t.ex. tablefaktdat. Kommer kanske att ändra namn senare. ft är reserverat för att hålla reda på olika företag i samma databas, 
