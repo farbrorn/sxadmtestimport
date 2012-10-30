@@ -2352,4 +2352,9 @@ from inlev1 b1 left outer join inlev2 b2 on b1.id=b2.id
 --s.anvandare as stjanvandare, s.finnsilager as stjfinnsilager, s.inkomdatum as stjinkomdatum, s.fakturanr as stjfakturanr
 --from best1 b1 left outer join best2 b2 on b1.bestnr=b2.bestnr left outer join stjarnrad s on s.stjid=b2.stjid and b2.stjid<>0
 
+alter table artikel add ean varchar;
 
+
+
+alter table saljare add epost varchar;
+create table loginservice (uuid varchar primary key, anvandare varchar, expiredate date, crdate timestamp not null default current_timestamp) 
