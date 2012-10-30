@@ -62,7 +62,6 @@ public class LoginServiceFilter implements Filter {
 				User sessionUser = null;
 				
 				try { sessionUser = (User)httpReq.getSession().getAttribute(LoginServiceConstants.REQUEST_PARAMETER_SESSION_USER); } catch (Exception e) {}
-				
 				if (sessionUser!=null) {
 					user = sessionUser;
 					//Förläng kakan
@@ -84,11 +83,11 @@ public class LoginServiceFilter implements Filter {
 				
 				if (user!=null) {
 					httpReq.getSession().setAttribute(LoginServiceConstants.REQUEST_PARAMETER_SESSION_USER, user);
+					chain.doFilter(request, response);
 				} 
 			}
 			
 			
-			chain.doFilter(request, response);
 		} catch (Throwable t) {
 			// If an exception is thrown somewhere down the filter chain,
 			// we still want to execute our after processing, and then
