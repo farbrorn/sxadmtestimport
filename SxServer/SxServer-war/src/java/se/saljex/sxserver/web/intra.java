@@ -37,7 +37,7 @@ public class intra extends HttpServlet {
 	private class Handler {
 		private static final String jspPath = "intra/";
 
-		private Connection con;
+		private Connection con=null;
 		private PrintWriter out;
 
 		private HttpServletRequest request;
@@ -52,6 +52,7 @@ public class intra extends HttpServlet {
 			response = res;
 			out = response.getWriter();
 
+/*		Gammal inloggning
 			sxSession = WebSupport.getSXSession(req.getSession());
 			if (!sxSession.getInloggad()) {
 				response.setStatus(response.SC_MOVED_TEMPORARILY);
@@ -64,7 +65,8 @@ public class intra extends HttpServlet {
 			}
 
 			con = WebUtil.getConnection(sxadm);
-
+*/
+			try { con = (Connection)request.getAttribute("sxconnection"); } catch (Exception e) {}
 			get = request.getParameter("get");
 			id = request.getParameter("id");
 			if (id == null) { id = "welcome"; }
