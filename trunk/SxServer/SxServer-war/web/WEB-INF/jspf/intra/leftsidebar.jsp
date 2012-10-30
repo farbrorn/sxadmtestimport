@@ -3,6 +3,8 @@
     Created on : 2008-jun-16, 20:43:50
     Author     : ulf
 --%>
+<%@page import="se.saljex.loginservice.LoginServiceConstants"%>
+<%@page import="se.saljex.loginservice.User"%>
 <%@ page import="se.saljex.sxlibrary.*" %>
 <%@ page import="se.saljex.sxlibrary.SXConstant" %>
 <%@ page import="se.saljex.sxserver.web.*" %>
@@ -16,8 +18,11 @@
 
 <%
 Connection con = (Connection)request.getAttribute("con");
-SXSession sxSession = WebSupport.getSXSession(request.getSession());
-Integer lagerNr = sxSession.getIntraAnvandareLagerNr();
+User user = (User)request.getSession().getAttribute(LoginServiceConstants.REQUEST_PARAMETER_SESSION_USER);
+
+//SXSession sxSession = WebSupport.getSXSession(request.getSession());
+//Integer lagerNr = sxSession.getIntraAnvandareLagerNr();
+Integer lagerNr = user.getLagernr();
 String lagerNamn = null;
 
 // Om vi begärt annat lager än förvalt
@@ -43,11 +48,7 @@ rs.close();
 <a href="?id=rapp-topplistaartgrupp&sokform=true&lagernr=<%= lagerNr %>">Artikelgrupper</a><br/>
 <a href="?id=rapp-topplistalagervarde&sokform=true&lagernr=<%= lagerNr %>">Lagervärde</a><br/>
 <p/>
-<h1><%= SXUtil.toHtml(sxSession.getIntraAnvandare()) %></h1>
+<h1><%= SXUtil.toHtml(user.getNamn()) %></h1>
 <a href="?id=mk-kundlista">Kunder</a><br/>
 <a href="?id=mk-statistik">Statistik</a><br/>
 <a href="?id=mk-saljstatartgrupp">Statistik artikelgrupp</a><br/>
-<% if (sxSession.isBehorighet(SXConstant.BEHORIGHET_STE_TEKNIK))  { %>
-<br/><a href="ste">Stiebel Eltron</a><br/>
-
-<%  } %>

@@ -36,20 +36,7 @@ ArrayList<InlaggHandler.IntraInlagg> arrInl = inh.getInlaggListByKanalId(null);
 <table class="midtable"width="780px">
 	<tr>
 		<td width="580px">
-				<% for (InlaggHandler.IntraKanal kan : arrKan ) { 
-					arrInl = inh.getInlaggListByKanalId(kan.kanalId);
-				%>
-					<div class="midgroup">
-					<a href="?id=kanalview&kanalid=<%= kan.kanalId %>"><h1><%= kan.rubrik %></h1></a>
-					<%	for (InlaggHandler.IntraInlagg inl : arrInl)  {%>
-						<a href="?id=inlaggview&inlaggid=<%= inl.inlaggId %>"><h2><%= inl.rubrik %></h2></a>
-						<%= inl.ingress %>
-					<%= "<h4>Av " + SXUtil.toHtml(inl.anvandareKort) + " " + inl.crTime + "</h4>" %>
-						<p/>
-					<%}%>
-					</div>
-				<% } %>
-			<div class="midgroup" style="overflow: scroll; height: 200px">
+			<div class="midgroup" style="overflow: scroll; height: 300px">
 				<h1>Kalender</h1>
 				<table><tr><th>Datum</th><th>Tid</th><th>Händelse</th><th></th></tr>
 				<%
@@ -76,24 +63,7 @@ ArrayList<InlaggHandler.IntraInlagg> arrInl = inh.getInlaggListByKanalId(null);
 			</div>
 			<div class="rgroup">
 				<h4>Kreditupplysning</h4>
-				<form name="loginForm" method="post" action="https://webapp.shj.se/Justitia/login.do" target="_new">
-					<input type="hidden" name="product" value="product3">
-					<input type="hidden" name="username" value="556409006" id="logintextfield">
-					<input type="hidden" name="password" value="123456" id="logintextfield">
-					<input name="submit" id="submitButton" type="submit" value="Justitia" class="submitbutton">
-				</form>
-			</div>
-			<div class="rgroup">
-				<h4>Sök</h4>
-				<form action="http://www.google.com/cse" id="cse-search-box">
-				  <div>
-					 <input type="hidden" name="cx" value="001183810265035031341:q46cpi9zlmm" />
-					 <input type="hidden" name="ie" value="ISO-8859-1" />
-					 <input type="text" name="q" size="31" />
-					 <input type="submit" name="sa" value="Sök" />
-				  </div>
-				</form>
-				<script type="text/javascript" src="http://www.google.com/coop/cse/brand?form=cse-search-box&lang=sv"></script>
+				<a href="http:www.shj.se">Till Justitia</a>
 			</div>
 		</td>
 	</tr>
