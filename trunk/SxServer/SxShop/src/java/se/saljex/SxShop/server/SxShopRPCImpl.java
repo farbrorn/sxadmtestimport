@@ -74,6 +74,7 @@ import se.saljex.sxlibrary.SXSession;
 import se.saljex.sxlibrary.WebSupport;
 import se.saljex.sxlibrary.LocalWebSupportRemote;
 import se.saljex.sxlibrary.SxServerMainRemote;
+import se.saljex.sxlibrary.exceptions.SxInfoException;
 
 /**
  *
@@ -537,7 +538,7 @@ public class SxShopRPCImpl extends RemoteServiceServlet implements
 		return null;
 	}
 
-	public ArrayList<Integer> skickaOrder(String marke) throws NotLoggedInException, SxShopKreditSparrException {
+	public ArrayList<Integer> skickaOrder(String marke) throws NotLoggedInException, SxShopKreditSparrException, SxInfoException {
 		//Sparar varukorgen som en order
 		//Returnerar null om inga rader finns i varukorgen
 		SXSession sxSession = WebSupport.getSXSession(getThreadLocalRequest().getSession());

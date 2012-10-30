@@ -35,6 +35,7 @@ import se.saljex.SxShop.client.rpcobject.StatInkopHeader;
 import se.saljex.SxShop.client.rpcobject.SxShopKreditSparrException;
 import se.saljex.SxShop.client.rpcobject.UtlevInfo;
 import se.saljex.SxShop.client.rpcobject.UtlevList;
+import se.saljex.sxlibrary.exceptions.SxInfoException;
 
 /**
  *
@@ -47,7 +48,7 @@ public interface SxShopRPC extends RemoteService{
 	public ArrayList<VaruKorgRad> addVaruKorg(String artnr, double antal) throws NotLoggedInException, FelaktigtAntalException, ServerErrorException;
 	public ArrayList<VaruKorgRad> getVaruKorg() throws NotLoggedInException;
 	public ArrayList<VaruKorgRad> deleteVaruKorg(String artnr) throws NotLoggedInException;
-	public ArrayList<Integer> skickaOrder(String marke) throws NotLoggedInException, SxShopKreditSparrException;
+	public ArrayList<Integer> skickaOrder(String marke) throws NotLoggedInException, SxShopKreditSparrException, SxInfoException;
 	public SokResult getSokResult(String sokStr, int maxRader);
 	public SokResult getSokArtikel(String sokStr, int maxRader);
 	public Anvandare getInloggadAnvandare();
