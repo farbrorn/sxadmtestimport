@@ -15,6 +15,7 @@
 
 <a href="?id=welcome">Startsida</a><p/>
 <a href="rapp">Rapporter</a><p/>
+<a href="/Rapporter">Nya Rapporter</a><p/>
 
 <%
 Connection con = (Connection)request.getAttribute("con");
