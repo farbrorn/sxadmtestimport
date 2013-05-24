@@ -8,8 +8,8 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<META HTTP-EQUIV="refresh" CONTENT="0;../api/katalog.jsp?root=670&frontpics=EH3102&frontpicsize=400&print=rsk">
+		<META HTTP-EQUIV="refresh" CONTENT="0;../api/katalog.jsp?root=513&frontpics=SB0210,SB1010,SB3031,EH70131,TM8021&frontpicsize=300&lagernr=10&rubrik=Lagersortiment%20Valsir&lev=VAL&print=bestnr,rsk&exclude=891,737,841">
 		<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-		<sx-rubrik>Katalog - VA</sx-rubrik>
+		<sx-rubrik>Katalog - Valsir Lagersortiment</sx-rubrik>
 	</head>
 </html>

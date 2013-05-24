@@ -26,6 +26,62 @@ public class KatalogArtikel {
 		private Double minSaljpack;
 		private Integer fraktvillkor;
 		private java.sql.Date utgattdatum;
+		private Double maxlager;
+		private String refnr;
+		private String bestnr;
+		private String kod1;
+		private String rsk;
+		private String enr;
+
+	public String getEnr() {
+		return enr;
+	}
+
+	public void setEnr(String enr) {
+		this.enr = enr;
+	}
+
+	public String getRsk() {
+		return rsk;
+	}
+
+	public void setRsk(String rsk) {
+		this.rsk = rsk;
+	}
+		
+
+	public String getKod1() {
+		return kod1;
+	}
+
+	public void setKod1(String kod1) {
+		this.kod1 = kod1;
+	}
+		
+
+	public String getRefnr() {
+		return refnr;
+	}
+
+	public void setRefnr(String refnr) {
+		this.refnr = refnr;
+	}
+
+	public String getBestnr() {
+		return bestnr;
+	}
+
+	public void setBestnr(String bestnr) {
+		this.bestnr = bestnr;
+	}
+
+	public Double getMaxlager() {
+		return maxlager;
+	}
+
+	public void setMaxlager(Double maxlager) {
+		this.maxlager = maxlager;
+	}
 
 	public int getSortOrder() {
 		return sortOrder;

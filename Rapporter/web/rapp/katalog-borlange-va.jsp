@@ -8,8 +8,8 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<META HTTP-EQUIV="refresh" CONTENT="0;../api/katalog.jsp?root=670&frontpics=EH3102&frontpicsize=400&print=rsk">
+		<META HTTP-EQUIV="refresh" CONTENT="0;../api/katalog.jsp?root=670&frontpics=EH3102&frontpicsize=400&lagernr=10&rubrik=Lagerlista%20VA%20Borl%E4nge&print=rsk">
 		<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-		<sx-rubrik>Katalog - VA</sx-rubrik>
+		<sx-rubrik>Katalog - Borlänge - VA</sx-rubrik>
 	</head>
 </html>

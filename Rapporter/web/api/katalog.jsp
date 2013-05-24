@@ -25,34 +25,61 @@
 		if (rootGruppStr!=null) {
 			try { rootGrupp = new Integer(rootGruppStr); } catch (Exception e) {}
 		}
+		
 		String excludeGruppStr = request.getParameter("exclude");
 		String frontPicStr = request.getParameter("frontpics");
 		Integer frontPicSize = 400;
 		try {
 			frontPicSize = new Integer(request.getParameter("frontpicsize"));
 		} catch (Exception e) {}
-		
+		String[] ss;
 		ArrayList<Integer> excludeGroups = new ArrayList<Integer>();
 		if (excludeGruppStr!=null) {
-			String[] ss = excludeGruppStr.split(",");
+			ss = excludeGruppStr.split(",");
 			for (String s : ss) {
 				try { excludeGroups.add(new Integer(s)); } catch (Exception e) {}
 			}
 		}
 		
+		Integer lagernr = null;
+		String lagernrStr = request.getParameter("lagernr");
+		if (lagernrStr!=null) {
+			try { lagernr = new Integer(lagernrStr); } catch (Exception e) {}
+		}
+		
+		String rubrik = request.getParameter("rubrik");
+		String lev = request.getParameter("lev");
+		
 		ArrayList<String> frontPics = new ArrayList<String>();
 		if (frontPicStr!=null) {
-			String[] ss = frontPicStr.split(",");
+			ss = frontPicStr.split(",");
 			for (String s : ss) {
 				try { frontPics.add(s); } catch (Exception e) {}
 			}
 		}
+
+		boolean printRsk=false;
+		boolean printEnr=false;
+		boolean printBestnr=false;
+		boolean printRefnr=false;
+		
+		try {
+			ss = request.getParameter("print").split(",");
+			for (String s : ss) {
+				if ("rsk".equals(s)) printRsk = true;
+				if ("enr".equals(s)) printEnr = true;
+				if ("refnr".equals(s)) printRefnr = true;
+				if ("bestnr".equals(s)) printBestnr = true;
+			}
+		} catch (Exception e) {}
 		
 %>			
 <%
-		Katalog katalog = KatalogHandler.getKatalog(con, rootGrupp, false, excludeGroups);
+		Katalog katalog = KatalogHandler.getKatalog(con, rootGrupp, false, excludeGroups, lagernr, lev);
 		String level;
 		String klaseNotering = "";
+		
+		if (rubrik==null) rubrik = katalog.getGrupper().get(0).getRubrik();
 %>		
 
 <%@page contentType="text/html" pageEncoding="ISO-8859-1"%>
@@ -60,11 +87,17 @@
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-		<title>Säljex Katalog <%= Util.toHtml(katalog.getGrupper().get(0).getRubrik()) %></title>
+		<title>Säljex Katalog <%= Util.toHtml(rubrik) %></title>
 <style type="text/css">
-.kat-main				{ font-size: 12px; }
+
+@media print {
+.kat-main				{ font-size: 20px; }
+}
+@media screen {
+.kat-main				{ font-size: 14px; }
+}
 .kat-main td { vertical-align: top; padding: 0px 4px 0px 2px;}
-.kat-main th { font-size: 80%; background-color: #eeeeee; text-align: left; padding: 0px 4px 0px 2px;}
+.kat-main th { font-size: 80%; background-color: #eeeeee; padding: 0px 4px 0px 2px; }
 .kat-main img { margin-top: 0px;  }
 a:link, a:active, a:visited, a:hover { color: black; text-decoration: none;  }
 
@@ -72,6 +105,19 @@ a:link, a:active, a:visited, a:hover { color: black; text-decoration: none;  }
 						table-layout: fixed;
 						border-collapse: collapse;
 					}
+					
+@media print {
+.kat-frontpics				{ margin-top: 12em; min-height: 1050px; max-height: 1050px; vertical-align: middle; }
+.kat-frontpic				{ margin: 2em; }
+.kat-frontfot				{ margin-top: 0px; font-size: 30px; border: solid black; border-radius: 10px; padding: 10px;}
+.kat-frontfot-www				{ font-size: 160%; font-weight: bold; text-align: center; marign-top: 2em; }
+.kat-frontfot-rubrik			{ font-weight: bold; }
+.kat-frontfot-hrubrik			{ font-size: 120%; text-decoration: underline; font-weight: bolder; }
+}
+@media screen {
+.kat-frontpics				{ display: none; }
+.kat-frontfot				{ display: none; }
+}
 					
 .kat-huvud				{ font-size: 12px; 
 								text-align: center;
@@ -90,65 +136,108 @@ a:link, a:active, a:visited, a:hover { color: black; text-decoration: none;  }
 
 
 .kat-grupp					{   }
-.kat-grupp-l0				{ margin-bottom: 2em;  page-break-before: always; page-break-inside: avoid; padding-left: 120px;}
+.kat-grupp-l0				{ page-break-before: always; page-break-inside: avoid; padding-left: 120px;}
+@media print {
+.kat-grupp-l0				{ margin-bottom: 1em;}
+}
+@media screen {
+.kat-grupp-l0				{ margin-bottom: 2em;}
+}
+
 .kat-grupp-l1				{ margin-bottom: 0.5em;  page-break-inside: avoid; padding-left: 120px;}
 .kat-grupp-l2				{ margin-bottom: 0.5em; page-break-inside: avoid; padding-left: 120px; }
 .kat-grupp-l0 h2		{ font-weight: bolder; font-size: 200%; margin: 0px 0px 0px 0px;}
 .kat-grupp-l1 h2		{ font-weight: bolder; font-size: 140%; margin: 0px 0px 0px 0px;}
 .kat-grupp-l2 h2		{ font-weight: bolder; font-size: 120%; margin: 0px 0px 0px 0px;}
 
-.kat-klase				{ margin: 0px 0px 4em 0px;  page-break-inside: avoid; }
+.kat-klase				{ margin: 0px 0px 2em 0px;  page-break-inside: avoid; }
 .kat-klase h2			{ font-weight: bold; font-size: 100%;  margin: 0px 0px 0px 0px; padding-left: 120px; width: 60em;}
 .kat-klase p			{ font-size: 100%; margin: 0px 0px 0px 0px; padding-left: 120px; width: 60em;}
 .kat-klase table 		{ padding-left: 120px; width: 60em;}
 
 
 .right					{text-align: right; }
+.left					{text-align: left; }
 
 .s20, .n20				{ width: 17em; }
 .s10, .n10				{ width: 8em; }
-.s13						{ width: 10em; }
+.s13						{ width: 8em; }
 .s15, .n15				{ width: 13em; }
-.s30						{ width: 25em; }
+.s30						{ width: 22em; }
 .s3						{ width: 2.5em; }
 .s5, .n5						{ width: 4em; }
+.s_forp						{ width: 6em; }
+.s_artnr						{ width: 8em; }
+.s_typ						{ width: 22em; }
+.s_pris						{ width: 8em; }
+.s_antal						{ width: 4em; }
+.s_enh						{ width: 4em; }
+.s_grupp						{ width: 4em; }
 
 .fint					{ font-weight: lighter; font-size: 80%;}
+.extrafint			{ font-weight: lighter; font-size: 60%;}
 
 
-.klase-cont			{ min-height: 116px; }
+@media print {
+.klase-cont			{ min-height: 80px; }
+}
+@media screen {
+.klase-cont			{ min-height: 112px; }
+}
+
 .klase-pic			{ width: 110px; text-align: center; float: left;}
 .klase-tab			{ padding-left: 120px; }
-
 
 </style>
 		
 	</head>
-	<body>
+	<body style="-webkit-print-color-adjust:exact;">
 		
 
 <div class="kat-huvud">
 	<table>
 		<tr>
 			<td>
-				<img src="http://www.saljex.se/p/s100/logo-saljex.png">
+				<img src="http://www.saljex.se/p/s250/logo-saljex.png">
 			</td>
 			<td>
 				<h1>Katalog</h1>
-				<h2><% out.print(Util.toHtml(katalog.getGrupper().get(0).getRubrik())); %> </h2>
+				<h2><% out.print(Util.toHtml(rubrik)); %> </h2>
 			</td>
 			<td>
 				Datum: <%= Util.toHtml(katalog.getDatumString()) %>
 			</td>
 		</tr>
 		<tr>
-			<td colspan="3">
+			<td colspan="3"><div class="kat-frontpics">
 				<% if (!frontPics.isEmpty()) { 
-						for (String ss: frontPics) {
+						for (String ss1: frontPics) {
 					%>
-							<img src="http://www.saljex.se/p/s<%= frontPicSize %>/<%= ss %>.png">
+							<img onerror="this.style.display='none';" class="kat-frontpic" src="http://www.saljex.se/p/s<%= frontPicSize %>/<%= ss1 %>.png">
 				<%		}
 					} %>
+				</div>
+				<div class="kat-frontfot">
+					<table>
+						<tr><td class="kat-frontfot-hrubrik" colspan="5">Telefonnummer</td></tr>
+						<tr>
+							<td class="kat-frontfot-rubrik">Grums</td>
+							<td class="kat-frontfot-rubrik">Arvika</td>
+							<td class="kat-frontfot-rubrik">Borlänge</td>
+							<td class="kat-frontfot-rubrik">Sunne</td>
+							<td class="kat-frontfot-rubrik">Åmål</td>
+						</tr>
+						<tr>
+							<td>0555-61610</td>
+							<td>0570-13010</td>
+							<td>0243-257170</td>
+							<td>0565-13280</td>
+							<td>0532-608140</td>
+						</tr>
+					</table>
+					<div class="kat-frontfot-www">www.saljex.se</div>
+				</div>
+				
 			</td>
 		</tr>
 	</table>
@@ -163,7 +252,7 @@ a:link, a:active, a:visited, a:hover { color: black; text-decoration: none;  }
 	
 	<% if (grupp.getTreeLevel() != 0) {  //Skriv inte ut info för Root-gruppen .- det 'r på förstasidan om det inte är 0%>
 		<div class="kat-grupp-l<%= level %>">
-			<a href="?root=<%= grupp.getGrpId() %>"><h2><%= Util.toHtml(grupp.getRubrik()) %></h2></a>
+			<h2><%= Util.toHtml(grupp.getRubrik()) %></h2>
 			
 			<% if (grupp.getText()!=null) { %>
 				<div><%= Util.toHtml(grupp.getText()) %></div>
@@ -178,7 +267,7 @@ a:link, a:active, a:visited, a:hover { color: black; text-decoration: none;  }
 			<% for (KatalogKlase klase : grupp.getKlasar()) { %>
 				<div class="kat-klase">
 			<div class="klase-cont">
-					<div class="klase-pic"><% if(klase.getArtiklar().size() > 0) { %><img src="http://www.saljex.se/p/s100/<%= klase.getArtiklar().get(0).getBildArtNr() %>.png"><% } %> </div>
+					<div class="klase-pic"><% if(klase.getArtiklar().size() > 0) { %><img onerror="this.style.display='none';" src="http://www.saljex.se/p/s100/<%= klase.getArtiklar().get(0).getBildArtNr() %>.png"><% } %> </div>
 					
 					<h2><%= Util.toHtml(grupp.getRubrik()) %> - <%= Util.toHtml(klase.getRubrik()) %></h2>
 					
@@ -192,7 +281,7 @@ a:link, a:active, a:visited, a:hover { color: black; text-decoration: none;  }
 					<div class="klase-tab">
 							<table>
 								<thead>
-									<tr><th class="s13">Artikel</th><th class="s30">Typ</th><th class="n10 right">Pris</th><th class="n10">Mängdpris</th><th class="n5">Antal</th><th class="s3">Enhet</th><th class="s3">Grupp</th><th class="s5">Förpack.</th><th class="s5"></th></tr>
+									<tr><th class="s_artnr left">Artikel</th><th class="s_typ left">Typ</th><th class="s_pris right">Pris</th><th class="s_pris right">Mängdpris</th><th class="s_antal left">Antal</th><th class="s_enh left">Enhet</th><th class="s_grupp">Grupp</th><th class="s_forp left">Förpack.</th><th class="s5 left"></th></tr>
 								</thead>
 								<tbody>
 								<% for (KatalogArtikel artikel : klase.getArtiklar()) { %>
@@ -211,7 +300,7 @@ a:link, a:active, a:visited, a:hover { color: black; text-decoration: none;  }
 											<%	} 	%> 											
 										</td>
 										<td><%= Util.toHtml(artikel.getEnhet()) %></td>
-										<td><%= Util.toHtml(artikel.getRabkod()) %></td>
+										<td><%= Util.toHtml(artikel.getRabkod()) %><%= artikel.getKod1()!=null ? "<span class=\"extrafint\">-"+artikel.getKod1()+"</span>" : "" %></td>
 										<% String fp="";
 											double minSaljPack = artikel.getMinSaljpack();
 											if(minSaljPack < 1) minSaljPack=1;
@@ -245,12 +334,23 @@ a:link, a:active, a:visited, a:hover { color: black; text-decoration: none;  }
 												fp  = fp+"3";
 												if (!klaseNotering.contains("3-")) {
 													if(!klaseNotering.isEmpty()) { klaseNotering = klaseNotering + " ";	}
-													klaseNotering = klaseNotering + "3-Produkten har utgått";
+													klaseNotering = klaseNotering + "3-Produkten är utgående";
 												}
 											}
 										%>
 										<td class="fint"><%= Util.toHtml(fp) %></td>
 									</tr>
+									<% if((printBestnr && !Util.isEmpty(artikel.getBestnr())) || (printEnr && !Util.isEmpty(artikel.getEnr())) || (printRefnr && !Util.isEmpty(artikel.getRefnr())  ) || (printRsk && !Util.isEmpty(artikel.getRsk()) )) {%>
+									<tr>
+										<td></td><td colspan="8" class="extrafint">
+											<%= printBestnr ? "Lev-nr: " + Util.toHtml(artikel.getBestnr()) + " " : "" %>
+											<%= printRefnr ? "Ref: " + Util.toHtml(artikel.getRefnr()) + " " : "" %>
+											<%= printRsk ? "RSK: " + Util.toHtml(artikel.getRsk()) + " " : "" %>
+											<%= printEnr ? "E: " + Util.toHtml(artikel.getEnr()) + " " : "" %>
+										</td>
+									</tr>
+									
+									<% } %>
 								<% } %>
 								<% if (!klaseNotering.isEmpty()) { %> 
 								<tr><td colspan="8" class="fint"><%= Util.toHtml(klaseNotering) %></td></tr>

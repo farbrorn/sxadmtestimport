@@ -8,7 +8,7 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<META HTTP-EQUIV="refresh" CONTENT="0;../api/katalog.jsp?root=513&frontpics=EC7060&frontpicsize=400">
+		<META HTTP-EQUIV="refresh" CONTENT="0;../api/katalog.jsp?root=513&frontpics=EC7060&frontpicsize=400&print=rsk">
 		<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 		<sx-rubrik>Katalog - VVS</sx-rubrik>
 	</head>
