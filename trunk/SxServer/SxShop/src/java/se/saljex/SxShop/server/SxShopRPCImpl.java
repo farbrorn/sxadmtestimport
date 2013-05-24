@@ -538,7 +538,7 @@ public class SxShopRPCImpl extends RemoteServiceServlet implements
 		return null;
 	}
 
-	public ArrayList<Integer> skickaOrder(String marke) throws NotLoggedInException, SxShopKreditSparrException, SxInfoException {
+	public ArrayList<Integer> skickaOrder(String marke) throws NotLoggedInException, SxShopKreditSparrException, ServerErrorException {
 		//Sparar varukorgen som en order
 		//Returnerar null om inga rader finns i varukorgen
 		SXSession sxSession = WebSupport.getSXSession(getThreadLocalRequest().getSession());
@@ -552,6 +552,7 @@ public class SxShopRPCImpl extends RemoteServiceServlet implements
 				WebSupport.logAnvandarhandelse(getThreadLocalRequest(), con, sxSession.getKundLoginNamn(), "Sparad order: " + o);
 			}
 		} catch (KreditSparrException e) { throw new SxShopKreditSparrException(); }
+		catch (SxInfoException ee)  { throw new ServerErrorException(ee.getMessage()); }
 		catch (SQLException se) { se.printStackTrace(); }// I övrigt ingnorera denna eftersom ordrarna ändå är sparade
 		finally { try { con.close(); } catch (Exception ee) {}
 		}

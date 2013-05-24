@@ -167,7 +167,7 @@ public class ArtikelVarukorg extends VerticalPanel implements VarukorgCallbackIn
 		ft.clear();
 		if (varukorg!=null) for (VaruKorgRad rad : varukorg) {
 			if (rad!=null){
-				currentRow = new VarukorgRadWidgets(cn,rad,this);
+				currentRow = new VarukorgRadWidgets(cn,rad,(VarukorgCallbackInterface)this);
 				varukorgRader.add(currentRow);
 				ft.setWidget(cn, COL_ARTNR, currentRow.artnr);
 				ft.setWidget(cn, COL_NAMN, currentRow.namn);
