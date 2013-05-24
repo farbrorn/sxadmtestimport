@@ -28,6 +28,10 @@ public class SXConstant {
 	public static final  String ORDERHAND_FAKTURERAD = "Fakturerad";
 	public static final  String ORDERHAND_UTSKRIVEN = "Utskriven";
 
+	public static final  String HANDELSE_SKAPAD = "Skapad";
+	public static final  String HANDELSE_RADERAD = "Raderad";
+	public static final  String HANDELSE_ANDRAD = "Ändrad";
+	
 	public static final	String SERVJOBB_UPPGIFT_SAND = "sänd";
 	public static final	String SERVJOBB_SANDSATT_EPOST = "epost";
 	public static final	String SERVJOBB_DOKUMENTTYP_FAKTURA = "faktura";
