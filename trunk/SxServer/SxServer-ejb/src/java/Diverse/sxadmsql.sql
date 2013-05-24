@@ -2358,3 +2358,42 @@ alter table artikel add ean varchar;
 
 alter table saljare add epost varchar;
 create table loginservice (uuid varchar primary key, anvandare varchar, expiredate date, crdate timestamp not null default current_timestamp) 
+
+
+
+create function TimerDailyUserDefined() returns void
+as $$
+--Här kan egna funktioner läggas till allt eftersom - t.ex. skapa nettoprislistor för olika kunder 
+ $$ language sql;
+create or replace function TimerDaily() returns void
+as $$
+select TimerDailyUserDefined();
+ $$ language sql;
+
+
+
+create function TimerWeeklyUserDefined() returns void
+as $$
+--Här kan egna funktioner läggas till allt eftersom - t.ex. skapa nettoprislistor för olika kunder 
+ $$ language sql;
+create or replace function TimerWeekly() returns void 
+as $$
+select TimerWeeklyUserDefined();
+ $$ language sql;
+
+
+
+create function TimerMonthlyUserDefined() returns void
+as $$
+--Här kan egna funktioner läggas till allt eftersom - t.ex. skapa nettoprislistor för olika kunder 
+ $$ language sql;
+create or replace function TimerMonthly() returns void 
+as $$
+select TimerMonthlyUserDefined();
+ $$ language sql;
+
+
+--2013-05-23
+alter table artikel add jpaversion integer not null default 0;
+alter table kund add jpaversion integer not null default 0;
+alter table lev add jpaversion integer not null default 0;
