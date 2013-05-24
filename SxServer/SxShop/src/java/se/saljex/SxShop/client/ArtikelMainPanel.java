@@ -307,7 +307,7 @@ public void printKlase(final ArtSidaKlase ask) {
 						cellFormatter.addStyleName(rowCn, 2, "sx-tb-pris");
 						cellFormatter.addStyleName(rowCn, 4, "sx-tb-pris");
 						if (globalData.isLoggedIn()) {
-							KopKnapp kopKnapp = new KopKnapp(aska,this);
+							KopKnapp kopKnapp = new KopKnapp(aska,(KopKnappCallback)this);
 							ft.setWidget(rowCn, 7,kopKnapp );
 						}
 

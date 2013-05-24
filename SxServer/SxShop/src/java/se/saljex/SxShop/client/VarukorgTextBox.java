@@ -1,7 +1,7 @@
 /*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
- */
+  */
 
 package se.saljex.SxShop.client;
 
@@ -26,9 +26,9 @@ public class VarukorgTextBox extends TextBox {
 		this.row=row;
 		this.col=col;
 		this.callback = callback;
-		this.varukorgRadWidgets=varukorgRadWidgets;
+		this.varukorgRadWidgets=varukorgRadWidgets; 
 //		addStyleName("sx-kopknapp");
-
+		
 		addChangeHandler(new ChangeHandler() {
 			public void onChange(ChangeEvent event) {doCallback(); }
 
@@ -40,6 +40,5 @@ public class VarukorgTextBox extends TextBox {
 	private void doCallback() {
 		callback.varukorgTextBoxChangeCallback(this);
 	}
-
 
 }
