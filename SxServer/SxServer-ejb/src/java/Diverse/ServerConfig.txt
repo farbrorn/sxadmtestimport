@@ -1,0 +1,19 @@
+Security->Realms 
+	- Lägg till användare admin i gruppen admingroup 
+
+JDBC->Connection pools 
+	- Lägg till pool sxadmpool för inloggning till domänens användare, så tabeller kan anropas utan användarprefix
+	- Lägg till pool sxadmpool för inloggning till domänens användare Read Only
+	- Lägg till pool för inloggning till domänens Master-domän - t.ex. wermgo.se lägger till Master saljex.se så att order kan överföras
+	- Lägg till pool för inloggning till databasens superuser
+	- Lägg till pool för fristående web-server så att artikelinfo mm kan överföras dit.
+
+JDBC->Resources
+	- Lägg till sxadm för domänens användare
+	- Lägg till sxadm_ro för domänens användare Read Only
+	- Lägg till sxadmmain för domänens Master (kan pekas mot sxadmpool om ingen master)
+	- Lägg till saljexse för extern web-server
+	- Lägg till sxsuperuser för superuser
+
+
+

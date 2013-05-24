@@ -556,12 +556,12 @@ public class FakturaHandler {
 
 
 		//**** Spara Kund
-		kund.setObet(kund.getObet() + fa1.getTAttbetala());
-		kund.setFaktdat(fa1.getDatum());
-		kund.setTot(kund.getTot() + fa1.getTAttbetala());
-		kund.setNtot(kund.getNtot() + fa1.getTNetto());
-		kund.setNetto(kund.getNetto() + fa1.getTInnetto());
-		kund.setTbidrag(kund.getTbidrag() + fa1.getTNetto() - fa1.getTInnetto());
+//		kund.setObet(kund.getObet() + fa1.getTAttbetala());
+//		kund.setFaktdat(fa1.getDatum());
+//		kund.setTot(kund.getTot() + fa1.getTAttbetala());
+//		kund.setNtot(kund.getNtot() + fa1.getTNetto());
+//		kund.setNetto(kund.getNetto() + fa1.getTInnetto());
+//		kund.setTbidrag(kund.getTbidrag() + fa1.getTNetto() - fa1.getTInnetto());
 
 		//**** Spara Kundstatistik
 		kunstatPK = new TableKunstatPK(fa1.getKundnr(), (short)calendar.get(Calendar.YEAR), (short)(calendar.get(Calendar.MONTH)+1));

@@ -171,10 +171,10 @@ public class KundresHandler {
 		betjour.setFelbettyp(felbet);
 		betjour.setInkassostatus(kundres.getInkassostatus());
 
-		if (kund!=null) {
-			kund.setObet(kund.getObet() - betjour.getBet());
-			kund.setBtid(kund.getBtid() + betalTid);
-		}
+//		if (kund!=null) {
+//			kund.setObet(kund.getObet() - betjour.getBet());
+//			kund.setBtid(kund.getBtid() + betalTid);
+//		}
 
 		//   !**** Spara Kundstatistik
 		kunstatPK = new TableKunstatPK(kundres.getKundnr(), betdatAr, betdatMan);
