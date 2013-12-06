@@ -3,6 +3,7 @@
     Created on : 2012-dec-19, 08:11:27
     Author     : Ulf
 --%>
+<%@page import="se.saljex.sxlibrary.SXUtil"%>
 <%@page import="java.util.ArrayList"%>
 <%@page import="se.saljex.rapporter.KatalogArtikel"%>
 <%@page import="se.saljex.rapporter.KatalogKlase"%>
@@ -18,6 +19,10 @@
 <%
 		User user=null;
 		Connection con=null;
+		boolean prisetArDagspris;
+		boolean klaseInnehallerDagsPris;
+		
+		
 		try { user  = (User)request.getSession().getAttribute(LoginServiceConstants.REQUEST_PARAMETER_SESSION_USER); } catch (Exception e) {}
 		try { con = (Connection)request.getAttribute("sxconnection"); } catch (Exception e) {}
 		Integer rootGrupp = 0;
@@ -25,14 +30,42 @@
 		if (rootGruppStr!=null) {
 			try { rootGrupp = new Integer(rootGruppStr); } catch (Exception e) {}
 		}
+
+		String frontKontaktNamn = request.getParameter("frontkontaktnamn");
+		String frontKontaktTel = request.getParameter("frontkontakttel");
+		String frontKontaktEPost = request.getParameter("frontkontaktepost");
+		String frontWWW = request.getParameter("frontwww");
 		
-		String excludeGruppStr = request.getParameter("exclude");
+		if (frontKontaktNamn==null) {
+			frontKontaktNamn = "Grums,Arvika,Borlänge,Sunne,Åmål";
+			frontKontaktTel = "0555-61610,0570-13010,0243-257170,0565-13280,0532-608140";
+			frontKontaktEPost = "info@saljex.se,arvika@saljex.se,borlange@saljex.se,sunne@saljex.se,amal@saljex.se";
+		}
+		
+		if (frontWWW==null) frontWWW="www.saljex.se";
+		
+		String[] frontKontaktNamnArr =null;
+		String[] frontKontaktTelArr =null;
+		String[] frontKontaktEPostArr =null;
+		
+		try { frontKontaktNamnArr = frontKontaktNamn.split(","); } catch (Exception e) {}
+		try { frontKontaktTelArr = frontKontaktTel.split(","); } catch (Exception e) {}
+		try { frontKontaktEPostArr = frontKontaktEPost.split(","); } catch (Exception e) {}
+
+		Integer picAreaHeight = 950;
+		try {
+			picAreaHeight = new Integer(request.getParameter("frontpicareaheight"));
+		} catch (Exception e) {}
+			
+						
 		String frontPicStr = request.getParameter("frontpics");
 		Integer frontPicSize = 400;
 		try {
 			frontPicSize = new Integer(request.getParameter("frontpicsize"));
 		} catch (Exception e) {}
 		String[] ss;
+		
+		String excludeGruppStr = request.getParameter("exclude");
 		ArrayList<Integer> excludeGroups = new ArrayList<Integer>();
 		if (excludeGruppStr!=null) {
 			ss = excludeGruppStr.split(",");
@@ -40,7 +73,38 @@
 				try { excludeGroups.add(new Integer(s)); } catch (Exception e) {}
 			}
 		}
+
+
+		String includeGruppStr = request.getParameter("include");
+		ArrayList<Integer> includeGroups = new ArrayList<Integer>();
+		if (includeGruppStr!=null) {
+			ss = includeGruppStr.split(",");
+			for (String s : ss) {
+				try { includeGroups.add(new Integer(s)); } catch (Exception e) {}
+			}
+		}
+
+		String excludeKlasStr = request.getParameter("excludeklas");
+		ArrayList<Integer> excludeKlas = new ArrayList<Integer>();
+		if (excludeKlasStr!=null) {
+			ss = excludeKlasStr.split(",");
+			for (String s : ss) {
+				try { excludeKlas.add(new Integer(s)); } catch (Exception e) {}
+			}
+		}
 		
+			
+
+		String excludeArtStr = request.getParameter("excludeart");
+		ArrayList<String> excludeArt = new ArrayList<String>();
+		if (excludeArtStr!=null) {
+			ss = excludeArtStr.split(",");
+			for (String s : ss) {
+				try { excludeArt.add(s); } catch (Exception e) {}
+			}
+		}
+		
+					
 		Integer lagernr = null;
 		String lagernrStr = request.getParameter("lagernr");
 		if (lagernrStr!=null) {
@@ -62,6 +126,7 @@
 		boolean printEnr=false;
 		boolean printBestnr=false;
 		boolean printRefnr=false;
+		boolean printID=false;
 		
 		try {
 			ss = request.getParameter("print").split(",");
@@ -70,12 +135,33 @@
 				if ("enr".equals(s)) printEnr = true;
 				if ("refnr".equals(s)) printRefnr = true;
 				if ("bestnr".equals(s)) printBestnr = true;
+				if ("id".equals(s)) printID = true;
 			}
 		} catch (Exception e) {}
+
+
+
+
+					
+		String valuta = null;
+		valuta = request.getParameter("valuta");
+		if (valuta != null) {
+			valuta = valuta.toUpperCase();
+			if (!(valuta.equals("NOK") || valuta.equals("SEK")) ) valuta = null;
+		}
+		
+		Double rabatt = 0.0;
+		String rabattStr = request.getParameter("rabatt");
+		if (rabattStr!=null) {
+			try { rabatt = new Double(rabattStr); } catch (Exception e) {}
+		}
+		rabatt = rabatt/100;
+		
 		
 %>			
+
 <%
-		Katalog katalog = KatalogHandler.getKatalog(con, rootGrupp, false, excludeGroups, lagernr, lev);
+		Katalog katalog = KatalogHandler.getKatalog(con, rootGrupp, false, excludeGroups, lagernr, lev, includeGroups, excludeKlas, excludeArt);
 		String level;
 		String klaseNotering = "";
 		
@@ -107,18 +193,21 @@ a:link, a:active, a:visited, a:hover { color: black; text-decoration: none;  }
 					}
 					
 @media print {
-.kat-frontpics				{ margin-top: 12em; min-height: 1050px; max-height: 1050px; vertical-align: middle; }
+.kat-frontpics				{ margin-top: 12em; min-height: <%= picAreaHeight %>px; max-height: <%= picAreaHeight %>px; vertical-align: middle; }
 .kat-frontpic				{ margin: 2em; }
 .kat-frontfot				{ margin-top: 0px; font-size: 30px; border: solid black; border-radius: 10px; padding: 10px;}
 .kat-frontfot-www				{ font-size: 160%; font-weight: bold; text-align: center; marign-top: 2em; }
 .kat-frontfot-rubrik			{ font-weight: bold; }
-.kat-frontfot-hrubrik			{ font-size: 120%; text-decoration: underline; font-weight: bolder; }
+.kat-frontfot-hrubrik			{ font-size: 120%; text-decoration: underline; font-weight: bolder; text-align: center;}
 }
 @media screen {
 .kat-frontpics				{ display: none; }
 .kat-frontfot				{ display: none; }
 }
-					
+
+.kontaktinfo td {
+							text-align: left;
+}
 .kat-huvud				{ font-size: 12px; 
 								text-align: center;
 							}
@@ -177,7 +266,6 @@ a:link, a:active, a:visited, a:hover { color: black; text-decoration: none;  }
 .fint					{ font-weight: lighter; font-size: 80%;}
 .extrafint			{ font-weight: lighter; font-size: 60%;}
 
-
 @media print {
 .klase-cont			{ min-height: 80px; }
 }
@@ -206,6 +294,8 @@ a:link, a:active, a:visited, a:hover { color: black; text-decoration: none;  }
 			</td>
 			<td>
 				Datum: <%= Util.toHtml(katalog.getDatumString()) %>
+				<%= valuta != null ? "<br>Valuta " + valuta : "" %>
+				<%= rabatt != null ? "<br><b>Lista NT" + SXUtil.getFormatNumber( rabatt*100*2,0) + "</b>" : "" %>
 			</td>
 		</tr>
 		<tr>
@@ -218,8 +308,30 @@ a:link, a:active, a:visited, a:hover { color: black; text-decoration: none;  }
 					} %>
 				</div>
 				<div class="kat-frontfot">
-					<table>
-						<tr><td class="kat-frontfot-hrubrik" colspan="5">Telefonnummer</td></tr>
+					<table class="kontaktinfo">
+						<tr><td class="kat-frontfot-hrubrik" colspan="3">Kontaktuppgifter</td></tr>
+						<%
+						String tNamn=null;
+						String tTel=null;
+						String tEpost=null;
+						for (int cn = 0; cn < frontKontaktNamnArr.length; cn++) {
+							tNamn = ""; tTel=""; tEpost="";
+							try {tNamn = frontKontaktNamnArr[cn];} catch (Exception e) {}
+							try {tTel = frontKontaktTelArr[cn];} catch (Exception e) {}
+							try {tEpost = frontKontaktEPostArr[cn];} catch (Exception e) {}
+							
+							%> 
+							<tr>
+								<td class="kat-frontfot-rubrik"> <%= SXUtil.toHtml(tNamn) %></td>
+								<td> <%= SXUtil.toHtml(tTel) %></td>
+								<td> <%= SXUtil.toHtml(tEpost) %></td>
+							</tr>
+							<%
+						}
+						%>
+						
+						
+<% /*						
 						<tr>
 							<td class="kat-frontfot-rubrik">Grums</td>
 							<td class="kat-frontfot-rubrik">Arvika</td>
@@ -234,8 +346,10 @@ a:link, a:active, a:visited, a:hover { color: black; text-decoration: none;  }
 							<td>0565-13280</td>
 							<td>0532-608140</td>
 						</tr>
+ * */ 
+%>
 					</table>
-					<div class="kat-frontfot-www">www.saljex.se</div>
+				<div class="kat-frontfot-www"><%= Util.toHtml(frontWWW) %></div>
 				</div>
 				
 			</td>
@@ -252,7 +366,7 @@ a:link, a:active, a:visited, a:hover { color: black; text-decoration: none;  }
 	
 	<% if (grupp.getTreeLevel() != 0) {  //Skriv inte ut info för Root-gruppen .- det 'r på förstasidan om det inte är 0%>
 		<div class="kat-grupp-l<%= level %>">
-			<h2><%= Util.toHtml(grupp.getRubrik()) %></h2>
+			<h2><%= Util.toHtml(grupp.getRubrik()) + (printID ? (" G:" + grupp.getGrpId()) : "") %></h2>
 			
 			<% if (grupp.getText()!=null) { %>
 				<div><%= Util.toHtml(grupp.getText()) %></div>
@@ -265,11 +379,12 @@ a:link, a:active, a:visited, a:hover { color: black; text-decoration: none;  }
 	<% } %>
 		
 			<% for (KatalogKlase klase : grupp.getKlasar()) { %>
+			<% klaseInnehallerDagsPris = false; %>
 				<div class="kat-klase">
 			<div class="klase-cont">
 					<div class="klase-pic"><% if(klase.getArtiklar().size() > 0) { %><img onerror="this.style.display='none';" src="http://www.saljex.se/p/s100/<%= klase.getArtiklar().get(0).getBildArtNr() %>.png"><% } %> </div>
 					
-					<h2><%= Util.toHtml(grupp.getRubrik()) %> - <%= Util.toHtml(klase.getRubrik()) %></h2>
+					<h2><%= Util.toHtml(grupp.getRubrik()) %> - <%= Util.toHtml(klase.getRubrik()) + (printID ? (" K:" + klase.getId()) : "") %></h2>
 					
 					<% if (klase.getText()!=null) { %>
 						<p><%= Util.toHtml(klase.getText()) %></p>
@@ -281,17 +396,30 @@ a:link, a:active, a:visited, a:hover { color: black; text-decoration: none;  }
 					<div class="klase-tab">
 							<table>
 								<thead>
-									<tr><th class="s_artnr left">Artikel</th><th class="s_typ left">Typ</th><th class="s_pris right">Pris</th><th class="s_pris right">Mängdpris</th><th class="s_antal left">Antal</th><th class="s_enh left">Enhet</th><th class="s_grupp">Grupp</th><th class="s_forp left">Förpack.</th><th class="s5 left"></th></tr>
+									<tr><th class="s_artnr left">Artikel</th><th class="s_typ left">Typ</th>
+										<th class="s_pris right">
+											<%= !rabatt.equals(0) ? "Netto " + (valuta != null ? valuta : "") : "Pris " + (valuta != null ? valuta : "") %>
+										</th>
+										<th class="s_pris right">Mängdpris</th><th class="s_antal left">Antal</th><th class="s_enh left">Enhet</th><th class="s_grupp">Grupp</th><th class="s_forp left">Förpack.</th><th class="s5 left"></th></tr>
 								</thead>
 								<tbody>
 								<% for (KatalogArtikel artikel : klase.getArtiklar()) { %>
 									<tr>
 										<td><%= Util.toHtml(artikel.getArtnr()) %></td>
 										<td><%= Util.toHtml(artikel.getKatalogtext()) %></td>
-										<td class="right"><%= Util.getFormatNumber(artikel.getPris(),2) %></td>
+										<td class="right"><% 
+														prisetArDagspris = false;
+														if (artikel.getPrisgiltighetstid() == null || artikel.getPrisgiltighetstid() < 180) {
+																prisetArDagspris = true;
+																klaseInnehallerDagsPris = true;
+																out.print("*");
+														} 
+														if (artikel.getPris() > 0) out.print(Util.getFormatNumber(artikel.getPris()* ("NTO".equals(artikel.getRabkod()) ? 0.0 : 1-rabatt),2));														
+												  %>
+										</td>
 										<td class="right">
 											<% if (artikel.getAntalStaf1()!=null && artikel.getPrisStaf1()!=null && !artikel.getAntalStaf1().equals(0.0) && !artikel.getPrisStaf1().equals(0.0)				  ) { 	%>
-												<%= Util.getFormatNumber(artikel.getPrisStaf1(),2) %>
+												<%= (prisetArDagspris ? "*" : "") + Util.getFormatNumber(artikel.getPrisStaf1()* ("NTO".equals(artikel.getRabkod()) ? 0.0 : 1-rabatt),2) %>
 											<%	} 	%> 
 										</td>
 										<td>
@@ -300,7 +428,7 @@ a:link, a:active, a:visited, a:hover { color: black; text-decoration: none;  }
 											<%	} 	%> 											
 										</td>
 										<td><%= Util.toHtml(artikel.getEnhet()) %></td>
-										<td><%= Util.toHtml(artikel.getRabkod()) %><%= artikel.getKod1()!=null ? "<span class=\"extrafint\">-"+artikel.getKod1()+"</span>" : "" %></td>
+										<td><%= Util.toHtml(artikel.getRabkod()) %><%= Util.isEmpty(artikel.getKod1()) ? "" : "<span class=\"extrafint\">-"+artikel.getKod1()+"</span>"  %></td>
 										<% String fp="";
 											double minSaljPack = artikel.getMinSaljpack();
 											if(minSaljPack < 1) minSaljPack=1;
@@ -318,7 +446,7 @@ a:link, a:active, a:visited, a:hover { color: black; text-decoration: none;  }
 												fp  = fp+"1";
 												if (!klaseNotering.contains("1-")) {
 													if(!klaseNotering.isEmpty()) { klaseNotering = klaseNotering + " ";	}
-													klaseNotering = klaseNotering + "1-Fraktvillkor: Fritt med turbil";
+													klaseNotering = klaseNotering + "1-Fraktvillkor: Turbil";
 												}
 											}
 											if (artikel.getFraktvillkor() == 2) {
@@ -342,16 +470,26 @@ a:link, a:active, a:visited, a:hover { color: black; text-decoration: none;  }
 									</tr>
 									<% if((printBestnr && !Util.isEmpty(artikel.getBestnr())) || (printEnr && !Util.isEmpty(artikel.getEnr())) || (printRefnr && !Util.isEmpty(artikel.getRefnr())  ) || (printRsk && !Util.isEmpty(artikel.getRsk()) )) {%>
 									<tr>
-										<td></td><td colspan="8" class="extrafint">
-											<%= printBestnr ? "Lev-nr: " + Util.toHtml(artikel.getBestnr()) + " " : "" %>
-											<%= printRefnr ? "Ref: " + Util.toHtml(artikel.getRefnr()) + " " : "" %>
-											<%= printRsk ? "RSK: " + Util.toHtml(artikel.getRsk()) + " " : "" %>
-											<%= printEnr ? "E: " + Util.toHtml(artikel.getEnr()) + " " : "" %>
+										<td colspan="9" class="extrafint">
+											<%= printBestnr  && !SXUtil.isEmpty(artikel.getBestnr()) ? "Lev-nr: " + Util.toHtml(artikel.getBestnr()) + " " : "" %>
+											<%= printRefnr && !SXUtil.isEmpty(artikel.getRefnr()) ? "Ref: " + Util.toHtml(artikel.getRefnr()) + " " : "" %>
+											<% 
+												String rskFormatted;
+												int al = Util.toStr(artikel.getRsk()).length();
+												if (al>6) {
+													rskFormatted = artikel.getRsk().substring(0,3 ) + " " + artikel.getRsk().substring(3,5 ) + " " + artikel.getRsk().substring(5,7 );
+												} else {
+													rskFormatted = artikel.getRsk();
+												}
+											%>
+											<%= printRsk && !SXUtil.isEmpty(artikel.getRsk()) ? "RSK: " + Util.toHtml(rskFormatted) + " " : "" %>
+											<%= printEnr && !SXUtil.isEmpty(artikel.getEnr()) ? "E: " + Util.toHtml(artikel.getEnr()) + " " : "" %>
 										</td>
 									</tr>
 									
 									<% } %>
 								<% } %>
+								<% if(klaseInnehallerDagsPris) klaseNotering = klaseNotering + " *-Pris på förfrågan/Dagspris"; %>
 								<% if (!klaseNotering.isEmpty()) { %> 
 								<tr><td colspan="8" class="fint"><%= Util.toHtml(klaseNotering) %></td></tr>
 								<% klaseNotering = ""; %>

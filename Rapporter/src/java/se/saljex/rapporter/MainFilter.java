@@ -33,6 +33,8 @@ public class MainFilter extends se.saljex.loginservice.LoginServiceFilter {
 	
 	@Resource(name = "sxadm")
 	private DataSource sxadm;
+	@Resource(name = "sxsuperuser")
+	private DataSource sxsuperuser;
 	
 	public MainFilter() {
 		super();
@@ -40,13 +42,16 @@ public class MainFilter extends se.saljex.loginservice.LoginServiceFilter {
 	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 		Connection con=null;
+		Connection con2=null;
 		try {
 			con = sxadm.getConnection();
 			request.setAttribute("sxconnection", con);
+			con2 = sxsuperuser.getConnection();
+			request.setAttribute("sxsuperuserconnection", con2);
 			super.doFilter(request,response,chain);
 		} catch (SQLException e) {
 			Logger.getLogger("sx-logger").severe("SQL-Fel:" + e.getMessage()); e.printStackTrace();
-		} finally { try {con.close(); } catch (Exception eee) {}}		
+		} finally { try {con.close(); con2.close();} catch (Exception eee) {}}		
 	}
 	
 }

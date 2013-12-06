@@ -6,6 +6,7 @@ package se.saljex.rapporter;
 
 import java.sql.*;
 import java.util.ArrayList;
+import se.saljex.sxlibrary.SXUtil;
 
 /**
  *
@@ -27,8 +28,11 @@ public class KatalogHandler {
 	public static Katalog getKatalog(Connection con, int rootId, boolean onlyGroups, ArrayList<Integer> excludeGroups, Integer lagernr) throws SQLException {
 		return getKatalog(con, rootId, onlyGroups, excludeGroups,lagernr, null);
 	}
-	
 	public static Katalog getKatalog(Connection con, int rootId, boolean onlyGroups, ArrayList<Integer> excludeGroups, Integer lagernr, String lev) throws SQLException {
+		return getKatalog(con, rootId, onlyGroups, excludeGroups,lagernr, lev, null, null, null);
+	}
+	
+	public static Katalog getKatalog(Connection con, int rootId, boolean onlyGroups, ArrayList<Integer> excludeGroups, Integer lagernr, String lev, ArrayList<Integer> includeGroups, ArrayList<Integer> excludeKlas, ArrayList<String> excludeArt ) throws SQLException {
 		Katalog kat = new Katalog();
 		String sqlExcludeGroups=null;
 		if (excludeGroups!=null) {
@@ -40,7 +44,33 @@ public class KatalogHandler {
 				}
 			}
 		}
-		fillGrupp(con, kat, rootId, 0, onlyGroups, sqlExcludeGroups, lagernr, lev);
+
+		
+		String sqlIncludeGroups=null;
+		if (includeGroups!=null) {
+			for (Integer i : includeGroups) {
+				if (i!=null) {
+					if (sqlIncludeGroups==null) sqlIncludeGroups="";
+					if (!sqlIncludeGroups.isEmpty()) sqlIncludeGroups = sqlIncludeGroups + ",";
+					sqlIncludeGroups = sqlIncludeGroups+i.toString();
+				}
+			}
+		}
+
+		String sqlExcludeKlas=null;
+		if (excludeKlas!=null) {
+			for (Integer i : excludeKlas) {
+				if (i!=null) {
+					if (sqlExcludeKlas==null) sqlExcludeKlas="";
+					if (!sqlExcludeKlas.isEmpty()) sqlExcludeKlas = sqlExcludeKlas + ",";
+					sqlExcludeKlas = sqlExcludeKlas+i.toString();
+				}
+			}
+		}
+
+
+		
+		fillGrupp(con, kat, rootId, 0, onlyGroups, sqlExcludeGroups, lagernr, lev, sqlIncludeGroups, sqlExcludeKlas, excludeArt);
 		
 		if (lagernr != null && lagernr >= 0) {
 			
@@ -49,17 +79,31 @@ public class KatalogHandler {
 		return kat;
 	}
 	
-	public static int fillGrupp(Connection con, Katalog kat, int grpId, int treeLevel, boolean onlyGroups, String sqlExcludeGroups, Integer lagernr, String lev) throws SQLException {
+	public static int fillGrupp(Connection con, Katalog kat, int grpId, int treeLevel, boolean onlyGroups, String sqlExcludeGroups, Integer lagernr, String lev, String sqlIncludeGroups, String sqlExcludeKlas, ArrayList<String> excludeArt) throws SQLException {
 		String artOn = "(a.lev=? or 1=1) ";
-		if (lev!=null) artOn="a.lev=? ";
+		if (lev!=null && !lev.isEmpty()) artOn="a.lev=? ";
+		
+		if (excludeArt != null && !excludeArt.isEmpty()) {
+			artOn += " and a.nummer not in (";
+			for (int cn = 0; cn < excludeArt.size(); cn++) {
+				if (cn>0) artOn += ",? "; else artOn +="? ";
+			}
+			artOn += " ) ";
+		}		
+		
+		String klaseOn = "";
+		if (sqlExcludeKlas != null && !sqlExcludeKlas.isEmpty()) {
+			klaseOn = " and gl.klasid not in (" + sqlExcludeKlas + ")";
+		}
+		
 		String q_select = 
 		"select g.grpid, g.prevgrpid, g.rubrik, g.text, g.infourl, g.sortorder, k.klasid, gl.sortorder, k.rubrik, k.text, " +
 		" k.infourl, kl.sortorder, a.nummer, a.namn, a.enhet, a.utpris, a.staf_pris1, a.staf_pris2, a.staf_antal1, a.staf_antal2, " +
 		" a.rabkod, a.kod1, a.prisdatum, a.vikt, a.volym, a.forpack, a.kop_pack, a.inprisny, 0, 0, " +
-		" a.utprisnydat, a.rsk, a.enummer, a.fraktvillkor, a.dagspris, a.utgattdatum,  a.minsaljpack, a.katnamn, a.bildartnr , l.maxlager, a.refnr, a.bestnr" +
+		" a.utprisnydat, a.rsk, a.enummer, a.fraktvillkor, a.dagspris, a.utgattdatum,  a.minsaljpack, a.katnamn, a.bildartnr , l.maxlager, a.refnr, a.bestnr, prisgiltighetstid" +
 		" from artgrp g " +
 		" left outer join artgrplank gl on gl.grpid = g.grpid " +
-		" left outer join artklase k on k.klasid=gl.klasid " +
+		" left outer join artklase k on k.klasid=gl.klasid " + klaseOn + " " +
 		" left outer join artklaselank kl on kl.klasid = k.klasid " +
 		" left outer join artikel a on  a.nummer = kl.artnr and "  + artOn +
 		" left outer join lager l on l.artnr=kl.artnr and l.lagernr=? ";
@@ -74,23 +118,45 @@ public class KatalogHandler {
 		" order by g.sortorder, g.grpid, gl.sortorder, gl.klasid, kl.sortorder, kl.artnr";
 
 		PreparedStatement stm;
-		String q_groups;
+		StringBuilder q_groups = new StringBuilder();
 		int antalArtiklarTotaltDennaRootGrupp = 0;
 		int antalArtiklarDennaGrupp = 0;
 		int antalArtiklarSubGrupp = 0;
 		int antalArtiklarDennaKlase = 0;
-		if (sqlExcludeGroups!=null) q_groups = " and g.grpid not in (" + sqlExcludeGroups + ") "; else q_groups="";
-		if (treeLevel==0 && grpId!=0) {
-			
-			stm = con.prepareStatement(q_select + q_where_2 + q_groups + q_orderby);
-			stm.setInt(3, grpId);
-		} else {
-			stm = con.prepareStatement(q_select + q_where_1 + q_groups + q_orderby);
-			stm.setInt(3, grpId);
-		}
-		stm.setString(1, lev);
-		stm.setInt(2, lagernr==null ? -1 : lagernr);
 		
+		if (sqlExcludeGroups != null && !sqlExcludeGroups.isEmpty()) {
+			q_groups.append( " and g.grpid not in ("); q_groups.append(sqlExcludeGroups); q_groups.append(") ");
+		}
+		
+		if (sqlIncludeGroups != null && !sqlIncludeGroups.isEmpty()) {
+			q_groups.append( " and g.grpid in ("); q_groups.append(sqlIncludeGroups); q_groups.append(") ");
+		}
+		
+		
+		q_groups.append(" ");
+		
+		
+		if (treeLevel==0 && grpId!=0) {			
+			stm = con.prepareStatement(q_select + q_where_2 + q_groups.toString() + q_orderby);
+		} else {
+			stm = con.prepareStatement(q_select + q_where_1 + q_groups.toString() + q_orderby);
+		}
+		
+		
+		int paramPos = 1;
+		stm.setString(paramPos++, lev);
+		if (excludeArt!=null && !excludeArt.isEmpty()) {	
+			for (String s : excludeArt) {
+				stm.setString(paramPos++, s);		
+			}
+		} 
+		
+		stm.setInt(paramPos++, lagernr==null ? -1 : lagernr);
+		stm.setInt(paramPos++, grpId);
+		
+		
+
+				  
 		KatalogGrupp grupp = null;
 		
 		
@@ -131,7 +197,7 @@ public class KatalogHandler {
 				grupp.setText(rs.getString(5));
 				grupp.setTreeLevel(treeLevel);
 				
-				antalArtiklarSubGrupp = fillGrupp(con, kat, grupp.getGrpId(), treeLevel+1, onlyGroups, sqlExcludeGroups, lagernr, lev);
+				antalArtiklarSubGrupp = fillGrupp(con, kat, grupp.getGrpId(), treeLevel+1, onlyGroups, sqlExcludeGroups, lagernr, lev, sqlIncludeGroups, sqlExcludeKlas, excludeArt);
 				antalArtiklarTotaltDennaRootGrupp += antalArtiklarSubGrupp;
 			}
 			if ((klase==null || klase.getId() != rs.getInt(7)) && !onlyGroups) {
@@ -176,6 +242,7 @@ public class KatalogHandler {
 				artikel.setBestnr(rs.getString(42));
 				artikel.setRsk(rs.getString(32));
 				artikel.setEnr(rs.getString(33));
+				artikel.setPrisgiltighetstid(rs.getInt(43));
 				
 			}
 

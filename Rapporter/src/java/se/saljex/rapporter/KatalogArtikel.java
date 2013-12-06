@@ -32,6 +32,15 @@ public class KatalogArtikel {
 		private String kod1;
 		private String rsk;
 		private String enr;
+		private Integer prisgiltighetstid;
+
+	public Integer getPrisgiltighetstid() {
+		return prisgiltighetstid;
+	}
+
+	public void setPrisgiltighetstid(Integer prisgiltighetstid) {
+		this.prisgiltighetstid = prisgiltighetstid;
+	}
 
 	public String getEnr() {
 		return enr;
