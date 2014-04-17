@@ -72,11 +72,11 @@ import se.saljex.sxserver.tables.TableVarukorg;
 
 @Stateless
 public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
-	@Resource(name = "saljexse")
+	@Resource(mappedName = "saljexse")
 	private DataSource saljexse;
-	@Resource(name = "sxadm")
+	@Resource(mappedName = "sxadm")
 	private DataSource sxadm;
-	@Resource(name = "sxadmkundbv")
+	@Resource(mappedName = "sxadmkundbv")
 	private DataSource bvadm;
 	@Resource TimerService timerService;
 	@Resource EJBContext context;
