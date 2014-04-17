@@ -23,7 +23,7 @@ import se.saljex.sxlibrary.WebSupport;
  * @author ulf
  */
 public class admin extends HttpServlet {
-	@Resource(name = "sxadm")
+	@Resource(mappedName = "sxadm")
 	private DataSource sxadm;
    
     /** 

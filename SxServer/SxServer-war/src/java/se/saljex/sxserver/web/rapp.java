@@ -37,7 +37,7 @@ public class rapp extends HttpServlet {
 	
 	@EJB
 	private LocalWebSupportLocal LocalWebSupportBean;
-	@Resource(name = "sxadm")
+	@Resource(mappedName = "sxadm")
 	private DataSource sxadm;
 	
 	
