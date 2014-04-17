@@ -12,6 +12,7 @@ import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
+import javax.persistence.Version;
 
 /**
  *
@@ -26,6 +27,7 @@ public class TableLev implements Serializable {
 	@Column(name = "NUMMER", nullable = false)
 	private String nummer;
 	@Column(name = "JPAVERSION", nullable = false)
+        @Version
 	private Integer jpaVersion;
 	@Column(name = "NAMN", nullable = false)
 	private String namn;

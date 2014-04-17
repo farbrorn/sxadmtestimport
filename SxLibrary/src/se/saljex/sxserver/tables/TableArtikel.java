@@ -15,6 +15,7 @@ import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Version;
 
 /**
  *
@@ -32,6 +33,7 @@ public class TableArtikel implements Serializable {
 	@Column(name = "NUMMER", nullable = false)
 	private String nummer;
 	@Column(name = "JPAVERSION", nullable = false)
+        @Version
 	private Integer jpaVersion;
 	@Column(name = "NAMN")
 	private String namn;

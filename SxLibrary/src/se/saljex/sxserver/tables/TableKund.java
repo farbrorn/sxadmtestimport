@@ -14,6 +14,7 @@ import javax.persistence.NamedQueries;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Version;
 
 /**
  *
@@ -28,6 +29,7 @@ public class TableKund implements Serializable {
 	@Column(name = "NUMMER", nullable = false)
 	private String nummer;
 	@Column(name = "JPAVERSION", nullable = false)
+        @Version
 	private Integer jpaVersion;
 	@Column(name = "NAMN", nullable = false)
 	private String namn;
