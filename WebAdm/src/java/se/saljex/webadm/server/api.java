@@ -35,7 +35,7 @@ public class api extends HttpServlet {
     private SxServerMainRemote SxServerMainRemote;
     @EJB
     private LocalWebSupportLocal LocalWebSupportLocal;
-	@Resource(name = "sxadm")
+	@Resource(mappedName = "sxadm")
 	private DataSource sxadm;
 
 	/**

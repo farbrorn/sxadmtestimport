@@ -49,7 +49,7 @@ public class GWTServiceImpl extends RemoteServiceServlet implements GWTService {
 	private SxServerMainRemote sxServerMainBeanRemote;
 	@EJB
 	private LocalWebSupportLocal webBean;
-	@javax.annotation.Resource(name = "sxadm")
+	@javax.annotation.Resource(mappedName = "sxadm")
 	private DataSource sxadm;
 
 	public String myMethod(String s) {
@@ -723,10 +723,9 @@ public class GWTServiceImpl extends RemoteServiceServlet implements GWTService {
 	public InitialData getInitialData() throws ServerErrorException{
 		InitialData data = new InitialData();
 		Connection con=null;
-		try {
+		try {                    
 			con = sxadm.getConnection();
-			PreparedStatement stm = con.prepareStatement("select namn from fuppg");
-
+			PreparedStatement stm = con.prepareStatement("select namn from fuppg ");
 			ResultSet rs = stm.executeQuery();
 			if (rs.next()) {
 				data.foretagNamn = rs.getString(1);
