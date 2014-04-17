@@ -5,11 +5,11 @@
 
 package se.saljex.SxShop.client;
 
+import com.google.gwt.safehtml.shared.SafeHtml;
 import se.saljex.SxShop.client.rpcobject.ArtSidaKlase;
 import se.saljex.SxShop.client.rpcobject.ArtSida;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.TreeItem;
-
 /**
  *
  * @author ulf
@@ -31,7 +31,8 @@ ArtikelMainPanel artSidaPanel;
 			ArtTradUserObject userObject = (ArtTradUserObject)item.getUserObject();
 			if (item.getChildCount() < 1 && userObject.artSidaKlase==null){  //Vi har en tom nod och ska se om det finns klasar att fylla med
 				for( ArtSidaKlase k : artSida.klasar) {
-					newItem = new TreeItem(k.rubrik);
+                                    final String fs = k.rubrik;
+					newItem = new TreeItem(new SafeHtml() {  @Override public String asString() { return fs; } });
 					newItem.addStyleName("sx-arttrad-klase");
 					newUserObject = new ArtTradUserObject(userObject.artGrupp, k);
 					newItem.setUserObject(newUserObject);
