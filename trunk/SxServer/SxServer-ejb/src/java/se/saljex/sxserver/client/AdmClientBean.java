@@ -26,9 +26,9 @@ import se.saljex.sxserver.tables.*;
  */
 @Stateful
 public class AdmClientBean implements AdmClientBeanRemote {
-	@Resource(name = "saljexse")
+	@Resource(mappedName = "saljexse")
 	private DataSource saljexse;
-	@Resource(name = "sxadm")
+	@Resource(mappedName = "sxadm")
 	private DataSource sxadm;
 	@Resource SessionContext ctx;
     @PersistenceContext(unitName="SxServer-ejbPU") private EntityManager em;

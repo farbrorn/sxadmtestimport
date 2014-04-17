@@ -47,9 +47,9 @@ import se.saljex.sxserver.tables.TableStjarnrad;
  */
 @Stateless
 public class LocalWebSupportBean implements LocalWebSupportLocal, LocalWebSupportRemote {
-	@Resource(name = "saljexse")
+	@Resource(mappedName = "saljexse")
 	private DataSource saljexse;
-	@Resource(name = "sxadm")
+	@Resource(mappedName = "sxadm")
 	private DataSource sxadm;
 	@Resource TimerService timerService;
 	@Resource EJBContext context;
