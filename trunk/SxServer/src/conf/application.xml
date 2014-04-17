@@ -16,7 +16,4 @@
       <context-root>/WebAdm</context-root>
     </web>
   </module>
-  <module>
-    <java>SxAdmClient.jar</java>
-  </module>
 </application>
