@@ -5,6 +5,8 @@
 
 package se.saljex.SxShop.client;
 
+import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import se.saljex.SxShop.client.rpcobject.ArtGrupp;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Label;
@@ -41,11 +43,14 @@ public class ArtikelTrad extends Tree {
 
 
 	private void fillTree(int rootGrp) {
+            
 		TreeItem item;
 		// Först, hämta alla rootgrupper
+                
 		for(ArtGrupp a : grupper) {
 			if (a.prevgrpid==rootGrp) {
-				item = new TreeItem(a.rubrik);
+                                final String fs = a.rubrik;
+				item = new TreeItem(new SafeHtml() {  @Override public String asString() { return fs; } });
 				item.setUserObject(new ArtTradUserObject(a));
 				fillTreeNode(item, a.grpid);
 				item.addStyleName("sx-arttrad-grp");
@@ -53,7 +58,7 @@ public class ArtikelTrad extends Tree {
 			}
 		}
 		//Lägg till kampanjnodem
-		item = new TreeItem("Mina kampanjer");
+		item = new TreeItem(new SafeHtml() {  @Override public String asString() { return "Mina kampanjer"; } });
 		ArtTradUserObject au = new ArtTradUserObject();
 		au.isKampanjNod=true;
 		item.setUserObject(au);
@@ -64,7 +69,8 @@ public class ArtikelTrad extends Tree {
 		// Metod för att iterera genom samtliga grupper och skapa nya noder för varje
 		for(ArtGrupp a : grupper) {
 			if (a.prevgrpid==grp) {
-				TreeItem item = new TreeItem(a.rubrik);
+                            final String fs = a.rubrik;
+				TreeItem item = new TreeItem(new SafeHtml() {  @Override public String asString() { return fs; } });
 				item.addStyleName("sx-arttrad-grp");
 				item.setUserObject(new ArtTradUserObject(a));
 				fillTreeNode(item, a.grpid);
