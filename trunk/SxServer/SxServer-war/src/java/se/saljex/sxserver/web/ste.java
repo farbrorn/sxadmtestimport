@@ -30,7 +30,7 @@ import se.saljex.sxlibrary.WebSupport;
  */
 @PersistenceContext(name="sxem", unitName="SxServer-warPU")
 public class ste extends HttpServlet {
-	@Resource(name = "sxadm")
+	@Resource(mappedName = "sxadm")
 	private DataSource sxadm;
 @Resource UserTransaction utx;
     /**

@@ -23,7 +23,7 @@ import javax.sql.DataSource;
 @WebFilter(filterName = "IntraFilter", servletNames = {"intra"})
 public class IntraFilter extends se.saljex.loginservice.LoginServiceFilter {
 	
-	@Resource(name = "sxadm")
+	@Resource(mappedName = "sxadm")
 	private DataSource sxadm;
 	
 	public IntraFilter() {

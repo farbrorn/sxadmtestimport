@@ -19,7 +19,7 @@ import se.saljex.sxlibrary.WebSupport;
  * @author ulf
  */
 public class intra extends HttpServlet {
-	@Resource(name = "sxadm")
+	@Resource(mappedName = "sxadm")
 	private DataSource sxadm;
 
     /**
