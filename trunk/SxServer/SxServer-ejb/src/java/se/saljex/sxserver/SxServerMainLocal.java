@@ -60,7 +60,7 @@ public interface SxServerMainLocal {
 //	boolean sendSimpleMail(String adress, String header, String bodytext);
 
 //	int overforBVOrder(String sxKundnr, int bvOrdernr, String bvAnvandare, String sxAnvandare, short sxLagernr) throws SXEntityNotFoundException;
-	void overforBVOrderSaveSxOrder(BvOrder bvOrder) throws SXEntityNotFoundException, SxInfoException;
+//	void overforBVOrderSaveSxOrder(BvOrder bvOrder) throws SXEntityNotFoundException, SxInfoException;
 	void overforOrderSaveMainOrder(OverforOrder localOrder) throws SXEntityNotFoundException, SxInfoException;
 	void doOverforOrder(OverforOrder localOrder) throws SXEntityNotFoundException, SxInfoException;
 	int overforOrder(int localOrdernr, String localAnvandare, short mainLagernr) throws SXEntityNotFoundException, SxInfoException;
@@ -69,10 +69,10 @@ public interface SxServerMainLocal {
 
 	int faktureraOrderMedAnvandare(int ordernr, String anvandare) throws SxOrderLastException;
 
-	int faktureraBvOrder(int ordernr) throws SxOrderLastException;
+/*	int faktureraBvOrder(int ordernr) throws SxOrderLastException;
 
 	int faktureraBvOrderMedAnvandare(int ordernr, String anvandare) throws SxOrderLastException;
-
+*/
 	ByteArrayOutputStream getTestPdf() throws IOException;
 
 	void sendOffertEpost(String anvandare, String epost, int id) throws SXEntityNotFoundException;

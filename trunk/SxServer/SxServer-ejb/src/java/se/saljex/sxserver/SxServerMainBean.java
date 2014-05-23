@@ -76,13 +76,14 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 	private DataSource saljexse;
 	@Resource(mappedName = "sxadm")
 	private DataSource sxadm;
-	@Resource(mappedName = "sxadmkundbv")
+/*	@Resource(mappedName = "sxadmkundbv")
 	private DataSource bvadm;
+        */
 	@Resource TimerService timerService;
 	@Resource EJBContext context;
 	@Resource(name="sxmail", mappedName="sxmail") private Session mailsxmail;
     @PersistenceContext(unitName="SxServer-ejbPU") private EntityManager em;
-    @PersistenceContext(unitName="SxServer-ejbPU-BV") private EntityManager embv;
+//    @PersistenceContext(unitName="SxServer-ejbPU-BV") private EntityManager embv;
     @PersistenceContext(unitName="SxServer-ejbPU-Main") private EntityManager emMain;
 	
 		@EJB		SxServerMainLocal sxServerMainBean;// = new JobbHandlerBean();
@@ -598,21 +599,21 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 
 
 	//Utför sparandet av SxOrder i ny transaktion eftersom det inte gåår att göra uppdateringar i emSx och emBv i samma transaktion
-	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+/*	@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
 	public void overforBVOrderSaveSxOrder(BvOrder bvOrder) throws SXEntityNotFoundException , SxInfoException{
 		bvOrder.saveSxOrder();
 	}
-
+*/
 	// Hämtar en BV order till SX order
 	//Returnerar SX ordernr
-	public int overforBVOrder(String sxKundnr, int bvOrdernr, String bvAnvandare, String sxAnvandare, short sxLagernr) throws SXEntityNotFoundException, SxInfoException {
+/*	public int overforBVOrder(String sxKundnr, int bvOrdernr, String bvAnvandare, String sxAnvandare, short sxLagernr) throws SXEntityNotFoundException, SxInfoException {
 		BvOrder bvOrder = new BvOrder(em, embv, bvOrdernr, sxKundnr, bvAnvandare, sxAnvandare, sxLagernr );
 		bvOrder.loadBvOrder();
 		sxServerMainBean.overforBVOrderSaveSxOrder(bvOrder);
 		bvOrder.updateBvOrder();
 		return bvOrder.getSxOrdernr();
 	}
-
+*/
 
 
 	//Utför sparandet av MainOrder i ny transaktion eftersom det inte gåår att göra uppdateringar i emLocal och emMain i samma transaktion
@@ -662,7 +663,7 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 		return fh.faktureraOrder(ordernr);
 	}
 
-	public int faktureraBvOrder(int ordernr) throws SxOrderLastException {
+/*	public int faktureraBvOrder(int ordernr) throws SxOrderLastException {
 		return faktureraBvOrderMedAnvandare(ordernr, "00");
 	}
 
@@ -670,7 +671,7 @@ public class SxServerMainBean implements SxServerMainLocal, SxServerMainRemote {
 		FakturaHandler fh = new FakturaHandler(embv, bvadm, anvandare);
 		return fh.faktureraOrder(ordernr);
 	}
-
+*/
 	public ByteArrayOutputStream getTestPdf() throws IOException {
 		PdfTest sx;
 		try {
