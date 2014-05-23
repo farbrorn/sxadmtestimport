@@ -127,8 +127,8 @@ public class SXConstant {
 	public static final  String BESTHAND_FELINLOGGNING = "Fel inloggning";
 
 	public static final  String EMAIL_VID_TESTLAGE = "ulf.hemma@gmail.com";  // Emailadress som ersätter automatiska utskicks epostadress vid körning i testläge
-	public static final int			BEST_PAMIN_DAGAR_EFTER_SAND=2;					// Antal dagar från att fakturan är skickadd innan första påminnelsen går ut
-	public static final int			BEST_PAMIN_DAGAR_MELLAN=2;					// Antal dagarmellan påminnelser
+	public static final int			BEST_PAMIN_DAGAR_EFTER_SAND=10000; 					// Antal dagar från att fakturan är skickadd innan första påminnelsen går ut
+	public static final int			BEST_PAMIN_DAGAR_MELLAN=10000;					// Antal dagarmellan påminnelser
 	
 	
 	//Ändra inte kampbitarnas konstanta värde - de används på fler ställen, t.ex. i SQL VARTKUNDORDER
