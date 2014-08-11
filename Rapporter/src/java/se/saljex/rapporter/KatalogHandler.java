@@ -31,8 +31,11 @@ public class KatalogHandler {
 	public static Katalog getKatalog(Connection con, int rootId, boolean onlyGroups, ArrayList<Integer> excludeGroups, Integer lagernr, String lev) throws SQLException {
 		return getKatalog(con, rootId, onlyGroups, excludeGroups,lagernr, lev, null, null, null);
 	}
-	
 	public static Katalog getKatalog(Connection con, int rootId, boolean onlyGroups, ArrayList<Integer> excludeGroups, Integer lagernr, String lev, ArrayList<Integer> includeGroups, ArrayList<Integer> excludeKlas, ArrayList<String> excludeArt ) throws SQLException {
+		return getKatalog(con, rootId, onlyGroups, excludeGroups,lagernr, lev, includeGroups, excludeKlas, excludeArt, null);
+	}
+	
+	public static Katalog getKatalog(Connection con, int rootId, boolean onlyGroups, ArrayList<Integer> excludeGroups, Integer lagernr, String lev, ArrayList<Integer> includeGroups, ArrayList<Integer> excludeKlas, ArrayList<String> excludeArt , String avtalsPrisKundnr ) throws SQLException {
 		Katalog kat = new Katalog();
 		String sqlExcludeGroups=null;
 		if (excludeGroups!=null) {
@@ -70,7 +73,7 @@ public class KatalogHandler {
 
 
 		
-		fillGrupp(con, kat, rootId, 0, onlyGroups, sqlExcludeGroups, lagernr, lev, sqlIncludeGroups, sqlExcludeKlas, excludeArt);
+		fillGrupp(con, kat, rootId, 0, onlyGroups, sqlExcludeGroups, lagernr, lev, sqlIncludeGroups, sqlExcludeKlas, excludeArt, avtalsPrisKundnr);
 		
 		if (lagernr != null && lagernr >= 0) {
 			
@@ -79,7 +82,7 @@ public class KatalogHandler {
 		return kat;
 	}
 	
-	public static int fillGrupp(Connection con, Katalog kat, int grpId, int treeLevel, boolean onlyGroups, String sqlExcludeGroups, Integer lagernr, String lev, String sqlIncludeGroups, String sqlExcludeKlas, ArrayList<String> excludeArt) throws SQLException {
+	public static int fillGrupp(Connection con, Katalog kat, int grpId, int treeLevel, boolean onlyGroups, String sqlExcludeGroups, Integer lagernr, String lev, String sqlIncludeGroups, String sqlExcludeKlas, ArrayList<String> excludeArt, String avtalsprisKundnr) throws SQLException {
 		String artOn = "(a.lev=? or 1=1) ";
 		if (lev!=null && !lev.isEmpty()) artOn="a.lev=? ";
 		
@@ -100,14 +103,20 @@ public class KatalogHandler {
 		"select g.grpid, g.prevgrpid, g.rubrik, g.text, g.infourl, g.sortorder, k.klasid, gl.sortorder, k.rubrik, k.text, " +
 		" k.infourl, kl.sortorder, a.nummer, a.namn, a.enhet, a.utpris, a.staf_pris1, a.staf_pris2, a.staf_antal1, a.staf_antal2, " +
 		" a.rabkod, a.kod1, a.prisdatum, a.vikt, a.volym, a.forpack, a.kop_pack, a.inprisny, 0, 0, " +
-		" a.utprisnydat, a.rsk, a.enummer, a.fraktvillkor, a.dagspris, a.utgattdatum,  a.minsaljpack, a.katnamn, a.bildartnr , l.maxlager, a.refnr, a.bestnr, prisgiltighetstid" +
+		" a.utprisnydat, a.rsk, a.enummer, a.fraktvillkor, a.dagspris, a.utgattdatum,  a.minsaljpack, a.katnamn, a.bildartnr , l.maxlager, a.refnr, a.bestnr, prisgiltighetstid, " +
+	   " COALESCE(kun.basrab,0) as kundbasrab, COALESCE(r2.rab, 0::real) AS gruppbasrab, COALESCE(r.rab, 0::real) AS undergrupprab, COALESCE(n.pris, 0::real) AS nettopris , a.rabkod" +
 		" from artgrp g " +
 		" left outer join artgrplank gl on gl.grpid = g.grpid " +
 		" left outer join artklase k on k.klasid=gl.klasid " + klaseOn + " " +
 		" left outer join artklaselank kl on kl.klasid = k.klasid " +
 		" left outer join artikel a on  a.nummer = kl.artnr and "  + artOn +
-		" left outer join lager l on l.artnr=kl.artnr and l.lagernr=? ";
+		" left outer join lager l on l.artnr=kl.artnr and l.lagernr=? " +
+		" LEFT JOIN kund kun ON kun.nummer=? " +
+		" LEFT JOIN kunrab r2 ON r2.kundnr = kun.nummer AND COALESCE(r2.rabkod, ''::character varying)::text = COALESCE(a.rabkod, ''::character varying)::text AND COALESCE(r2.kod1, ''::character varying)::text = ''::text " +
+		" LEFT JOIN kunrab r ON r.kundnr = kun.nummer AND COALESCE(r.rabkod, ''::character varying)::text = COALESCE(a.rabkod, ''::character varying)::text AND COALESCE(r.kod1, ''::character varying)::text = COALESCE(a.kod1, ''::character varying)::text " +
+ 	   " LEFT JOIN nettopri n ON n.lista = kun.nettolst AND n.artnr = a.nummer";
 
+		
 		String q_where_1 = 
 		" where (g.prevgrpid = ? )";
 		String q_where_2 = 
@@ -152,6 +161,7 @@ public class KatalogHandler {
 		} 
 		
 		stm.setInt(paramPos++, lagernr==null ? -1 : lagernr);
+		stm.setString(paramPos++, avtalsprisKundnr);
 		stm.setInt(paramPos++, grpId);
 		
 		
@@ -197,7 +207,7 @@ public class KatalogHandler {
 				grupp.setText(rs.getString(5));
 				grupp.setTreeLevel(treeLevel);
 				
-				antalArtiklarSubGrupp = fillGrupp(con, kat, grupp.getGrpId(), treeLevel+1, onlyGroups, sqlExcludeGroups, lagernr, lev, sqlIncludeGroups, sqlExcludeKlas, excludeArt);
+				antalArtiklarSubGrupp = fillGrupp(con, kat, grupp.getGrpId(), treeLevel+1, onlyGroups, sqlExcludeGroups, lagernr, lev, sqlIncludeGroups, sqlExcludeKlas, excludeArt, avtalsprisKundnr);
 				antalArtiklarTotaltDennaRootGrupp += antalArtiklarSubGrupp;
 			}
 			if ((klase==null || klase.getId() != rs.getInt(7)) && !onlyGroups) {
@@ -244,9 +254,29 @@ public class KatalogHandler {
 				artikel.setEnr(rs.getString(33));
 				artikel.setPrisgiltighetstid(rs.getInt(43));
 				
-			}
+				if (avtalsprisKundnr!=null) {
+					double rab=0.0;
 
+					Double noll = new Double(0.0);
+					//Är det rabatt på gruppnivå så gäller den
+					if (!noll.equals(rs.getDouble(46)) ) rab = rs.getDouble(46);
+					else if (!noll.equals(rs.getDouble(45)) ) rab = rs.getDouble(45);	//Rabatt på basgruppnivå
+					else if (!noll.equals(rs.getDouble(44)) && !"NTO".equals(rs.getString(48)) ) rab = rs.getDouble(44);	//Rabatt på basgruppnivå
+
+					if (!noll.equals(rs.getDouble(47)) ) { //Om nettoprislista
+						artikel.setPris(rs.getDouble(47));
+						artikel.setPrisStaf1(0.0);
+						artikel.setPrisStaf2(0.0);
+
+					} else {
+						artikel.setPris(artikel.getPris()*(1-rab/100));
+						artikel.setPrisStaf1(artikel.getPrisStaf1()*(1-rab/100));
+						artikel.setPrisStaf2(artikel.getPrisStaf2()*(1-rab/100));
+					}
+				}
+			}
 		}
+		
 		if (grupp != null && antalArtiklarSubGrupp <= 0 && antalArtiklarDennaGrupp <= 0 && lagernr != null) kat.getGrupper().remove(grupp);
 		if (klase!=null && antalArtiklarDennaKlase <=0 && lagernr != null) grupp.getKlasar().remove(klase);
 		

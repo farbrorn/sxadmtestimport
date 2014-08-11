@@ -33,6 +33,15 @@ public class KatalogArtikel {
 		private String rsk;
 		private String enr;
 		private Integer prisgiltighetstid;
+		private Double kundNettoPris;
+
+	public Double getKundNettoPris() {
+		return kundNettoPris;
+	}
+
+	public void setKundNettoPris(Double kundNettoPris) {
+		this.kundNettoPris = kundNettoPris;
+	}
 
 	public Integer getPrisgiltighetstid() {
 		return prisgiltighetstid;

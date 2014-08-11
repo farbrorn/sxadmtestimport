@@ -36,7 +36,7 @@
 		String frontKontaktEPost = request.getParameter("frontkontaktepost");
 		String frontWWW = request.getParameter("frontwww");
 		
-		if (frontKontaktNamn==null) {
+		if (SXUtil.isEmpty(frontKontaktNamn)) {
 			frontKontaktNamn = "Grums,Arvika,Borlänge,Sunne,Åmål";
 			frontKontaktTel = "0555-61610,0570-13010,0243-257170,0565-13280,0532-608140";
 			frontKontaktEPost = "info@saljex.se,arvika@saljex.se,borlange@saljex.se,sunne@saljex.se,amal@saljex.se";
@@ -157,11 +157,17 @@
 		}
 		rabatt = rabatt/100;
 		
+		String avtalsprisKundnr = null;
+		if (rabatt==0.0)	avtalsprisKundnr = request.getParameter("avtalspriskundnr");	//Ta inte avtalspris om vi har rabattsats
+		if (SXUtil.isEmpty(avtalsprisKundnr)) avtalsprisKundnr=null;	//Sätt till null om det är en tom sträng
+		
+		String huvudRubrik= request.getParameter("huvudrubrik");
+		if (SXUtil.isEmpty(huvudRubrik)) huvudRubrik="Katalog";
 		
 %>			
 
 <%
-		Katalog katalog = KatalogHandler.getKatalog(con, rootGrupp, false, excludeGroups, lagernr, lev, includeGroups, excludeKlas, excludeArt);
+		Katalog katalog = KatalogHandler.getKatalog(con, rootGrupp, false, excludeGroups, lagernr, lev, includeGroups, excludeKlas, excludeArt, avtalsprisKundnr);
 		String level;
 		String klaseNotering = "";
 		
@@ -173,11 +179,11 @@
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-		<title>Säljex Katalog <%= Util.toHtml(rubrik) %></title>
+		<title>Säljex <%= Util.toHtml(huvudRubrik) %> <%= Util.toHtml(rubrik) %></title>
 <style type="text/css">
 
 @media print {
-.kat-main				{ font-size: 20px; }
+.kat-main				{ font-size: 16px; }
 }
 @media screen {
 .kat-main				{ font-size: 14px; }
@@ -193,10 +199,10 @@ a:link, a:active, a:visited, a:hover { color: black; text-decoration: none;  }
 					}
 					
 @media print {
-.kat-frontpics				{ margin-top: 12em; min-height: <%= picAreaHeight %>px; max-height: <%= picAreaHeight %>px; vertical-align: middle; }
-.kat-frontpic				{ margin: 2em; }
+.kat-frontpics				{ margin-top: 120px; min-height: <%= picAreaHeight %>px; max-height: <%= picAreaHeight %>px; vertical-align: middle; }
+.kat-frontpic				{ margin: 40px; }
 .kat-frontfot				{ margin-top: 0px; font-size: 30px; border: solid black; border-radius: 10px; padding: 10px;}
-.kat-frontfot-www				{ font-size: 160%; font-weight: bold; text-align: center; marign-top: 2em; }
+.kat-frontfot-www				{ font-size: 120%; font-weight: bold; text-align: center; marign-top: 40px; }
 .kat-frontfot-rubrik			{ font-weight: bold; }
 .kat-frontfot-hrubrik			{ font-size: 120%; text-decoration: underline; font-weight: bolder; text-align: center;}
 }
@@ -256,11 +262,11 @@ a:link, a:active, a:visited, a:hover { color: black; text-decoration: none;  }
 .s3						{ width: 2.5em; }
 .s5, .n5						{ width: 4em; }
 .s_forp						{ width: 6em; }
-.s_artnr						{ width: 8em; }
-.s_typ						{ width: 22em; }
-.s_pris						{ width: 8em; }
+.s_artnr						{ width: 7em; }
+.s_typ						{ width: 14em; }
+.s_pris						{ width: 6em; }
 .s_antal						{ width: 4em; }
-.s_enh						{ width: 4em; }
+.s_enh						{ width: 3em; }
 .s_grupp						{ width: 4em; }
 
 .fint					{ font-weight: lighter; font-size: 80%;}
@@ -289,13 +295,14 @@ a:link, a:active, a:visited, a:hover { color: black; text-decoration: none;  }
 				<img src="http://www.saljex.se/p/s250/logo-saljex.png">
 			</td>
 			<td>
-				<h1>Katalog</h1>
+				<h1><%= huvudRubrik %></h1>
 				<h2><% out.print(Util.toHtml(rubrik)); %> </h2>
 			</td>
 			<td>
 				Datum: <%= Util.toHtml(katalog.getDatumString()) %>
 				<%= valuta != null ? "<br>Valuta " + valuta : "" %>
-				<%= rabatt != null ? "<br><b>Lista NT" + SXUtil.getFormatNumber( rabatt*100*2,0) + "</b>" : "" %>
+				<%= rabatt != 0 ? "<br><b>Lista NT" + SXUtil.getFormatNumber( rabatt*100*2,0) + "</b>" : "" %>
+				<%= avtalsprisKundnr != null ? "<br><b>Kundavtal: " + SXUtil.toHtml(avtalsprisKundnr) + "</b>" : "" %>
 			</td>
 		</tr>
 		<tr>
@@ -398,9 +405,9 @@ a:link, a:active, a:visited, a:hover { color: black; text-decoration: none;  }
 								<thead>
 									<tr><th class="s_artnr left">Artikel</th><th class="s_typ left">Typ</th>
 										<th class="s_pris right">
-											<%= !rabatt.equals(0) ? "Netto " + (valuta != null ? valuta : "") : "Pris " + (valuta != null ? valuta : "") %>
+											<%= !rabatt.equals(0.0) || avtalsprisKundnr != null ? "Netto " + (valuta != null ? valuta : "") : "Pris " + (valuta != null ? valuta : "") %>
 										</th>
-										<th class="s_pris right">Mängdpris</th><th class="s_antal left">Antal</th><th class="s_enh left">Enhet</th><th class="s_grupp">Grupp</th><th class="s_forp left">Förpack.</th><th class="s5 left"></th></tr>
+										<th class="s_pris right">Mängdpris</th><th class="s_antal left">Antal</th><th class="s_enh left">Enhet</th><th class="s_grupp">Grupp</th><th class="s_forp left">Förpack.</th><th class="left"></th></tr>
 								</thead>
 								<tbody>
 								<% for (KatalogArtikel artikel : klase.getArtiklar()) { %>
