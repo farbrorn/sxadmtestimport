@@ -2397,3 +2397,16 @@ select TimerMonthlyUserDefined();
 alter table artikel add jpaversion integer not null default 0;
 alter table kund add jpaversion integer not null default 0;
 alter table lev add jpaversion integer not null default 0;
+
+--2014-08-08
+create table table_audit ( table_name varchar not null, row_id varchar not null, handelse varchar not null, ts timestamp default current_timestamp, 
+old_data varchar, new_data varchar, ip varchar, update_column varchar);
+
+CREATE OR REPLACE FUNCTION trigger_log_kund_kgrans() RETURNS TRIGGER AS $_$
+BEGIN
+	insert into table_audit (table_name, row_id, handelse, old_data, new_data, ip, update_column) values (TG_TABLE_NAME::varchar, new.nummer,  TG_OP::varchar,  case when TG_OP='INSERT' then null else old.kgrans::VARCHAR end, new.kgrans::VARCHAR , inet_client_addr()::VARCHAR, 'kgrans' );
+    RETURN NEW;
+END $_$ LANGUAGE 'plpgsql';
+
+create trigger trigger_kund_kgrans after insert or update of  kgrans on kund 
+for each row execute procedure trigger_log_kund_kgrans();
