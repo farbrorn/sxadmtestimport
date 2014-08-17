@@ -31,9 +31,9 @@ import se.saljex.sxlibrary.SXUtil;
 @WebFilter(filterName = "MainFilter", urlPatterns = {"/*"})
 public class MainFilter extends se.saljex.loginservice.LoginServiceFilter {
 	
-	@Resource(name = "sxadm")
+	@Resource(mappedName = "sxadm")
 	private DataSource sxadm;
-	@Resource(name = "sxsuperuser")
+	@Resource(mappedName = "sxsuperuser")
 	private DataSource sxsuperuser;
 	
 	public MainFilter() {
