@@ -88,7 +88,7 @@ public class SxShopRPCImpl extends RemoteServiceServlet implements
 	@EJB	
 	private SxServerMainRemote sxServerMainBean;
 
-	@javax.annotation.Resource(name = "sxadm")
+	@javax.annotation.Resource(mappedName = "sxadm")
 	private DataSource sxadm;
 
 	private static final String SELECT_ORDERHEADER = "select ordernr, marke, datum, lagernr, status, levadr1, levadr2, levadr3, referens, direktlevnr, lastdatum from order1";
