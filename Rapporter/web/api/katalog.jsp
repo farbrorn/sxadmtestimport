@@ -3,6 +3,7 @@
     Created on : 2012-dec-19, 08:11:27
     Author     : Ulf
 --%>
+<%@page import="se.saljex.rapporter.Counter"%>
 <%@page import="se.saljex.sxlibrary.SXUtil"%>
 <%@page import="java.util.ArrayList"%>
 <%@page import="se.saljex.rapporter.KatalogArtikel"%>
@@ -17,11 +18,13 @@
 <%@page import="java.sql.ResultSet"%>
 <%@page import="java.sql.Statement"%>
 <%
+		String VY_Kompakt = "kompakt";
 		User user=null;
 		Connection con=null;
 		boolean prisetArDagspris;
 		boolean klaseInnehallerDagsPris;
 		
+		Counter cntr = new Counter();
 		
 		try { user  = (User)request.getSession().getAttribute(LoginServiceConstants.REQUEST_PARAMETER_SESSION_USER); } catch (Exception e) {}
 		try { con = (Connection)request.getAttribute("sxconnection"); } catch (Exception e) {}
@@ -35,7 +38,11 @@
 		String frontKontaktTel = request.getParameter("frontkontakttel");
 		String frontKontaktEPost = request.getParameter("frontkontaktepost");
 		String frontWWW = request.getParameter("frontwww");
+
+		String kompaktvy = request.getParameter("kompaktvy");
 		
+
+			
 		if (SXUtil.isEmpty(frontKontaktNamn)) {
 			frontKontaktNamn = "Grums,Arvika,Borlänge,Sunne,Åmål";
 			frontKontaktTel = "0555-61610,0570-13010,0243-257170,0565-13280,0532-608140";
@@ -372,7 +379,7 @@ a:link, a:active, a:visited, a:hover { color: black; text-decoration: none;  }
 	%>
 	
 	<% if (grupp.getTreeLevel() != 0) {  //Skriv inte ut info för Root-gruppen .- det 'r på förstasidan om det inte är 0%>
-		<div class="kat-grupp-l<%= level %>">
+	<div class="kat-grupp-l<%= level %>" id="pg-<%= cntr.next() %>">
 			<h2><%= Util.toHtml(grupp.getRubrik()) + (printID ? (" G:" + grupp.getGrpId()) : "") %></h2>
 			
 			<% if (grupp.getText()!=null) { %>
@@ -387,7 +394,7 @@ a:link, a:active, a:visited, a:hover { color: black; text-decoration: none;  }
 		
 			<% for (KatalogKlase klase : grupp.getKlasar()) { %>
 			<% klaseInnehallerDagsPris = false; %>
-				<div class="kat-klase">
+				<div class="kat-klase" id="pg-<%= cntr.next() %>">
 			<div class="klase-cont">
 					<div class="klase-pic"><% if(klase.getArtiklar().size() > 0) { %><img onerror="this.style.display='none';" src="http://www.saljex.se/p/s100/<%= klase.getArtiklar().get(0).getBildArtNr() %>.png"><% } %> </div>
 					
@@ -407,7 +414,17 @@ a:link, a:active, a:visited, a:hover { color: black; text-decoration: none;  }
 										<th class="s_pris right">
 											<%= !rabatt.equals(0.0) || avtalsprisKundnr != null ? "Netto " + (valuta != null ? valuta : "") : "Pris " + (valuta != null ? valuta : "") %>
 										</th>
-										<th class="s_pris right">Mängdpris</th><th class="s_antal left">Antal</th><th class="s_enh left">Enhet</th><th class="s_grupp">Grupp</th><th class="s_forp left">Förpack.</th><th class="left"></th></tr>
+										<% if (!VY_Kompakt.equals(kompaktvy)) { %> 
+											<th class="s_pris right">Mängdpris</th> 
+											<th class="s_antal left">Antal</th>
+										<% } %>
+										<th class="s_enh left">Enhet</th>
+										<% if (!VY_Kompakt.equals(kompaktvy)) { %> 
+											<th class="s_grupp">Grupp</th>
+											<th class="s_forp left">Förpack.</th>
+										<% } %>
+										<th class="left"></th>
+									</tr>
 								</thead>
 								<tbody>
 								<% for (KatalogArtikel artikel : klase.getArtiklar()) { %>
@@ -424,30 +441,37 @@ a:link, a:active, a:visited, a:hover { color: black; text-decoration: none;  }
 														if (artikel.getPris() > 0) out.print(Util.getFormatNumber(artikel.getPris()* ("NTO".equals(artikel.getRabkod()) ? 0.0 : 1-rabatt),2));														
 												  %>
 										</td>
-										<td class="right">
-											<% if (artikel.getAntalStaf1()!=null && artikel.getPrisStaf1()!=null && !artikel.getAntalStaf1().equals(0.0) && !artikel.getPrisStaf1().equals(0.0)				  ) { 	%>
-												<%= (prisetArDagspris ? "*" : "") + Util.getFormatNumber(artikel.getPrisStaf1()* ("NTO".equals(artikel.getRabkod()) ? 0.0 : 1-rabatt),2) %>
-											<%	} 	%> 
-										</td>
-										<td>
-											<% if (artikel.getAntalStaf1()!=null && artikel.getPrisStaf1()!=null && !artikel.getAntalStaf1().equals(0.0) && !artikel.getPrisStaf1().equals(0.0)				  ) { 	%>
-												<%= Util.getFormatNumber(artikel.getAntalStaf1(),0) %>
-											<%	} 	%> 											
-										</td>
+										<% if (!VY_Kompakt.equals(kompaktvy)) { %> 
+											<td class="right">
+												<% if (artikel.getAntalStaf1()!=null && artikel.getPrisStaf1()!=null && !artikel.getAntalStaf1().equals(0.0) && !artikel.getPrisStaf1().equals(0.0)				  ) { 	%>
+													<%= (prisetArDagspris ? "*" : "") + Util.getFormatNumber(artikel.getPrisStaf1()* ("NTO".equals(artikel.getRabkod()) ? 0.0 : 1-rabatt),2) %>
+												<%	} 	%> 
+											</td>
+											<td>
+												<% if (artikel.getAntalStaf1()!=null && artikel.getPrisStaf1()!=null && !artikel.getAntalStaf1().equals(0.0) && !artikel.getPrisStaf1().equals(0.0)				  ) { 	%>
+													<%= Util.getFormatNumber(artikel.getAntalStaf1(),0) %>
+												<%	} 	%> 											
+											</td>
+										<% } %>
+										
 										<td><%= Util.toHtml(artikel.getEnhet()) %></td>
-										<td><%= Util.toHtml(artikel.getRabkod()) %><%= Util.isEmpty(artikel.getKod1()) ? "" : "<span class=\"extrafint\">-"+artikel.getKod1()+"</span>"  %></td>
-										<% String fp="";
-											double minSaljPack = artikel.getMinSaljpack();
-											if(minSaljPack < 1) minSaljPack=1;
-											fp = Util.getFormatNumber(minSaljPack,0);
-											if (artikel.getForpackning() > 0 && artikel.getForpackning() > minSaljPack ) {
-												if (fp.length()>0) fp = fp + "/";
-												fp = fp + Util.getFormatNumber(artikel.getForpackning(),0);
-											}
-										%>
-										<td><%= fp %></td>
+										
+										<% if (!VY_Kompakt.equals(kompaktvy)) { %> 
+											<td><%= Util.toHtml(artikel.getRabkod()) %><%= Util.isEmpty(artikel.getKod1()) ? "" : "<span class=\"extrafint\">-"+artikel.getKod1()+"</span>"  %></td>
+											<% String fp="";
+												double minSaljPack = artikel.getMinSaljpack();
+												if(minSaljPack < 1) minSaljPack=1;
+												fp = Util.getFormatNumber(minSaljPack,0);
+												if (artikel.getForpackning() > 0 && artikel.getForpackning() > minSaljPack ) {
+													if (fp.length()>0) fp = fp + "/";
+													fp = fp + Util.getFormatNumber(artikel.getForpackning(),0);
+												}
+											%>
+											<td><%= fp %></td>
+										<% } %>
+										
 										<%
-											fp = "";
+											String fp = "";
 											if (artikel.getFraktvillkor() == 1) {
 												if(!fp.isEmpty()) { fp = fp + ",";	}
 												fp  = fp+"1";

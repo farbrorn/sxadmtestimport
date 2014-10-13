@@ -11,6 +11,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
@@ -125,13 +126,23 @@ public class Util {
     
     public static String getFormatNumber(Double tal, int decimaler) {
                   if (tal == null) return "";
+						Locale locale = new Locale("sv", "SE");
         NumberFormat nf;
-                  nf = NumberFormat.getInstance();
+                  nf = NumberFormat.getInstance(locale);
                   nf.setMaximumFractionDigits(decimaler);
                   nf.setMinimumFractionDigits(decimaler);
         return nf.format(tal);
     }
 
+    public static String getFormatPris(Double pris) {
+                  if (pris == null) return "";
+						if (pris.compareTo(1000.0) < 0) return getFormatNumber(pris,2);
+						else {
+							if (Math.ceil(pris) > pris ) return getFormatNumber(pris,2); else return getFormatNumber(pris,0);
+						}
+    }
+	 
+	 
     public static String getFormatNumber(Float tal, int decimaler) {
                  return getFormatNumber(new Double(tal));
     }
