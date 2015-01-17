@@ -2410,3 +2410,99 @@ END $_$ LANGUAGE 'plpgsql';
 
 create trigger trigger_kund_kgrans after insert or update of  kgrans on kund 
 for each row execute procedure trigger_log_kund_kgrans();
+
+--2014-12
+create table vkorg  ( kontaktid integer not null, 
+typ varchar(3)  not null, /*Kan vara 'VK' för varukorg, 'FAV' för favoriter */
+klasid integer not null,
+artnr varchar(13) not null,
+antal integer not null,
+ch_timestamp timestamp default current_timestamp,
+primary key (kontaktid, typ, klasid, artnr))
+
+create or replace view vkorg_view as (
+select v.kontaktid as kontaktid, v.typ as typ, v.klasid as klasid, v.artnr as artnr, v.antal as antal, v.ch_timestamp as ch_timestamp, g.max_ch_timestamp as klase_ch_timestamp, akl.sortorder as akl_sortorder
+from 
+(
+select klasid as klasid, kontaktid as kontaktid, max(ch_timestamp) as max_ch_timestamp
+from vkorg where typ='VK'
+group by klasid, kontaktid) g
+join vkorg v on typ='VK' and v.kontaktid=g.kontaktid and v.klasid=g.klasid
+join artklaselank akl on akl.klasid=v.klasid and akl.artnr=v.artnr
+order by v.kontaktid, g.max_ch_timestamp, akl.sortorder, akl.artnr
+)
+
+
+create or replace view vbutikart as
+select  
+ak.klasid as ak_klasid, ak.rubrik as ak_rubrik, ak.text as ak_text, ak.html as ak_html,
+akl.sortorder as akl_sortorder,
+a.*,
+lid.lagernr as lid_lagernr, lid.bnamn as lid_bnamn, lid.namn as lid_namn, lid.adr1 as lid_adr1, lid.adr2 as lid_adr2, lid.adr3 as lid_adr3,lid.tel as lid_tel, lid.email as lid_email,
+l.lagernr as l_lagernr, coalesce(l.ilager,0) as l_ilager, coalesce(l.bestpunkt,0) as l_bestpunkt, coalesce(l.maxlager,0) as l_maxlager, coalesce(l.best,0) as l_best, coalesce(l.iorder,0) as l_iorder,
+k.nummer as k_nummer,
+coalesce(k.basrab,0) as kunrab_bas,
+coalesce(r.rab,0) as kunrab_grupp,
+coalesce(r2.rab,0) as kunrab_undergrupp,
+n.lista as n_lista,
+coalesce (n.pris,0) as n_pris,
+
+round(least(
+	case when a.kamppris > 0 and current_date between a.kampfrdat and a.kamptidat and (k.elkund*1+k.vvskund*2+k.vakund*4+k.golvkund*8+k.fastighetskund*16) & coalesce(a.kampkundartgrp,0) > 0 and
+	((k.installator*1+k.butik*2+k.industri*4+k.oem*8+k.grossist*16) & coalesce(a.kampkundgrp,0)) > 0 then 
+		a.kamppris 
+	else 
+		a.utpris * (1-greatest(k.basrab, r2.rab, r.rab)/100) 
+	end,
+	case when n.pris > 0 then n.pris else a.utpris end
+)::numeric,2) as kundnetto_bas,
+
+round(
+	case when a.staf_antal1 > 0  then
+		least(
+			case when a.kampprisstaf1 > 0 and current_date between a.kampfrdat and a.kamptidat and (k.elkund*1+k.vvskund*2+k.vakund*4+k.golvkund*8+k.fastighetskund*16) & coalesce(a.kampkundartgrp,0) > 0 and
+			((k.installator*1+k.butik*2+k.industri*4+k.oem*8+k.grossist*16) & coalesce(a.kampkundgrp,0)) > 0  then 
+					a.kampprisstaf1 
+			else 
+				a.staf_pris1  * (1-greatest(k.basrab, r2.rab, r.rab)/100)
+			end,
+			case when n.pris > 0 then n.pris else a.utpris end
+		)
+
+	else
+		0
+	end::numeric
+
+
+,2) as kundnetto_staf1,
+
+round(
+	case when a.staf_antal2 > 0  then
+		least(
+			case when a.kampprisstaf2 > 0 and current_date between a.kampfrdat and a.kamptidat and (k.elkund*1+k.vvskund*2+k.vakund*4+k.golvkund*8+k.fastighetskund*16) & coalesce(a.kampkundartgrp,0) > 0 and
+			((k.installator*1+k.butik*2+k.industri*4+k.oem*8+k.grossist*16) & coalesce(a.kampkundgrp,0)) > 0  then 
+					a.kampprisstaf2 
+			else 
+				a.staf_pris2  * (1-greatest(k.basrab, r2.rab, r.rab)/100)
+			end,
+			case when n.pris > 0 then n.pris else a.utpris end
+		)
+
+	else
+		0
+	end::numeric
+
+
+,2) as kundnetto_staf2
+
+from artklase ak 
+join artklaselank akl on akl.klasid=ak.klasid 
+join artikel a on a.nummer=akl.artnr 
+join lagerid lid on 1=1 
+left outer join lager l on l.artnr=a.nummer and l.lagernr=lid.lagernr
+left outer join kund k on 1=1
+LEFT JOIN kunrab r2 ON r2.kundnr::text = k.nummer::text AND COALESCE(r2.rabkod, ''::character varying)::text = COALESCE(a.rabkod, ''::character varying)::text AND COALESCE(r2.kod1, ''::character varying)::text = ''::text
+LEFT JOIN kunrab r ON r.kundnr::text = k.nummer::text AND COALESCE(r.rabkod, ''::character varying)::text = COALESCE(a.rabkod, ''::character varying)::text AND COALESCE(r.kod1, ''::character varying)::text = COALESCE(a.kod1, ''::character varying)::text
+LEFT JOIN nettopri n ON n.lista::text = k.nettolst::text AND n.artnr::text = a.nummer::text
+;
+
