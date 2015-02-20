@@ -2435,7 +2435,7 @@ order by v.kontaktid, g.max_ch_timestamp, akl.sortorder, akl.artnr
 
 create or replace view vbutikart as
 select  
-ak.klasid as ak_klasid, ak.rubrik as ak_rubrik, ak.text as ak_text, ak.html as ak_html,
+ak.klasid as ak_klasid, ak.rubrik as ak_rubrik, ak.text as ak_text, ak.html as ak_html, ak.autosortvikt as ak_autosortvikt,
 akl.sortorder as akl_sortorder,
 a.*,
 lid.lagernr as lid_lagernr, lid.bnamn as lid_bnamn, lid.namn as lid_namn, lid.adr1 as lid_adr1, lid.adr2 as lid_adr2, lid.adr3 as lid_adr3,lid.tel as lid_tel, lid.email as lid_email,
@@ -2506,3 +2506,6 @@ LEFT JOIN kunrab r ON r.kundnr::text = k.nummer::text AND COALESCE(r.rabkod, '':
 LEFT JOIN nettopri n ON n.lista::text = k.nettolst::text AND n.artnr::text = a.nummer::text
 ;
 
+create table butikautologin (uuid varchar not null,  kontaktid integer, primary key (uuid), expiredate date not null default current_date)
+alter table artklase add column autosortvikt integer not null default 0;
+alter table artklase add column autoantalorderrader integer not null default 0;
