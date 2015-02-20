@@ -105,9 +105,15 @@ public SimpleOrderHandler(EntityManager e, String kundNr, String kontaktNamn, sh
 	}
 	
 	public OrderHandlerRad addRow(String artnr, Double antal) {
+		return addRow(artnr, antal, null, null);
+	}
+	
+	public OrderHandlerRad addRow(String artnr, Double antal, Double pris, Double rab) {
 		OrderHandlerRad ord = new OrderHandlerRad();
 		ord.best = antal;
 		ord.artnr = artnr;
+		ord.pris = pris;
+		ord.rab=rab;
 		ordreg.add(ord);
 		return ord;
 	}
@@ -181,7 +187,11 @@ public SimpleOrderHandler(EntityManager e, String kundNr, String kontaktNamn, sh
 		OrderHandler mainOrh = new OrderHandler(em, sor1.getKundnr(),  sor1.getLagernr(), anvandare);
 		for (OrderHandlerRad or : ordreg) {
 			try {
-				mainOrh.addRow(or.artnr, or.best);
+				if (or.pris==null) {
+					mainOrh.addRow(or.artnr, or.best);
+				} else {
+					mainOrh.addRow(or.artnr, or.best, or.pris, or.rab==null ? 0.0 : or.rab);
+				}
 			} catch (SXEntityNotFoundException e) {ServerUtil.log("Kunde inte spara rad. " + or.artnr + " Radden hoppas över. Fel: " + e.getMessage()); e.printStackTrace();}
 		}
 		//Nu är alla rader från SimpleOrder inlästa i main-ordern med korrekta priser
